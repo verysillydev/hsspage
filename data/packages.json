@@ -1,0 +1,151 @@
+{
+  "currency": "USD",
+  "billing": "month",
+  "annualBenefit": "Commit to twelve months and the twelfth is free.",
+  "_note": "Single source of truth. build_site.py renders every price from here and asserts no price string appears in a template. Platinum carries the recommended badge: Yoni confirmed 18 Aug 2026 that it is the tier most home service providers actually select. Studio scope reflects what is published today, one long-form video a month; a proposal to raise that to two is pending confirmation.",
+  "groups": [
+    {
+      "id": "you-shoot",
+      "heading": "You shoot it",
+      "subhead": "Everyone on your team already has a phone in their pocket. Our team sends a shot list telling them exactly what to capture, and takes it from there.",
+      "tiers": [
+        "bronze",
+        "silver"
+      ]
+    },
+    {
+      "id": "we-shoot",
+      "heading": "Our crew shoots it",
+      "subhead": "Nobody on your team has to remember to film anything. Having to remember is the reason most content programs quietly die in month three, and removing it is what you are actually paying us to solve.",
+      "tiers": [
+        "gold",
+        "platinum"
+      ]
+    },
+    {
+      "id": "studio",
+      "heading": "Studio",
+      "subhead": "Real production days with a four-person crew, plus long-form video on YouTube. That is a serious amount of capacity, so we only take a few of these at a time. This is closer to having a media department than hiring a vendor. The difference between the two is how much long form you want: one considered YouTube video a month, or one every week.",
+      "tiers": [
+        "studio",
+        "studio-max"
+      ]
+    }
+  ],
+  "tiers": [
+    {
+      "id": "bronze",
+      "name": "Bronze",
+      "tagline": "Ten reels a month",
+      "price": 2000,
+      "camera": "You hold the camera",
+      "perAsset": "$200 per finished reel",
+      "recommended": false,
+      "byApplication": false,
+      "features": [
+        "Ten short-form reels every month",
+        "Your team captures on a phone",
+        "Our team plans the content and sends you the shot list",
+        "Edited, captioned and posted for you"
+      ]
+    },
+    {
+      "id": "silver",
+      "name": "Silver",
+      "tagline": "Every weekday",
+      "price": 3000,
+      "camera": "You hold the camera",
+      "perAsset": "About $136 per finished reel",
+      "recommended": false,
+      "byApplication": false,
+      "features": [
+        "Something goes out Monday through Friday",
+        "Your team captures on a phone",
+        "Our team plans the content and sends you the shot list",
+        "Edited, captioned and posted for you"
+      ]
+    },
+    {
+      "id": "gold",
+      "name": "Gold",
+      "tagline": "Ten reels a month",
+      "price": 4000,
+      "camera": "One shooter, ours",
+      "perAsset": "$400 per finished reel",
+      "recommended": false,
+      "byApplication": false,
+      "features": [
+        "Ten short-form reels every month",
+        "One vetted, trained shooter comes to you",
+        "Our team plans the shoot and runs it on the day",
+        "Nobody on your team films anything",
+        "Edited, captioned and posted for you",
+        "Professional photos from every shoot, edited and delivered for your Google Business Profile or carousel posts",
+        "Six months in: a banner film, team photos and professionally lit interviews with your key people",
+        "Twelve months in: your twelfth month is on us"
+      ]
+    },
+    {
+      "id": "platinum",
+      "name": "Platinum",
+      "tagline": "Every weekday",
+      "price": 5000,
+      "camera": "Two shooters, ours",
+      "perAsset": "About $227 per finished reel",
+      "recommended": true,
+      "byApplication": false,
+      "features": [
+        "Something goes out Monday through Friday",
+        "Two vetted, trained shooters come to you",
+        "Our team plans the shoot and runs it on the day",
+        "Nobody on your team films anything",
+        "Edited, captioned and posted for you",
+        "Professional photos from every shoot, edited and delivered for your Google Business Profile or carousel posts",
+        "Six months in: a banner film, team photos and professionally lit interviews with your key people",
+        "Twelve months in: your twelfth month is on us"
+      ],
+      "recommendedLabel": "What most home service companies choose"
+    },
+    {
+      "id": "studio",
+      "name": "Studio",
+      "tagline": "One production day a month",
+      "price": 10000,
+      "camera": "Full crew, on set",
+      "perAsset": null,
+      "recommended": false,
+      "byApplication": false,
+      "features": [
+        "One full production day every month",
+        "Four vetted, trained shooters on set",
+        "Something goes out Monday through Friday",
+        "One long-form YouTube video a month",
+        "Edited, captioned and posted for you",
+        "Professional photos from every shoot, edited and delivered for your Google Business Profile or carousel posts",
+        "Six months in: a banner film, team photos and professionally lit interviews with your key people",
+        "Twelve months in: your twelfth month is on us"
+      ]
+    },
+    {
+      "id": "studio-max",
+      "name": "Studio Max",
+      "tagline": "Two production days a month",
+      "price": 15000,
+      "camera": "Full crew, on set",
+      "perAsset": null,
+      "recommended": false,
+      "byApplication": true,
+      "featured": true,
+      "features": [
+        "Two full production days every month",
+        "Four vetted, trained shooters on set",
+        "Something goes out Monday through Friday",
+        "Long-form YouTube every week, four to five a month",
+        "Edited, captioned and posted for you",
+        "Professional photos from every shoot, edited and delivered for your Google Business Profile or carousel posts",
+        "Six months in: a banner film, team photos and professionally lit interviews with your key people",
+        "Twelve months in: your twelfth month is on us"
+      ]
+    }
+  ]
+}
