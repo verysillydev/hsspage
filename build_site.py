@@ -23,7 +23,9 @@ if MODE == "web":
 # a phone and most people close it, so this is meant to hold a Google Calendar
 # appointment booking page URL instead. Set BOOK_URL and every CTA on every page
 # follows; leave it empty and they fall back to email.
-EMAIL = "yoni@yoniverseproductions.com"
+# Switched 2026-08-25: homeservicestudios.com is live and receiving mail. See
+# api_contact.js for the matching TO/sender switch on the form's send path.
+EMAIL = "info@homeservicestudios.com"
 
 # Paste the Google Calendar appointment booking page here and every CTA on the site
 # switches at once. While it is empty the buttons fall back to a prefilled mailto,
@@ -31,23 +33,38 @@ EMAIL = "yoni@yoniverseproductions.com"
 BOOK_URL = ""          # e.g. https://calendar.app.google/xxxxxxxx
 BOOKED = bool(BOOK_URL)
 
-PHONE = "13105954519"                 # digits only, used for the tel: href
-PHONE_DISPLAY = "(310) 595-4519"
-
 REASSURE = ("Twenty minutes on Google Meet. We'll look at your market, your current content, "
             "and whether a monthly program makes sense.")
 
 # what the form path actually promises, which is not a call yet
 REASSURE_FORM = ("Six questions, under a minute. You will hear back within one business day, "
-                 "from a person, about your market specifically.")
+                 "from a human, about your market specifically.")
 
-# Feather "phone", inlined so the header costs no extra request
-PHONE_ICON = ('<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" '
+# Feather "user", stands in for a headshot on /team/ until real photos exist.
+PERSON_ICON = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" '
+               'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+               '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>'
+               '<circle cx="12" cy="7" r="4"/></svg>')
+
+# Filled triangle, marks a YouTube spot as click-to-play so it never looks like a
+# plain photo. Optically off-center by design: a symmetric triangle reads as
+# slightly left-heavy, so the play glyph nudges right via margin in .ytplay.
+PLAY_ICON = ('<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">'
+             '<path d="M8 5v14l11-7z"/></svg>')
+
+# Down chevron, hints at scroll on the homepage hero only. Plain stroke, no fill,
+# so it reads as a cue rather than another button competing with the CTAs below it.
+SCROLL_ICON = ('<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" '
+               'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+               '<path d="M6 9l6 6 6-6"/></svg>')
+
+# Left/right chevrons for the case study carousel on /our-work/.
+ARROW_LEFT = ('<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" '
               'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-              '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 '
-              '19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 '
-              '2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 '
-              '1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>')
+              '<path d="M15 6l-6 6 6 6"/></svg>')
+ARROW_RIGHT = ('<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" '
+               'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+               '<path d="M9 6l6 6-6 6"/></svg>')
 
 def cta_href():
     """Where every conversion CTA on the site points. One rule, no exceptions, so a
@@ -70,25 +87,10 @@ def reassure():
     to match the destination, so it changes with it."""
     return f'<p class="reassure">{REASSURE if BOOKED else REASSURE_FORM}</p>'
 
-def phonebtn(cls="navphone"):
-    """Tap to call. The number is hidden on narrow screens but the icon and the
-    44px target stay, so the phone never disappears behind a breakpoint."""
-    # the number span is hidden below 900px, and the icon is aria-hidden, so the
-    # link needs an explicit name or it reads as an unlabelled link to a screen reader
-    return (f'<a class="{cls}" href="tel:+{PHONE}" aria-label="Call {PHONE_DISPLAY}">'
-            f'{PHONE_ICON}<span class="phnum">{PHONE_DISPLAY}</span></a>')
-
-def callbtn(label="Call us"):
-    """Trades owners call, they do not email. Renders nothing until PHONE is set."""
-    if not PHONE:
-        return ""
-    pretty = f"({PHONE[-10:-7]}) {PHONE[-7:-4]}-{PHONE[-4:]}"
-    return f'<a class="cta ghost" href="tel:+{PHONE}">{label} {pretty}</a>'
-
 def actionbar():
-    """Phones only. Two thumbs, two jobs: call now, or send the details."""
+    """Phones only. Two thumbs, two jobs: reach out, or send the details."""
     return (f'<div class="actionbar">'
-            f'<a href="tel:+{PHONE}" aria-label="Call {PHONE_DISPLAY}">{PHONE_ICON}Call</a>'
+            f'<a href="/contact/">Contact</a>'
             f'<a class="primary" href="{cta_href()}">'
             f'{"Book a call" if BOOKED else "Start a project"}</a></div>')
 
@@ -109,14 +111,16 @@ def nav(active=""):
     href = cta_href()
     long_label, short_label = (("Book a call", "Book") if BOOKED
                                else ("Start a project", "Contact"))
+    icon = asset(f"{S}/logos_hss/nav_mark_hss.png", "image/png")
     return (
         '<nav class="nav" id="nav"><div class="wrap navin">'
-        '<a class="brand" href="/">Yoniverse<span class="bsub">Productions</span></a>'
+        f'<a class="brand" href="/"><img class="brandmark" src="{icon}" alt="" '
+        f'width="1072" height="517">Home Service Studios</a>'
         '<div class="navlinks">'
         + link("/our-work/", "Work", "work")
         + link("/packages/", "Packages", "packages")
+        + link("/team/", "Team", "team")
         + link("/contact/", "Contact", "contact", "navsecondary")
-        + phonebtn()
         + (f'<a class="navcta" href="{href}" aria-label="{long_label}" '
            f'target="_blank" rel="noopener noreferrer">'
            if BOOKED else f'<a class="navcta" href="{href}" aria-label="{long_label}">')
@@ -137,20 +141,33 @@ def asset(path, mime):
         return f"/our-work/a/{name}"
     return f"data:{mime};base64," + b64(path)
 
-# Onest, SIL Open Font License. Soft humanist grotesque, latin subset only.
-FONT_CSS = "<style>" + "".join(
-    "@font-face{font-family:'Onest';font-style:normal;font-weight:" + str(w) +
-    ";font-display:optional;src:url(data:font/woff2;base64," + b64(f"{S}/fonts/onest-{w}.woff2") +
-    ") format('woff2');}"
-    for w in (400, 600, 700)
-) + "</style>"
+# Onest and Archivo, both SIL Open Font License, latin subset only. Three static
+# weights each (not a variable file): a single combined-weight request to Google's
+# css2 endpoint can come back as either a variable file or a static instance
+# depending on how the query is shaped, and that ambiguity isn't worth the risk on
+# a font used for every heading on the site. Individual single-weight requests are
+# unambiguous, so that's what's embedded, same as Onest already does.
+def _face(family, weight, path):
+    return (f"@font-face{{font-family:'{family}';font-style:normal;font-weight:{weight};"
+            f"font-display:optional;src:url(data:font/woff2;base64,{b64(path)}) format('woff2');}}")
+
+FONT_CSS = ("<style>"
+    + "".join(_face("Onest", w, f"{S}/fonts/onest-{w}.woff2") for w in (400, 600, 700))
+    + "".join(_face("Archivo", w, f"{S}/fonts/archivo-{w}.woff2") for w in (400, 700, 900))
+    + "</style>")
+
+# Caveat: the one use is the hand-marked case study callout on /our-work/, so this
+# is its own small style block rather than folded into FONT_CSS above, which loads
+# on every page. No sense paying for a handwriting font on pages that never use it.
+CAVEAT_FONT_CSS = "<style>" + _face("Caveat", 700, f"{S}/fonts/caveat-700.woff2") + "</style>"
 
 CSS = """<style>
   :root{
-    --ground:#131619; --ground-2:#1A1E23; --panel:#1F242A;
-    --line:#2C333B; --line-soft:#232A31;
-    --ink:#F2EFE9; --ink-2:#A3AEB8; --ink-3:#8A96A2;
-    --orange:#F5822E; --orange-dim:#8C4A1B; --cyan:#3FC7D8;
+    --ground:#FFFFFF; --ground-2:#F5F4F1; --panel:#EFEEEA;
+    --line:#E2E0DA; --line-soft:#ECEBE6;
+    --ink:#14171A; --ink-2:#4B535B; --ink-3:#6B747C;
+    --orange:#F04820; --orange-text:#B93412; --cyan:#00B0C8; --cyan-text:#006673;
+    --orange-rgb:240,72,32; --cyan-rgb:0,176,200;
 
     /* Type scale. Every size on the site comes from this list and nowhere else.
        Each step is fluid between a 380px and a 1280px viewport, so there are no
@@ -172,7 +189,10 @@ CSS = """<style>
     /* Spacing, on an 8px base. Replaces 33 hand picked values. */
     --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px;
     --s6:32px; --s7:48px; --s8:64px; --s9:96px;
-    --s-sec: clamp(56px, 39.11px + 4.444vw, 96px);
+    /* halved 2026-08-26: section padding is top AND bottom, so the dead
+       space between two sections was roughly 2x this value; halving it
+       halves that gap site-wide without touching padding inside a section. */
+    --s-sec: clamp(28px, 19.555px + 2.222vw, 48px);
 
     /* Four radii instead of eight, so cards at different sizes still look related */
     /* R4. Sharp, not rounded. 10-14px radii and 100px pills are the app-store
@@ -185,12 +205,17 @@ CSS = """<style>
        era tic; typographers open small caps a little and stop there. */
     --t-display:-.03em; --t-head:-.015em; --t-caps:.055em;
 
-    --mono: ui-monospace,"SF Mono",Menlo,monospace;
-    /* A second family, for display and for the performance numbers. One typeface
-       across a whole site is the tell; an old-style serif also suits a company that
-       sells writing. System stack on purpose: every fallback is a humanist old-style,
-       so the character survives where the first choice is missing. */
-    --display: "Palatino Linotype", Palatino, "Iowan Old Style", Charter, Georgia, serif;
+    /* 2026-08-24: was a real monospace stack (ui-monospace/SF Mono/Menlo). Read as
+       a code editor, not a premium data face, once pointed out against Archivo
+       pricing elsewhere on the page. Every var(--mono) caller (prices, per-asset
+       units, chart labels, stat captions) now gets the same bold display face as
+       the big stat numbers, so there's one confident numeral system site wide
+       instead of three competing ones. Keeping the token name: renaming would
+       touch 26 call sites for a purely cosmetic identifier change. */
+    --mono: var(--display);
+    /* Second family, for display and for the big numbers. One typeface across a
+       whole site is the tell. */
+    --display: 'Archivo', "Arial Black", Arial, sans-serif;
     --ease:.18s cubic-bezier(.2,.6,.3,1);
   }
   *{box-sizing:border-box;}
@@ -211,8 +236,8 @@ CSS = """<style>
   }
   body{margin:0;padding:0;background:var(--ground);color:var(--ink);
     background-image:
-      radial-gradient(circle at 25% 30%, rgba(255,255,255,.016) 0 1px, transparent 1px),
-      radial-gradient(circle at 75% 70%, rgba(255,255,255,.012) 0 1px, transparent 1px);
+      radial-gradient(circle at 25% 30%, rgba(20,23,26,.05) 0 1px, transparent 1px),
+      radial-gradient(circle at 75% 70%, rgba(20,23,26,.04) 0 1px, transparent 1px);
     background-size:9px 9px, 13px 13px;
     font:var(--f-lede)/1.62 'Onest',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
@@ -229,28 +254,37 @@ CSS = """<style>
     color:var(--ink-3);margin:0;display:block;font-weight:400;}
 
   .wrap{max-width:1120px;margin:0 auto;padding:0 var(--s5);}
-  a{color:var(--orange);}
+  a{color:var(--orange-text);}
   a:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:2px;}
 
   /* Sticky top bar. Translucent with a blur so the full bleed banner video can
      pass under it and the labels stay readable. It only grows a background and a
      hairline once you have actually scrolled, so it sits invisibly over the hero. */
-  .nav{position:fixed;top:0;left:0;right:0;z-index:50;border-bottom:1px solid transparent;
-    transition:background var(--ease),border-color var(--ease);}
-  .nav.is-stuck{background:rgba(19,22,25,.86);border-bottom-color:var(--line-soft);
+  /* Nav stays the same dark ink as the homepage hero (.hero-bold, #14171A) on every
+     page, not just the homepage, so the bar reads as one consistent piece of brand
+     chrome rather than switching look per page. Text tokens below are hand set to
+     the same white/light values .hero-bold uses on that ground, not var(--ink*),
+     since those tokens are themed for the white page ground and would be
+     unreadable here. */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:50;background:#14171A;
+    border-bottom:1px solid transparent;transition:background var(--ease),border-color var(--ease);}
+  .nav.is-stuck{background:rgba(20,23,26,.92);border-bottom-color:rgba(255,255,255,.12);
     -webkit-backdrop-filter:saturate(160%) blur(14px);backdrop-filter:saturate(160%) blur(14px);}
   .nav.is-stuck::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
-    background:linear-gradient(90deg,rgba(245,130,46,.55) 0%,rgba(63,199,216,.42) 42%,
-      rgba(44,51,59,.55) 78%,rgba(44,51,59,0) 100%);}
+    background:linear-gradient(90deg,rgba(var(--orange-rgb),.55) 0%,rgba(var(--cyan-rgb),.42) 42%,
+      rgba(255,255,255,.3) 78%,rgba(255,255,255,0) 100%);}
   .navin{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);
     height:60px;}
-  .brand{display:flex;align-items:baseline;gap:6px;text-decoration:none;color:var(--ink);
+  /* One plain text run now ("Home Service Studios", no separate .bsub span
+     sized/coloured apart from the rest), one fixed size, no
+     min-width:560px jump: those were the two places the wordmark could
+     legitimately render at more than one size, which is what kept reading
+     as inconsistent across pages/viewports even once markup and CSS were
+     verified identical. */
+  .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:#FFFFFF;
+    font-family:'Onest',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     font-weight:700;letter-spacing:var(--t-head);font-size:var(--f-sm);white-space:nowrap;}
-  .brand .bsub{color:var(--ink-3);font-weight:600;font-size:var(--f-sm);display:none;}
-  @media(min-width:560px){
-    .brand{font-size:var(--f-h4);}
-    .brand .bsub{display:inline;}
-  }
+  .brandmark{height:28px;width:auto;display:block;border-radius:var(--r-sm);flex:none;}
   .navlinks{display:flex;align-items:center;gap:10px;}
   .navsecondary{display:none;}
   @media(min-width:620px){
@@ -259,9 +293,9 @@ CSS = """<style>
   }
   @media(min-width:560px){.navlinks{gap:var(--s5);}}
   .navlinks a{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
-    font-size:var(--f-lede);color:var(--ink-2);text-decoration:none;white-space:nowrap;
+    font-size:var(--f-lede);color:#D8D3C9;text-decoration:none;white-space:nowrap;
     transition:color var(--ease);}
-  .navlinks a:hover{color:var(--ink);}
+  .navlinks a:hover{color:#FFFFFF;}
   .navlinks a.is-on{color:var(--orange);}
   /* ---------- 4.1 motion ---------- */
   /* (a) scroll reveals. The hidden state is applied by JS, so if the script never
@@ -274,6 +308,21 @@ CSS = """<style>
     .rv{transform:translateY(10px);}
     .rv-in{transition-duration:.3s;}
   }
+  /* The four "what you are actually buying" cards get a longer, more visible
+     travel than the generic reveal so they read as sliding into frame rather
+     than a subtle fade. Only .benefit uses this, nothing else, so the
+     generic .rv distance elsewhere is untouched.
+     The actual bug behind two rounds of "it doesn't animate, just sits
+     offset": the JS adds rv-in without ever removing rv, which is fine for
+     the generic single-class .rv/.rv-in pair (equal specificity, source
+     order picks .rv-in's transform:none). But .benefit.rv is a two-class
+     compound, which outranks the generic .rv-in on specificity alone, so its
+     translate offset was winning permanently once both classes were on the
+     element at the same time. .benefit.rv-in has to restate transform:none
+     itself at the same compound specificity to actually win. */
+  .benefit.rv,.step2.rv{transform:translateY(48px);}
+  .benefit.rv-in,.step2.rv-in{transform:none;transition-duration:.5s;}
+  @media(max-width:700px){.benefit.rv,.step2.rv{transform:translateY(30px);}}
 
   /* the one deliberate entrance above the fold. It runs on the stat cards only,
      never on the hero paragraph, which is the LCP element on most pages. */
@@ -287,11 +336,11 @@ CSS = """<style>
   .hero .stat:nth-child(5){animation-delay:.28s;}
 
   /* (b) count-up needs digits that do not jump width as they change */
-  .stat .n,.op .n,.reel .v,.sh .v,.cc-metric b{font-variant-numeric:tabular-nums;}
+  .stat .n,.op .n,.reel .vnum,.sh .v,.cc-metric b{font-variant-numeric:tabular-nums;}
 
   /* (d) hero film: a slow push in, transform only, clipped by the wrapper so a
      1.04 scale on a 100vw element cannot create a horizontal scrollbar */
-  .bannerwrap{overflow:hidden;width:100vw;max-width:100vw;margin-left:calc(50% - 50vw);}
+  .bannerwrap{overflow:hidden;position:relative;width:100vw;max-width:100vw;margin-left:calc(50% - 50vw);}
   .bannerwrap .banner{width:100%;margin-left:0;}
   @keyframes pushIn{from{transform:scale(1);}to{transform:scale(1.04);}}
   .banner.is-playing{animation:pushIn 8s cubic-bezier(.4,0,.2,1) forwards;}
@@ -313,11 +362,15 @@ CSS = """<style>
      A1 chart. Cut rather than kept as decoration. */
 
   /* (g) header compaction. The bar is fixed with a spacer holding its place, so
-     shrinking it cannot shift the page. */
+     shrinking it cannot shift the page. The wordmark itself no longer scales down
+     with it (removed 2026-08-26): that 0.92x on scroll was the one place the exact
+     same logo rendered at two different sizes on the exact same page, and a
+     scrolled screenshot next to a fresh-load one read as the site being
+     inconsistent page to page when it was really just this scroll state. The bar
+     height still compacts; the wordmark now holds one fixed size everywhere. */
   .navspacer{height:60px;}
-  .nav .brand,.nav .navin{transition:transform var(--ease),height var(--ease);}
+  .nav .navin{transition:height var(--ease);}
   .nav.is-stuck .navin{height:52px;}
-  .nav.is-stuck .brand{transform:scale(.92);transform-origin:left center;}
 
   /* A1 has no fetchable stills, so the page carries a chart of the real numbers */
   .chartwrap{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
@@ -350,7 +403,7 @@ CSS = """<style>
   .cform textarea{min-height:110px;resize:vertical;}
   .cform input:hover,.cform select:hover,.cform textarea:hover{border-color:var(--ink-3);}
   .cform input:focus,.cform select:focus,.cform textarea:focus{
-    outline:none;border-color:var(--orange);background:var(--panel);}
+    outline:none;border-color:var(--orange-text);background:var(--panel);}
   .cform input:focus-visible,.cform select:focus-visible,.cform textarea:focus-visible{
     outline:2px solid var(--orange);outline-offset:2px;}
   .cform select{appearance:none;-webkit-appearance:none;cursor:pointer;
@@ -370,39 +423,29 @@ CSS = """<style>
     transition:border-color var(--ease),background var(--ease);}
   .budget:hover{border-color:var(--ink-3);}
   .budget input{position:absolute;left:14px;top:50%;transform:translateY(-50%);
-    width:18px;height:18px;min-height:0;padding:0;accent-color:var(--orange);cursor:pointer;}
-  .budget:has(input:checked){border-color:var(--orange);background:var(--panel);}
+    width:18px;height:18px;min-height:0;padding:0;accent-color:var(--orange-text);cursor:pointer;}
+  .budget:has(input:checked){border-color:var(--orange-text);background:var(--panel);}
   .budget:has(input:focus-visible){outline:2px solid var(--orange);outline-offset:2px;}
   .budget .bv{font-size:var(--f-body);font-weight:650;color:var(--ink);white-space:nowrap;}
-  .budget .bt{font-family:var(--mono);font-size:var(--f-micro);color:var(--cyan);
+  .budget .bt{font-family:var(--mono);font-size:var(--f-micro);color:var(--cyan-text);
     letter-spacing:.08em;text-transform:uppercase;}
 
   /* errors appear next to the field they belong to, on blur, never as a summary */
-  .ferr{font-size:var(--f-sm);color:#E4574C;min-height:0;display:none;}
+  .ferr{font-size:var(--f-sm);color:#C0392B;min-height:0;display:none;}
   .fld.is-bad .ferr,.budgets.is-bad .ferr{display:block;}
-  .fld.is-bad input,.fld.is-bad select,.fld.is-bad textarea{border-color:#E4574C;}
+  .fld.is-bad input,.fld.is-bad select,.fld.is-bad textarea{border-color:#C0392B;}
 
   .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
   .fsubmit{display:flex;flex-direction:column;gap:var(--s3);align-items:flex-start;}
   .cform button.cta{border:0;cursor:pointer;font-family:inherit;}
   .cform button.cta[disabled]{opacity:.6;cursor:default;}
   .fstatus{margin:0;font-size:var(--f-body);line-height:1.55;display:none;}
-  .fstatus.is-err{display:block;color:#E4574C;}
-  .fdone{background:var(--ground-2);border:1px solid var(--orange-dim);
+  .fstatus.is-err{display:block;color:#C0392B;}
+  .fdone{background:var(--ground-2);border:1px solid rgba(var(--orange-rgb),.4);
     border-radius:var(--r-md);padding:var(--s6) var(--s5);}
   .fdone h3{margin:0 0 var(--s2);font-size:var(--f-h3);font-weight:700;
     letter-spacing:var(--t-head);}
   .fdone p{margin:0;color:var(--ink-2);line-height:1.55;max-width:60ch;}
-
-  /* breadcrumbs, case pages only: these are landable straight from search */
-  .crumbs{border-bottom:1px solid var(--line-soft);background:var(--ground);}
-  .crumbs .wrap{display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap;
-    padding-top:var(--s3);padding-bottom:var(--s3);font-family:var(--mono);
-    font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;}
-  .crumbs a{color:var(--ink-3);text-decoration:none;}
-  .crumbs a:hover{color:var(--ink);}
-  .crumbs span[aria-hidden]{color:var(--line);}
-  .crumbs [aria-current]{color:var(--ink-2);}
 
   /* The 128M figure briefly hung -92px into the margin. In a two column grid that
      margin is the image column, so the leading digit sat behind the thumbnail.
@@ -417,7 +460,7 @@ CSS = """<style>
   .actionbar a{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
     min-height:54px;text-decoration:none;font-size:var(--f-sm);font-weight:650;
     background:var(--ground-2);color:var(--ink);}
-  .actionbar a.primary{background:var(--orange);color:#131619;}
+  .actionbar a.primary{background:var(--orange);color:#14171A;}
   .actionbar a svg{flex:none;}
   @media(min-width:760px){.actionbar{display:none;}}
   @media(max-width:759px){body{padding-bottom:54px;}}
@@ -427,54 +470,61 @@ CSS = """<style>
   .sec-head.bare h2{font-size:clamp(34px,5.6vw,58px);max-width:18ch;}
   .sec-head.bare{gap:var(--s4);}
 
-  /* case study index cards on /our-work/ */
-  .ccards{display:grid;grid-template-columns:1fr;gap:var(--s4);}
-  @media(min-width:680px){.ccards{grid-template-columns:1fr 1fr;}}
-  .ccard{display:flex;flex-direction:column;text-decoration:none;color:inherit;
-    background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);
-    overflow:hidden;scroll-margin-top:76px;
-    transition:border-color var(--ease),transform var(--ease);}
-  .ccard:hover{border-color:var(--orange-dim);transform:translateY(-2px);}
+  /* case study carousel on /our-work/. Cards are buttons (see case_card):
+     clicking one reveals its full write-up in .case-panels below instead of
+     navigating to its own page, which is what these five used to be. */
+  .carousel{position:relative;display:flex;align-items:center;gap:var(--s3);}
+  .car-viewport{flex:1 1 auto;min-width:0;overflow:hidden;}
+  .ccards{display:flex;gap:var(--s4);overflow-x:auto;scroll-snap-type:x mandatory;
+    scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+    padding:2px 2px 4px;margin:-2px -2px -4px;}
+  .ccards::-webkit-scrollbar{display:none;}
+  .ccard{scroll-snap-align:start;flex:0 0 78%;display:flex;flex-direction:column;
+    text-align:left;font:inherit;color:inherit;background:var(--panel);
+    border:2px solid var(--line);border-radius:var(--r-md);overflow:hidden;
+    padding:0;cursor:pointer;scroll-margin-top:76px;
+    transition:border-color var(--ease),transform var(--ease),background var(--ease);}
+  @media(min-width:620px){.ccard{flex:0 0 calc(50% - var(--s4)/2);}}
+  @media(min-width:960px){.ccard{flex:0 0 calc(33.333% - var(--s4)*2/3);}}
+  /* the bonus ask: an outline on hover, distinct from the persistent one on
+     the card whose write-up is currently open below. */
+  .ccard:hover,.ccard:focus-visible{border-color:rgba(var(--orange-rgb),.5);
+    transform:translateY(-2px);}
+  .ccard.is-active{border-color:var(--orange-text);background:var(--ground-2);}
   .cc-art{display:block;position:relative;aspect-ratio:16/9;background:var(--ground-2);
     overflow:hidden;display:flex;align-items:center;justify-content:center;}
   .cc-art img{width:100%;height:100%;object-fit:cover;display:block;}
   /* no still for this client yet, so the mark or the number carries the card */
   .cc-logo{display:flex;align-items:center;justify-content:center;width:62%;}
   .cc-logo img{width:100%;height:auto;object-fit:contain;opacity:.85;}
-  .cc-num{font-family:var(--mono);font-size:var(--f-hero);font-weight:700;color:var(--orange);
+  .cc-num{font-family:var(--mono);font-size:var(--f-hero);font-weight:700;color:var(--orange-text);
     letter-spacing:var(--t-display);line-height:1;}
   .cc-body{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s5);}
   .cc-vert{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
-    font-size:var(--f-sm);color:var(--cyan);}
+    font-size:var(--f-sm);color:var(--cyan-text);}
   .cc-name{font-size:var(--f-h3);font-weight:700;letter-spacing:var(--t-head);line-height:1.15;}
   .cc-blurb{font-size:var(--f-body);color:var(--ink-2);line-height:1.5;}
   .cc-metric{font-size:var(--f-sm);color:var(--ink-3);border-top:1px solid var(--line);
     padding-top:var(--s3);margin-top:var(--s1);}
-  .cc-metric b{font-family:var(--display);font-size:var(--f-h4);color:var(--orange);
+  .cc-metric b{font-family:var(--display);font-size:var(--f-h4);color:var(--orange-text);
     font-weight:700;margin-right:8px;}
-  .cc-go{font-size:var(--f-sm);font-weight:650;color:var(--orange);}
+  .cc-go{font-size:var(--f-sm);font-weight:650;color:var(--orange-text);}
 
-  /* prev / next chain at the foot of each case page */
-  .pnrow{display:grid;grid-template-columns:1fr;gap:var(--s3);margin-bottom:var(--s5);}
-  @media(min-width:620px){.pnrow{grid-template-columns:1fr 1fr;}}
-  .pn{display:flex;flex-direction:column;gap:var(--s1);text-decoration:none;color:inherit;
-    background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-sm);
-    padding:var(--s4) var(--s5);transition:border-color var(--ease),background var(--ease);}
-  .pn:hover{border-color:var(--cyan);background:var(--panel);}
-  .pn.next{text-align:right;}
-  .pn.next:only-child{grid-column:2;}
-  .pn-l{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
-    text-transform:uppercase;color:var(--ink-3);}
-  .pn-n{font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);color:var(--ink);}
+  .car-arrow{flex:none;display:flex;align-items:center;justify-content:center;
+    width:40px;height:40px;padding:0;border-radius:var(--r-pill);border:1px solid var(--line);
+    background:var(--ground);color:var(--ink);cursor:pointer;
+    transition:border-color var(--ease),color var(--ease);}
+  .car-arrow:hover{border-color:var(--orange-text);color:var(--orange-text);}
+  .car-arrow svg{display:block;}
+  .car-dots{display:flex;justify-content:center;gap:10px;margin-top:var(--s5);}
+  .car-dot{width:8px;height:8px;padding:0;border-radius:50%;border:0;
+    background:var(--line);cursor:pointer;}
+  .car-dot.is-active{background:var(--orange-text);}
 
-  /* Tap to call. The number label drops below 900px but the icon and the full
-     44px target stay, so the phone never hides behind a breakpoint or a menu. */
-  .navphone{display:inline-flex;align-items:center;gap:7px;color:var(--ink-2) !important;
-    min-height:44px;padding:0 4px;}
-  .navphone:hover{color:var(--ink) !important;}
-  .navphone svg{flex:none;}
-  .navphone .phnum{display:none;}
-  @media(min-width:900px){.navphone .phnum{display:inline;}}
+  /* Each is the exact same section markup a standalone case page used to
+     render on its own; only one shows at a time, toggled by CAROUSEL_JS. */
+  .case-panels > section{display:none;}
+  .case-panels > section.is-active{display:block;}
 
   /* sits under a booking CTA, so nobody has to guess what happens after the click */
   .reassure{margin:var(--s3) 0 0;font-size:var(--f-sm);color:var(--ink-3);max-width:52ch;
@@ -490,10 +540,10 @@ CSS = """<style>
   .fcontact a{display:inline-flex;align-items:center;gap:7px;min-height:44px;
     font-size:var(--f-body);}
 
-  .navcta{background:var(--orange);color:#131619 !important;border-radius:var(--r-pill);
+  .navcta{background:var(--orange);color:#14171A !important;border-radius:var(--r-pill);
     padding:0 16px;font-weight:700;transition:filter var(--ease);
-    font-family:'Onest',-apple-system,sans-serif;text-transform:none;
-    letter-spacing:var(--t-head);font-size:var(--f-sm);
+    font-family:'Onest',-apple-system,sans-serif !important;text-transform:none;
+    font-variant-caps:normal !important;letter-spacing:var(--t-head);font-size:var(--f-sm);
     display:inline-flex;align-items:center;min-height:40px;}
   .navcta:hover{filter:brightness(1.08);}
   .navcta .ctashort{display:inline;}
@@ -509,11 +559,93 @@ CSS = """<style>
   .hero{padding:var(--s7) 0 var(--s8);position:relative;overflow:hidden;background:var(--ground);}
   .splat{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;
     filter:blur(.35px);opacity:.92;}
+  /* contact page only: the lines sat mid-paragraph by default; a plain
+     translate keeps the crop/zoom untouched and just moves them up, closer
+     under the "Talk to us." heading. */
+  .hero-contact .splat{transform:translateY(-60px);}
   .hero > .wrap{position:relative;z-index:1;}
   .hero h1{font-size:var(--f-hero);margin:var(--s4) 0 0;}
   .hero .sub{margin:var(--s5) 0 0;max-width:58ch;font-size:var(--f-lead);color:var(--ink-2);
     line-height:1.52;}
   .hero .sub strong{color:var(--ink);font-weight:600;}
+
+  /* 2026-08-24: bold pass, homepage only. A CSS custom property scope, not a
+     second theme: redeclaring the tokens inside .hero-bold re-themes every child
+     that already reads var(--ink)/var(--ground)/etc, with zero new rules needed
+     for the stat ledger, eyebrow, CTAs or splat text colors. --orange-text and
+     --cyan-text swap to the bright hues in this scope because the AA-safe dark
+     variants (tuned for white) go muddy on black; the bright hues clear AA here
+     on their own, checked the same way the white-ground pairs were. */
+  .hero.hero-bold{background:#14171A;color:#FFFFFF;padding:0;
+    --ground:#14171A; --ground-2:#1E2226; --panel:#262B30; --line:#33383D;
+    --ink:#FFFFFF; --ink-2:#D8D3C9; --ink-3:#A8A29A;
+    --orange-text:var(--orange); --cyan-text:var(--cyan);}
+  .hero-bold h1{font-size:clamp(36px, 12px + 5.4vw, 84px);font-weight:900;
+    letter-spacing:-.025em;}
+  .hero-bold .hl{background:var(--orange);color:#14171A;padding:.02em .14em;
+    box-decoration-break:clone;-webkit-box-decoration-break:clone;}
+
+  /* 2026-08-26: hero video pass. The black bg + animated .splat lines move
+     down to only the lower half now (.hero-lines, behind the sub copy,
+     stats and CTAs); the headline instead sits, bottom anchored, over an
+     ambient looping YouTube background video (.hero-media) that fills the
+     full viewport edge to edge, same IFrame Player technique and
+     poster-mask trick as the Quality banner (see setupAmbient in SOLO_JS).
+     Kept deliberately close to verysilly.dev's hero: full bleed, mostly
+     undimmed footage, and a compact text block rather than type filling
+     the whole frame. */
+  .hero-media{position:relative;overflow:hidden;background:#14171A;
+    min-height:100vh;min-height:100dvh;
+    display:flex;flex-direction:column;justify-content:flex-end;}
+  /* object-fit is not reliably honoured on an <iframe> (notably Firefox),
+     so cover-cropping is done with the classic oversized/centered iframe
+     recipe instead, sized off vw/vh rather than the box itself: accurate
+     because .hero-media is pinned to viewport size right above. */
+  .hero-media .herobg{position:absolute;top:50%;left:50%;
+    width:100vw;height:56.25vw;min-height:100%;min-width:177.78vh;
+    transform:translate(-50%,-50%);pointer-events:none;}
+  .hero-poster{position:absolute;inset:0;z-index:2;background:#14171A;
+    transition:opacity .6s ease;pointer-events:none;}
+  .hero-poster.is-hidden{opacity:0;}
+  /* YouTube always draws its own watermark in this corner with controls=0
+     and no param removes it; the oversized crop above may or may not push
+     it past the edge depending on viewport aspect, so this covers it
+     directly rather than leaving it to chance. */
+  .hero-yt-mask{position:absolute;right:0;bottom:0;z-index:2;pointer-events:none;
+    width:min(220px,32%);height:min(84px,16%);
+    background:linear-gradient(135deg,rgba(20,23,26,0) 0%,
+      rgba(20,23,26,.94) 55%,rgba(20,23,26,1) 100%);}
+  /* light touch, not a wash: most of the frame stays undimmed, darkening
+     only where the headline actually sits so the video reads clean rather
+     than muddy, the opposite problem the first pass had. */
+  .hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg,rgba(20,23,26,0) 0%,rgba(20,23,26,0) 42%,
+      rgba(20,23,26,.48) 74%,rgba(20,23,26,.86) 100%);}
+  /* extra bottom padding (rather than var(--s7) alone) pulls the whole
+     block up off the very bottom edge of the 100vh frame: on shorter
+     browser windows the headline was tall enough to push its last line
+     (the "does nothing." highlight) below the fold on first load, with no
+     scroll yet to reveal it. */
+  /* text plus scroll hint share one flex row now (was the headline's own
+     .wrap alone), so the chevron sits to the right of the copy and
+     vertically centered against it, rather than pinned to the bottom
+     center of the whole frame. min-width:0 on the text column lets the
+     headline keep wrapping normally with the icon column beside it. */
+  .hero-media > .wrap{position:relative;z-index:3;display:flex;align-items:center;
+    gap:var(--s5);padding-bottom:clamp(var(--s8), 10vh, 140px);}
+  .hero-media > .wrap > .herotext{min-width:0;flex:1 1 auto;}
+  /* scroll hint: waits a second before it appears (so it never competes
+     with the headline landing), then bobs gently. Fade-in and bob are
+     split across two elements so their transforms never fight over the
+     same property. */
+  .scrollhint{flex:none;opacity:0;color:rgba(255,255,255,.8);
+    pointer-events:none;animation:scrollhint-fade .6s ease 1s forwards;}
+  .scrollhint svg{display:block;animation:scrollhint-bob 1.8s ease-in-out 1.6s infinite;}
+  @keyframes scrollhint-fade{to{opacity:1;}}
+  @keyframes scrollhint-bob{0%,100%{transform:translateY(0);}50%{transform:translateY(7px);}}
+  .hero-lines{position:relative;}
+  .hero-lines > .wrap{position:relative;z-index:1;
+    padding-top:var(--s6);padding-bottom:var(--s8);}
 
   /* hairline gaps rather than per-cell borders: an adjacent-sibling rule left a
      stray line on the first item of every wrapped row on a phone */
@@ -526,8 +658,8 @@ CSS = """<style>
   /* reserve two lines so a wrapped client name does not push its number out of
      line with the rest of the row */
   .stat .case{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.05em;
-    font-size:var(--f-sm);color:var(--cyan);line-height:1.3;min-height:2.6em;}
-  .stat .n{font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;color:var(--orange);
+    font-size:var(--f-sm);color:var(--cyan-text);line-height:1.3;min-height:2.6em;}
+  .stat .n{font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;color:var(--orange-text);
     font-family:var(--display);line-height:1.1;}
   .stat .k{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
     font-family:var(--mono);line-height:1.35;min-height:2.7em;}
@@ -537,7 +669,7 @@ CSS = """<style>
      has a hierarchy of lines rather than one weight repeated 31 times */
   section::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;
     background:linear-gradient(90deg,var(--orange) 0%,var(--orange) 8%,
-      rgba(63,199,216,.5) 34%,rgba(44,51,59,.6) 72%,rgba(44,51,59,0) 100%);}
+      rgba(var(--cyan-rgb),.5) 34%,rgba(226,224,218,.6) 72%,rgba(226,224,218,0) 100%);}
   .sec-head{display:flex;flex-direction:column;gap:var(--s3);margin-bottom:var(--s6);}
   .sec-head h2{font-size:var(--f-h1);}
   .sec-head .lede{margin:0;max-width:62ch;color:var(--ink-2);font-size:var(--f-lede);line-height:1.58;}
@@ -546,26 +678,71 @@ CSS = """<style>
   .role{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;margin-top:var(--s1);}
   .role .lbl{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
     text-transform:uppercase;color:var(--ink-3);margin-right:2px;}
-  .pill{border:1px solid var(--orange-dim);background:rgba(245,130,46,.10);color:var(--orange);
+  .pill{border:1px solid rgba(var(--orange-rgb),.4);background:rgba(var(--orange-rgb),.10);color:var(--orange-text);
     border-radius:var(--r-pill);padding:4px var(--s3);font-size:var(--f-lede);font-weight:400;
     font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.05em;}
 
+  /* .csi is shared by two different things: the plain three-column
+     challenge/solution/impact text blocks on every case study, and the
+     homepage's photo-backed "three ways we work" cards (.csi-photo). The
+     photo-only rules below (aspect-ratio box, the image layer, top padding
+     tuned to a folder photo, centered titles) used to sit on the bare .csi
+     selector, which meant the case study cards inherited a forced 4:3 box
+     with no content to fill it: two or three lines of plain text at the
+     top of a much taller box, leaving a wall of empty space below before
+     the next section. Scoping them to .csi-photo fixes that and restores
+     the plain flat card for everything else. */
   .csi{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--s3);
-    margin-bottom:var(--s6);}
-  .csi div{background:var(--ground-2);border-radius:var(--r-sm);
-    padding:var(--s5);}
+    margin-bottom:var(--s4);}
+  /* > not a bare descendant combinator: a plain "div" also matches
+     .csi-body (nested one level deeper inside .csi-photo's own wrapper
+     div), not just the wrapper itself, and its higher specificity
+     (element+class beats .csi-body's class alone) overrode .csi-body's own
+     padding down to nothing, which is what put the folder card text flush
+     against the edges. > restricts the match to the direct child wrapper,
+     so .csi-body's own rule applies uncontested. */
+  .csi > div{background:var(--ground-2);border-radius:var(--r-sm);padding:var(--s5);}
+  .csi-photo > div{position:relative;overflow:hidden;background:none;padding:0;
+    aspect-ratio:4/3;}
+  .csi-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    z-index:0;pointer-events:none;}
+  /* no scrim: the folder paper itself is light enough that dark ink text
+     sits on it cleanly, same contrast logic as the flat --ground-2 card
+     this replaced. A dark gradient here was tried first and made the copy
+     harder to read, not easier, fighting the photo instead of sitting on it. */
+  /* top anchored, not bottom: with flex-end a longer paragraph in one card
+     pulled that card's own title down with it, so the three titles never
+     lined up. Anchoring from the top instead means each title sits right
+     under the same fixed padding on every card regardless of how many
+     lines its own paragraph wraps to. */
+  /* padding-top as a percentage, not a token: percentage padding resolves
+     against the card's own WIDTH, and since every card is pinned to
+     aspect-ratio:4/3, that keeps the clearance under the folder's tab/paper
+     notch proportionally constant at any card size instead of a fixed px
+     offset that would be too little on a big card or eat half a small one. */
+  .csi-body{position:relative;z-index:2;height:100%;padding:var(--s5);
+    padding-top:20%;display:flex;flex-direction:column;justify-content:flex-start;}
   .csi h3{margin:0 0 var(--s2);font-family:var(--mono);font-size:var(--f-micro);
-    letter-spacing:var(--t-caps);text-transform:uppercase;color:var(--orange);font-weight:600;}
+    letter-spacing:var(--t-caps);text-transform:uppercase;color:var(--orange-text);font-weight:600;}
+  .csi-photo h3{text-align:center;}
   /* the outcome column carries the secondary hue so results read apart from setup */
-  .csi div:nth-child(3) h3{color:var(--cyan);}
-  .csi div:nth-child(3){border-color:rgba(63,199,216,.28);}
+  .csi div:nth-child(3) h3{color:var(--cyan-text);}
   .csi p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
+  .csi-photo p{color:var(--ink);text-shadow:0 1px 2px rgba(255,255,255,.35);}
 
-  .ops{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--s3);
-    margin-bottom:var(--s6);}
-  .op{background:var(--panel);border-radius:var(--r-sm);
-    padding:var(--s4);display:flex;flex-direction:column;gap:var(--s1);}
-  .op .n{font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;color:var(--cyan);
+  /* Ruled ledger, not bordered cards: same technique as the hero .stats row
+     (gap:1px on a --line background, each cell its own --ground fill), so a
+     row of proof numbers reads as one connected figure instead of a stack of
+     separate boxes. This used to be individually padded/backgrounded .panel
+     cards, which is exactly the "default look" the six rules elsewhere on
+     this sheet exist to avoid; .op is shared across every case page's stat
+     row and the packages page, so fixing it here fixes all of them at once. */
+  .ops{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;
+    background:var(--line);margin-bottom:var(--s4);}
+  .op{background:var(--ground);padding:var(--s4);display:flex;flex-direction:column;gap:var(--s1);
+    transition:background var(--ease);}
+  .op:hover{background:var(--ground-2);}
+  .op .n{font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;color:var(--cyan-text);
     font-family:var(--display);line-height:1.1;}
   .op .k{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
     font-family:var(--mono);}
@@ -594,8 +771,8 @@ CSS = """<style>
     background:rgba(10,12,14,.28);transition:background var(--ease);}
   .feature .shot:hover .play{background:rgba(10,12,14,.06);}
   .feature .play span{width:62px;height:62px;border-radius:var(--r-pill);background:rgba(242,239,233,.94);
-    display:flex;align-items:center;justify-content:center;color:#131619;font-size:21px;padding-left:5px;}
-  .bignum{font-size:var(--f-mega);font-weight:700;letter-spacing:-.045em;color:var(--orange);
+    display:flex;align-items:center;justify-content:center;color:#14171A;font-size:21px;padding-left:5px;}
+  .bignum{font-size:var(--f-mega);font-weight:700;letter-spacing:-.045em;color:var(--orange-text);
     line-height:.88;font-family:var(--display);}
   .feature p{margin:0;color:var(--ink-2);font-size:var(--f-body);line-height:1.6;}
   .feature p strong{color:var(--ink);font-weight:600;}
@@ -605,24 +782,68 @@ CSS = """<style>
   .spot{background:var(--panel);border-radius:var(--r-md);
     overflow:hidden;display:flex;flex-direction:column;}
   .spot video{width:100%;display:block;background:#000;aspect-ratio:16/9;object-fit:cover;}
+  /* Click-to-play YouTube spots. Poster and button only until clicked, see
+     MOTION_JS (h): the iframe is swapped in on click, never loaded before. */
+  .ytspot{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;overflow:hidden;}
+  .ytspot img{width:100%;height:100%;display:block;object-fit:cover;}
+  .ytspot iframe{width:100%;height:100%;display:block;border:0;}
+  .ytplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;
+    height:52px;border-radius:50%;background:rgba(20,23,26,.72);border:none;color:#fff;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:background var(--ease),transform var(--ease);}
+  .ytplay svg{margin-left:2px;}
+  .ytspot:hover .ytplay{background:var(--orange);transform:translate(-50%,-50%) scale(1.06);}
   .spot .meta{padding:var(--s4);display:flex;flex-direction:column;gap:var(--s1);}
   .spot .sc{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
-    font-size:var(--f-sm);color:var(--orange);}
+    font-size:var(--f-sm);color:var(--orange-text);}
   .spot .nm{font-size:var(--f-h4);font-weight:600;letter-spacing:var(--t-head);}
   .spot .du{font-family:var(--mono);font-size:var(--f-sm);color:var(--ink-3);}
 
-  /* always seven of these, and auto-fill kept orphaning the seventh onto its own
-     row. Explicit columns land them as 4+3, then a single clean row of 7. */
-  .reels{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s3);}
-  @media(min-width:560px){.reels{grid-template-columns:repeat(4,1fr);}}
-  @media(min-width:960px){.reels{grid-template-columns:repeat(7,1fr);}}
-  .reel{display:flex;flex-direction:column;gap:var(--s1);text-decoration:none;background:var(--ground-2);
-    border:1px solid var(--line);border-radius:var(--r-sm);padding:var(--s4);
-    transition:border-color var(--ease),background var(--ease),transform var(--ease);}
-  .reel:hover{border-color:var(--cyan);background:var(--panel);transform:translateY(-2px);}
-  .reel .v{font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;color:var(--ink);
+  /* Ruled ledger, same technique as .stats/.ops: each cell was previously its
+     own bordered, radiused, backgrounded box with a gap around it, seven
+     times in a row, which is the exact repeated-box clutter the rest of the
+     sheet avoids. gap:1px on a --line fill reads as one strip of proof.
+     flex-wrap, not CSS grid: grid stretches every cell in a row to match the
+     tallest one (align-items:stretch is the grid default too, not just
+     flex's), which combined with the thumbnail's aspect-ratio sizing meant
+     one taller card inflated every thumbnail's width right along with it.
+     flex-wrap plus justify-content:center also centers the leftover row of
+     3 under 4 columns for free, which CSS grid does not do on its own. */
+  .reels{display:flex;flex-wrap:wrap;justify-content:center;gap:1px;background:var(--line);
+    margin-top:var(--s6);}
+  /* row layout, not column: the thumbnail sits beside the text block, fixed
+     size (see .rthumb) rather than stretched to match it, which is what
+     inflated it before. flex:0 0 ...% is the 2-per-row/4-per-row sizing;
+     it lives on the same rule as the internal row layout since both are
+     .reel's own box, not worth splitting into two rule blocks. */
+  .reel{display:flex;flex-direction:row;flex:0 0 calc(50% - 1px);gap:10px;
+    text-decoration:none;background:var(--ground);
+    padding:var(--s4);transition:background var(--ease),box-shadow var(--ease);}
+  @media(min-width:560px){.reel{flex:0 0 calc(25% - 1px);}}
+  /* the 7-across step was missing: only 2/4 existed, so all 7 reels never
+     had anywhere to land but a 4-and-3 wrap on any screen, no matter how
+     wide. 860px keeps each card legible (thumbnail plus a short label) at
+     the .wrap max-width of 1120px. */
+  @media(min-width:860px){.reel{flex:0 0 calc(100%/7 - 1px);}}
+  /* inset, not a real border, so the highlight cannot shift the tight 1px
+     ledger grid it sits in. Covers hover, keyboard focus and the moment of
+     a click, not just mouseover. */
+  .reel:hover,.reel:focus-visible,.reel:active{background:var(--ground-2);
+    box-shadow:inset 0 0 0 2px var(--cyan-text);}
+  .reel .rmeta{display:flex;flex-direction:column;justify-content:space-between;
+    gap:var(--s1);min-width:0;}
+  .reel .vnum{font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;color:var(--ink);
     font-family:var(--display);line-height:1.1;}
-  .reel.is-top .v{color:var(--orange);}
+  .reel.is-top .vnum{color:var(--orange-text);}
+  /* a taste of the actual reel, not a real preview: fixed size, not a
+     stretched one. Stretching it to match the text column's height
+     (align-items:stretch, the flex/grid default) sounded right for lining
+     its top up with the number and its bottom with the label, but every
+     card in a row gets stretched to the tallest one regardless, and since
+     width here is tied to height via aspect-ratio, one taller card in the
+     row inflated every thumbnail's width right along with it. Fixed at
+     44x74 (9:15.1, close enough) sidesteps that entirely. */
+  .rthumb{width:44px;height:74px;border-radius:2px;flex:none;object-fit:cover;}
   .reel .l{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
     font-family:var(--mono);}
 
@@ -635,7 +856,7 @@ CSS = """<style>
   .sh{display:block;text-decoration:none;background:var(--ground-2);border:1px solid var(--line);
     border-radius:var(--r-sm);overflow:hidden;
     transition:border-color var(--ease),background var(--ease),transform var(--ease);}
-  .sh:hover{border-color:var(--cyan);background:var(--panel);transform:translateY(-2px);}
+  .sh:hover{border-color:var(--cyan-text);background:var(--panel);transform:translateY(-2px);}
   .sh .th{position:relative;display:block;}
   .sh .th img{width:100%;display:block;aspect-ratio:9/16;object-fit:cover;}
   .sh .cap{padding:var(--s3);display:flex;flex-direction:column;gap:var(--s1);}
@@ -650,7 +871,7 @@ CSS = """<style>
   .step{background:var(--ground-2);border-radius:var(--r-sm);
     padding:var(--s5);display:flex;flex-direction:column;gap:var(--s2);position:relative;}
   .step .sn{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
-    color:var(--cyan);}
+    color:var(--cyan-text);}
   .step h3{margin:0;font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);}
   .step p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
 
@@ -658,13 +879,13 @@ CSS = """<style>
   .tcard{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-sm);
     display:flex;flex-direction:column;text-decoration:none;overflow:hidden;
     color:inherit;transition:border-color var(--ease),background var(--ease),transform var(--ease);}
-  .tcard:hover{border-color:var(--cyan);background:var(--panel);transform:translateY(-2px);}
+  .tcard:hover{border-color:var(--cyan-text);background:var(--panel);transform:translateY(-2px);}
   .tcard .tag{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
     text-transform:uppercase;align-self:flex-start;}
-  .tcard .tag.tour{color:var(--cyan);}
-  .tcard .tag.exp{color:var(--orange);}
-  .tcard .tag.lead{color:var(--orange);border:1px solid var(--orange-dim);
-    background:rgba(245,130,46,.10);border-radius:var(--r-pill);padding:3px 10px;}
+  .tcard .tag.tour{color:var(--cyan-text);}
+  .tcard .tag.exp{color:var(--orange-text);}
+  .tcard .tag.lead{color:var(--orange-text);border:1px solid rgba(var(--orange-rgb),.4);
+    background:rgba(var(--orange-rgb),.10);border-radius:var(--r-pill);padding:3px 10px;}
   .tcard .tt{font-size:var(--f-body);font-weight:550;line-height:1.4;letter-spacing:var(--t-head);}
   /* real YouTube thumbnails, pulled from the same video ids these cards link to */
   .titles{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
@@ -675,7 +896,7 @@ CSS = """<style>
   .ytplay::after{content:"";position:absolute;left:18px;top:9px;border-style:solid;
     border-width:7px 0 7px 12px;border-color:transparent transparent transparent #F2EFE9;}
   .tcard:hover .ytplay{background:var(--orange);}
-  .tcard:hover .ytplay::after{border-left-color:#131619;}
+  .tcard:hover .ytplay::after{border-left-color:#14171A;}
   .tbody{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s4);}
 
   /* client wall: every mark is pre-rendered onto an identical canvas with equal
@@ -690,33 +911,65 @@ CSS = """<style>
 
   /* ---------- packages page ---------- */
   .band{margin-bottom:var(--s8);}
-  .band-head{display:flex;flex-direction:column;gap:var(--s2);margin-bottom:var(--s5);}
+  .band-head{display:flex;flex-direction:column;gap:var(--s2);margin-bottom:0;}
   .band-head h2{font-size:var(--f-h2);}
   .band-head p{margin:0;color:var(--ink-2);font-size:var(--f-body);max-width:62ch;line-height:1.58;}
+  /* this one lede only: the reels row right below it now runs the full
+     .wrap width (7-across fix), and a 62ch paragraph above a full-width
+     row read as narrow/awkward next to it. Every other .band-head keeps
+     the 62ch measure. */
+  .band-head.full-lede p{max-width:none;}
+
+  /* 2026-08-24: bold pass. Each program group reads as a filed folder, a colored
+     tab above a lighter body, rather than a plain heading. The cut top-right
+     corner keeps it architectural instead of a soft rounded pill. Only three
+     tones exist site wide (orange, teal, ink), so the three groups just cycle
+     through them; a fourth group would repeat, not invent a new color.
+     2026-08-25: the 1px margin read as a seam, not an overlap, so it looked
+     like a flat label sitting on the box rather than a tab folded over it.
+     The tab now sinks var(--s4) into the body and needs position+z-index to
+     stay on top of it, since without that the body (later in the DOM, same
+     stacking context) would paint over the bottom of the tab instead of
+     the tab overlapping the body. The shadow sells the same depth cue the
+     reference used. */
+  .band-tab{display:inline-flex;align-items:center;color:#fff;font-family:var(--display);
+    font-weight:900;letter-spacing:-.01em;font-size:var(--f-h3);padding:var(--s3) var(--s6) var(--s3) var(--s5);
+    clip-path:polygon(0 0,calc(100% - 22px) 0,100% 100%,0 100%);margin-bottom:calc(var(--s4) * -1);
+    position:relative;z-index:1;box-shadow:0 10px 18px -10px rgba(0,0,0,.4);}
+  .band-tab.t-orange{background:var(--orange);}
+  .band-tab.t-cyan{background:var(--cyan);}
+  .band-tab.t-ink{background:var(--ink);}
+  .band-body{background:var(--ground-2);border-radius:0 var(--r-lg) var(--r-lg) var(--r-lg);
+    padding:var(--s6) var(--s5) var(--s5);}
+  .band-body > p{margin:0 0 var(--s5);color:var(--ink-2);font-size:var(--f-body);
+    max-width:62ch;line-height:1.58;}
+  .band-tab.t-orange ~ .band-body{border-top:3px solid var(--orange);}
+  .band-tab.t-cyan ~ .band-body{border-top:3px solid var(--cyan);}
+  .band-tab.t-ink ~ .band-body{border-top:3px solid var(--ink);}
   .pkgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--s4);}
-  .pkg{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);
+  .pkg{background:var(--ground);border:1px solid var(--line);border-radius:var(--r-md);
     padding:var(--s6) var(--s5);display:flex;flex-direction:column;gap:var(--s4);position:relative;}
-  .pkg.feat{border-color:var(--orange-dim);
-    background:linear-gradient(180deg,rgba(245,130,46,.07) 0%,var(--panel) 46%);}
+  .pkg.feat{border-color:rgba(var(--orange-rgb),.4);
+    background:linear-gradient(180deg,rgba(var(--orange-rgb),.07) 0%,var(--ground) 46%);}
   .pkg .tier{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
-    font-size:var(--f-lede);color:var(--cyan);}
-  .pkg.feat .tier{color:var(--orange);}
+    font-size:var(--f-lede);color:var(--cyan-text);}
+  .pkg.feat .tier{color:var(--orange-text);}
   .pkg .pname{font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);line-height:1.25;}
   .priceline{display:flex;align-items:baseline;gap:var(--s2);}
   .pkg .price{font-size:var(--f-price);font-weight:700;letter-spacing:-.035em;
-    color:var(--orange);font-family:var(--mono);line-height:1;}
+    color:var(--orange-text);font-family:var(--mono);line-height:1;}
   .pkg .per{font-size:var(--f-sm);color:var(--ink-3);}
   .pkg ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--s3);}
   .pkg li{font-size:var(--f-body);color:var(--ink-2);padding-left:22px;position:relative;
     line-height:1.5;}
-  .pkg li::before{content:"+";position:absolute;left:0;top:0;color:var(--cyan);
+  .pkg li::before{content:"+";position:absolute;left:0;top:0;color:var(--cyan-text);
     font-family:var(--mono);font-size:var(--f-sm);}
-  .pkg.feat li::before{color:var(--orange);}
+  .pkg.feat li::before{color:var(--orange-text);}
   .pkg .shoot{font-size:var(--f-sm);color:var(--ink);font-weight:600;
     border-top:1px solid var(--line);padding-top:var(--s3);}
-  .pkg .unit{font-size:var(--f-sm);color:var(--cyan);font-family:var(--mono);margin-top:calc(var(--s2) * -1);}
-  .pkg.feat .unit{color:var(--orange);}
-  .pkg .apply{align-self:flex-start;background:var(--orange);color:#131619;border-radius:var(--r-pill);
+  .pkg .unit{font-size:var(--f-sm);color:var(--cyan-text);font-family:var(--mono);margin-top:calc(var(--s2) * -1);}
+  .pkg.feat .unit{color:var(--orange-text);}
+  .pkg .apply{align-self:flex-start;background:var(--orange);color:#14171A;border-radius:var(--r-pill);
     padding:12px var(--s5);font-size:var(--f-body);font-weight:650;text-decoration:none;
     transition:filter var(--ease);}
   .pkg .apply:hover{filter:brightness(1.08);}
@@ -725,18 +978,25 @@ CSS = """<style>
     text-transform:uppercase;color:var(--ink-3);margin-top:calc(var(--s2) * -1);}
   /* a full width header strip, not a corner tag: the label is a sentence and at
      62% width it wrapped to two lines and collided with the tier name */
-  .pkg .best{position:absolute;top:0;left:0;right:0;background:var(--orange);color:#131619;
+  .pkg .best{position:absolute;top:0;left:0;right:0;background:var(--orange);color:#14171A;
     font-size:var(--f-micro);font-weight:700;letter-spacing:.08em;text-transform:uppercase;
     padding:8px var(--s4);border-radius:var(--r-md) var(--r-md) 0 0;text-align:center;
     line-height:1.35;}
-  .pkg:has(.best){border-color:var(--orange-dim);padding-top:calc(var(--s6) + 20px);}
+  .pkg:has(.best){border-color:rgba(var(--orange-rgb),.4);padding-top:calc(var(--s6) + 20px);}
 
   /* the constant, stated before the tiers so the tiers are easier to read */
-  .always{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
+  .always{background:var(--ground-2) url(__TEXTURE_PLASTER__) center/cover no-repeat;
+    border:1px solid var(--line);border-radius:var(--r-md);
     padding:var(--s6) var(--s5);margin-bottom:var(--s8);}
-  .always h3{margin:0 0 var(--s2);font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);}
-  .always .sub2{margin:0 0 var(--s5);font-size:var(--f-body);color:var(--ink-2);max-width:68ch;
-    line-height:1.58;}
+  /* White reads as the intended look against the plaster photo, but plain white
+     text only clears 3.5:1 on this midtone texture, short of the 4.5:1 body
+     text needs (heading is bold and large enough that 3.5:1 is fine there).
+     The shadow is legibility insurance against the mottled, uneven texture,
+     not decoration: some patches of the photo run darker than the average. */
+  .always h3{margin:0 0 var(--s2);font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);
+    color:#FFFFFF;text-shadow:0 2px 6px rgba(0,0,0,.55);}
+  .always .sub2{margin:0 0 var(--s5);font-size:var(--f-body);color:#FFFFFF;max-width:68ch;
+    line-height:1.58;text-shadow:0 2px 6px rgba(0,0,0,.55);}
 
   /* the four benefits: numeral led, so the block reads as a designed grid rather
      than four paragraphs in boxes */
@@ -744,7 +1004,7 @@ CSS = """<style>
   .benefit{background:var(--panel);border-radius:var(--r-sm);
     padding:var(--s5);display:flex;flex-direction:column;gap:var(--s2);}
   .benefit .bn{font-family:var(--mono);font-size:var(--f-h2);font-weight:700;line-height:1;
-    color:var(--cyan);letter-spacing:var(--t-display);align-self:flex-start;
+    color:var(--cyan-text);letter-spacing:var(--t-display);align-self:flex-start;
     border-bottom:2px solid var(--cyan);padding-bottom:var(--s2);margin-bottom:var(--s1);}
   .benefit h4{margin:0;font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);}
   .benefit p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
@@ -755,23 +1015,23 @@ CSS = """<style>
   @media(min-width:760px){.engines{grid-template-columns:1fr 1fr;}}
   .engine{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
     padding:var(--s5);display:flex;flex-direction:column;gap:var(--s3);}
-  .engine.is-two{border-color:rgba(245,130,46,.30);}
+  .engine.is-two{border-color:rgba(var(--orange-rgb),.30);}
   .engine .etag{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
-    text-transform:uppercase;color:var(--cyan);}
-  .engine.is-two .etag{color:var(--orange);}
+    text-transform:uppercase;color:var(--cyan-text);}
+  .engine.is-two .etag{color:var(--orange-text);}
   .engine h4{margin:0;font-size:var(--f-h3);font-weight:700;letter-spacing:var(--t-head);}
   .edia{width:100%;height:auto;display:block;margin:var(--s1) 0;}
   .engine p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
   .engine .ewhere{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:.06em;
     text-transform:uppercase;color:var(--ink-3);border-top:1px solid var(--line);
     padding-top:var(--s3);margin-top:auto;}
-  .engine.is-two .ewhere{color:var(--orange);}
+  .engine.is-two .ewhere{color:var(--orange-text);}
 
   .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3);}
   .step2{background:var(--panel);border-radius:var(--r-sm);
     padding:var(--s5);}
   .step2 span{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
-    text-transform:uppercase;color:var(--cyan);}
+    text-transform:uppercase;color:var(--cyan-text);}
   .step2 h4{margin:var(--s2) 0 var(--s1);font-size:var(--f-h4);font-weight:650;
     letter-spacing:var(--t-head);}
   .step2 p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
@@ -782,16 +1042,41 @@ CSS = """<style>
   .incl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:var(--s5);}
   .incl-grid div p{margin:var(--s1) 0 0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
   .incl-grid div span{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
-    text-transform:uppercase;color:var(--cyan);}
+    text-transform:uppercase;color:var(--cyan-text);}
 
   /* full bleed banner video, breaks the wrap to run edge to edge */
   .flush{padding:0;}
   .banner{display:block;width:100vw;max-width:100vw;margin-left:calc(50% - 50vw);
     background:#000;aspect-ratio:16/9;object-fit:cover;}
-  .bannercap{padding:var(--s5) 0 var(--s1);display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);
-    align-items:baseline;}
-  .bannercap .who{font-size:var(--f-body);color:var(--ink-2);}
+  /* Purely ambient: nothing about this video is meant to be clicked. Without
+     this, the YouTube iframe still owns its own click-to-pause and, once
+     paused, a channel/share/watch-later overlay that leaves the site, and no
+     URL param (controls=0 included) suppresses that. pointer-events:none
+     means no click or tap can ever reach the iframe's own UI at all. */
+  iframe.banner{pointer-events:none;}
+  .banner img{width:100%;height:100%;display:block;object-fit:cover;}
+  /* #yt-poster is a SIBLING of #yt-banner, not a child: the IFrame API
+     replaces #yt-banner outright once it creates the player (see SOLO_JS),
+     so a poster nested inside it would vanish the instant the iframe shows
+     up, well before the video is actually playing. YouTube shows its own
+     title/uploader card the whole time a video is cueing/buffering with no
+     param to suppress it (see the comment above), so the poster stays
+     layered on top and only fades once PlayerState actually reports
+     PLAYING, masking that card instead of fighting it. */
+  .posterlay{position:absolute;top:0;left:0;z-index:2;transition:opacity .5s ease;}
+  .posterlay.is-hidden{opacity:0;}
+  /* small, italic and pushed right: reads as a caption/annotation on the
+     film rather than a section label competing with the ones below it. */
+  .bannercap{padding:var(--s5) 0 var(--s1);display:flex;flex-wrap:wrap;
+    justify-content:flex-end;gap:var(--s2) var(--s5);align-items:baseline;
+    font-style:italic;}
+  .bannercap .eyebrow{font-size:var(--f-micro);}
+  .bannercap .who{font-size:var(--f-micro);color:var(--ink-2);}
   .bannercap .who strong{color:var(--ink);font-weight:600;}
+  /* no section-break rule under this one: it sits right under a full
+     bleed video, not a normal content gap, so the usual hairline read as
+     a wall between them. */
+  section.no-rule::before{content:none;}
 
   /* ---------- homepage ---------- */
   /* the two doors off the apex: the work, and the way to buy it */
@@ -801,106 +1086,226 @@ CSS = """<style>
     padding:var(--s6) var(--s5);display:flex;flex-direction:column;gap:var(--s2);
     text-decoration:none;color:inherit;
     transition:border-color var(--ease),background var(--ease),transform var(--ease);}
-  .door:hover{border-color:var(--orange-dim);background:var(--ground-2);transform:translateY(-2px);}
+  .door:hover{border-color:rgba(var(--orange-rgb),.4);background:var(--ground-2);transform:translateY(-2px);}
+  /* siding photo behind the section, not just the two cards: same "real
+     material, not a placeholder" reasoning as the folder cards and the
+     case study photos elsewhere on the site. */
+  .doors-section{background:var(--ground) url(__DOOR_SIDING__) center/cover no-repeat;}
+
+  /* blueprint texture behind the case study carousel. The cards themselves
+     (.ccard) carry their own opaque panel background, so they are
+     unaffected either way. The image (plus its vignette and saturation
+     tweak) lives on ::before rather than directly on the section: a
+     filter applies to the whole element including its children, and this
+     section's children are real content (the carousel, the cards' own
+     text) that should not get desaturated along with the backdrop. */
+  .case-studies-section{position:relative;background:var(--ground);}
+  /* height:100% explicitly, not left to inset:0 alone: the generic
+     section::before rule (the orange/cyan top divider every section gets)
+     also targets this same ::before and sets height:3px, and since this
+     rule never touched "height" as its own property, that 3px still won
+     the cascade for it even though "background" here (higher specificity,
+     a class selector vs. a bare type selector) correctly overrode the
+     other rule's background. Collapsed the whole vignette+photo layer
+     down to an invisible sliver. */
+  .case-studies-section::before{content:"";position:absolute;inset:0;height:100%;
+    z-index:0;
+    background:radial-gradient(ellipse at center,rgba(0,0,0,0) 55%,rgba(0,0,0,.35) 100%),
+      url(__BLUEPRINT__) center/cover no-repeat;
+    filter:saturate(.95);}
+  .case-studies-section > *{position:relative;z-index:1;}
+  /* No box around the whole block: a highlighter does not mark a
+     paragraph as one rectangle, it marks line by line. So there is no
+     container background/shape here at all, only spacing; each text
+     element carries its own .mark span (see markup) with the highlight
+     background, and box-decoration-break:clone is what makes that
+     background redraw separately under every wrapped line instead of
+     stretching across the whole block. Caveat (see CAVEAT_FONT_CSS, this
+     page only) instead of the site's own display face, for "hand
+     written". This used to be pulled out of the page flow entirely
+     (position:absolute) and float over the carousel on a guessed
+     margin-top, which needed a fixed pixel estimate of a height that
+     actually changes with copy and viewport width, and kept landing
+     wrong. In flow instead, centered, so it just occupies its own real
+     space in the blue above the cards and the carousel begins wherever
+     that space actually ends, correct at any size without maintaining a
+     magic number. */
+  .sec-head.on-photo{width:fit-content;max-width:min(92%,680px);
+    margin:0 auto var(--s7);text-align:center;}
+  /* real scanned marker strokes (see icons/hl-eyebrow.png, hl-heading.png),
+     not a CSS-drawn shape: the clip-path polygon tried first still read as
+     a clean geometric zigzag, nothing like an actual highlighter pass. The
+     image lives on ::before, not .mark itself, so the .75 opacity from the
+     brief (25% down from solid) fades just the stroke, not the text
+     sitting on it. background-size:100% 100% stretches each stroke to fit
+     its own text box exactly; box-decoration-break:clone (on both .mark
+     and ::before, so the image is included) is what redraws that fit
+     independently under every wrapped line instead of one stroke
+     stretching across the whole paragraph. */
+  /* z-index:0, not just position:relative: a positioned element only
+     establishes its own stacking context if it also has an explicit
+     z-index. Without one, ::before's z-index:-1 below was escaping to
+     whatever the nearest actual stacking context up the page happened to
+     be, painting behind unrelated content there instead of just behind
+     this element's own text, and shifting (the highlight flashing in
+     then vanishing) as that unrelated context's own stacking changed,
+     e.g. from the scroll-reveal fades elsewhere on the page. */
+  /* more vertical padding than before (.14em wasn't enough room for
+     Caveat's tall ascenders/low descenders, which were poking past the
+     stroke's top edge) plus a further negative inset on ::before so the
+     image bleeds a little past even that padded box. Opacity up from .75
+     to .92, brighter per the follow-up. */
+  /* Guessing top/bottom padding split by eye, twice, landed wrong both
+     times (the mono eyebrow and the Caveat heading have very different
+     ascender/descender metrics, so the same padding never centers both
+     the same way, and there's no way to measure the right split without
+     a real render). flex centering does not need that guess at all: it
+     centers whatever the text's actual rendered box turns out to be,
+     correct regardless of font metrics. Traded away box-decoration-break
+     per-line highlighting to get it (an inline-flex box cannot fragment
+     across wrapped lines the way true inline content can), but neither
+     "CASE STUDIES" nor the heading actually wraps within this section's
+     max-width in practice, so that trade costs nothing real here. */
+  .sec-head.on-photo .mark{position:relative;z-index:0;color:#14171A;
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:.22em .55em;}
+  .sec-head.on-photo .mark::before{content:"";position:absolute;inset:-8% -2%;z-index:-1;
+    background-repeat:no-repeat;background-size:100% 100%;background-position:center;
+    opacity:.92;}
+  /* direct pixel nudges against the real render: the heading's ascenders
+     (the "F" in "Five") were poking out above the stroke while a visible
+     gap of orange sat unused below the descenders, so the stroke itself
+     shifts up to close both gaps at once; the eyebrow needed the opposite,
+     smaller move. */
+  .sec-head.on-photo .eyebrow .mark::before{background-image:url(__HL_EYEBROW__);
+    transform:translateY(5px);}
+  .sec-head.on-photo h2 .mark::before{background-image:url(__HL_HEADING__);
+    transform:translateY(12px);}
+  .sec-head.on-photo h2{font-family:'Caveat',cursive;font-size:clamp(34px,5vw,52px);
+    font-weight:700;line-height:1.35;}
   .door .tier{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
-    text-transform:uppercase;color:var(--cyan);}
+    text-transform:uppercase;color:var(--cyan-text);}
   .door h3{margin:0;font-size:var(--f-h2);font-weight:700;letter-spacing:var(--t-head);}
   .door p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
-  .door .go{margin-top:var(--s2);font-size:var(--f-sm);font-weight:650;color:var(--orange);}
+  .door .go{margin-top:var(--s2);font-size:var(--f-sm);font-weight:650;color:var(--orange-text);}
 
-  .cta{display:inline-flex;align-items:center;gap:var(--s2);background:var(--orange);color:#131619;
+  .cta{display:inline-flex;align-items:center;gap:var(--s2);background:var(--orange);color:#14171A;
     border-radius:var(--r-pill);padding:14px var(--s5);font-size:var(--f-body);font-weight:650;
     text-decoration:none;transition:filter var(--ease),transform var(--ease);}
   .cta:hover{filter:brightness(1.08);transform:translateY(-1px);}
-  .cta.ghost{background:transparent;color:var(--orange);border:1px solid var(--orange-dim);}
+  .cta.ghost{background:transparent;color:var(--orange-text);border:1px solid rgba(var(--orange-rgb),.4);}
   .ctarow{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center;margin-top:var(--s6);}
   .ctanote{font-size:var(--f-sm);color:var(--ink-3);}
 
-  .skip{position:absolute;left:-9999px;top:0;background:var(--orange);color:#131619;
+  /* ---------- team page ---------- */
+  /* a headshot stands in for authority the way a case study still does elsewhere,
+     so the placeholders keep the frame that will hold the real photo rather than
+     collapsing to a name and title alone. */
+  .portrait{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-lg);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;color:var(--ink-3);}
+  .portrait svg{width:30%;height:30%;}
+  .portrait img{width:100%;height:100%;object-fit:cover;display:block;}
+
+  .leads{display:grid;grid-template-columns:1fr;gap:var(--s6);margin-bottom:var(--s8);}
+  @media(min-width:680px){.leads{grid-template-columns:1fr 1fr;gap:var(--s7);}}
+  .lead .portrait{aspect-ratio:3/4;margin-bottom:var(--s4);}
+  .lead h3{margin:0;font-size:var(--f-h3);font-family:var(--display);font-weight:650;
+    letter-spacing:var(--t-head);}
+  .lead .rtitle{display:block;margin-top:2px;font-family:var(--mono);font-size:var(--f-micro);
+    letter-spacing:var(--t-caps);text-transform:uppercase;color:var(--orange-text);}
+  .lead p{margin:var(--s3) 0 0;color:var(--ink-2);font-size:var(--f-body);line-height:1.6;
+    max-width:52ch;}
+
+  /* fixed nine, so explicit breakpoint columns rather than auto-fill, the same
+     reasoning as .reels and .logos elsewhere on the site */
+  .roster{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s5) var(--s4);}
+  @media(min-width:560px){.roster{grid-template-columns:repeat(3,1fr);}}
+  .member .portrait{aspect-ratio:1/1;margin-bottom:var(--s3);}
+  .member h4{margin:0;font-size:var(--f-body);font-family:var(--display);font-weight:600;
+    letter-spacing:var(--t-head);}
+  .member .rtitle{display:block;margin-top:1px;font-family:var(--mono);font-size:var(--f-micro);
+    letter-spacing:var(--t-caps);text-transform:uppercase;color:var(--ink-3);}
+
+  .skip{position:absolute;left:-9999px;top:0;background:var(--orange);color:#14171A;
     padding:var(--s3) var(--s4);border-radius:0 0 var(--r-sm) 0;z-index:99;font-weight:600;}
   .skip:focus{left:0;}
 
   footer{padding:var(--s8) 0 var(--s9);position:relative;overflow:hidden;}
   footer::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;z-index:2;
-    background:linear-gradient(90deg,rgba(245,130,46,.55) 0%,rgba(63,199,216,.42) 42%,
-      rgba(44,51,59,.55) 78%,rgba(44,51,59,0) 100%);}
+    background:linear-gradient(90deg,rgba(var(--orange-rgb),.55) 0%,rgba(var(--cyan-rgb),.42) 42%,
+      rgba(226,224,218,.55) 78%,rgba(226,224,218,0) 100%);}
   footer > .wrap{position:relative;z-index:1;}
   footer .display{font-size:var(--f-h2);margin-bottom:var(--s4);}
+  a.display{display:block;color:var(--ink);text-decoration:none;}
+  a.display:hover{color:var(--orange-text);}
   footer p{margin:0;color:var(--ink-2);font-size:var(--f-body);}
 </style>"""
 
+# CSS above is a plain string, not an f-string (it holds far too many literal
+# {braces} to make that safe), so the packages page's "what you are actually
+# buying" panel background is patched in after the fact via a placeholder
+# rather than an inline asset() call.
+CSS = CSS.replace("__TEXTURE_PLASTER__", asset(f"{P}/texture_plaster.webp", "image/webp"))
+CSS = CSS.replace("__DOOR_SIDING__", asset(f"{P}/siding.jpg", "image/jpeg"))
+CSS = CSS.replace("__BLUEPRINT__", asset(f"{P}/blueprint.jpg", "image/jpeg"))
+CSS = CSS.replace("__HL_EYEBROW__", asset(f"{S}/icons/hl-eyebrow.png", "image/png"))
+CSS = CSS.replace("__HL_HEADING__", asset(f"{S}/icons/hl-heading.png", "image/png"))
+
+# Full width, gently scrolling data traces, the same technique as the wave
+# background on verysilly.dev: smooth repeating bezier tiles inside an
+# oversized path, translated by exactly one tile width with SMIL
+# animateTransform so the loop has no seam. Two flowing lines carry the
+# motion; a third, straighter trace with on-curve markers reads as an
+# actual metric being plotted rather than decoration, which is the point for
+# a company that sells measurable results.
+#
+# The third trace originally carried just two markers, 800 units apart on a
+# 1200-wide viewBox. One (cx=0) spent its entire drift cycle (the
+# animateTransform below runs 0 to -400) sitting at negative x, off the left
+# edge of every viewBox slice, and depending on a given container's crop
+# width the other could drift out too, which is what "the dots are missing
+# in multiple spots across the site" (2026-08-27) turned out to be. Now six,
+# every 400 units (the path's own repeat interval) from -400 to 1600, so
+# several stay inside any reasonably cropped window at any point in the
+# cycle instead of relying on just one or two surviving the crop by luck.
+SPLAT_SVG = ('<svg class="splat" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice" '
+    'xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+    '<path d="M-600,170 C-510,142 -390,142 -300,170 C-210,198 -90,198 0,170 '
+    'C90,142 210,142 300,170 C390,198 510,198 600,170 C690,142 810,142 900,170 '
+    'C990,198 1110,198 1200,170 C1290,142 1410,142 1500,170 C1590,198 1710,198 1800,170" '
+    'stroke="rgba(240,72,32,.16)" stroke-width="1.5" fill="none">'
+    '<animateTransform attributeName="transform" type="translate" from="0,0" to="-600,0" '
+    'dur="26s" repeatCount="indefinite"/></path>'
+    '<path d="M-800,262 C-680,246 -520,246 -400,262 C-280,278 -120,278 0,262 '
+    'C120,246 280,246 400,262 C520,278 680,278 800,262 C920,246 1080,246 1200,262 '
+    'C1320,278 1480,278 1600,262 C1720,246 1880,246 2000,262" '
+    'stroke="rgba(0,176,200,.11)" stroke-width="1" fill="none">'
+    '<animateTransform attributeName="transform" type="translate" from="0,0" to="-800,0" '
+    'dur="34s" repeatCount="indefinite"/></path>'
+    '<g>'
+    '<path d="M-400,222 C-340,208 -260,208 -200,222 C-140,236 -60,236 0,222 C60,208 140,208 200,222 '
+    'C260,236 340,236 400,222 C460,208 540,208 600,222 C660,236 740,236 800,222 C860,208 940,208 1000,222 '
+    'C1060,236 1140,236 1200,222 C1260,208 1340,208 1400,222 C1460,236 1540,236 1600,222" '
+    'stroke="rgba(240,72,32,.13)" stroke-width=".8" fill="none"/>'
+    '<circle cx="-400" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/>'
+    '<circle cx="0" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/>'
+    '<circle cx="400" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/>'
+    '<circle cx="800" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/>'
+    '<circle cx="1200" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/>'
+    '<circle cx="1600" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/>'
+    '<animateTransform attributeName="transform" type="translate" from="0,0" to="-400,0" '
+    'dur="18s" repeatCount="indefinite"/></g>'
+    '</svg>')
+
+# Under prefers-reduced-motion the CSS animation kill switch (see @media block above)
+# only catches CSS animations, not SMIL. This strips the animateTransform elements so
+# the traces render as a single still frame instead, same outcome as .rv elsewhere.
 SPLAT_JS = """<script>
 (function(){
-  var list = document.querySelectorAll('canvas.splat');
-  if(!list.length) return;
-  var COLS = [[245,130,46],[63,199,216]];
-
-  function draw(c){
-    if(!c.getContext) return;
-    var w = c.clientWidth, h = c.clientHeight;
-    if(!w || !h) return;
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    c.width = w * dpr; c.height = h * dpr;
-    var x = c.getContext('2d');
-    x.setTransform(dpr, 0, 0, dpr, 0, 0);
-    x.clearRect(0, 0, w, h);
-
-    /* fixed seed so the splatter is identical on every load */
-    var s = 20260814;
-    function rnd(){ s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; }
-
-    /* additive blending keeps the hue alive at low opacity on a dark ground.
-       Straight alpha at these values goes grey and reads as dirt. */
-    x.globalCompositeOperation = 'lighter';
-
-    function blob(cx, cy, r, col, a, stretch, ang){
-      x.save();
-      x.translate(cx, cy);
-      x.rotate(ang);
-      x.beginPath();
-      var pts = 13, first = true;
-      for(var i = 0; i <= pts; i++){
-        var t = i / pts * Math.PI * 2;
-        var rr = r * (0.84 + rnd() * 0.32);
-        var px = Math.cos(t) * rr * stretch, py = Math.sin(t) * rr * 0.86;
-        if(first){ x.moveTo(px, py); first = false; } else { x.lineTo(px, py); }
-      }
-      x.closePath();
-      x.fillStyle = 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + a + ')';
-      x.fill();
-      x.restore();
-    }
-
-    var base = parseInt(c.getAttribute('data-n'), 10) || 19;
-    var n = w < 700 ? Math.max(5, Math.round(base * 0.6)) : base;
-    for(var i = 0; i < n; i++){
-      var col = COLS[i % 2];
-      var cx = rnd() * w, cy = rnd() * h;
-      var r = 2.5 + rnd() * rnd() * 11;
-      var a = 0.09 + rnd() * 0.06;
-      /* every splat is thrown from a direction, so satellites bias down one axis */
-      var throwAng = rnd() * Math.PI * 2;
-
-      blob(cx, cy, r, col, a, 1.0 + rnd() * 0.3, throwAng);
-
-      var sats = 12 + Math.floor(rnd() * 18);
-      for(var j = 0; j < sats; j++){
-        var spread = (rnd() - 0.5) * 1.6;
-        var ang = throwAng + spread;
-        var dist = r * (1.8 + rnd() * rnd() * 11);
-        var fleck = 0.5 + rnd() * rnd() * 2.9;
-        blob(cx + Math.cos(ang) * dist, cy + Math.sin(ang) * dist,
-             fleck, col, a * (0.65 + rnd() * 0.8), 1.0 + rnd() * 0.5, ang);
-      }
-    }
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    var els = document.querySelectorAll('.splat animateTransform');
+    for(var i = 0; i < els.length; i++){ els[i].remove(); }
   }
-
-  function all(){ for(var i = 0; i < list.length; i++) draw(list[i]); }
-  all();
-  var t;
-  window.addEventListener('resize', function(){
-    clearTimeout(t); t = setTimeout(all, 180);
-  });
 })();
 </script>"""
 
@@ -927,82 +1332,104 @@ SOLO_JS = """<script>
     }
   }, true);
 
-  /* The banner plays by itself, but only once it is actually on screen. Loading it
-     up front would cost tens of megabytes before the page has said anything. */
-  var amb = [].slice.call(document.querySelectorAll('video[data-ambient]'));
-  if(!amb.length) return;
+  /* Ambient YouTube backgrounds: autoplay muted, only once actually on
+     screen (nothing loads up front, not even the IFrame API script), pause
+     on scroll out, resume in place on return, and loop back to their
+     data-start mark rather than to zero. None of that is native <video>
+     behavior, so it cannot reuse the seek/ended/loadedmetadata logic above;
+     the YouTube IFrame Player API has its own equivalents (seekTo,
+     onStateChange, playVideo/pauseVideo). Two instances share this as of
+     2026-08-26 (the Quality banner, the homepage hero video), hence a
+     function rather than one-off code: each gets its own player/observer
+     closure, but only one IFrame API script tag ever loads. */
+  function loadApiThen(cb){
+    if(window.YT && window.YT.Player){ cb(); return; }
+    var prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = function(){ if(prev) prev(); cb(); };
+    if(!document.getElementById('yt-iframe-api')){
+      var tag = document.createElement('script');
+      tag.id = 'yt-iframe-api';
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+    }
+  }
 
-  function startOf(v){ return parseFloat(v.getAttribute('data-start') || '0') || 0; }
+  function setupAmbient(bannerId, posterId, sizeClass){
+    var bannerEl = document.getElementById(bannerId);
+    if(!bannerEl || !('IntersectionObserver' in window)) return;
+    var videoId = bannerEl.getAttribute('data-yt');
+    var start = parseFloat(bannerEl.getAttribute('data-start')) || 0;
+    var player = null;
 
-  function tryPlay(v){
-    var p = v.play();
-    if(p && p.then){
-      p.then(function(){
-        v.removeAttribute('controls');
-      }).catch(function(){
-        /* Autoplay refused, usually iOS low power mode. Surface controls so it is
-           still playable by hand, but keep observing: the next time it scrolls back
-           into view we try again instead of degrading permanently. */
-        v.setAttribute('controls', '');
+    function makePlayer(){
+      player = new YT.Player(bannerEl, {
+        videoId: videoId,
+        width: '100%', height: '100%',
+        /* youtube-nocookie.com, not youtube.com: the regular domain shares
+           cookies with a signed-in YouTube account, so on this machine
+           (signed into the channel these videos are uploaded to) the
+           account's own "always show captions" preference was leaking into
+           the embed and overriding cc_load_policy below. The privacy
+           domain has no such session to inherit a preference from. */
+        host: 'https://www.youtube-nocookie.com',
+        playerVars: {autoplay: 1, mute: 1, controls: 0, rel: 0, modestbranding: 1,
+          playsinline: 1, disablekb: 1, fs: 0, cc_load_policy: 0, iv_load_policy: 3, start: start},
+        events: {
+          onReady: function(e){
+            /* the API replaces bannerEl with a new iframe rather than filling
+               it, so the sizing class and .is-playing (the push-in) have to
+               move to that iframe, and the observer has to start watching it
+               instead. width/height:'100%' above stops the API defaulting to
+               a fixed 640x390 box; stripping the attributes here too is belt
+               and braces, since the stylesheet's own sizing for sizeClass is
+               what should actually govern the rendered size, not either of
+               these. */
+            var ifr = e.target.getIframe();
+            ifr.classList.add(sizeClass);
+            ifr.removeAttribute('width');
+            ifr.removeAttribute('height');
+            io.unobserve(bannerEl);
+            io.observe(ifr);
+            e.target.playVideo();
+          },
+          onStateChange: function(e){
+            /* masks YouTube's own title/uploader card, which has no
+               suppressing param. Chose speed over a guarantee here: the
+               poster hides the instant PLAYING first fires, no wait, which
+               is a real (small) risk the card is still mid-fade at that
+               exact moment on a slow/cold load. A safe delay was tried and
+               reliably hid it, but cost several real seconds on every load,
+               which mattered more. It still re-covers immediately if
+               playback drops out of PLAYING (buffering blip, scroll pause,
+               a loop restart). */
+            var poster = document.getElementById(posterId);
+            if(e.data === YT.PlayerState.PLAYING){
+              e.target.getIframe().classList.add('is-playing');
+              if(poster) poster.classList.add('is-hidden');
+            } else if(poster){
+              poster.classList.remove('is-hidden');
+            }
+            if(e.data === YT.PlayerState.ENDED){ e.target.seekTo(start, true); e.target.playVideo(); }
+          }
+        }
       });
     }
+
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){
+          if(!player){ loadApiThen(makePlayer); }
+          else if(player.playVideo) player.playVideo();
+        } else if(player && player.pauseVideo){
+          player.pauseVideo();               /* pauseVideo, not stopVideo: keeps position */
+        }
+      });
+    }, {threshold: 0.2});
+    io.observe(bannerEl);
   }
 
-  /* Seek first, then play. Calling play() before the seek lands means playback
-     begins at zero and the seek arrives late, which looks like the start mark
-     being ignored. currentTime is only writable once metadata exists. */
-  function seekThen(v, to, done){
-    if(v.readyState >= 1){
-      try { v.currentTime = to; } catch(e){}
-      done();
-    } else {
-      v.addEventListener('loadedmetadata', function(){
-        try { v.currentTime = to; } catch(e){}
-        done();
-      }, {once: true});
-    }
-  }
-
-  if(!('IntersectionObserver' in window)){
-    amb.forEach(function(v){
-      v.preload = 'auto';
-      var s = startOf(v);
-      if(s > 0) seekThen(v, s, function(){ tryPlay(v); }); else tryPlay(v);
-    });
-    return;
-  }
-
-  /* The film opens on a slow establishing shot, so the banner starts at its
-     data-start mark and loops back to that mark rather than to zero. The native
-     loop attribute cannot do this, which is why it is handled here. */
-  amb.forEach(function(v){
-    var s = startOf(v);
-    v.addEventListener('ended', function(){
-      try { v.currentTime = s; } catch(e){}
-      tryPlay(v);
-    });
-  });
-
-  /* Plays on entry, pauses on exit, resumes from the same frame on return.
-     pause() preserves currentTime; the only call that resets it is load(), which
-     is why that runs once and only on the very first appearance. */
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(en){
-      var v = en.target;
-      if(!en.isIntersecting){
-        if(!v.paused) v.pause();         /* keeps the position for the return trip */
-        return;
-      }
-      if(v.getAttribute('preload') !== 'auto'){
-        v.setAttribute('preload', 'auto');
-        v.load();                        /* first sighting only: this one resets to 0 */
-        var s = startOf(v);
-        if(s > 0){ seekThen(v, s, function(){ tryPlay(v); }); return; }
-      }
-      tryPlay(v);                        /* every later return: resume in place */
-    });
-  }, {threshold: 0.2});
-  amb.forEach(function(v){ io.observe(v); });
+  setupAmbient('yt-banner', 'yt-poster', 'banner');
+  setupAmbient('hero-yt', 'hero-yt-poster', 'herobg');
 })();
 </script>"""
 
@@ -1018,6 +1445,92 @@ NAV_JS = """<script>
 </script>"""
 
 
+# /our-work/ only: the five case cards are buttons, not links (see case_card).
+# Clicking one reveals that case's full write-up (still the exact same markup
+# case_page() used to build a whole page from, just living in .case-panels
+# instead) below the carousel, and clicking the same card again collapses it.
+# A matching #id in the URL (the homepage stat links now point at
+# /our-work/#a1 etc.) opens and scrolls to that case on load, so the old
+# per-case URLs still resolve to something sensible even though the pages
+# themselves are gone.
+CAROUSEL_JS = """<script>
+(function(){
+  var carousel = document.querySelector('.carousel');
+  var panels = document.getElementById('case-panels');
+  if(!carousel || !panels) return;
+  var track = carousel.querySelector('.ccards');
+  var cards = [].slice.call(carousel.querySelectorAll('.ccard'));
+  var dots = [].slice.call(document.querySelectorAll('.car-dot'));
+  var sections = [].slice.call(panels.children);
+  var prevBtn = carousel.querySelector('.car-prev');
+  var nextBtn = carousel.querySelector('.car-next');
+  var current = null;
+
+  function paint(id){
+    current = id;
+    cards.forEach(function(c){
+      var on = c.dataset.case === id;
+      c.classList.toggle('is-active', on);
+      c.setAttribute('aria-expanded', on ? 'true' : 'false');
+    });
+    dots.forEach(function(d){ d.classList.toggle('is-active', d.dataset.case === id); });
+    sections.forEach(function(s){ s.classList.toggle('is-active', s.id === id); });
+  }
+
+  function reveal(id, scroll){
+    paint(id);
+    if(scroll){
+      var target = document.getElementById(id);
+      /* one tick so display:none -> block lands before measuring position */
+      if(target) setTimeout(function(){
+        target.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }, 60);
+    }
+  }
+
+  /* card/dot clicks toggle: clicking the one already open closes it again.
+     Hash-driven opens (below) never should, or clicking a link to a case
+     that happens to already be open would close it instead of scrolling
+     to it. */
+  function toggle(id, scroll){
+    if(current === id){ paint(null); return; }
+    reveal(id, scroll);
+  }
+
+  cards.forEach(function(c){
+    c.addEventListener('click', function(){ toggle(c.dataset.case, true); });
+  });
+  dots.forEach(function(d){
+    d.addEventListener('click', function(){ toggle(d.dataset.case, true); });
+  });
+
+  function step(dir){
+    if(!track) return;
+    var card = track.querySelector('.ccard');
+    if(!card) return;
+    var gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 0;
+    var w = card.getBoundingClientRect().width + gap;
+    track.scrollBy({left: dir * w, behavior: 'smooth'});
+  }
+  if(prevBtn) prevBtn.addEventListener('click', function(){ step(-1); });
+  if(nextBtn) nextBtn.addEventListener('click', function(){ step(1); });
+
+  /* This page's own hero stats (and the homepage's, and packages') link to
+     #a1-style anchors, not through the click handlers above, so a native
+     click changes the hash without ever calling toggle(). Without this,
+     that native jump would land on a section still sitting at
+     display:none. Handling hashchange, not just the initial load, catches
+     a same-page anchor click too, not only a fresh arrival. */
+  function openFromHash(){
+    var id = (location.hash || '').slice(1);
+    if(id && cards.some(function(c){ return c.dataset.case === id; })) reveal(id, true);
+  }
+  openFromHash();
+  window.addEventListener('hashchange', openFromHash);
+})();
+</script>"""
+
+
 MOTION_JS = """<script>
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1025,11 +1538,18 @@ MOTION_JS = """<script>
   /* (a) scroll reveals ---------------------------------------------------- */
   if(!reduce && 'IntersectionObserver' in window){
     var SEL = '.sec-head,.ccard,.benefit,.engine,.pkg,.csi > div,.op,.spot,.reel,.sh,' +
-              '.step,.step2,.tcard,.door,.feature,.always,.incl,.pn,.band-head';
+              '.step,.step2,.tcard,.door,.feature,.always,.incl,.pn,.band-head,.lead,.member';
     var vh = window.innerHeight || 800;
     var targets = [].slice.call(document.querySelectorAll(SEL)).filter(function(e){
       /* nothing above the fold gets a reveal: that space belongs to the hero
-         entrance, and hiding it would sit on the critical render path */
+         entrance, and hiding it would sit on the critical render path.
+         .benefit and .step2 are exempt: both sit close under a page hero, so
+         on a lot of real viewport heights they'd land above this cutoff and
+         never animate at all, which is the opposite of what was asked for
+         (they should always slide in on scroll). Neither is ever the LCP
+         element, so skipping the filter for them does not reintroduce the
+         render-path problem the filter guards against. */
+      if(e.classList.contains('benefit') || e.classList.contains('step2')) return true;
       return e.getBoundingClientRect().top > vh * 0.9;
     });
     targets.forEach(function(e){ e.classList.add('rv'); });
@@ -1041,18 +1561,26 @@ MOTION_JS = """<script>
           return c.classList && c.classList.contains('rv');
         });
         var i = Math.max(0, Math.min(sibs.indexOf(e), 4));   /* stagger caps at 5 */
+        /* .benefit and .step2 get their own, slower cadence than the generic
+           60ms ripple used everywhere else: 500ms between cards, splitting
+           the difference between that 60ms and the fully-cumulative "wait
+           for the previous card's .5s slide plus a half second pause"
+           version this replaced, which read as too slow. */
+        var isSlow = e.classList.contains('benefit') || e.classList.contains('step2');
+        var step = isSlow ? 500 : 60;
         e.style.willChange = 'opacity, transform';
-        e.style.transitionDelay = (i * 60) + 'ms';
+        e.style.transitionDelay = (i * step) + 'ms';
         e.classList.add('rv-in');
         io.unobserve(e);                                     /* never re-animate */
-        setTimeout(function(){ e.style.willChange = 'auto'; }, 700 + i * 60);
+        setTimeout(function(){ e.style.willChange = 'auto'; },
+          (isSlow ? 500 : 700) + i * step);
       });
     }, {threshold: 0.15, rootMargin: '0px 0px -10% 0px'});
     targets.forEach(function(e){ io.observe(e); });
   }
 
   /* (b) count up ---------------------------------------------------------- */
-  var nums = [].slice.call(document.querySelectorAll('.stat .n, .op .n'));
+  var nums = [].slice.call(document.querySelectorAll('.stat .n, .op .n, .reel .vnum'));
   if(nums.length && !reduce && 'IntersectionObserver' in window){
     var parse = function(s){
       var m = String(s).match(/^([^0-9.]*)([0-9]+(?:\.[0-9]+)?)(.*)$/);
@@ -1099,10 +1627,43 @@ MOTION_JS = """<script>
     });
   }
 
-  /* (d) hero film push in, started only once the banner actually plays ----- */
-  [].slice.call(document.querySelectorAll('video[data-ambient]')).forEach(function(v){
-    v.addEventListener('playing', function(){ if(!reduce) v.classList.add('is-playing'); });
-  });
+  /* (d) hero film push in: as of 2026-08-26 the banner is a YouTube embed, so
+     "started playing" is a YT.Player onStateChange event, not a <video>
+     'playing' event; that's handled in SOLO_JS, next to the rest of the
+     banner's ambient-play logic, not here. */
+
+  /* (h) YouTube spots, click to play. Plain iframe swap, not the IFrame Player
+     API: nothing about this needs programmatic control, so there is nothing to
+     load until someone actually clicks. youtube-nocookie.com sets no tracking
+     cookie until playback starts. Only one plays at a time; starting a second
+     puts the first back to its poster, same rule SOLO_JS applies to the
+     self-hosted videos.
+     controls=0 is load bearing, not cosmetic: YouTube's native control bar
+     carries its own logo button that opens youtube.com in a new tab, and an
+     ended video falls through to a related-videos screen that does the same.
+     loop=1 with playlist set to the video's own id is the documented trick
+     for looping a single video (loop=1 alone only loops playlists), which
+     also means it never reaches that ended state at all. */
+  var ytSpots = [].slice.call(document.querySelectorAll('.ytspot'));
+  if(ytSpots.length){
+    var ytReset = null;
+    ytSpots.forEach(function(el){
+      var poster = el.innerHTML;
+      var id = el.getAttribute('data-yt');
+      var title = el.getAttribute('data-title') || '';
+      if(!id) return;
+      function reset(){ el.innerHTML = poster; }
+      el.addEventListener('click', function(){
+        if(ytReset && ytReset !== reset) ytReset();
+        el.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id +
+          '?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=0&disablekb=1&' +
+          'loop=1&playlist=' + id + '" title="' + title + '" '+
+          'allow="autoplay; encrypted-media; picture-in-picture" '+
+          'loading="lazy"></iframe>';
+        ytReset = reset;
+      });
+    });
+  }
 })();
 </script>"""
 
@@ -1184,8 +1745,8 @@ FORM_JS = """<script>
         var done = document.createElement('div');
         done.className = 'fdone';
         done.setAttribute('tabindex', '-1');
-        done.innerHTML = '<h3>Got it, thank you.</h3><p>That is in Yoni&#39;s inbox now. ' +
-          'You will hear back within one business day, from a person, ' +
+        done.innerHTML = '<h3>Got it, thank you.</h3><p>That is in our inbox now. ' +
+          'You will hear back within one business day, from a human, ' +
           'about your market specifically.</p>';
         f.parentNode.replaceChild(done, f);
         done.focus();
@@ -1197,12 +1758,17 @@ FORM_JS = """<script>
         });
       }
       status.className = 'fstatus is-err';
-      status.textContent = (res.body && res.body.error) ||
-        'Something went wrong at our end. Please email yoni@yoniverseproductions.com directly.';
+      if(res.body && res.body.error){
+        status.textContent = res.body.error;
+      } else {
+        status.innerHTML = 'Something went wrong at our end. Please '
+          + '<a href="mailto:info@homeservicestudios.com">email us</a> directly.';
+      }
       btn.disabled = false; btn.textContent = LABEL;
     }).catch(function(){
       status.className = 'fstatus is-err';
-      status.textContent = 'That did not send. Please email yoni@yoniverseproductions.com directly.';
+      status.innerHTML = 'That did not send. Please '
+        + '<a href="mailto:info@homeservicestudios.com">email us</a> directly.';
       btn.disabled = false; btn.textContent = LABEL;
     });
   });
@@ -1210,7 +1776,22 @@ FORM_JS = """<script>
 </script>"""
 
 
-def spot(fn, sc, nm, du):
+def spot(fn, sc, nm, du, yt=None):
+    """Renders a case-study clip two ways. With `yt` set it's a click-to-play
+    YouTube spot: a poster and a play button, nothing else, until someone
+    actually clicks (see the (h) section of MOTION_JS for the iframe swap) so
+    it costs nothing on the page until then and never leaves the site to
+    play. Without `yt` it's the original self-hosted video, kept as a
+    fallback for clips not yet uploaded to YouTube."""
+    if yt:
+        poster = asset(os.path.join(S, "post_yt", yt + ".webp"), "image/webp")
+        return (f'<article class="spot">'
+                f'<div class="ytspot" data-yt="{yt}" data-title="{nm}">'
+                f'<img src="{poster}" alt="" loading="lazy">'
+                f'<button type="button" class="ytplay" aria-label="Play {nm}">{PLAY_ICON}</button>'
+                f'</div>'
+                f'<div class="meta"><span class="sc">{sc}</span><span class="nm">{nm}</span>'
+                f'<span class="du">{du}</span></div></article>')
     poster = asset(os.path.join(P, fn.replace(".mp4", ".jpg")), "image/jpeg")
     src = asset(os.path.join(V, fn), "video/mp4")
     return (f'<article class="spot">'
@@ -1219,26 +1800,35 @@ def spot(fn, sc, nm, du):
             f'<div class="meta"><span class="sc">{sc}</span><span class="nm">{nm}</span>'
             f'<span class="du">{du}</span></div></article>')
 
-allheart = [("ah1.mp4","01","Breaking Furniture 101","0:30"),("ah4.mp4","02","The Upsell","0:15"),
-    ("ah5.mp4","03","The Snake","0:30"),("ah6.mp4","04","Obsessed","0:30"),
-    ("ah7.mp4","05","Meet The Carlas","0:30"),("ah8.mp4","06","The Influencer","0:30"),
-    ("ah9.mp4","07","The Auctioneer","0:30"),("ah10.mp4","08","Ghosted","0:30"),
-    ("ah2.mp4","09","Universe is Talking","0:30"),("ah3.mp4","10","The Quote","0:42")]
+# All 17 clips are on YouTube as of 2026-08-26 (last batch: ah3 "The Quote"
+# plus all six handyman). The fn/yt pairing (fn set, yt None) still works as a
+# fallback to the original self-hosted video if a future clip needs pulling
+# from YouTube and re-hosting locally instead.
+allheart = [(None,"01","Breaking Furniture 101","0:30","zaCFfVetfFI"),
+    (None,"02","The Upsell","0:15","METoxqCqkn8"),
+    (None,"03","The Snake","0:30","TPDZ-OvRNgc"),(None,"04","Obsessed","0:30","Nz5hbi-0x94"),
+    (None,"05","Meet The Carlas","0:30","A6gc-YCl94E"),(None,"06","The Influencer","0:30","YLK9ftd4Dx4"),
+    (None,"07","The Auctioneer","0:30","aEtwPZAdKPo"),(None,"08","Ghosted","0:30","npKJfYqjljs"),
+    (None,"09","Universe is Talking","0:30","COEbLTt42FI"),(None,"10","The Quote","0:42","unFCPL3Cw5o")]
 
-handyman = [("hd1.mp4","01","It's Way Hotter","0:30"),
-    ("hd2.mp4","02","Don't Worry, You'll Get Used To It","0:30"),
-    ("hd3.mp4","03","Sleeping On The Job","0:30"),("hd4.mp4","04","Father Vs AC","0:15"),
-    ("hd5.mp4","05","A Space Odyssey","0:56"),("hd6.mp4","06","Where's That Coming From","0:30")]
+handyman = [(None,"01","It's Way Hotter","0:30","E5qZHk03snY"),
+    (None,"02","Don't Worry, You'll Get Used To It","0:30","4fUdKqK9cPM"),
+    (None,"03","Sleeping On The Job","0:30","S3Hkreuykvs"),(None,"04","Father Vs AC","0:15","IppFw7pSssA"),
+    (None,"05","A Space Odyssey","0:56","AfkePSa8XLU"),(None,"06","Where's That Coming From","0:30","Fodjt_xKovE")]
 
 yt = asset(f"{P}/_yt.jpg", "image/jpeg")
 
-# The banner is a three minute film. Inlining it as base64 would push the artifact
-# build past its 16MB ceiling, so that copy shows the frame and the live site plays it.
+# The banner is a three minute film, on YouTube as of 2026-08-26 (see SOLO_JS
+# for the ambient autoplay/loop-to-1:14 handling, which replaces #yt-banner
+# with the actual player once it scrolls into view). Inlining it as base64
+# would push the artifact build past its 16MB ceiling regardless, so that
+# copy just shows the poster frame; only the live site plays anything.
 _bposter = asset(f"{P}/quality1.jpg", "image/jpeg")
 if MODE == "web":
-    BANNER_MEDIA = (f'<div class="bannerwrap"><video class="banner" data-ambient muted '
-                    f'data-start="74" playsinline preload="none" poster="{_bposter}" '
-                    f'src="{asset(f"{V}/quality1.mp4", "video/mp4")}"></video></div>')
+    BANNER_MEDIA = (f'<div class="bannerwrap"><div class="banner" id="yt-banner" '
+                    f'data-yt="m3HEWS9qMTM" data-start="74"></div>'
+                    f'<img class="banner posterlay" id="yt-poster" src="{_bposter}" loading="lazy" '
+                    f'alt="Quality Heating Cooling Plumbing Electrical website banner film"></div>')
 else:
     BANNER_MEDIA = (f'<div class="bannerwrap"><img class="banner" src="{_bposter}" '
                     f'alt="Quality Heating Cooling Plumbing Electrical website banner film"></div>')
@@ -1263,16 +1853,30 @@ def short(vid, thumb, views):
             f'<span class="cap"><span class="v">{views}</span>'
             f'<span class="l">Views</span></span></a>')
 
-a1 = [("1320266993606759","623K","The attic",1),("1682905312990623","428K","Reel 02",0),
-      ("2529519850833764","410K","Reel 03",0),("1515832853025994","312K","Reel 04",0),
-      ("1367347965291754","195K","Reel 05",0),("1665126741451677","162K","Reel 06",0),
-      ("1718428669171616","134K","Reel 07",0)]
+# thumb ids are 2026-08-26 crops of screenshots the client sent (Facebook serves
+# no public og:image/thumbnail without auth, see the case-visuals note in
+# CLAUDE.md), cropped to cut the recording UI (mute icon, caption, byline) and
+# down to a tiny 9x15 next to the view count, not a real preview image.
+a1 = [("1320266993606759","623K","The attic",1,"a1r1"),("1682905312990623","428K","Reel 02",0,"a1r2"),
+      ("2529519850833764","410K","Reel 03",0,"a1r3"),("1515832853025994","312K","Reel 04",0,"a1r4"),
+      ("1367347965291754","195K","Reel 05",0,"a1r5"),("1665126741451677","162K","Reel 06",0,"a1r6"),
+      ("1718428669171616","134K","Reel 07",0,"a1r7")]
 
 # built once so it can be dropped into any page. The portfolio uses it as a case,
 # the pricing page uses it as evidence sitting next to a price.
 A1_REELS = "\n".join(
+    # .rmeta (number + label) sits beside .rthumb, not around it, so the
+    # thumbnail can stretch (align-items:stretch, see .reel) to match the
+    # full height of the text column, top of the number to bottom of the
+    # label. The count-up script (MOTION_JS) does el.textContent = ... on
+    # whatever it targets, every animation frame, which would silently
+    # delete the thumbnail if it were still nested inside the element the
+    # count-up rewrites; targeting .reel .vnum specifically, a text-only
+    # span with no img in it, is what keeps that safe.
     f'<a class="reel{" is-top" if t else ""}" href="https://www.facebook.com/reel/{i}">'
-    f'<span class="v">{v}</span><span class="l">{l}</span></a>' for i, v, l, t in a1
+    f'<div class="rmeta"><span class="vnum">{v}</span><span class="l">{l}</span></div>'
+    f'<img class="rthumb" src="{asset(f"{P}/{th}.webp", "image/webp")}" alt="" loading="lazy"></a>'
+    for i, v, l, t, th in a1
 )
 
 CLIENT_LOGOS = [
@@ -1349,26 +1953,26 @@ def a1_chart():
         h = round(v / 623 * 132)
         x = PAD + i * (bw + gap)
         y = BASE - h
-        col = "#F5822E" if top else "#3FC7D8"
+        col = "#F04820" if top else "#00B0C8"
         op = "1" if top else ".55"
         bars += (f'<rect x="{x}" y="{y}" width="{bw}" height="{h}" rx="3" fill="{col}" '
                  f'opacity="{op}"/>')
-        labels += (f'<text x="{x + bw/2:.0f}" y="{y - 8}" text-anchor="middle" fill="#F2EFE9" '
-                   f'font-size="15" font-family="ui-monospace,Menlo,monospace" '
+        labels += (f'<text x="{x + bw/2:.0f}" y="{y - 8}" text-anchor="middle" fill="#14171A" '
+                   f'font-size="15" font-family="Archivo,sans-serif" '
                    f'font-weight="700">{lab}</text>')
-        labels += (f'<text x="{x + bw/2:.0f}" y="{BASE + 20}" text-anchor="middle" fill="#6F7C86" '
-                   f'font-size="11" font-family="ui-monospace,Menlo,monospace" '
+        labels += (f'<text x="{x + bw/2:.0f}" y="{BASE + 20}" text-anchor="middle" fill="#6B747C" '
+                   f'font-size="11" font-family="Archivo,sans-serif" font-weight="700" '
                    f'letter-spacing="1">{"0" + str(i+1)}</text>')
     # the 100k line the whole tail clears
     ty = BASE - round(100 / 623 * 132)
     lx = PAD + 7 * (bw + gap) - gap + 10          # just past the last bar
-    thresh = (f'<line x1="{PAD}" y1="{ty}" x2="{lx - 6}" y2="{ty}" stroke="#F5822E" '
+    thresh = (f'<line x1="{PAD}" y1="{ty}" x2="{lx - 6}" y2="{ty}" stroke="#F04820" '
               f'stroke-width="1" stroke-dasharray="4 4" opacity=".5"/>'
-              f'<text x="{lx}" y="{ty + 4}" fill="#F5822E" font-size="11" '
-              f'font-family="ui-monospace,Menlo,monospace" letter-spacing="1">100K</text>')
+              f'<text x="{lx}" y="{ty + 4}" fill="#B93412" font-size="11" '
+              f'font-family="Archivo,sans-serif" font-weight="700" letter-spacing="1">100K</text>')
     return (f'<svg class="a1chart" viewBox="0 0 {W} {H}" role="img" aria-label="Seven A1 reels by '
             f'view count, from 623,000 down to 134,000, every one of them above 100,000">'
-            f'<line x1="{PAD}" y1="{BASE}.5" x2="{lx - 6}" y2="{BASE}.5" stroke="#2C333B" '
+            f'<line x1="{PAD}" y1="{BASE}.5" x2="{lx - 6}" y2="{BASE}.5" stroke="#E2E0DA" '
             f'stroke-width="1"/>{thresh}{bars}{labels}</svg>')
 
 
@@ -1417,8 +2021,10 @@ CASE_BY_ID = {c["id"]: c for c in CASES}
 
 
 def case_card(c):
-    """One card on the /our-work/ index. Keeps the old anchor id so links to
-    /work/joseph-peretz/ from anywhere still land on the right card."""
+    """One slide in the /our-work/ carousel. A button, not a link: clicking one
+    reveals that case's full write-up inline below the carousel (see
+    CAROUSEL_JS) instead of navigating to a page, so there is no href/id
+    collision with the matching CASE_BODY section's own id."""
     name = c["name"]
     if c["still"]:
         src = asset(os.path.join(P, c["still"]), "image/jpeg")
@@ -1430,80 +2036,22 @@ def case_card(c):
                f'loading="lazy" decoding="async"></span>')
     else:
         art = '<span class="cc-num">' + c["metric"] + '</span>'
-    return (f'<a class="ccard" id="{c["id"]}" href="/work/{c["slug"]}/">'
+    return (f'<button type="button" class="ccard" data-case="{c["id"]}" '
+            f'aria-controls="{c["id"]}">'
             f'<span class="cc-art">{art}</span>'
             f'<span class="cc-body">'
             f'<span class="cc-vert">{c["vertical"]}</span>'
             f'<span class="cc-name">{c["name"]}</span>'
             f'<span class="cc-blurb">{c["blurb"]}</span>'
             f'<span class="cc-metric"><b>{c["metric"]}</b> {c["mlabel"]}</span>'
-            f'<span class="cc-go">Read the case &rarr;</span>'
-            f'</span></a>')
+            f'<span class="cc-go">See the case &darr;</span>'
+            f'</span></button>')
 
 CASE_INDEX = "\n".join(case_card(c) for c in CASES)
+CASE_DOTS = "\n".join(f'<button type="button" class="car-dot" data-case="{c["id"]}" '
+                       f'aria-label="{c["name"]}"></button>' for c in CASES)
 
 
-def case_page(i):
-    """A single case study page, with the chain to its neighbours at the foot."""
-    c = CASES[i]
-    prev_c = CASES[i-1] if i > 0 else None
-    next_c = CASES[i+1] if i < len(CASES)-1 else None
-    links = ""
-    if prev_c:
-        links += (f'<a class="pn prev" href="/work/{prev_c["slug"]}/">'
-                  f'<span class="pn-l">Previous case</span>'
-                  f'<span class="pn-n">{prev_c["name"]}</span></a>')
-    if next_c:
-        links += (f'<a class="pn next" href="/work/{next_c["slug"]}/">'
-                  f'<span class="pn-l">Next case</span>'
-                  f'<span class="pn-n">{next_c["name"]}</span></a>')
-    crumb_ld = (
-        '<script type="application/ld+json">'
-        '{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":['
-        '{"@type":"ListItem","position":1,"name":"Home",'
-        '"item":"https://yoniverseproductions.com/"},'
-        '{"@type":"ListItem","position":2,"name":"Work",'
-        '"item":"https://yoniverseproductions.com/our-work/"},'
-        '{"@type":"ListItem","position":3,"name":"' + c["name"] + '"}]}'
-        '</script>')
-    crumbs = (f'<nav class="crumbs" aria-label="Breadcrumb"><div class="wrap">'
-              f'<a href="/">Home</a><span aria-hidden="true">/</span>'
-              f'<a href="/our-work/">Work</a><span aria-hidden="true">/</span>'
-              f'<span aria-current="page">{c["name"]}</span>'
-              f'</div></nav>')
-    return f"""<title>{c["name"]}</title>
-{FONT_CSS}
-{CSS}
-{crumb_ld}
-<a class="skip" href="#main">Skip to content</a>
-{nav("work")}
-{crumbs}
-<main id="main">
-{CASE_BODY[c["id"]]}
-<section><div class="wrap">
-  <div class="pnrow">{links}</div>
-  <div class="ctarow">
-    <a class="cta ghost" href="/our-work/">All five case studies</a>
-    {book("Project%20enquiry", "Start a project")}{callbtn()}
-  </div>
-  {reassure()}
-</div></section>
-</main>
-<footer><canvas class="splat" data-n="8" aria-hidden="true"></canvas><div class="wrap">
-  <p class="eyebrow">Contact</p>
-  <p class="display">Let&#39;s make something that travels.</p>
-  <div class="fcontact">{phonebtn("fphone")}<a href="mailto:{EMAIL}">{EMAIL}</a></div>
-  <p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019
-  &nbsp;&middot;&nbsp; <a href="/our-work/">See the work</a>
-  &nbsp;&middot;&nbsp; <a href="/packages/">Packages</a>
-  &nbsp;&middot;&nbsp; <a href="/contact/">Contact</a></p>
-</div></footer>
-{actionbar()}
-{SPLAT_JS}
-{SOLO_JS}
-{NAV_JS}
-{MOTION_JS}
-"""
 
 
 
@@ -1699,13 +2247,14 @@ def logo_marquee():
 
 
 
-html = f"""<title>Selected work, Yoniverse Productions</title>
+html = f"""<title>Selected work, Home Service Studios</title>
 {FONT_CSS}
+{CAVEAT_FONT_CSS}
 {CSS}
 <a class="skip" href="#main">Skip to content</a>
 {nav("work")}
-<div class="hero"><canvas class="splat" data-n="19" aria-hidden="true"></canvas><div class="wrap">
-  <p class="eyebrow">Selected work &middot; Yoniverse Productions</p>
+<div class="hero">{SPLAT_SVG}<div class="wrap">
+  <p class="eyebrow">Selected work &middot; Home Service Studios</p>
   <h1 class="display">Five clients.<br>Five kinds of proof.</h1>
   <p class="sub">From a brand-new account with zero followers to an artist at six hundred million
   views. <strong>The approach does not change.</strong></p>
@@ -1717,12 +2266,12 @@ html = f"""<title>Selected work, Yoniverse Productions</title>
     <a class="stat" href="#sam"><span class="case">Sam Halaby</span><span class="n">605M</span><span class="k">Views for one artist</span></a>
   </div>
   <div class="ctarow">
-    {book("Project%20enquiry", "Start a project")}{callbtn()}
+    {book("Project%20enquiry", "Start a project")}
     <a class="cta ghost" href="/packages/">Monthly packages</a>
   </div>
   {reassure()}
-  <p class="ctanote" style="margin-top:16px;max-width:60ch;">Yoniverse Productions is led by founder
-  and creative director Yoni Paz, who spent seven years across the creator economy, live streaming
+  <p class="ctanote" style="margin-top:16px;max-width:60ch;">Home Service Studios is led by a founder
+  and creative director who spent seven years across the creator economy, live streaming
   and social commerce, running portfolios of more than ten thousand creators and one hundred and
   twenty talent agencies before building this company around commercial work.</p>
 </div></div>
@@ -1732,45 +2281,52 @@ html = f"""<title>Selected work, Yoniverse Productions</title>
   {BANNER_MEDIA}
   <div class="wrap"><div class="bannercap">
     <p class="eyebrow">Brand film</p>
-    <span class="who"><strong>Quality Heating Cooling Plumbing Electrical</strong>, Tulsa.
-    Website banner film.</span>
+    <span class="who"><strong>Quality Heating Cooling Plumbing Electrical</strong>, Tulsa.</span>
   </div></div>
 </section>
 
-<section><div class="wrap">
+<section class="no-rule"><div class="wrap">
   <div class="sec-head">
     <p class="eyebrow">Roster</p>
-    <h2 class="display">Brands and creators</h2>
-    <p class="lede">Writing and production across home services nationwide, plus creator work in art,
-    live streaming and social commerce.</p>
+    <h2 class="display">Writing and production across home services nationwide</h2>
   </div>
   {logo_marquee()}
 </div></section>
 
-<section><div class="wrap">
-  <div class="sec-head">
-    <p class="eyebrow">Case studies</p>
-    <h2 class="display">Five clients, five kinds of proof</h2>
-    <p class="lede">Ordered the way a business owner should read them, so the one closest
-    to your problem comes first.</p>
+<section class="case-studies-section"><div class="wrap">
+  <div class="sec-head on-photo">
+    <p class="eyebrow"><span class="mark">Case studies</span></p>
+    <h2 class="display"><span class="mark">Five clients, five kinds of proof</span></h2>
   </div>
-  <div class="ccards">
+  <div class="carousel">
+    <button type="button" class="car-arrow car-prev" aria-label="Previous client">{ARROW_LEFT}</button>
+    <div class="car-viewport"><div class="ccards">
 {CASE_INDEX}
+    </div></div>
+    <button type="button" class="car-arrow car-next" aria-label="Next client">{ARROW_RIGHT}</button>
+  </div>
+  <div class="car-dots">
+{CASE_DOTS}
   </div>
 </div></section>
 
+<div class="case-panels" id="case-panels">
+{chr(10).join(CASE_BODY[c["id"]] for c in CASES)}
+</div>
+
 </main>
 
-<footer><canvas class="splat" data-n="8" aria-hidden="true"></canvas><div class="wrap">
+<footer>{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Contact</p>
-  <p class="display">Let's make something that travels.</p>
-  <div class="fcontact">{phonebtn("fphone")}<a href="mailto:{EMAIL}">{EMAIL}</a></div><p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019&nbsp;&middot;&nbsp; <a href="/contact/">Contact</a></p>
+  <a class="display" href="/contact/#start">Let's make something that travels.</a>
+  <div class="fcontact"><a href="/contact/#start">Contact</a></div><p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019&nbsp;&middot;&nbsp; <a href="/contact/">Contact</a></p>
 </div></footer>
 {actionbar()}
 {SPLAT_JS}
 {SOLO_JS}
 {NAV_JS}
 {MOTION_JS}
+{CAROUSEL_JS}
 """
 
 # ---- packages page --------------------------------------------------------
@@ -1814,12 +2370,18 @@ def pkg_card(tid):
             + f'<div class="shoot">{c["camera"]}</div></div>')
 
 
+# One tab color per group, in ascending commitment order. Only three tones exist
+# site wide, so this is the whole rotation, not a sample of a larger palette.
+BAND_TONE = {"you-shoot": "t-cyan", "we-shoot": "t-orange", "studio": "t-ink"}
+
+
 def pkg_group(gid):
     g = next(x for x in PKG["groups"] if x["id"] == gid)
     cards = "".join(pkg_card(t) for t in g["tiers"])
-    return (f'<div class="band"><div class="band-head">'
-            f'<h2 class="display">{g["heading"]}</h2><p>{g["subhead"]}</p></div>'
-            f'<div class="pkgs">{cards}</div></div>')
+    tone = BAND_TONE[gid]
+    return (f'<div class="band"><span class="band-tab {tone}">{g["heading"]}</span>'
+            f'<div class="band-body"><p>{g["subhead"]}</p>'
+            f'<div class="pkgs">{cards}</div></div></div>')
 
 
 def price_ladder():
@@ -1846,9 +2408,9 @@ def pkg(tier, name, price, unit, bullets, shooter, feat=False,
 # Two small diagrams for the packages page. The first is breadth: a lot of posts,
 # familiarity rising slowly across all of them. The second is depth: fewer people,
 # each one further along, narrowing to a booked job.
-ENGINE_SHORT = ('<svg class="edia" viewBox="0 0 300 92" role="img" aria-label="Many small posts over time, with familiarity rising slowly across them"><line x1="6" y1="82.5" x2="294" y2="82.5" stroke="#2C333B" stroke-width="1"/><rect x="8.0" y="72" width="6" height="10" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="20.5" y="66" width="6" height="16" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="33.0" y="73" width="6" height="9" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="45.5" y="61" width="6" height="21" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="58.0" y="69" width="6" height="13" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="70.5" y="75" width="6" height="7" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="83.0" y="64" width="6" height="18" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="95.5" y="70" width="6" height="12" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="108.0" y="58" width="6" height="24" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="120.5" y="72" width="6" height="10" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="133.0" y="67" width="6" height="15" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="145.5" y="63" width="6" height="19" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="158.0" y="73" width="6" height="9" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="170.5" y="60" width="6" height="22" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="183.0" y="69" width="6" height="13" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="195.5" y="66" width="6" height="16" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="208.0" y="72" width="6" height="10" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="220.5" y="61" width="6" height="21" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="233.0" y="67" width="6" height="15" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="245.5" y="73" width="6" height="9" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="258.0" y="64" width="6" height="18" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="270.5" y="70" width="6" height="12" rx="1.5" fill="#3FC7D8" opacity=".42"/><rect x="283.0" y="63" width="6" height="19" rx="1.5" fill="#3FC7D8" opacity=".42"/><path d="M8,76 C90,72 156,56 292,14" fill="none" stroke="#F5822E" stroke-width="2.5" stroke-linecap="round"/></svg>')
+ENGINE_SHORT = ('<svg class="edia" viewBox="0 0 300 92" role="img" aria-label="Many small posts over time, with familiarity rising slowly across them"><line x1="6" y1="82.5" x2="294" y2="82.5" stroke="#E2E0DA" stroke-width="1"/><rect x="8.0" y="72" width="6" height="10" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="20.5" y="66" width="6" height="16" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="33.0" y="73" width="6" height="9" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="45.5" y="61" width="6" height="21" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="58.0" y="69" width="6" height="13" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="70.5" y="75" width="6" height="7" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="83.0" y="64" width="6" height="18" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="95.5" y="70" width="6" height="12" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="108.0" y="58" width="6" height="24" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="120.5" y="72" width="6" height="10" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="133.0" y="67" width="6" height="15" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="145.5" y="63" width="6" height="19" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="158.0" y="73" width="6" height="9" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="170.5" y="60" width="6" height="22" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="183.0" y="69" width="6" height="13" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="195.5" y="66" width="6" height="16" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="208.0" y="72" width="6" height="10" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="220.5" y="61" width="6" height="21" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="233.0" y="67" width="6" height="15" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="245.5" y="73" width="6" height="9" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="258.0" y="64" width="6" height="18" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="270.5" y="70" width="6" height="12" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="283.0" y="63" width="6" height="19" rx="1.5" fill="#00B0C8" opacity=".42"/><path d="M8,76 C90,72 156,56 292,14" fill="none" stroke="#F04820" stroke-width="2.5" stroke-linecap="round"/></svg>')
 
-ENGINE_LONG = ('<svg class="edia" viewBox="0 0 300 92" role="img" aria-label="A narrowing funnel, from people searching down to a booked job"><rect x="28" y="8" width="244" height="14" rx="3" fill="#3FC7D8" opacity=".26"/><rect x="62" y="30" width="176" height="14" rx="3" fill="#3FC7D8" opacity=".40"/><rect x="96" y="52" width="108" height="14" rx="3" fill="#3FC7D8" opacity=".58"/><rect x="124" y="74" width="52" height="14" rx="3" fill="#F5822E" opacity="1"/></svg>')
+ENGINE_LONG = ('<svg class="edia" viewBox="0 0 300 92" role="img" aria-label="A narrowing funnel, from people searching down to a booked job"><rect x="28" y="8" width="244" height="14" rx="3" fill="#00B0C8" opacity=".26"/><rect x="62" y="30" width="176" height="14" rx="3" fill="#00B0C8" opacity=".40"/><rect x="96" y="52" width="108" height="14" rx="3" fill="#00B0C8" opacity=".58"/><rect x="124" y="74" width="52" height="14" rx="3" fill="#F04820" opacity="1"/></svg>')
 
 PACKAGES_HTML = f"""<title>Monthly content packages</title>
 {FONT_CSS}
@@ -1856,15 +2418,15 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 <a class="skip" href="#main">Skip to content</a>
 {nav("packages")}
 
-<div class="hero"><canvas class="splat" data-n="14" aria-hidden="true"></canvas><div class="wrap">
-  <p class="eyebrow">Monthly packages &middot; Yoniverse Productions</p>
+<div class="hero">{SPLAT_SVG}<div class="wrap">
+  <p class="eyebrow">Monthly packages &middot; Home Service Studios</p>
   <h1 class="display">Known and trusted before they need you.</h1>
   <p class="sub">Nobody calls a home service company because they saw one good video. They call the
   company they already recognize, and that recognition is built over months, not in a month.
   <strong>This is a long play, and it only works if it actually runs.</strong> These packages exist
   to make it run without landing on your desk.</p>
   <div class="ctarow">
-    {book("Monthly%20packages")}{callbtn()}
+    {book("Monthly%20packages")}
     <a class="cta ghost" href="/our-work/">See the work first</a>
   </div>
   {reassure()}
@@ -1898,7 +2460,6 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 
   <div class="band">
     <div class="band-head">
-      <p class="eyebrow">Two engines</p>
       <h2 class="display">Two different ways this works</h2>
       <p>Every package below is built on the first one. The second works the other way around,
       and it is the only real difference between the mid tiers and the Studio tiers.</p>
@@ -1944,7 +2505,7 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
   {pkg_group("you-shoot")}
 
   <div class="band">
-    <div class="band-head">
+    <div class="band-head full-lede">
       <p class="eyebrow">Proof, before you look at the bigger numbers</p>
       <h2 class="display">This is what running it looks like</h2>
       <p>A1 Air Conditioning is a Tucson HVAC company with 9,200 followers. These are their seven
@@ -1965,22 +2526,12 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
     now the Studio Max shape: weekly long form built around what people actually search, plus regular
     posting everywhere else. About half of the company&#39;s annual projects now start on that
     channel, in a category where a single build runs from roughly $100,000 to over $500,000.
-    <a href="/work/joseph-peretz/">Read that case</a>.</p>
+    <a href="/our-work/#peretz">Read that case</a>.</p>
   </div>
 
   {pkg_group("we-shoot")}
 
   {pkg_group("studio")}
-
-  <div class="band">
-    <div class="band-head">
-      <p class="eyebrow">Who we do this for</p>
-      <h2 class="display">Brands and creators</h2>
-      <p>Home services nationwide, plus creator work in art, live streaming and social commerce.
-      <a href="/our-work/">See the work</a>.</p>
-    </div>
-    {logo_marquee()}
-  </div>
 
   <div class="incl">
     <h3>Terms</h3>
@@ -2008,19 +2559,19 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
   </div>
 
   <div class="ctarow">
-    {book("Monthly%20packages")}{callbtn()}
+    {book("Monthly%20packages")}
   </div>
   {reassure()}
-  <p class="ctanote" style="margin-top:var(--s3);">Questions on terms? Call
-  <a href="tel:+{PHONE}">{PHONE_DISPLAY}</a>.</p>
+  <p class="ctanote" style="margin-top:var(--s3);">Questions on terms?
+  <a href="/contact/">Contact</a> us.</p>
 
 </div></section>
 </main>
 
-<footer><canvas class="splat" data-n="8" aria-hidden="true"></canvas><div class="wrap">
+<footer>{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Contact</p>
-  <p class="display">Let&#39;s make something that travels.</p>
-  <div class="fcontact">{phonebtn("fphone")}<a href="mailto:{EMAIL}">{EMAIL}</a></div><p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019
+  <a class="display" href="/contact/#start">Let&#39;s make something that travels.</a>
+  <div class="fcontact"><a href="/contact/#start">Contact</a></div><p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019
   &nbsp;&middot;&nbsp; <a href="/our-work/">See the work</a>&nbsp;&middot;&nbsp; <a href="/contact/">Contact</a></p>
 </div></footer>
 {actionbar()}
@@ -2039,71 +2590,94 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 # so the homepage adds markup and no new weight.
 
 # three spots that carry the range: two premises from All Heart, one from Handyman Dan
-HOME_SPOTS = [("ah1.mp4", "All Heart", "Breaking Furniture 101", "0:30"),
-              ("ah5.mp4", "All Heart", "The Snake", "0:30"),
-              ("hd5.mp4", "Handyman Dan", "A Space Odyssey", "0:56")]
+HOME_SPOTS = [(None, "All Heart", "Breaking Furniture 101", "0:30", "zaCFfVetfFI"),
+              (None, "All Heart", "The Snake", "0:30", "TPDZ-OvRNgc"),
+              (None, "Handyman Dan", "A Space Odyssey", "0:56", "AfkePSa8XLU")]
 
-HOME_HTML = f"""<title>Yoniverse Productions</title>
+# Client-supplied folder illustrations for the "Three ways we work" cards
+# (icons/, cut from Folder_Icons{1,2,3}_00000.png: pure black background keyed
+# to alpha, autocropped, downscaled). Assignment per the client's own layout:
+# icon 2 left (Campaigns), icon 3 middle (Monthly programs), icon 1 right
+# (Creator work).
+CSI_ICON_CAMPAIGNS = asset(f"{S}/icons/folder2.png", "image/png")
+CSI_ICON_MONTHLY = asset(f"{S}/icons/folder3.png", "image/png")
+CSI_ICON_CREATOR = asset(f"{S}/icons/folder1.png", "image/png")
+
+HOME_HTML = f"""<title>Home Service Studios</title>
 {FONT_CSS}
 {CSS}
 <a class="skip" href="#main">Skip to content</a>
 {nav("home")}
 
-<div class="hero"><canvas class="splat" data-n="19" aria-hidden="true"></canvas><div class="wrap">
-  <p class="eyebrow">Yoniverse Productions &middot; Los Angeles</p>
-  <h1 class="display">A video that makes you feel nothing does nothing.</h1>
+<div class="hero hero-bold">
+  <div class="hero-media">
+    <div class="herobg" id="hero-yt" data-yt="SiJpWlQwk04" data-start="0"></div>
+    <div class="hero-poster" id="hero-yt-poster"></div>
+    <div class="hero-scrim"></div>
+    <div class="hero-yt-mask"></div>
+    <div class="wrap">
+      <div class="herotext">
+        <p class="eyebrow">Home Service Studios &middot; Los Angeles</p>
+        <h1 class="display">A video that makes you feel nothing <span class="hl">does nothing.</span></h1>
+      </div>
+      <div class="scrollhint">{SCROLL_ICON}</div>
+    </div>
+  </div>
+  <div class="hero-lines">{SPLAT_SVG}<div class="wrap">
   <p class="sub">We write, shoot, cut and post short-form and commercial video for home service
   brands, builders, realtors and creators. One good video will not do it, and neither will the
   leads nobody can honestly promise you. It takes <strong>video worth watching, often enough to
   stay in mind</strong> until the day they need you.</p>
   <div class="stats">
-    <a class="stat" href="/work/joseph-peretz/"><span class="case">Joseph Peretz</span><span class="n">50%</span><span class="k">Of projects sourced</span></a>
-    <a class="stat" href="/work/a1-air-conditioning/"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">One client, 7 reels</span></a>
-    <a class="stat" href="/work/handyman-dan/"><span class="case">Handyman Dan</span><span class="n">12</span><span class="k">Markets deployed</span></a>
+    <a class="stat" href="/our-work/#peretz"><span class="case">Joseph Peretz</span><span class="n">50%</span><span class="k">Of projects sourced</span></a>
+    <a class="stat" href="/our-work/#a1"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">One client, 7 reels</span></a>
+    <a class="stat" href="/our-work/#handyman"><span class="case">Handyman Dan</span><span class="n">12</span><span class="k">Markets deployed</span></a>
     <a class="stat" href="#roster"><span class="case">Roster</span><span class="n">16</span><span class="k">Brands and creators</span></a>
-    <a class="stat" href="/work/sam-halaby/"><span class="case">Sam Halaby</span><span class="n">605M</span><span class="k">Views for one artist</span></a>
+    <a class="stat" href="/our-work/#sam"><span class="case">Sam Halaby</span><span class="n">605M</span><span class="k">Views for one artist</span></a>
   </div>
   <div class="ctarow">
     <a class="cta" href="/packages/">See the packages</a>
     <a class="cta ghost" href="/our-work/">See the work first</a>
   </div>
-  <p class="ctanote" style="margin-top:16px;max-width:60ch;">Los Angeles. Led by founder and
-  creative director Yoni Paz.</p>
-</div></div>
+  </div></div>
+</div>
 
 <main id="main">
 
-<section class="flush">
-  {BANNER_MEDIA}
-  <div class="wrap"><div class="bannercap">
-    <p class="eyebrow">Brand film</p>
-    <span class="who"><strong>Quality Heating Cooling Plumbing Electrical</strong>, Tulsa.
-    Website banner film.</span>
-  </div></div>
-</section>
-
 <section><div class="wrap">
   <div class="sec-head">
-    <p class="eyebrow">What we do</p>
     <h2 class="display">Three ways we work</h2>
     <p class="lede">All of it starts the same way, with a premise worth repeating. The difference is
     how much of the year it has to cover.</p>
   </div>
-  <div class="csi">
-    <div><h3>Campaigns</h3><p>One premise strong enough to carry a whole package, shot in a single
-      production block so the cost lands once and the inventory lasts a year.</p></div>
-    <div><h3>Monthly programs</h3><p>Planned, filmed, edited and published every month, on a schedule
-      that does not depend on anyone at your company remembering to film.</p></div>
-    <div><h3>Creator work</h3><p>Short form built for reach, for artists and channels where the
-      audience is the business. We write the premise so it travels far past the size of the account
-      that posts it.</p></div>
+  <div class="csi csi-photo">
+    <div><img class="csi-bg" src="{CSI_ICON_CAMPAIGNS}" alt="" loading="lazy">
+      <div class="csi-body"><h3>Campaigns</h3><p>One premise strong enough to carry a whole package,
+      shot in a single production block so the cost lands once and the inventory lasts a
+      year.</p></div></div>
+    <div><img class="csi-bg" src="{CSI_ICON_MONTHLY}" alt="" loading="lazy">
+      <div class="csi-body"><h3>Monthly programs</h3><p>Planned, filmed, edited and published every
+      month, on a schedule that does not depend on anyone at your company remembering to
+      film.</p></div></div>
+    <div><img class="csi-bg" src="{CSI_ICON_CREATOR}" alt="" loading="lazy">
+      <div class="csi-body"><h3>Creator work</h3><p>Short form built for reach, for artists and
+      channels where the audience is the business. We write the premise so it travels far past the
+      size of the account that posts it.</p></div></div>
   </div>
+</div></section>
+
+<section id="roster"><div class="wrap">
+  <div class="sec-head bare">
+    <h2 class="display">Brands and creators</h2>
+    <p class="lede">Writing and production across home services nationwide, plus creator work in art,
+    live streaming and social commerce.</p>
+  </div>
+  {logo_marquee()}
 </div></section>
 
 <section><div class="wrap">
   <div class="sec-head">
-    <p class="eyebrow">Selected work &middot; Home services</p>
-    <h2 class="display">The premise doing the work</h2>
+    <h2 class="display">Proven results with real data</h2>
     <p class="lede">One Tucson HVAC company with 9,200 followers now carries seven reels past
     100,000 views, <strong>roughly 2.26 million views in a market of one million people</strong>.
     The top one frames a technician alone in a dark attic like the cold open of a horror film. It
@@ -2150,7 +2724,7 @@ HOME_HTML = f"""<title>Yoniverse Productions</title>
       <p>Written and directed for the artist Sam Halaby, whose channel has passed 605 million
       views with thirty-three videos over a million on their own. Reach at this scale is not
       bought, it is written, and nothing about that video cost more than the ones around it.</p>
-      <p><a href="/work/sam-halaby/">See the creator case &rarr;</a></p>
+      <p><a href="/our-work/#sam">See the creator case &rarr;</a></p>
     </div>
   </div>
 
@@ -2178,22 +2752,12 @@ HOME_HTML = f"""<title>Yoniverse Productions</title>
   </div>
 </div></section>
 
-<section id="roster"><div class="wrap">
-  <div class="sec-head bare">
-    <h2 class="display">Brands and creators</h2>
-    <p class="lede">Writing and production across home services nationwide, plus creator work in art,
-    live streaming and social commerce.</p>
-  </div>
-  {logo_marquee()}
-</div></section>
-
-<section><div class="wrap">
+<section class="doors-section"><div class="wrap">
   <div class="doors">
     <a class="door" href="/our-work/">
       <span class="tier">Portfolio</span>
       <h3>See the work</h3>
-      <p>Five case studies with the numbers attached, the spots playable in full, and the reasoning
-      behind each one.</p>
+      <p>Five case studies with the numbers attached, and the reasoning behind each one.</p>
       <span class="go">Open the portfolio &rarr;</span>
     </a>
     <a class="door" href="/packages/">
@@ -2208,10 +2772,10 @@ HOME_HTML = f"""<title>Yoniverse Productions</title>
 
 </main>
 
-<footer><canvas class="splat" data-n="8" aria-hidden="true"></canvas><div class="wrap">
+<footer>{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Contact</p>
-  <p class="display">Let&#39;s make something that travels.</p>
-  <div class="fcontact">{phonebtn("fphone")}<a href="mailto:{EMAIL}">{EMAIL}</a></div><p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019
+  <a class="display" href="/contact/#start">Let&#39;s make something that travels.</a>
+  <div class="fcontact"><a href="/contact/#start">Contact</a></div><p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019
   &nbsp;&middot;&nbsp; <a href="/our-work/">See the work</a> &nbsp;&middot;&nbsp; <a href="/packages/">Packages</a>&nbsp;&middot;&nbsp; <a href="/contact/">Contact</a></p>
 </div></footer>
 {actionbar()}
@@ -2314,7 +2878,7 @@ def enquiry_form():
   </div>
 
   <div class="fsubmit">
-    <button type="submit" class="cta" id="cbtn">Send to Yoniverse</button>
+    <button type="submit" class="cta" id="cbtn">Send to HSS</button>
     <p class="ctanote">We answer within one business day. No list, no newsletter,
     no automated sequence.</p>
   </div>
@@ -2336,7 +2900,7 @@ if BOOKED:
         '<p class="lede">Twenty minutes on Google Meet. We look at your market, your current '
         'content, and whether a monthly program makes sense. No deck, no pitch.</p></div>'
         '<div class="schedwrap"><iframe src="' + BOOK_URL + '" title="Book a call with '
-        'Yoniverse Productions" loading="lazy" style="border:0" width="100%" height="640" '
+        'Home Service Studios" loading="lazy" style="border:0" width="100%" height="640" '
         'frameborder="0"></iframe></div>'
         '</div></section>')
 else:
@@ -2351,37 +2915,22 @@ CONTACT_HTML = f"""<title>Contact</title>
 <a class="skip" href="#main">Skip to content</a>
 {nav("contact")}
 
-<div class="hero"><canvas class="splat" data-n="12" aria-hidden="true"></canvas><div class="wrap">
-  <p class="eyebrow">Contact &middot; Yoniverse Productions</p>
+<div class="hero hero-contact">{SPLAT_SVG}<div class="wrap">
+  <p class="eyebrow">Contact &middot; Home Service Studios</p>
   <h1 class="display">Talk to us.</h1>
   <p class="sub">Tell us your city and your trade and we will come back with something specific
   to your market, not a brochure. If you would rather look first, the work is on the
   <a href="/our-work/">case studies</a> and the monthly programs are
-  <a href="/packages/">priced in public</a>.</p>
+  <a href="/packages/">priced in public</a>. You can also
+  <a href="mailto:{EMAIL}">email us</a> directly, good for scope, budgets or anything with
+  attachments, but the form below gets you a faster, more specific reply.</p>
   <div class="ctarow">
-    <a class="cta" href="#start">Send us a message</a>{callbtn()}
+    <a class="cta" href="#start">Send us a message</a>
   </div>
   {reassure()}
 </div></div>
 
 <main id="main">
-<section><div class="wrap">
-  <div class="sec-head">
-    <p class="eyebrow">Three ways</p>
-    <h2 class="display">However you prefer to do it</h2>
-  </div>
-  <div class="benefits">
-    <div class="benefit"><span class="bn">01</span><h4>Call</h4>
-      <p>Straight through to us, no switchboard.
-      <a href="tel:+{PHONE}">{PHONE_DISPLAY}</a></p></div>
-    <div class="benefit"><span class="bn">02</span><h4>Email</h4>
-      <p>Good for scope, budgets and anything with attachments.
-      <a href="mailto:{EMAIL}">{EMAIL}</a></p></div>
-    <div class="benefit"><span class="bn">03</span><h4>The form</h4>
-      <p>Best if you want the first reply to already be about your city and your trade.
-      It is <a href="#start">right below</a>.</p></div>
-  </div>
-</div></section>
 
 {SCHEDULER_SECTION}
 
@@ -2400,9 +2949,8 @@ CONTACT_HTML = f"""<title>Contact</title>
   <div class="incl">
     <h3>What to expect</h3>
     <div class="incl-grid">
-      <div><span>Response time</span><p>We answer email within one business day. If you call
-        during business hours in Los Angeles and we cannot pick up, we call back the same
-        day.</p></div>
+      <div><span>Response time</span><p>We answer within one business day, from a human,
+        about your market specifically.</p></div>
       <div><span>Where we are</span><p>Los Angeles, CA. We shoot nationwide, and most of our
         home service clients are outside California.</p></div>
       <div><span>What to bring</span><p>Nothing prepared. Your market, roughly what you are
@@ -2412,10 +2960,10 @@ CONTACT_HTML = f"""<title>Contact</title>
 </div></section>
 </main>
 
-<footer><canvas class="splat" data-n="8" aria-hidden="true"></canvas><div class="wrap">
+<footer>{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Contact</p>
-  <p class="display">Let&#39;s make something that travels.</p>
-  <div class="fcontact">{phonebtn("fphone")}<a href="mailto:{EMAIL}">{EMAIL}</a></div>
+  <a class="display" href="/contact/#start">Let&#39;s make something that travels.</a>
+  <div class="fcontact"><a href="/contact/#start">Contact</a></div>
   <p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019
   &nbsp;&middot;&nbsp; <a href="/our-work/">See the work</a>
   &nbsp;&middot;&nbsp; <a href="/packages/">Packages</a>&nbsp;&middot;&nbsp; <a href="/contact/">Contact</a></p>
@@ -2428,11 +2976,109 @@ CONTACT_HTML = f"""<title>Contact</title>
 """
 
 
+# ---- team page -------------------------------------------------------------
+
+# Real people replace placeholders here as they are ready; everything still
+# marked "Full Name" / "Title" below is a stand in, not a real staff record.
+# Kept as data, not repeated markup, so swapping someone in is an edit to
+# these two lists rather than to the page structure.
+TEAM_LEADS = [
+    {"name": "Craig Balog", "title": "Cofounder", "photo": "craig-balog.jpg",
+        "bio": "A filmmaker and photographer based in Beverly Hills with more than ten years "
+               "in the industry. Craig founded Home Service Studios out of its Marina del Rey "
+               "office, and stays hands on with the craft on every project the company shoots "
+               "for contractors."},
+    {"name": "Seth Yeager", "title": "Cofounder", "photo": "seth-yeager.jpg",
+        "bio": "Seth's background is on set: camera and electrical crew, cinematography and "
+               "stunt work in film and television, including second unit and assistant "
+               "directing on The Shop. He cofounded Home Service Studios to bring that "
+               "production experience to work for contractors."},
+]
+TEAM_ROSTER = [
+    {"name": "Paloma Barro", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
+    {"name": "Yoni Paz", "title": "Coordinator, Producer, Editor", "photo": "yoni-paz.jpg"},
+    {"name": "Sergy Olkowski", "title": "Post Production Supervisor", "photo": "sergy-olkowski.jpg"},
+]
+
+
+def lead_card(p):
+    if p.get("photo"):
+        src = asset(os.path.join(P, p["photo"]), "image/jpeg")
+        art = (f'<img src="{src}" alt="{p["name"]}" width="900" height="600" '
+               f'loading="lazy" decoding="async">')
+    else:
+        art = PERSON_ICON
+    return (f'<div class="lead"><div class="portrait">{art}</div>'
+            f'<h3>{p["name"]}</h3><span class="rtitle">{p["title"]}</span>'
+            f'<p>{p["bio"]}</p></div>')
+
+
+def member_card(p):
+    if p.get("photo"):
+        src = asset(os.path.join(P, p["photo"]), "image/jpeg")
+        art = (f'<img src="{src}" alt="{p["name"]}" width="700" height="700" '
+               f'loading="lazy" decoding="async">')
+    else:
+        art = PERSON_ICON
+    return (f'<div class="member"><div class="portrait">{art}</div>'
+            f'<h4>{p["name"]}</h4><span class="rtitle">{p["title"]}</span></div>')
+
+
+TEAM_HTML = f"""<title>Meet the team</title>
+{FONT_CSS}
+{CSS}
+<a class="skip" href="#main">Skip to content</a>
+{nav("team")}
+
+<div class="hero">{SPLAT_SVG}<div class="wrap">
+  <p class="eyebrow">Meet the team &middot; Home Service Studios</p>
+  <h1 class="display">Meet the team.</h1>
+  <p class="sub">Every video on this site was written, shot and cut by people you could actually
+  meet, not a vendor network stitched together per project. Headshots and bios are landing here
+  as they are ready.</p>
+</div></div>
+
+<main id="main">
+<section><div class="wrap">
+  <div class="sec-head">
+    <p class="eyebrow">Leadership</p>
+    <h2 class="display">The people steering the work</h2>
+  </div>
+  <div class="leads">
+    {"".join(lead_card(p) for p in TEAM_LEADS)}
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head">
+    <h2 class="display">The crew</h2>
+    <p class="lede">The same people who write, shoot, cut and post your work today are the ones
+    you would meet on set or in a review call.</p>
+  </div>
+  <div class="roster">
+    {"".join(member_card(p) for p in TEAM_ROSTER)}
+  </div>
+</div></section>
+</main>
+
+<footer>{SPLAT_SVG}<div class="wrap">
+  <p class="eyebrow">Contact</p>
+  <a class="display" href="/contact/#start">Let&#39;s make something that travels.</a>
+  <div class="fcontact"><a href="/contact/#start">Contact</a></div>
+  <p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019
+  &nbsp;&middot;&nbsp; <a href="/our-work/">See the work</a>
+  &nbsp;&middot;&nbsp; <a href="/packages/">Packages</a>&nbsp;&middot;&nbsp; <a href="/contact/">Contact</a></p>
+</div></footer>
+{actionbar()}
+{SPLAT_JS}
+{NAV_JS}
+{MOTION_JS}
+"""
+
+
 # ---- shared post processing, used by every page --------------------------
 
-FAVICON = ('data:image/svg+xml,'
-           '%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E'
-           '%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%94%A6%3C/text%3E%3C/svg%3E')
+FAVICON = "data:image/png;base64," + b64(f"{S}/logos_hss/favicon_hss.png")
 
 
 # 3.3 Structured data. One block, identical on every page, so search engines get a
@@ -2440,11 +3086,11 @@ FAVICON = ('data:image/svg+xml,'
 JSON_LD = (
     '<script type="application/ld+json">'
     '{"@context":"https://schema.org","@type":"ProfessionalService",'
-    '"name":"Yoniverse Productions","url":"https://yoniverseproductions.com/",'
-    '"telephone":"+1-310-595-4519","email":"yoni@yoniverseproductions.com",'
+    '"name":"Home Service Studios","url":"https://yoniverseproductions.com/",'
+    '"email":"info@homeservicestudios.com",'
     '"address":{"@type":"PostalAddress","addressLocality":"Los Angeles",'
     '"addressRegion":"CA","addressCountry":"US"},'
-    '"areaServed":"US","founder":{"@type":"Person","name":"Yoni Paz"},'
+    '"areaServed":"US",'
     '"description":"Video production for home service brands and creators."}'
     '</script>'
 )
@@ -2478,9 +3124,9 @@ def write_web(page, path, *, title, desc, og_image, url):
         f'<meta property="og:description" content="{desc}">\n'
         f'<meta property="og:image" content="{og_image}">\n'
         f'<meta property="og:url" content="{url}">\n'
-        '<meta property="og:site_name" content="Yoniverse Productions">\n'
+        '<meta property="og:site_name" content="Home Service Studios">\n'
         f'<link rel="canonical" href="{url}">\n'
-        '<meta name="theme-color" content="#131619">\n'
+        '<meta name="theme-color" content="#FFFFFF">\n'
         '<meta name="twitter:card" content="summary_large_image">\n'
         f'<link rel="icon" href="{FAVICON}">\n'
         + JSON_LD + '\n'
@@ -2502,55 +3148,56 @@ assert not _TEMPLATE_PRICES, (
 html = validate(html, "our-work")
 
 if MODE == "web":
+    # TODO: still yoniverseproductions.com until the homeservicestudios.com
+    # GoDaddy login is confirmed; move SITE + canonical/OG/sitemap URLs then.
     SITE = "https://yoniverseproductions.com"
-    D1 = ("Five case studies from Yoniverse Productions, a Los Angeles writing and production "
+    D1 = ("Five case studies from Home Service Studios, a Los Angeles writing and production "
           "company. Short form and commercial work across home services and the creator economy.")
     n1 = write_web(html, f"{OUT}/index.html",
-                   title="Case Studies | Home Services Video Production | Yoniverse",
+                   title="Case Studies | Home Services Video Production | Home Service Studios",
                    desc=D1, og_image=f"{SITE}/our-work/a/og-cover.jpg",
                    url=f"{SITE}/our-work/")
 
     packages = validate(PACKAGES_HTML, "packages")
-    D2 = ("Monthly short-form content packages from Yoniverse Productions. Planning, "
+    D2 = ("Monthly short-form content packages from Home Service Studios. Planning, "
           "direction, editing and posting included, from 2,000 dollars per month.")
     n2 = write_web(packages, f"{S}/deploy/packages/index.html",
-                   title="Monthly Video Packages for Home Services | Yoniverse",
+                   title="Monthly Video Packages for Home Services | Home Service Studios",
                    desc=D2, og_image=f"{SITE}/our-work/a/og-cover.jpg",
                    url=f"{SITE}/packages/")
 
     contact = validate(CONTACT_HTML, "contact")
-    D4 = ("Contact Yoniverse Productions in Los Angeles. Call (310) 595-4519, email "
-          "yoni@yoniverseproductions.com, or book twenty minutes on Google Meet.")
+    D4 = ("Contact Home Service Studios in Los Angeles. Email us, or send a message "
+          "and we will come back with something specific to your market.")
     n4 = write_web(contact, f"{S}/deploy/contact/index.html",
-                   title="Contact | Yoniverse Productions",
+                   title="Contact | Home Service Studios",
                    desc=D4, og_image=f"{SITE}/our-work/a/og-cover.jpg",
                    url=f"{SITE}/contact/")
 
+    team = validate(TEAM_HTML, "team")
+    D5 = ("Meet the Home Service Studios team: the people who write, shoot, cut and post "
+          "home services and creator video every month.")
+    n5 = write_web(team, f"{S}/deploy/team/index.html",
+                   title="Meet the Team | Home Service Studios",
+                   desc=D5, og_image=f"{SITE}/our-work/a/og-cover.jpg",
+                   url=f"{SITE}/team/")
+
     home = validate(HOME_HTML, "home")
     D3 = ("Los Angeles video production for HVAC, plumbing and home service brands. Written, "
-          "shot, cut and posted monthly. 128M+ views produced. Call (310) 595-4519.")
+          "shot, cut and posted monthly. 128M+ views produced.")
     n3 = write_web(home, f"{S}/deploy/index.html",
-                   title="Home Services Video Production | Los Angeles | Yoniverse",
+                   title="Home Services Video Production | Los Angeles | Home Service Studios",
                    desc=D3, og_image=f"{SITE}/og/og-home.jpg",
                    url=f"{SITE}/")
-
-    # 3.5 one page per case study, each with its own title and description
-    case_sizes = []
-    for i, c in enumerate(CASES):
-        page = validate(case_page(i), "work/" + c["slug"])
-        n = write_web(page, f"{S}/deploy/work/{c['slug']}/index.html",
-                      title=f"{c['name']} | Case Study | Yoniverse Productions",
-                      desc=c["desc"],
-                      og_image=f"{SITE}/og/{c['og']}" if c.get("og") else f"{SITE}/our-work/a/og-cover.jpg",
-                      url=f"{SITE}/work/{c['slug']}/")
-        case_sizes.append((c["slug"], n))
 
     # the serverless function that receives the contact form
     os.makedirs(f"{S}/deploy/api", exist_ok=True)
     shutil.copy(f"{S}/api_contact.js", f"{S}/deploy/api/contact.js")
 
-    # 3.5 sitemap so the new URLs get discovered
-    urls = ["/", "/our-work/", "/packages/", "/contact/"] + [f"/work/{c['slug']}/" for c in CASES]
+    # 3.5 sitemap so the new URLs get discovered. The five /work/<slug>/ pages
+    # are gone (2026-08-27): each case now lives inline in .case-panels on
+    # /our-work/, opened by the carousel instead of its own URL.
+    urls = ["/", "/our-work/", "/packages/", "/team/", "/contact/"]
     sm = ('<?xml version="1.0" encoding="UTF-8"?>\n'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
           + "".join(f"  <url><loc>{SITE}{u}</loc></url>\n" for u in urls)
@@ -2569,8 +3216,7 @@ if MODE == "web":
     print(f"  contact/index.html   -> {n4/1024:.0f} KB")
     print(f"  our-work/index.html  -> {n1/1024:.0f} KB")
     print(f"  packages/index.html  -> {n2/1024:.0f} KB")
-    for slug, n in case_sizes:
-        print(f"  work/{slug}/".ljust(23) + f"-> {n/1024:.0f} KB")
+    print(f"  team/index.html      -> {n5/1024:.0f} KB")
     print(f"  shared assets        -> {assets/1048576:.2f} MB")
 else:
     out = f"{S}/site.html"

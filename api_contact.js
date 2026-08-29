@@ -1,14 +1,17 @@
 // Vercel serverless function behind the /contact/ form.
 // Copied to deploy/api/contact.js by build_site.py, so it ships with the site.
 //
-// Sends through Brevo, which is already authenticated on this domain (DKIM CNAMEs
-// and an SPF include are live), so the mail is signed as yoniverseproductions.com
-// rather than arriving from a third party form service.
+// Sends through Brevo. TO is also the sender identity Brevo signs the mail as
+// (see sender.email below), so it must stay a domain Brevo has DKIM/SPF for,
+// or sends bounce or land in spam.
 //
 // Needs one environment variable in Vercel: BREVO_API_KEY
-
-const TO = "yoni@yoniverseproductions.com";
-const FROM_NAME = "Yoniverse site";
+//
+// Switched 2026-08-25 from yoni@yoniverseproductions.com now that
+// homeservicestudios.com is live. If leads stop arriving or start bouncing,
+// check Brevo's sender authentication for this domain first.
+const TO = "info@homeservicestudios.com";
+const FROM_NAME = "Home Service Studios";
 
 // must stay identical to TRADE_GROUPS in build_site.py, or valid submissions bounce
 const TRADES = [
@@ -86,7 +89,7 @@ export default async function handler(req, res) {
 
   const html =
     `<div style="font:15px/1.55 system-ui,-apple-system,sans-serif;color:#101315">` +
-    `<p style="margin:0 0 4px;font-size:13px;color:#6F7C86">New enquiry from yoniverseproductions.com</p>` +
+    `<p style="margin:0 0 4px;font-size:13px;color:#6F7C86">New enquiry from Home Service Studios</p>` +
     `<h2 style="margin:0 0 16px;font-size:20px">${esc(company)} &middot; ${esc(city)}</h2>` +
     `<table style="border-collapse:collapse;margin-bottom:18px">${table}</table>` +
     (message

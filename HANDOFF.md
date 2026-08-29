@@ -69,7 +69,7 @@ hero stats. Changing it back will regress Cumulative Layout Shift from 0.
 
 **The contact form needs an env var.** `BREVO_API_KEY` is set in the Vercel project
 settings for Preview and Production. It is not in this archive. The form posts to
-Brevo's transactional API and mails yoni@yoniverseproductions.com.
+Brevo's transactional API and mails info@homeservicestudios.com (switched 2026-08-25).
 
 **Trade and budget lists are duplicated.** The `TRADES` and `BUDGETS` arrays exist in
 both `build_site.py` and `api_contact.js` and must stay identical. If they drift, valid
@@ -82,8 +82,18 @@ Set it to a scheduler link and all CTAs across the site repoint automatically.
 ## Current state
 
 Lighthouse on production, desktop: 100 performance, 100 accessibility, 100 best
-practices, 100 SEO, CLS 0. Worth rechecking after any change to the hero or to fonts.
+practices, 100 SEO, CLS 0. Worth rechecking after any change to the hero or to fonts,
+and definitely after the 2026-08-23 rebrand (new self-hosted fonts, a new nav image),
+which hasn't been reverified yet.
 
-There is no version control on this project. It is not a git repo and there is no
-history. Initialising one should probably be your first move, with `vid/` and `deploy/`
-in `.gitignore` given their size.
+Git was initialised 2026-08-21, with `vid/` and `deploy/` in `.gitignore` given their size.
+
+## The 2026-08-23 rebrand
+
+The site's brand changed from Yoniverse Productions to **Home Service Studios (HSS)**: new
+palette (orange-red and teal sampled from the real client logo, white ground instead of dark),
+Archivo added as the self-hosted display font, a new nav mark cropped from the client's logo, and
+the `.splat` background canvas rewritten from paint-splatter to roofline/shutter line art. See
+`CLAUDE.md` for the details and the two open TODOs: the live domain and the contact form's `TO`
+address both still point at yoniverseproductions.com because the real homeservicestudios.com
+domain isn't confirmed yet (GoDaddy access pending).

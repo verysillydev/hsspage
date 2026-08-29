@@ -14,7 +14,7 @@ make_wm.py             regenerates the watermark overlay (wm.png)
 wm.png                 the diagonal lattice watermark burned into every video
 vid/wm/                the 16 watermarked spots (All Heart ah1-ah10, Handyman Dan hd1-hd6)
 post/                  poster frames cut from the watermarked videos, plus the YouTube thumbnail
-fonts/                 Onest woff2, latin subset, SIL Open Font License
+fonts/                 Onest + Archivo woff2, latin subset, both SIL Open Font License
 yoniverse-work/        the Vercel project folder (holds the .vercel link, do not delete)
 site.html              single file build, only used for the private Claude artifact copy
 ```
