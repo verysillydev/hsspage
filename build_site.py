@@ -630,8 +630,14 @@ CSS = """<style>
     --ground:#14171A; --ground-2:#1E2226; --panel:#262B30; --line:#33383D;
     --ink:#FFFFFF; --ink-2:#D8D3C9; --ink-3:#A8A29A;
     --orange-text:var(--orange); --cyan-text:var(--cyan);}
+  /* line-height:1.18, not the 1.06 inherited from .display: that's tight
+     enough on its own that adjacent lines' ascenders/descenders nearly
+     touch even with a plain transparent background, which a solid
+     highlight color then makes obvious rather than causing outright.
+     Scoped to just this hero, not .display itself, which is shared by
+     every other heading on the site. */
   .hero-bold h1{font-size:clamp(36px, 12px + 5.4vw, 84px);font-weight:900;
-    letter-spacing:-.025em;}
+    letter-spacing:-.025em;line-height:1.18;}
   .hero-bold .hl{background:var(--orange);color:#14171A;padding:.02em .14em;
     box-decoration-break:clone;-webkit-box-decoration-break:clone;}
 
