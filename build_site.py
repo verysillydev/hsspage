@@ -116,11 +116,18 @@ def nav(active=""):
         '<nav class="nav" id="nav"><div class="wrap navin">'
         f'<a class="brand" href="/"><img class="brandmark" src="{icon}" alt="" '
         f'width="1072" height="517">Home Service Studios</a>'
-        '<div class="navlinks">'
+        '<div class="navright">'
+        '<button type="button" class="navtoggle" id="navtoggle" '
+        'aria-expanded="false" aria-controls="navlinks" aria-label="Menu">'
+        '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" '
+        'stroke-width="2" stroke-linecap="round" aria-hidden="true">'
+        '<path d="M4 7h16M4 12h16M4 17h16"/></svg></button>'
+        '<div class="navlinks" id="navlinks">'
         + link("/our-work/", "Work", "work")
         + link("/packages/", "Packages", "packages")
         + link("/team/", "Team", "team")
         + link("/contact/", "Contact", "contact", "navsecondary")
+        + '</div>'
         + (f'<a class="navcta" href="{href}" aria-label="{long_label}" '
            f'target="_blank" rel="noopener noreferrer">'
            if BOOKED else f'<a class="navcta" href="{href}" aria-label="{long_label}">')
@@ -285,18 +292,50 @@ CSS = """<style>
     font-family:'Onest',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     font-weight:700;letter-spacing:var(--t-head);font-size:var(--f-sm);white-space:nowrap;}
   .brandmark{height:28px;width:auto;display:block;border-radius:var(--r-sm);flex:none;}
+  /* .navright groups everything but the brand (toggle, the link list,
+     the CTA) so .navin keeps exactly the two-item space-between layout it
+     always had; .navlinks used to be that grouping div itself; now it is
+     just the link list, nested one level in, so it alone can become a
+     mobile dropdown without disturbing how the CTA sits relative to the
+     brand. Both carry the same gap escalation so the visual spacing at
+     each breakpoint is unchanged from before this split. */
+  .navright{display:flex;align-items:center;gap:10px;}
   .navlinks{display:flex;align-items:center;gap:10px;}
   .navsecondary{display:none;}
   @media(min-width:620px){
+    .navright{gap:var(--s4);}
     .navlinks{gap:var(--s4);}
     .navsecondary{display:inline;}
   }
-  @media(min-width:560px){.navlinks{gap:var(--s5);}}
+  @media(min-width:560px){.navright{gap:var(--s5);} .navlinks{gap:var(--s5);}}
   .navlinks a{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
     font-size:var(--f-lede);color:#D8D3C9;text-decoration:none;white-space:nowrap;
     transition:color var(--ease);}
   .navlinks a:hover{color:#FFFFFF;}
   .navlinks a.is-on{color:var(--orange);}
+  /* 2026-08-29: Work/Packages/Team never fit next to the brand wordmark and
+     the CTA pill on a real phone once Team existed (it overflowed off the
+     right edge; "no hamburger, two links and a button fit" stopped being
+     true the moment a third link was added and was never revisited). Below
+     620px .navlinks becomes a collapsible dropdown instead of a second row
+     it never got, toggled by .navtoggle (hidden at 620px+, where the old
+     inline layout is untouched). */
+  .navtoggle{display:none;flex:none;align-items:center;justify-content:center;
+    width:40px;height:40px;padding:0;border:0;background:none;color:#FFFFFF;
+    cursor:pointer;}
+  @media(max-width:619px){
+    .navtoggle{display:flex;order:1;}
+    .navcta{order:2;}
+    .navlinks{position:absolute;top:100%;left:0;right:0;z-index:-1;
+      flex-direction:column;align-items:stretch;gap:0;
+      background:#14171A;border-top:1px solid rgba(255,255,255,.12);
+      max-height:calc(100vh - 60px);overflow-y:auto;
+      transform:translateY(-8px);opacity:0;pointer-events:none;
+      transition:opacity var(--ease),transform var(--ease);}
+    .navlinks.is-open{z-index:0;opacity:1;transform:translateY(0);pointer-events:auto;}
+    .navlinks a{padding:16px var(--s5);border-bottom:1px solid rgba(255,255,255,.08);}
+    .navsecondary{display:block;}
+  }
   /* ---------- 4.1 motion ---------- */
   /* (a) scroll reveals. The hidden state is applied by JS, so if the script never
      runs the content is simply visible rather than invisible forever. */
@@ -604,9 +643,16 @@ CSS = """<style>
   .hero-media .herobg{position:absolute;top:50%;left:50%;
     width:100vw;height:56.25vw;min-height:100%;min-width:177.78vh;
     transform:translate(-50%,-50%);pointer-events:none;}
+  /* clickable, not pointer-events:none like the iframe under it: iOS
+     (Low Power Mode especially) silently refuses muted autoplay on a good
+     fraction of real phones, and the YouTube IFrame API gives no error
+     for this, it just never leaves the cued state, so the poster would
+     stay up forever with no way to start the video at all. A tap always
+     bypasses autoplay restrictions on every platform, so the fallback is
+     to make the poster itself the play button (see setupAmbient). */
   .hero-poster{position:absolute;inset:0;z-index:2;background:#14171A;
-    transition:opacity .6s ease;pointer-events:none;}
-  .hero-poster.is-hidden{opacity:0;}
+    transition:opacity .6s ease;cursor:pointer;}
+  .hero-poster.is-hidden{opacity:0;pointer-events:none;}
   /* YouTube always draws its own watermark in this corner with controls=0
      and no param removes it; the oversized crop above may or may not push
      it past the edge depending on viewport aspect, so this covers it
@@ -1063,8 +1109,9 @@ CSS = """<style>
      param to suppress it (see the comment above), so the poster stays
      layered on top and only fades once PlayerState actually reports
      PLAYING, masking that card instead of fighting it. */
-  .posterlay{position:absolute;top:0;left:0;z-index:2;transition:opacity .5s ease;}
-  .posterlay.is-hidden{opacity:0;}
+  .posterlay{position:absolute;top:0;left:0;z-index:2;transition:opacity .5s ease;
+    cursor:pointer;}
+  .posterlay.is-hidden{opacity:0;pointer-events:none;}
   /* small, italic and pushed right: reads as a caption/annotation on the
      film rather than a section label competing with the ones below it. */
   .bannercap{padding:var(--s5) 0 var(--s1);display:flex;flex-wrap:wrap;
@@ -1426,6 +1473,21 @@ SOLO_JS = """<script>
       });
     }, {threshold: 0.2});
     io.observe(bannerEl);
+
+    /* fallback for autoplay silently refused (iOS Low Power Mode does this
+       a lot, and gives no error to detect, the player just never leaves
+       "cued"): tapping the poster always works, since a real user gesture
+       bypasses autoplay restrictions everywhere. Also covers the player
+       not existing yet at tap time (rare, since the observer above
+       usually creates it immediately, but the hero could in principle be
+       tapped before it scrolls into view on some layouts). */
+    var posterEl = document.getElementById(posterId);
+    if(posterEl){
+      posterEl.addEventListener('click', function(){
+        if(player && player.playVideo) player.playVideo();
+        else loadApiThen(makePlayer);
+      });
+    }
   }
 
   setupAmbient('yt-banner', 'yt-poster', 'banner');
@@ -1441,6 +1503,35 @@ NAV_JS = """<script>
   function upd(){ n.classList.toggle('is-stuck', (window.pageYOffset || 0) > 8); }
   upd();
   window.addEventListener('scroll', upd, {passive:true});
+
+  /* mobile menu: only meaningful below 620px (see .navtoggle in the
+     stylesheet), but the listeners are harmless no-ops above that since
+     the button is display:none there and never gets clicked. */
+  var toggle = document.getElementById('navtoggle');
+  var links = document.getElementById('navlinks');
+  if(!toggle || !links) return;
+
+  function setOpen(open){
+    links.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  toggle.addEventListener('click', function(){
+    setOpen(!links.classList.contains('is-open'));
+  });
+  /* closing on a link click matters here specifically: same-page anchors
+     (e.g. a footer link to /our-work/#a1) don't trigger navigation, so
+     without this the menu would stay open covering the page after tapping
+     one */
+  links.addEventListener('click', function(e){
+    if(e.target.tagName === 'A') setOpen(false);
+  });
+  document.addEventListener('click', function(e){
+    if(!links.classList.contains('is-open')) return;
+    if(!n.contains(e.target)) setOpen(false);
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') setOpen(false);
+  });
 })();
 </script>"""
 
