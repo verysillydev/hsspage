@@ -1401,6 +1401,28 @@ SOLO_JS = """<script>
     }
   }
 
+  /* iOS Safari: a tap on the poster always worked (confirmed), autoplay
+     alone never did, even with Low Power Mode off. That is consistent
+     with WebKit's documented autoplay policy treating a *scripted*
+     playVideo() call (what a dynamically created player always does)
+     more strictly than media that was autoplay-eligible from the
+     page's own initial load. Since a real gesture reliably unlocks it,
+     the workaround is to treat the visitor's first touch/scroll/click
+     ANYWHERE on the page, not just on the video, as that gesture, and
+     retry play then. Almost everyone touches or scrolls within the
+     first second on a phone, so this reads as autoplay in practice. */
+  var pendingPlayers = [];
+  function unlockPendingPlayers(){
+    pendingPlayers.forEach(function(p){
+      if(p && p.getPlayerState && p.getPlayerState() !== YT.PlayerState.PLAYING){
+        p.playVideo();
+      }
+    });
+  }
+  ['touchstart', 'scroll', 'click'].forEach(function(evt){
+    document.addEventListener(evt, unlockPendingPlayers, {passive: true, once: true});
+  });
+
   function setupAmbient(bannerId, posterId, sizeClass){
     var bannerEl = document.getElementById(bannerId);
     if(!bannerEl || !('IntersectionObserver' in window)) return;
@@ -1438,6 +1460,7 @@ SOLO_JS = """<script>
             io.unobserve(bannerEl);
             io.observe(ifr);
             e.target.playVideo();
+            pendingPlayers.push(e.target);
           },
           onStateChange: function(e){
             /* masks YouTube's own title/uploader card, which has no
