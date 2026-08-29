@@ -643,6 +643,26 @@ CSS = """<style>
   .hero-media .herobg{position:absolute;top:50%;left:50%;
     width:100vw;height:56.25vw;min-height:100%;min-width:177.78vh;
     transform:translate(-50%,-50%);pointer-events:none;}
+  @media(max-width:600px){
+    /* less crop on narrow phones: 177.78vh (paired with min-height:100%)
+       guarantees full-height cover on any aspect ratio, which on a tall
+       narrow screen meant zooming the 16:9 video in hard enough that only
+       a thin vertical slice of its width ever showed. Replacing all four
+       of width/height/min-width/min-height together, not just min-width
+       alone: min-height:100% is still active from the base rule above, so
+       touching only min-width would leave the two fighting and stretch
+       the video out of its actual 16:9 shape rather than just cropping it
+       less. A fixed 133vh/74.8vh box (still exactly 16:9) trades a
+       modest, deliberate letterbox gap top and bottom (filled by the same
+       dark background already behind everything, so it is not jarring)
+       for meaningfully more of the actual footage, about the ~33% more
+       width visible that was asked for. */
+    .hero-media .herobg{width:133vh;height:74.8vh;min-width:133vh;min-height:74.8vh;}
+    /* smaller title, same reasoning: less of the frame covered by
+       text/scrim, more of the video underneath actually reads. Desktop's
+       clamp is untouched. */
+    .hero-bold h1{font-size:clamp(26px, 8px + 5vw, 42px);}
+  }
   /* clickable, not pointer-events:none like the iframe under it: iOS
      (Low Power Mode especially) silently refuses muted autoplay on a good
      fraction of real phones, and the YouTube IFrame API gives no error
