@@ -525,6 +525,17 @@ CSS = """<style>
     transition:border-color var(--ease),transform var(--ease),background var(--ease);}
   @media(min-width:620px){.ccard{flex:0 0 calc(50% - var(--s4)/2);}}
   @media(min-width:960px){.ccard{flex:0 0 calc(33.333% - var(--s4)*2/3);}}
+  /* mobile only: was scroll-snap-align:start with no side padding, so the
+     active card sat flush against the left edge with the next one bleeding
+     in awkwardly on the right and nothing on the left, reading as cut off
+     rather than as a deliberate peek. Centered instead, with matching
+     padding on the track so the first/last cards can actually reach
+     center too, and a bit wider (78% -> 88%) so less of the neighbor
+     shows either side. */
+  @media(max-width:619px){
+    .ccards{padding-left:6%;padding-right:6%;scroll-padding-inline:6%;}
+    .ccard{flex:0 0 88%;scroll-snap-align:center;}
+  }
   /* the bonus ask: an outline on hover, distinct from the persistent one on
      the card whose write-up is currently open below. */
   .ccard:hover,.ccard:focus-visible{border-color:rgba(var(--orange-rgb),.5);
@@ -1248,6 +1259,14 @@ CSS = """<style>
     transform:translateY(5px);}
   .sec-head.on-photo h2 .mark::before{background-image:url(__HL_HEADING__);
     transform:translateY(12px);}
+  /* mobile only: +12px was tuned against a desktop (Firefox) render:
+     narrow viewport, iOS Safari, and Caveat's own webfont metrics differ
+     enough between the two that the same offset left the heading's
+     ascenders sitting above the stroke instead of inside it, spilling
+     onto the raw blueprint. Desktop's value is untouched. */
+  @media(max-width:619px){
+    .sec-head.on-photo h2 .mark::before{transform:translateY(-10px);}
+  }
   .sec-head.on-photo h2{font-family:'Caveat',cursive;font-size:clamp(34px,5vw,52px);
     font-weight:700;line-height:1.35;}
   .door .tier{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
