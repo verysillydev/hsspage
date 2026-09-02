@@ -3154,7 +3154,7 @@ TEAM_LEADS = [
                "production experience to work for contractors."},
 ]
 TEAM_ROSTER = [
-    {"name": "Paloma Barro", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
+    {"name": "Paloma Barros", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
     {"name": "Yoni Paz", "title": "Coordinator, Producer, Editor", "photo": "yoni-paz.jpg"},
     {"name": "Sergy Olkowski", "title": "Post Production Supervisor", "photo": "sergy-olkowski.jpg"},
 ]
