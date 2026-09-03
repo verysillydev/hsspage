@@ -3155,7 +3155,7 @@ TEAM_LEADS = [
 ]
 TEAM_ROSTER = [
     {"name": "Paloma Barros", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
-    {"name": "Yoni Paz", "title": "Coordinator, Producer, Editor", "photo": "yoni-paz.jpg"},
+    {"name": "Yoni Paz", "title": "Creative Director and Producer", "photo": "yoni-paz.jpg"},
     {"name": "Sergy Olkowski", "title": "Post Production Supervisor", "photo": "sergy-olkowski.jpg"},
 ]
 
