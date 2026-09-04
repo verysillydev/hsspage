@@ -27,6 +27,23 @@ if MODE == "web":
 # api_contact.js for the matching TO/sender switch on the form's send path.
 EMAIL = "info@homeservicestudios.com"
 
+# The live origin. Canonical tags, OG URLs, the sitemap, robots.txt and the JSON-LD
+# record all derive from this, so it is the one place the site's own address is
+# written down. It sat inside the web-build block until 2026-09-03, which put it
+# out of reach of JSON_LD and left that block naming yoniverseproductions.com by
+# hand long after the site had moved to GitHub Pages under the new domain. Google
+# reads a canonical tag as an instruction, so every page was pointing ranking
+# signals at the old Vercel copy. Moving it here is what stops that recurring.
+SITE = "https://homeservicestudios.com"
+
+# Where the enquiry form actually delivers. Kept separate from EMAIL, which is the
+# address shown on the page: the two are allowed to differ and currently do.
+# api_contact.js (Brevo, via a Vercel function) is unreachable on GitHub Pages,
+# which is static, so this is the receiver until the form is moved back to a real
+# backend. FORM_ACTION is the no-JS fallback; FORM_JS posts to the /ajax/ variant.
+FORM_TO = "yoni@homeservicestudios.com"
+FORM_ACTION = f"https://formsubmit.co/{FORM_TO}"
+
 # Paste the Google Calendar appointment booking page here and every CTA on the site
 # switches at once. While it is empty the buttons fall back to a prefilled mailto,
 # and the reassurance line below them is suppressed (it promises a Meet call).
@@ -36,9 +53,30 @@ BOOKED = bool(BOOK_URL)
 REASSURE = ("Twenty minutes on Google Meet. We'll look at your market, your current content, "
             "and whether a monthly program makes sense.")
 
-# what the form path actually promises, which is not a call yet
+# what the form path actually promises, which is not a call yet.
+#
+# Four variants rather than one. The single line used to render verbatim in all
+# five places it appears, and the sentence insisting a human is involved reading
+# identically on every page is exactly the tell it was written to avoid. Every
+# variant makes the same three promises (short, fast, answered by a person about
+# your own market), so nothing is being over-claimed in one place and under-claimed
+# in another; only the phrasing moves. reassure() picks by page.
 REASSURE_FORM = ("Six questions, under a minute. You will hear back within one business day, "
                  "from a human, about your market specifically.")
+
+REASSURE_VARIANTS = {
+    "home": REASSURE_FORM,
+    "work": ("Six questions and about a minute. A person reads it and answers within one "
+             "business day, about your market rather than in general."),
+    "packages": ("Under a minute to fill in. You get a real answer within one business day, "
+                 "about your city and your trade, not a brochure."),
+    "contact": ("Six questions, under a minute. One business day to a reply, written by "
+                "someone here who has looked at your market."),
+    # /packages calls reassure() twice, once at the top and once under the terms
+    # grid, so the second needs its own line or the page repeats itself to itself.
+    "packages-terms": ("Still six questions, still under a minute. A person answers within "
+                       "one business day, and tells you which program actually fits."),
+}
 
 # Feather "user", stands in for a headshot on /team/ until real photos exist.
 PERSON_ICON = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" '
@@ -82,10 +120,14 @@ def book(subject, label="", cls="cta"):
                 f'rel="noopener noreferrer">{label or "Book a call"}</a>')
     return f'<a class="{cls}" href="/contact/#start">{label or "Start a project"}</a>'
 
-def reassure():
+def reassure(page="home"):
     """Sits under the CTA and describes what actually happens next. The promise has
-    to match the destination, so it changes with it."""
-    return f'<p class="reassure">{REASSURE if BOOKED else REASSURE_FORM}</p>'
+    to match the destination, so it changes with it. Once BOOKED is set every CTA
+    becomes the calendar and there is only one true promise to make, so the
+    per-page phrasing collapses back to a single line on purpose."""
+    if BOOKED:
+        return f'<p class="reassure">{REASSURE}</p>'
+    return f'<p class="reassure">{REASSURE_VARIANTS.get(page, REASSURE_FORM)}</p>'
 
 def actionbar():
     """Phones only. Two thumbs, two jobs: reach out, or send the details."""
@@ -111,11 +153,15 @@ def nav(active=""):
     href = cta_href()
     long_label, short_label = (("Book a call", "Book") if BOOKED
                                else ("Start a project", "Contact"))
-    icon = asset(f"{S}/logos_hss/nav_mark_hss.png", "image/png")
+    # .brandmark renders at height:28px, so 84px tall covers a 3x display. The
+    # source PNG was shipping at its full 1072x517 and 205KB, on every page, of
+    # which Lighthouse called 203KB pure waste. The width/height attributes below
+    # must keep matching the file or the reserved box changes and CLS comes back.
+    icon = asset(f"{S}/logos_hss/nav_mark_hss.webp", "image/webp")
     return (
         '<nav class="nav" id="nav"><div class="wrap navin">'
         f'<a class="brand" href="/"><img class="brandmark" src="{icon}" alt="" '
-        f'width="1072" height="517">Home Service Studios</a>'
+        f'width="174" height="84">Home Service Studios</a>'
         '<div class="navright">'
         '<button type="button" class="navtoggle" id="navtoggle" '
         'aria-expanded="false" aria-controls="navlinks" aria-label="Menu">'
@@ -128,9 +174,17 @@ def nav(active=""):
         + link("/team/", "Team", "team")
         + link("/contact/", "Contact", "contact", "navsecondary")
         + '</div>'
-        + (f'<a class="navcta" href="{href}" aria-label="{long_label}" '
+        # No aria-label here on purpose. It used to be hard set to long_label,
+        # but only one of the two spans below is ever displayed (the other is
+        # display:none, so it is excluded from the accessible name), which meant
+        # that under 560px the button read "Contact" and announced "Start a
+        # project". That is Lighthouse's label-content-name-mismatch, and for a
+        # voice-control user saying "click Contact" it simply does nothing.
+        # Letting the name come from the visible span keeps the two identical at
+        # every width, and both labels are descriptive enough to pass link-text.
+        + (f'<a class="navcta" href="{href}" '
            f'target="_blank" rel="noopener noreferrer">'
-           if BOOKED else f'<a class="navcta" href="{href}" aria-label="{long_label}">')
+           if BOOKED else f'<a class="navcta" href="{href}">')
         + f'<span class="ctalong">{long_label}</span>'
           f'<span class="ctashort">{short_label}</span></a>'
         '</div></div></nav><div class="navspacer"></div>'
@@ -503,6 +557,16 @@ CSS = """<style>
   .actionbar a svg{flex:none;}
   @media(min-width:760px){.actionbar{display:none;}}
   @media(max-width:759px){body{padding-bottom:54px;}}
+  /* The homepage hero is min-height:100dvh with justify-content:flex-end, so its
+     text block is anchored to the bottom of the viewport, which is exactly where
+     the fixed .actionbar sits. Measured at 390x844 before this rule: the h1 ended
+     at 820px and the bar started at 789px, so "does nothing.", the payoff line of
+     the headline, was covered. body's padding-bottom does not help here, it moves
+     the end of the document rather than anything inside a viewport-height box.
+     Padding the hero itself is what clears it. */
+  @media(max-width:759px){
+    .hero-media{padding-bottom:calc(54px + env(safe-area-inset-bottom));}
+  }
 
   /* a section that opens without a label, set larger to carry the weight the
      eyebrow used to. Two of seven on the homepage, deliberately not all. */
@@ -566,10 +630,18 @@ CSS = """<style>
     transition:border-color var(--ease),color var(--ease);}
   .car-arrow:hover{border-color:var(--orange-text);color:var(--orange-text);}
   .car-arrow svg{display:block;}
-  .car-dots{display:flex;justify-content:center;gap:10px;margin-top:var(--s5);}
-  .car-dot{width:8px;height:8px;padding:0;border-radius:50%;border:0;
-    background:var(--line);cursor:pointer;}
-  .car-dot.is-active{background:var(--orange-text);}
+  /* The dot stays 8px to the eye; the button around it is 24x24 so it passes
+     Lighthouse's target-size audit, which the old 8x8 button failed (that alone
+     is why /our-work scores below the other pages on accessibility). The trick
+     is padding plus background-clip:content-box: the background paints only the
+     8px content box, while the touchable button is the full 24px. gap drops from
+     10px to 0 because each dot now carries 8px of its own padding either side,
+     which keeps the row from spreading out as the targets grow. */
+  .car-dots{display:flex;justify-content:center;gap:0;margin-top:var(--s5);}
+  .car-dot{width:24px;height:24px;padding:8px;box-sizing:border-box;
+    border-radius:50%;border:0;background-color:var(--line);
+    background-clip:content-box;cursor:pointer;}
+  .car-dot.is-active{background-color:var(--orange-text);}
 
   /* Each is the exact same section markup a standalone case page used to
      render on its own; only one shows at a time, toggled by CAROUSEL_JS. */
@@ -1317,6 +1389,10 @@ CSS = """<style>
     letter-spacing:var(--t-head);}
   .member .rtitle{display:block;margin-top:1px;font-family:var(--mono);font-size:var(--f-micro);
     letter-spacing:var(--t-caps);text-transform:uppercase;color:var(--ink-3);}
+  /* Optional crew bio. Sizes come from the same tokens .lead p uses, one step
+     down, so a filled card and an empty one still sit on the same grid. */
+  .member .mbio{margin:var(--s2) 0 0;font-size:var(--f-sm);line-height:1.5;
+    color:var(--ink-2);}
 
   .skip{position:absolute;left:-9999px;top:0;background:var(--orange);color:#14171A;
     padding:var(--s3) var(--s4);border-radius:0 0 var(--r-sm) 0;z-index:99;font-weight:600;}
@@ -1337,11 +1413,17 @@ CSS = """<style>
 # {braces} to make that safe), so the packages page's "what you are actually
 # buying" panel background is patched in after the fact via a placeholder
 # rather than an inline asset() call.
-CSS = CSS.replace("__TEXTURE_PLASTER__", asset(f"{P}/texture_plaster.webp", "image/webp"))
+# 2026-09-03: the decorative art below was shipping as PNG, which is the wrong
+# container for photographic and scanned material and was costing about 1.2MB a
+# visit (hl-eyebrow alone was 395KB for one highlight stroke). All of it is now
+# WebP, written with Pillow, which is still the only tool on this machine that
+# writes WebP. The originals are kept beside the new files as the masters; if a
+# quality call here ever needs revisiting, re-encode from the .png, not the .webp.
+CSS = CSS.replace("__TEXTURE_PLASTER__", asset(f"{P}/texture_plaster_o.webp", "image/webp"))
 CSS = CSS.replace("__DOOR_SIDING__", asset(f"{P}/siding.jpg", "image/jpeg"))
-CSS = CSS.replace("__BLUEPRINT__", asset(f"{P}/blueprint.jpg", "image/jpeg"))
-CSS = CSS.replace("__HL_EYEBROW__", asset(f"{S}/icons/hl-eyebrow.png", "image/png"))
-CSS = CSS.replace("__HL_HEADING__", asset(f"{S}/icons/hl-heading.png", "image/png"))
+CSS = CSS.replace("__BLUEPRINT__", asset(f"{P}/blueprint.webp", "image/webp"))
+CSS = CSS.replace("__HL_EYEBROW__", asset(f"{S}/icons/hl-eyebrow.webp", "image/webp"))
+CSS = CSS.replace("__HL_HEADING__", asset(f"{S}/icons/hl-heading.webp", "image/webp"))
 
 # Full width, gently scrolling data traces, the same technique as the wave
 # background on verysilly.dev: smooth repeating bezier tiles inside an
@@ -1835,6 +1917,10 @@ FORM_JS = """<script>
   var status = document.getElementById('fstatus');
   var LABEL = btn.textContent;
 
+  /* Where enquiries go. Substituted from FORM_TO at build time so the address
+     lives in exactly one place, next to EMAIL at the top of this file. */
+  var FORM_ENDPOINT = '__FORM_ENDPOINT__';
+
   function wrap(el){ return el.closest('.fld') || el.closest('.budgets'); }
   function setErr(el, msg){
     var w = wrap(el); if(!w) return;
@@ -1891,14 +1977,34 @@ FORM_JS = """<script>
     });
 
     btn.disabled = true; btn.textContent = 'Sending...';
-    fetch('/api/contact', {
+
+    /* The site moved to GitHub Pages on 2026-08-28. Pages is static hosting and
+       cannot execute the Vercel function at /api/contact, so every POST came
+       back 405 and not one enquiry was delivered until 2026-09-03. FORM_ENDPOINT
+       is a receiver that works on static hosting. The subject line is still
+       built here rather than server side, so the inbox stays sortable in exactly
+       the same shape it was before: Company (City) - Trade - Budget. */
+    data._subject = (data.company || 'Enquiry')
+      + ' (' + (data.city || '') + ') - '
+      + (data.trade || '') + ' - ' + (data.budget || '');
+    data._replyto = data.email;
+    data._captcha = 'false';
+    /* the honeypot was checked server side by api_contact.js, which no longer
+       runs: hand the same field to the receiver's own trap instead, so a bot
+       still gets a 200 and never learns it was caught */
+    data._honey = data.website || '';
+
+    fetch(FORM_ENDPOINT, {
       method: 'POST',
-      headers: {'content-type': 'application/json'},
+      headers: {'content-type': 'application/json', 'accept': 'application/json'},
       body: JSON.stringify(data)
     }).then(function(r){
-      return r.json().then(function(j){ return {ok: r.ok, body: j}; });
+      return r.json().then(function(j){ return {ok: r.ok, body: j}; },
+                          function(){ return {ok: r.ok, body: {}}; });
     }).then(function(res){
-      if(res.ok && res.body.ok){
+      /* the receiver reports success as the string "true", the old function
+         reported it as a boolean ok: accept either */
+      if(res.ok && (res.body.ok || String(res.body.success) === 'true')){
         /* replace the form rather than clearing it: a blank form after submitting
            reads as "that did not work" and people send it twice */
         var done = document.createElement('div');
@@ -1933,6 +2039,11 @@ FORM_JS = """<script>
   });
 })();
 </script>"""
+
+# FORM_JS is a plain string, not an f-string: the JS it holds is full of braces.
+# The one value that has to come from Python is substituted here instead.
+FORM_JS = FORM_JS.replace("__FORM_ENDPOINT__", f"https://formsubmit.co/ajax/{FORM_TO}")
+assert "__FORM_ENDPOINT__" not in FORM_JS, "form endpoint placeholder was not substituted"
 
 
 def spot(fn, sc, nm, du, yt=None):
@@ -2428,7 +2539,7 @@ html = f"""<title>Selected work, Home Service Studios</title>
     {book("Project%20enquiry", "Start a project")}
     <a class="cta ghost" href="/packages/">Monthly packages</a>
   </div>
-  {reassure()}
+  {reassure("work")}
   <p class="ctanote" style="margin-top:16px;max-width:60ch;">Home Service Studios is led by a founder
   and creative director who spent seven years across the creator economy, live streaming
   and social commerce, running portfolios of more than ten thousand creators and one hundred and
@@ -2588,7 +2699,7 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
     {book("Monthly%20packages")}
     <a class="cta ghost" href="/our-work/">See the work first</a>
   </div>
-  {reassure()}
+  {reassure("packages")}
 </div></div>
 
 <main id="main">
@@ -2720,7 +2831,7 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
   <div class="ctarow">
     {book("Monthly%20packages")}
   </div>
-  {reassure()}
+  {reassure("packages-terms")}
   <p class="ctanote" style="margin-top:var(--s3);">Questions on terms?
   <a href="/contact/">Contact</a> us.</p>
 
@@ -2758,9 +2869,9 @@ HOME_SPOTS = [(None, "All Heart", "Breaking Furniture 101", "0:30", "zaCFfVetfFI
 # to alpha, autocropped, downscaled). Assignment per the client's own layout:
 # icon 2 left (Campaigns), icon 3 middle (Monthly programs), icon 1 right
 # (Creator work).
-CSI_ICON_CAMPAIGNS = asset(f"{S}/icons/folder2.png", "image/png")
-CSI_ICON_MONTHLY = asset(f"{S}/icons/folder3.png", "image/png")
-CSI_ICON_CREATOR = asset(f"{S}/icons/folder1.png", "image/png")
+CSI_ICON_CAMPAIGNS = asset(f"{S}/icons/folder2.webp", "image/webp")
+CSI_ICON_MONTHLY = asset(f"{S}/icons/folder3.webp", "image/webp")
+CSI_ICON_CREATOR = asset(f"{S}/icons/folder1.webp", "image/webp")
 
 HOME_HTML = f"""<title>Home Service Studios</title>
 {FONT_CSS}
@@ -2891,7 +3002,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     {book("Creator%20project", "Talk about creator work", "cta ghost")}
     <span class="ctanote">Creator work is quoted per project, not on the monthly packages.</span>
   </div>
-  {reassure()}
+  {reassure("home")}
 </div></section>
 
 <section><div class="wrap">
@@ -2999,7 +3110,7 @@ def enquiry_form():
         f'{" required" if i == 0 else ""}><span class="bv">{v}</span>'
         + (f'<span class="bt">{n}</span>' if n else '') + '</label>'
         for i, (v, n) in enumerate(BUDGETS))
-    return f"""<form class="cform" id="cform" method="post" action="/api/contact" novalidate>
+    return f"""<form class="cform" id="cform" method="post" action="{FORM_ACTION}" novalidate>
   <div class="fgrid">
     {field("name", "Your name", ac="name")}
     {field("email", "Email", kind="email", ac="email")}
@@ -3086,7 +3197,7 @@ CONTACT_HTML = f"""<title>Contact</title>
   <div class="ctarow">
     <a class="cta" href="#start">Send us a message</a>
   </div>
-  {reassure()}
+  {reassure("contact")}
 </div></div>
 
 <main id="main">
@@ -3155,7 +3266,12 @@ TEAM_LEADS = [
 ]
 TEAM_ROSTER = [
     {"name": "Paloma Barros", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
-    {"name": "Yoni Paz", "title": "Creative Director and Producer", "photo": "yoni-paz.jpg"},
+    # Sourced from the paragraph already published on /our-work rather than
+    # written fresh, so the two pages describe him in the same terms.
+    {"name": "Yoni Paz", "title": "Creative Director and Producer", "photo": "yoni-paz.jpg",
+        "bio": "Seven years across the creator economy, live streaming and social commerce, "
+               "running portfolios of more than ten thousand creators and one hundred and "
+               "twenty talent agencies, before building this company around commercial work."},
     {"name": "Sergy Olkowski", "title": "Post Production Supervisor", "photo": "sergy-olkowski.jpg"},
 ]
 
@@ -3179,8 +3295,15 @@ def member_card(p):
                f'loading="lazy" decoding="async">')
     else:
         art = PERSON_ICON
+    # Optional, deliberately. A crew card carrying only a name and a title reads
+    # as a template waiting for data, which is one of the things that makes the
+    # page feel machine assembled. A bio is rendered when the roster has one and
+    # the card is unchanged when it does not, so people can be filled in one at a
+    # time as they send something rather than all at once.
+    bio = f'<p class="mbio">{p["bio"]}</p>' if p.get("bio") else ""
     return (f'<div class="member"><div class="portrait">{art}</div>'
-            f'<h4>{p["name"]}</h4><span class="rtitle">{p["title"]}</span></div>')
+            f'<h4>{p["name"]}</h4><span class="rtitle">{p["title"]}</span>'
+            f'{bio}</div>')
 
 
 TEAM_HTML = f"""<title>Meet the team</title>
@@ -3218,6 +3341,28 @@ TEAM_HTML = f"""<title>Meet the team</title>
     {"".join(member_card(p) for p in TEAM_ROSTER)}
   </div>
 </div></section>
+
+<!-- /team was a dead end: 231 words, then nothing but the footer, on the one page
+     where a visitor has just decided they like the people. Same .doors pair the
+     homepage closes with, so it is an existing pattern rather than a new one, and
+     the copy leads from the faces above into the work those faces made. -->
+<section class="doors-section"><div class="wrap">
+  <div class="doors">
+    <a class="door" href="/our-work/">
+      <span class="tier">Portfolio</span>
+      <h3>See what they made</h3>
+      <p>Five case studies with the numbers attached, shot and cut by the people above.</p>
+      <span class="go">Open the portfolio &rarr;</span>
+    </a>
+    <a class="door" href="/packages/">
+      <span class="tier">Retainers</span>
+      <h3>Put them on your account</h3>
+      <p>Six monthly programs, plain terms, and an honest account of what consistent
+      content does and does not do.</p>
+      <span class="go">See the packages &rarr;</span>
+    </a>
+  </div>
+</div></section>
 </main>
 
 <footer>{SPLAT_SVG}<div class="wrap">
@@ -3242,15 +3387,39 @@ FAVICON = "data:image/png;base64," + b64(f"{S}/logos_hss/favicon_hss.png")
 
 # 3.3 Structured data. One block, identical on every page, so search engines get a
 # single consistent record of who this is and how to reach them.
+#
+# 2026-09-03: this used to hard code both the URL and the email as literals, which
+# is how it kept naming yoniverseproductions.com after the site had moved. Both now
+# come from the constants at the top of the file, so the record cannot drift from
+# the canonical tags again.
+#
+# The offer catalogue is generated from data/packages.json, the same file the
+# /packages page renders from, so the six prices in search results cannot disagree
+# with the six on the page. This is free rich-result eligibility that the site was
+# declining while publishing every price in public, which is the rare case that
+# makes the markup worth having.
+_OFFERS = ",".join(
+    '{"@type":"Offer","name":%s,"description":%s,"price":"%d",'
+    '"priceCurrency":%s,"availability":"https://schema.org/InStock",'
+    '"priceSpecification":{"@type":"UnitPriceSpecification","price":"%d",'
+    '"priceCurrency":%s,"unitCode":"MON","billingIncrement":"1"}}'
+    % (json.dumps(t["name"]), json.dumps(t["tagline"]), t["price"],
+       json.dumps(PKG["currency"]), t["price"], json.dumps(PKG["currency"]))
+    for t in PKG["tiers"])
+
 JSON_LD = (
     '<script type="application/ld+json">'
     '{"@context":"https://schema.org","@type":"ProfessionalService",'
-    '"name":"Home Service Studios","url":"https://yoniverseproductions.com/",'
-    '"email":"info@homeservicestudios.com",'
+    '"name":"Home Service Studios","url":"' + SITE + '/",'
+    '"logo":"' + SITE + '/our-work/a/og-cover.jpg",'
+    '"image":"' + SITE + '/og/og-home.jpg",'
+    '"email":"' + EMAIL + '",'
     '"address":{"@type":"PostalAddress","addressLocality":"Los Angeles",'
     '"addressRegion":"CA","addressCountry":"US"},'
-    '"areaServed":"US",'
-    '"description":"Video production for home service brands and creators."}'
+    '"areaServed":"US","priceRange":"$$$",'
+    '"description":"Video production for home service brands and creators.",'
+    '"hasOfferCatalog":{"@type":"OfferCatalog",'
+    '"name":"Monthly video programs","itemListElement":[' + _OFFERS + ']}}'
     '</script>'
 )
 
@@ -3307,9 +3476,9 @@ assert not _TEMPLATE_PRICES, (
 html = validate(html, "our-work")
 
 if MODE == "web":
-    # TODO: still yoniverseproductions.com until the homeservicestudios.com
-    # GoDaddy login is confirmed; move SITE + canonical/OG/sitemap URLs then.
-    SITE = "https://yoniverseproductions.com"
+    # SITE now lives at the top of the file beside EMAIL, so JSON_LD can reach it
+    # too. The old domain should 301 here rather than keep serving its stale
+    # pre-rebrand build, which is the one part of this that is not a code change.
     D1 = ("Five case studies from Home Service Studios, a Los Angeles writing and production "
           "company. Short form and commercial work across home services and the creator economy.")
     n1 = write_web(html, f"{OUT}/index.html",

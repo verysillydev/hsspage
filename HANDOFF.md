@@ -14,24 +14,22 @@ Requirements: Python 3.9 or newer. Nothing else.
 ## Build and deploy
 
     python3 build_site.py web     # writes ./deploy
-    ./deploy.sh                   # builds, then pushes ./deploy to Vercel production
+    ./deploy_github.sh            # builds, then force-pushes ./deploy to gh-pages
 
-`deploy.sh` uses `npx vercel@latest` deliberately. Do not install the Vercel CLI
-globally on this machine, it fails with EACCES.
+**Hosting moved to GitHub Pages on 2026-08-28.** The live site is the `gh-pages`
+branch of this repo, served at homeservicestudios.com. `./deploy.sh` is the old
+Vercel path and will not work without Vercel CLI auth, which is not set up on the
+build machine. Use `./deploy_github.sh`.
 
-The `web` argument selects the 720p video encodes. Passing `mobile` selects 360p from
-`vid/360`. Web is what ships.
+## What is not in this archive
 
-## Two things are missing from this archive
+**`deploy/`** - the build output. Regenerated every time you run the script, so it was
+not worth sending.
 
-1. **`vid/`** - about 74 MB of video encodes in `vid/720` and `vid/360`. Too large to
-   email. The build will not run without it. Get this folder from Yoni and drop it in
-   at the project root.
-
-2. **`deploy/`** - the build output. Regenerated every time you run the script, so it
-   was not worth sending. It comes to about 62 MB, most of that video.
-
-Once `vid/` is in place the build runs clean and produces 9 pages.
+**`vid/` is no longer needed.** This document used to say the build would not run
+without a 74 MB `vid/` folder. That stopped being true on 2026-08-26, when all 17
+clips moved to YouTube. The build emits zero mp4 files now and is correct without it;
+`vid/` stays in `.gitignore` only so old local copies do not get committed.
 
 ## One file was renamed for email
 
