@@ -1953,6 +1953,31 @@ FORM_JS = """<script>
     }
   });
 
+  /* Nothing a visitor typed should ever be lost because a delivery service is
+     down, unreachable, or not yet switched on. Whatever the failure, the answers
+     are already in their hands: this hands back a one-tap mail link with every
+     field prefilled, so the enquiry still arrives, just through their own mail
+     client. It is a worse experience than the form and a far better one than
+     "try again later", which is where six days of enquiries went in Aug 2026. */
+  function failover(data, serverMsg){
+    var order = ['name','email','company','city','trade','phone','budget','message'];
+    var labels = {name:'Name', email:'Email', company:'Company', city:'City',
+                  trade:'Trade', phone:'Phone', budget:'Budget', message:'Notes'};
+    var lines = [];
+    order.forEach(function(k){
+      if(data[k]) lines.push(labels[k] + ': ' + data[k]);
+    });
+    var href = 'mailto:__FORM_TO__'
+      + '?subject=' + encodeURIComponent(data._subject || 'Project enquiry')
+      + '&body=' + encodeURIComponent(lines.join('\\n'));
+
+    status.className = 'fstatus is-err';
+    status.innerHTML = (serverMsg ? serverMsg + ' ' : 'That did not send from here. ')
+      + '<a href="' + href + '">Send it as an email instead</a>'
+      + ', everything you typed is already filled in.';
+    btn.disabled = false; btn.textContent = LABEL;
+  }
+
   f.addEventListener('submit', function(e){
     e.preventDefault();
     status.className = 'fstatus'; status.textContent = '';
@@ -2022,28 +2047,20 @@ FORM_JS = """<script>
           var el = f.elements[k]; if(el) setErr(el.length ? el[0] : el, res.body.errors[k]);
         });
       }
-      status.className = 'fstatus is-err';
-      if(res.body && res.body.error){
-        status.textContent = res.body.error;
-      } else {
-        status.innerHTML = 'Something went wrong at our end. Please '
-          + '<a href="mailto:info@homeservicestudios.com">email us</a> directly.';
-      }
-      btn.disabled = false; btn.textContent = LABEL;
+      failover(data, res.body && res.body.error);
     }).catch(function(){
-      status.className = 'fstatus is-err';
-      status.innerHTML = 'That did not send. Please '
-        + '<a href="mailto:info@homeservicestudios.com">email us</a> directly.';
-      btn.disabled = false; btn.textContent = LABEL;
+      failover(data, null);
     });
   });
 })();
 </script>"""
 
 # FORM_JS is a plain string, not an f-string: the JS it holds is full of braces.
-# The one value that has to come from Python is substituted here instead.
+# The two values that have to come from Python are substituted here instead.
 FORM_JS = FORM_JS.replace("__FORM_ENDPOINT__", f"https://formsubmit.co/ajax/{FORM_TO}")
+FORM_JS = FORM_JS.replace("__FORM_TO__", FORM_TO)
 assert "__FORM_ENDPOINT__" not in FORM_JS, "form endpoint placeholder was not substituted"
+assert "__FORM_TO__" not in FORM_JS, "form failover address was not substituted"
 
 
 def spot(fn, sc, nm, du, yt=None):
