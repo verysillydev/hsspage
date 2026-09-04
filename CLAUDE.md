@@ -130,9 +130,11 @@ material, and these were all photographic:
 | `icons/folder1..3` | ~390KB PNG each | ~8KB WebP each |
 | `logos_hss/nav_mark_hss` | 205KB PNG, 1072x517 | 2.4KB WebP, 174x84 |
 | `post/blueprint` | 289KB JPEG | 83KB WebP |
+| `post/siding` | 236KB JPEG | 72KB WebP |
 | `post/texture_plaster` | 492KB WebP, 1400px | 208KB WebP, 1100px |
 
-Shared assets went from 5.14MB to 2.79MB. **The original PNG and JPEG files are kept beside the
+Shared assets went from 5.14MB to 2.63MB, and `/our-work` from 1,602 KiB to 619 KiB of
+total page weight. **The original PNG and JPEG files are kept beside the
 new ones as masters**: if a quality call needs revisiting, re-encode from those, never from the
 WebP. Pillow is still the only tool on this machine that writes WebP.
 

@@ -1420,7 +1420,7 @@ CSS = """<style>
 # writes WebP. The originals are kept beside the new files as the masters; if a
 # quality call here ever needs revisiting, re-encode from the .png, not the .webp.
 CSS = CSS.replace("__TEXTURE_PLASTER__", asset(f"{P}/texture_plaster_o.webp", "image/webp"))
-CSS = CSS.replace("__DOOR_SIDING__", asset(f"{P}/siding.jpg", "image/jpeg"))
+CSS = CSS.replace("__DOOR_SIDING__", asset(f"{P}/siding.webp", "image/webp"))
 CSS = CSS.replace("__BLUEPRINT__", asset(f"{P}/blueprint.webp", "image/webp"))
 CSS = CSS.replace("__HL_EYEBROW__", asset(f"{S}/icons/hl-eyebrow.webp", "image/webp"))
 CSS = CSS.replace("__HL_HEADING__", asset(f"{S}/icons/hl-heading.webp", "image/webp"))
