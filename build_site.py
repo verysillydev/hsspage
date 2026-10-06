@@ -2637,7 +2637,7 @@ html = f"""<title>Selected work, Home Service Studios</title>
 <section class="no-rule on-ink"><div class="wrap">
   <div class="sec-head">
     <p class="eyebrow">Roster</p>
-    <h2 class="display">Writing and production across home services nationwide</h2>
+    <h2 class="display">Our Clients</h2>
   </div>
   {logo_marquee()}
 </div></section>
@@ -2976,9 +2976,9 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 
 <section id="roster" class="on-ink"><div class="wrap">
   <div class="sec-head bare">
-    <h2 class="display">Brands we write and produce for</h2>
-    <p class="lede">These are {num_word(ROSTER_COUNT)} home service companies across the country,
-    and most of them work in heating, cooling, plumbing or electrical.</p>
+    <h2 class="display">Our Clients</h2>
+    <p class="lede">Home service companies across the country, most of them in heating, cooling,
+    plumbing or electrical.</p>
   </div>
   {logo_marquee()}
 </div></section>
