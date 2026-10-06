@@ -299,6 +299,14 @@ across the client's platforms. They are grouped by production model: "You supply
 Gold adds a dedicated engager; Platinum adds one long-form YouTube anchor video a month. From
 Starter up each tier includes a dedicated monthly ad budget ($150 to $750, `adSpend` in the json).
 
+**`/packages` on phones (N2, 2026-10-06)** went from 12,340px (13,300 before P1) to about 8,000px at
+390 wide, desktop 6,311px. Below 760px the repeated blocks compact (one media block after the
+`.step2` rules; it must stay after them or the base rules win the cascade), explanatory card copy
+drops to `--f-sm`, the Terms are one `<details>` per term (open by default; `TERMS_JS` closes them
+below 760px only, so desktop and no-JS readers see everything), and Bronze/Gold list what they add
+to Starter/Silver instead of repeating every line. The "Not leads..." lede, every tier and the A1
+reels next to the prices were left as they were. Do not grow it back without a reason.
+
 Gone with the old book and not to be re-added without the owners: the Studio and Studio Max
 tiers, application-only tiers, per-reel prices (`perAsset`), the six- and twelve-month milestones
 and the free twelfth month. Counts and price phrases are derived, not typed: `PROGRAMS_WORD`,

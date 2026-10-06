@@ -1271,12 +1271,61 @@ CSS = """<style>
   .step2 h3{margin:var(--s2) 0 var(--s1);font-size:var(--f-h4);font-weight:650;
     letter-spacing:var(--t-head);}
   .step2 p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
+  /* N2, 2026-10-06: /packages ran about 12,300px on a 390px phone. Below 760px
+     the repeated blocks compact: tighter panels and cards, the benefit numeral
+     beside its heading, the steps as a ruled list, closer tier features. */
+  @media(max-width:759px){
+    .always{padding:var(--s5) var(--s4);margin-bottom:var(--s5);}
+    .always .sub2{margin-bottom:var(--s4);}
+    .benefits{gap:var(--s2);}
+    .benefit{padding:var(--s4);display:grid;grid-template-columns:auto minmax(0,1fr);
+      column-gap:var(--s3);row-gap:var(--s1);align-items:baseline;}
+    .benefit .bn{font-size:var(--f-h4);border-bottom:0;padding:0;margin:0;}
+    .benefit p{grid-column:1 / -1;}
+    .engines{gap:var(--s3);}
+    .engine{padding:var(--s4);gap:var(--s2);}
+    .steps{gap:1px;background:var(--line);}
+    .step2{padding:var(--s3) var(--s4);background:var(--ground-2);}
+    .step2 h3{margin:var(--s1) 0 2px;}
+    .band{margin-bottom:var(--s5);}
+    .band-body{padding:var(--s5) var(--s4) var(--s4);}
+    .band-body > p{margin-bottom:var(--s4);}
+    .pkgs{gap:var(--s3);}
+    .pkg{padding:var(--s5) var(--s4);gap:var(--s3);}
+    .pkg .best{margin:calc(var(--s5) * -1) calc(var(--s4) * -1) 0;}
+    .pkg ul{gap:var(--s2);}
+    .incl{padding:var(--s5) var(--s4);gap:var(--s3);}
+    .hero .ctarow .cta{padding-left:var(--s4);padding-right:var(--s4);}
+    /* explanatory paragraphs one step down (still above the 12px floor);
+       headings, prices and the "Not leads" lede keep their size */
+    .benefit p,.engine p,.step2 p,.pkg li{font-size:var(--f-sm);line-height:1.5;}
+    .step2{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:var(--s2);
+      align-items:baseline;}
+    .step2 h3{margin:0;}
+    .step2 p{grid-column:1 / -1;margin-top:2px;}
+    .edia{max-width:220px;}
+    .ob{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .ob li{display:flex;flex-direction:column;gap:2px;padding:var(--s3);}
+    .reel{padding:var(--s3);}
+  }
 
   .incl{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
     padding:var(--s6) var(--s5);display:flex;flex-direction:column;gap:var(--s4);}
   .incl h3{margin:0;font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);}
   .incl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:var(--s5);}
-  .incl-grid div p{margin:var(--s1) 0 0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
+  .incl-grid div p,.term p{margin:var(--s1) 0 0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
+  .term summary{list-style:none;font-family:var(--mono);font-size:var(--f-micro);
+    letter-spacing:var(--t-caps);text-transform:uppercase;color:var(--cyan-text);}
+  .term summary::-webkit-details-marker{display:none;}
+  @media(max-width:759px){
+    .incl-grid.terms{gap:0;}
+    .term{border-top:1px solid var(--line);}
+    .term summary{display:flex;align-items:center;justify-content:space-between;min-height:44px;
+      cursor:pointer;}
+    .term summary::after{content:"+";font-size:var(--f-lede);color:var(--ink-2);}
+    .term[open] summary::after{content:"-";}
+    .term p{margin:0 0 var(--s3);}
+  }
   .incl-grid div span{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
     text-transform:uppercase;color:var(--cyan-text);}
 
@@ -2531,7 +2580,8 @@ def pkg_card(tid):
             f'<div class="priceline"><span class="price">{money(c["price"])}</span>'
             f'<span class="per">per month</span></div>'
             f'<ul>{lis}</ul>'
-            f'<div class="shoot">{c["camera"]}</div></div>')
+            + (f'<div class="shoot">{c["camera"]}</div>' if c.get("camera") else '')
+            + '</div>')
 
 
 # One tab color per group, in ascending commitment order. Only three tones exist
@@ -2563,6 +2613,34 @@ ENGINE_SHORT = ('<svg class="edia" viewBox="0 0 300 92" role="img" aria-label="M
 
 ENGINE_LONG = ('<svg class="edia" viewBox="0 0 300 92" role="img" aria-label="A narrowing funnel, from people searching down to a booked job"><rect x="28" y="8" width="244" height="14" rx="3" fill="#00B0C8" opacity=".26"/><rect x="62" y="30" width="176" height="14" rx="3" fill="#00B0C8" opacity=".40"/><rect x="96" y="52" width="108" height="14" rx="3" fill="#00B0C8" opacity=".58"/><rect x="124" y="74" width="52" height="14" rx="3" fill="#F04820" opacity="1"/></svg>')
 
+# Terms (N2, 2026-10-06): one <details> per term, so on a phone the grid folds to
+# eight 44px rows a buyer opens as needed. They render open, and TERMS_JS closes
+# them only below 760px, right after the grid is parsed, so desktop and no-JS
+# visitors see every term as before. Wording unchanged.
+TERMS = [
+    ("Starting and stopping", "There is no setup fee. When you want out, we ask for 30 days "
+     "notice and one final payment, so the shortest a package runs is two months. You keep every "
+     "frame we shot and everything we posted, permanently."),
+    ("Commitment", "Every package runs month to month, on the notice terms above."),
+    ("Ad budget", "From Starter up, each package includes the monthly ad budget shown on its card, "
+     "which our team manages for you. It goes behind your own content; it is not a promise of "
+     "leads."),
+    ("Insurance", "We are insured. If your office needs paperwork on file before a crew is on your "
+     "property or a job site, ask and we will send it over."),
+    ("Who owns it", "You do. Every frame we shoot for you is yours to keep and use however you "
+     "like, permanently."),
+    ("Where it goes", "YouTube, Instagram, TikTok, Facebook and LinkedIn. Anywhere else you want to "
+     "be, just say so."),
+    ("Revisions", "One round on anything you want changed. Everything is cut to make you look good "
+     "on camera in the first place."),
+    ("Billing", "The first month holds your start date. Nothing else is due until the day your "
+     "first post goes live, and that day sets your monthly cycle."),
+]
+TERMS_HTML = "\n".join(f'      <details class="term" open><summary>{t}</summary><p>{d}</p></details>'
+                        for t, d in TERMS)
+TERMS_JS = ("<script>if(window.matchMedia&&matchMedia('(max-width:759px)').matches)"
+            "[].forEach.call(document.querySelectorAll('.term'),function(d){d.open=false;});</script>")
+
 # The owners' onboarding timeline (D8, 2026-10-06), facts only. It replaces the
 # Terms grid's "When it starts" cell, which said the first production day lands
 # three to four weeks after payment; the owners' figure is three to four weeks
@@ -2589,10 +2667,9 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 <div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Monthly packages &middot; Home Service Studios</p>
   <h1 class="display">Known and trusted <span class="hl">before they need you.</span></h1>
-  <p class="sub">Nobody calls a home service company because they saw one good video. They call the
-  company they already recognize, and that recognition is built over months, not in a month.
-  <strong>This is a long play, and it only works if it actually runs.</strong> These packages exist
-  to make it run without landing on your desk.</p>
+  <p class="sub">Homeowners call the company they already recognize, and that recognition is built
+  over months, not in a month. <strong>It only works if it actually runs</strong>, and these
+  packages make it run without landing on your desk.</p>
   <div class="ctarow">
     {book("Monthly%20packages")}
     <a class="cta ghost" href="/our-work/">See the work first</a>
@@ -2608,20 +2685,17 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
     Consistent short form reliably does four things, and all four compound.</p>
     <div class="benefits">
       <div class="benefit"><span class="bn">01</span><h3>Recognition</h3>
-        <p>Whatever finally puts someone in the market, a breakdown, a move, a remodel they have
-        been putting off, they reach for the name they already know. Being that name takes months
-        of showing up in the same feeds.</p></div>
+        <p>When a breakdown, a move or a remodel puts someone in the market, they reach for the
+        name they already know. Being that name takes months in the same feeds.</p></div>
       <div class="benefit"><span class="bn">02</span><h3>Recruiting</h3>
-        <p>Good people are harder to find than customers. They apply to the company that looks
-        like somewhere worth working, and they decide that from your feed long before they ever
-        send a resume.</p></div>
+        <p>Good people are harder to find than customers, and they judge where to work from your
+        feed long before they send a resume.</p></div>
       <div class="benefit"><span class="bn">03</span><h3>Trust at the door</h3>
-        <p>Someone who has already watched your team work is a different conversation from someone
-        meeting you for the first time. You start past the part where they size you up.</p></div>
+        <p>Someone who has already watched your team work starts the visit past the part where
+        they size you up.</p></div>
       <div class="benefit"><span class="bn">04</span><h3>Proof you are still around</h3>
-        <p>Everyone looks you up before they call. A feed with two years behind it reads as a
-        company that is busy and still here. A feed that stopped in 2023 reads as the opposite,
-        and they will notice which one you are.</p></div>
+        <p>Everyone looks you up before they call. A feed with two years behind it reads as busy
+        and still here; one that stopped in 2023 reads as the opposite.</p></div>
     </div>
   </div>
 
@@ -2636,9 +2710,9 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
         <span class="etag">Engine 01 &middot; Short form</span>
         <h3>Attention</h3>
         {ENGINE_SHORT}
-        <p>Aimed at someone scrolling past who was not looking for you. Each post does little on
-        its own. Together, across months, they build the four things above. Genuinely not
-        attributable to leads, which is why we do not sell it that way.</p>
+        <p>Aimed at someone scrolling past who was not looking for you. Each post does little alone;
+        across months they build the four things above. It is not attributable to leads, which is
+        why we do not sell it that way.</p>
         <span class="ewhere">Included in every package</span>
       </div>
       <div class="engine is-two">
@@ -2646,9 +2720,9 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
         <h3>Intent</h3>
         {ENGINE_LONG}
         <p>Made for intent rather than attention, aimed at someone already searching for what you
-        sell. Fewer people, each one further along. Slower to start, it does produce trackable
-        inbound, and <strong>unlike short form it does not expire</strong>: a video made for
-        search keeps getting found years after it is posted.</p>
+        sell. Slower to start, it does produce trackable inbound, and <strong>unlike short form it
+        does not expire</strong>: a video made for search keeps getting found years after it is
+        posted.</p>
         <span class="ewhere">Platinum only</span>
       </div>
     </div>
@@ -2661,14 +2735,14 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
     {money(PRICE_MAX)}.</p>
     <div class="steps">
       <div class="step2"><span>Step 01</span><h3>Planned</h3>
-        <p>Our team decides what goes out and when, so the schedule never depends on someone at
-        your company remembering.</p></div>
+        <p>Our team decides what goes out and when, so nobody at your company has to
+        remember.</p></div>
       <div class="step2"><span>Step 02</span><h3>Captured</h3>
         <p>Your team supplies footage, and from Starter up our crew adds production days on
         site.</p></div>
       <div class="step2"><span>Step 03</span><h3>Posted for you</h3>
-        <p>Reels every weekday, graphics on the weekend and stories across your platforms,
-        published to your channels rather than handed back as files.</p></div>
+        <p>Reels every weekday, graphics every weekend and stories across your platforms,
+        published for you rather than handed back as files.</p></div>
     </div>
   </div>
 
@@ -2678,10 +2752,8 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
     <div class="band-head full-lede">
       <p class="eyebrow">Proof, before you look at the bigger numbers</p>
       <h2 class="display">This is what running it looks like</h2>
-      <p>A1 Air Conditioning is a Tucson HVAC company with 9,200 followers. These are their seven
-      best-performing reels, all of them ours, and together they carry roughly 2.26 million views
-      in a market of one million people. The top one frames a technician alone in a dark attic like
-      the cold open of a horror film, and it was shared 1,100 times.</p>
+      <p>These seven reels, all of them ours, carry roughly 2.26 million views for A1 Air
+      Conditioning, a Tucson HVAC company with 9,200 followers in a market of one million people.</p>
     </div>
     <div class="reels">
 {A1_REELS}
@@ -2703,26 +2775,10 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 
   <div class="incl">
     <h3>Terms</h3>
-    <div class="incl-grid">
-      <div><span>Starting and stopping</span><p>There is no setup fee. When you want out, we ask
-        for 30 days notice and one final payment, so the shortest a package runs is two months.
-        You keep every frame we shot and everything we posted, permanently.</p></div>
-      <div><span>Commitment</span><p>Every package runs month to month, on the notice terms
-        above.</p></div>
-      <div><span>Ad budget</span><p>From Starter up, each package includes the monthly ad budget
-        shown on its card, which our team manages for you. It goes behind your own content; it is
-        not a promise of leads.</p></div>
-      <div><span>Insurance</span><p>We are insured. If your office needs paperwork on file
-        before a crew is on your property or a job site, ask and we will send it over.</p></div>
-      <div><span>Who owns it</span><p>You do. Every frame we shoot for you is yours to keep and
-        use however you like, permanently.</p></div>
-      <div><span>Where it goes</span><p>YouTube, Instagram, TikTok, Facebook and LinkedIn. Anywhere else
-        you want to be, just say so.</p></div>
-      <div><span>Revisions</span><p>One round on anything you want changed. Everything is cut to
-        make you look good on camera in the first place.</p></div>
-      <div><span>Billing</span><p>The first month holds your start date. Nothing else is due until
-        the day your first post goes live, and that day sets your monthly cycle.</p></div>
+    <div class="incl-grid terms">
+{TERMS_HTML}
     </div>
+    {TERMS_JS}
   </div>
 
   <div class="ctarow">
