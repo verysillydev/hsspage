@@ -88,8 +88,10 @@ are cut from the 720p set at 35 percent through each spot, 640px wide. Watch out
 holds stills that are not poster frames (the A1 reel crops `a1r*.webp`, headshots, textures), so a
 poster regeneration loop must only write the `ah*`/`hd*` files it owns.
 
-Joseph Peretz and Sam Halaby are Yoniverse Productions clients and must never appear on this site
-(rule dated 2026-10-06, see `CLAUDE.md`).
+Yoniverse Productions clients (Joseph Peretz, Sam Halaby, Neo Builders, ADU Insider) must never
+appear on this site (rule dated 2026-10-06, see `CLAUDE.md`). The case studies, their order and
+the rules for Handyman Dan (a white-label campaign example, not a case) are in `CLAUDE.md` under
+"Ordering and audience".
 
 **Test the contact form against the live site, not the build.** It posts to a third party
 receiver because GitHub Pages cannot run a serverless function. Between 2026-08-28 and

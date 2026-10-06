@@ -10,7 +10,8 @@ textures.** No paper, manila folders, blueprint, concrete/plaster, wood siding, 
 strokes, handwritten faces or background grain. Surfaces are flat: the ink (`#14171A`, every hero,
 the logo band, the "actually buying" panel) or the warm white ground with `--ground-2` cards. **The
 footage is the texture**: where a section needs an image, it is a real still from the company's
-own work (D2 "Three ways we work" cards, D5 case grid, D7 doors band). Benchmarks the owners
+own work (the case pages' spots and the D7 doors band). The /our-work case cards are flat ink,
+led by the client's problem (R8). Benchmarks the owners
 pointed at: Lemonlight, Hook Agency, Valve+Meter, Smuggler, Clay (flat, heavy type, real footage,
 the actual deliverable shown); KickCharge is the dated counterexample. Kept on purpose: Archivo +
 Onest, the orange headline highlight bar, square orange and ghost buttons, the stat ledgers, the
@@ -245,7 +246,7 @@ argument *for* the retainer, not something to hide: if posts lasted, a client wo
 and leave. Only engine 2 genuinely does not expire, because someone searching finds a three year
 old video, so **"does not expire" lives in the Engine 02 panel and nowhere else**. As of
 2026-10-06 that panel states the mechanism only ("a video made for search keeps getting found years
-after it is posted"); none of the three remaining cases is a long form case, so there is no client
+after it is posted"); none of the four cases is a long form case, so there is no client
 result behind engine 2 on the site right now. Do not invent one. If a real long form result arrives,
 it belongs in that panel as evidence, not in the short form benefits. Benefit 04 used to be "A
 library that keeps working" inside the block about what *short form* does, which was the two
@@ -263,8 +264,10 @@ the pitch is the trap**: case studies stay concrete about HVAC, vans and dark at
 hero and the benefit blocks stay trigger agnostic. **Since 2026-10-06 (owner approved) the homepage
 hero lede speaks to one audience with one promise**: home service companies, every month, so the
 name a homeowner already knows is theirs when a repair, a replacement or a remodel comes up. It no
-longer lists builders, realtors and creators. The "Creator work" service card and the creator
-option in the contact dropdown stay until the owners decide on creator work.
+longer lists builders, realtors and creators. The "Creator work" service card went with the
+whole "Three ways we work" section (R2, owner request, 2026-10-06); the creator option in the
+contact dropdown and "and creators" in the site-wide JSON-LD description stay until the owners
+decide on creator work.
 
 Contact address on every page is `info@homeservicestudios.com` as of 2026-08-25 (was
 `yoni@yoniverseproductions.com`; homeservicestudios.com went live and the client confirmed it).
@@ -343,7 +346,7 @@ is no separate Home link.
 It is `position:sticky`, not fixed, so it occupies flow and cannot overlap the hero. Two things
 depend on its 60px height and will break if you change it:
 
-- `section{scroll-margin-top:76px}`, which keeps anchor jumps like `/our-work/#handyman` from
+- `section{scroll-margin-top:76px}`, which keeps anchor jumps like `/our-work/#more-work` from
   landing under the bar.
 - **As of 2026-08-24 the bar is solid `#14171A`, the same ink `.hero-bold` uses, at every scroll
   position on every page**, not just transparent-then-white on scroll. It used to be transparent
@@ -397,10 +400,10 @@ Grids with a fixed, awkward item count use **explicit breakpoint columns, not `a
 seven across from 1100px, and below that the breakout reel (`.is-top`) takes a full-width row over
 an even 3x2 (tablet) or 2x3 (phone), so there is never an orphan or grey filler. The old flex row
 had about 2px of slack at 1440 and dropped the seventh onto its own row whenever a slightly wider
-face rendered. Count up still targets `.reel .vnum` only, see `A1_REELS`. The `/our-work` stat
-ledger holds three figures: a single-column ledger on phones (number left, client and label right)
-and one row of equal columns from 560px (`grid-auto-flow:column`). The homepage hero ledger holds
-four (`.stats.quad`, 2026-10-06): 2x2 on phones and tablets, one row of four from 900px. Neither
+face rendered. Count up still targets `.reel .vnum` only, see `A1_REELS`. Both hero ledgers
+(homepage and `/our-work`) hold four figures (`.stats.quad`): 2x2 on phones and tablets, one row
+of four from 900px. A ledger of another count falls back to `.stats`: a single-column ledger on
+phones and one row of equal columns from 560px (`grid-auto-flow:column`). Neither
 ever leaves an orphan or filler cell. Count up handles thousands separators (`+1,680`, the price
 ladder) and always ends on the original text. From 560px
 each `.stat` is a `subgrid` spanning three rows, which lines up client, number and label across
@@ -409,17 +412,36 @@ only as the `@supports not (subgrid)` fallback.
 
 ## Ordering and audience
 
-Three cases run **A1 Air Conditioning, Handyman Dan, All Heart** (Case 01 to 03), and the
-`/our-work` stat ledger matches. The homepage ledger is A1, Handyman Dan and the roster count. All
-three are home services; the retainer buyer is a home services owner, so A1, the one with numbers
-that owner can picture in their own market, opens. Each case eyebrow still carries its audience
-(`Home services`) so a future creator case can be told apart. Since D5 (2026-10-06) the cases
-are a flat grid (`CASE_GRID`, `case_tile`), not a carousel: one large card plus two stacked on
-desktop, stacked on phones, each with a real still and its metric over it, except A1, whose lead
-card is its real numbers on ink (it has no still; never invent one). There is no creator case on
-the site; the "Creator work"
-service card and the word "creators" in the homepage hero stay pending a positioning decision with
-the owners, but nothing may cite a creator result that is not on the site.
+**Four case studies (R4, 2026-10-06), numbered by `CASES` order on their pages:** A1 Air
+Conditioning (01), Bee Right There (02), iComfort (03), All Heart (04). The spelling is **Bee**
+Right There (Bee Right There Heating & Air, Atascadero, CA, in business since 2018; Instagram
+@beerightthereheatingair, #BeeRightThere); the site said "Be" until R1. iComfort's full name is
+iComfort Heating and Air Conditioning (family-owned, San Fernando, CA, serving the San Fernando
+Valley since 2004). The `/our-work` hero ledger is A1, Bee Right There, iComfort and All Heart;
+the homepage ledger is A1, Bee Right There, iComfort and the roster count.
+
+**The `/our-work` case grid reads in problem order, not case order (R8):** Bee Right There,
+iComfort, A1, All Heart (`CARD_ORDER`). Each flat ink card leads with the problem the client
+started with (`problem` in `CASES`), then the metric, its line, the client and city, and a "Read
+the case" link stretched over the whole card. The same problem line opens "The problem" on the
+case page (`csi_block`), so the card and the page agree; change it in one place only, `CASES`.
+Case pages use plain words a home service owner would use (R12): "times their posts were seen",
+not "impressions"; "likes, comments, shares and saves", not "engagements". The blocks are "The
+problem", "What we changed", "What happened", and the new cases close with "What it did for them"
+plus a source line. Bee Right There's views must never be called organic (the source report mixed
+organic and paid); its engagements were organic.
+
+**Handyman Dan is not a case study (R3).** It sits under More work on `/our-work` as a white-label
+commercial campaign with its six spots, one owner-supplied call result and its note (see Voice).
+Its old pages (`/our-work/handyman-dan/`, `/work/handyman-dan/`) are noindex stubs to
+`/our-work/#more-work`. Never mention market counts, account counts, licensing, twelve-month
+agreements, "earned back its cost" or spec production. The 4 Points result is a small card in
+More work, not a case.
+
+**Copy is count-free wherever a case count would be typed (R6):** "All case studies", "Case
+studies with the numbers attached", and the homepage case note is built from `CASES`
+(`CASE_NAMES`). Where a number reads naturally (the `/our-work` lede's "Four home service
+companies", the roster stat) it is derived with `num_word(len(...))`, never typed.
 
 `A1_REELS` is built once and reused on the homepage and the A1 case page. **No proof block inside
 `/packages` (owner, 2026-10-06, R13).** The old rule ("pricing pages convert on that adjacency; do
@@ -442,8 +464,8 @@ to make, so this collapses back to the single `REASSURE` line on purpose.
 
 ## Copy conventions
 
-Compound modifiers take a hyphen before a noun (`short-form reels`, `four-person crew`,
-`twelve-month agreements`) but not as a plain noun (`seven years across the creator economy, live
+Compound modifiers take a hyphen before a noun (`short-form reels`, `ten-spot campaign`,
+`long-form video`) but not as a plain noun (`seven years across the creator economy, live
 streaming and social commerce`). Hyphens are fine, it is only em and en dashes the build rejects. Lede
 paragraphs are full sentences, not verbless fragments; the fragments in `.csi` cards and eyebrows
 are deliberate and stay.
@@ -487,8 +509,9 @@ site's entire CLS: 0.18. With `optional` it is 0. Do not change this back.
 **The cost of `optional`: a face that misses its ~100ms window is never used for that page view.**
 Found 2026-10-06: a visible inline SVG with `<text>` at Archivo 700 (the A1 chart in the `/our-work`
 lead card) made Archivo 700 miss the window, and every Archivo 700 heading on the page rendered in
-the Arial Black fallback while `document.fonts` still reported the face "loaded". The decorative
-copy of the chart now has no `<text>` (`a1_chart(decorative=True)`). Check new pages for this by
+the Arial Black fallback while `document.fonts` still reported the face "loaded". That SVG chart
+(`a1_chart`) is gone; every chart on the site is now HTML with real text (`a1_bars`,
+`before_after`). Check new pages for this by
 comparing a heading's rendered width with canvas `measureText` in Archivo and in Arial Black.
 
 Current as of 2026-08-16, mobile, all pages: performance 100, accessibility 98 to 100, SEO 100,
@@ -502,14 +525,18 @@ A1 had zero images and zero video, which is a credibility problem on a portfolio
 company. It was not fixed by changing which videos the case features.
 
 `post_yt/` holds the real YouTube thumbnails for the All Heart and Handyman Dan spots as WebP,
-keyed by video id. Re-fetch with `https://i.ytimg.com/vi/<id>/maxresdefault.jpg` if a thumbnail
+keyed by video id. Known issue: Handyman Dan spot 04 ("Father Vs AC", `IppFw7pSssA`) shows a
+licensee's branding (iComfort's logo and phone number) in its thumbnail and in the video, which
+conflicts with the rule of never naming who ran the campaign. Re-fetch with `https://i.ytimg.com/vi/<id>/maxresdefault.jpg` if a thumbnail
 ever changes on the channel.
 
 **A1** has no fetchable stills: the reels are on Facebook, which serves no public `og:image`
 without auth, and the reels themselves are not held locally. Rather than invent artwork the page
-carries `a1_chart()`, an inline SVG of the seven real view counts with the 100K line marked. The
+carries `a1_bars()`, an HTML chart of the seven real view counts with the 100K line marked. The
 shape is the argument: one orange breakout and a tail that still clears the threshold. **If real
-reel stills ever arrive, they belong above that chart, not instead of it.**
+reel stills ever arrive, they belong above that chart, not instead of it.** Bee Right There and
+iComfort have no stills either; their pages carry `before_after()` comparisons of their own
+figures (HTML bars, each change label asserted against the numbers by the build).
 
 The second `.ytplay` rule in the sheet (46x32, radius 8px, CSS triangle) was written for the old
 title cards, which are gone, but it is what gives the click-to-play spot button its shape: it
@@ -597,11 +624,12 @@ beside the address, not as badges. The `/packages` terms grid carries the longer
 to send paperwork before a crew is on site, which is what a commercial client actually needs.
 **Do not state a coverage amount or promise a certificate by name** unless Yoni confirms it.
 
-**OG art is per page and per case** (1200x630, in `og/`, copied into the deploy). The homepage,
-Handyman Dan and All Heart use frames from the real footage; `/packages`, `/team`, `/contact` and
-the A1 case use cards rendered by `node make_og.mjs` (2026-10-06): flat ink, white Archivo with the
-orange bar, real material only (the team headshots, A1's real numbers), the /packages price read
-from `data/packages.json`. Rerun it after changing a card, the team photos or the price book; it
+**OG art is per page and per case** (1200x630, in `og/`, copied into the deploy). The homepage
+and All Heart use frames from the real footage; `/packages`, `/team`, `/contact` and the A1, Bee
+Right There and iComfort cases use cards rendered by `node make_og.mjs` (2026-10-06): flat ink,
+white Archivo with the orange bar, real material only (the team headshots, the clients' real
+numbers), the /packages price read from `data/packages.json`. `og-handyman.jpg` is no longer
+referenced (Handyman Dan has no page) but is still in `og/`. Rerun it after changing a card, the team photos or the price book; it
 fails if a card reaches 150KB. `write_web()` emits og:image, its 1200x630 size and twitter:image. Before this, all nine pages shared one cover, so every
 case link shared in a text looked identical. `a1` has no still of its own and falls back to
 `og-cover.jpg` until 2026-10-06; it now has `og-a1.jpg` from `make_og.mjs`. Sources: `og-home` and
@@ -610,11 +638,12 @@ page's og:image (`og/` is copied whole into the deploy).
 
 **Case pages (N1, 2026-10-06)** live at `/our-work/<slug>/` (`case_page()`, `case_url()`, slugs in
 `CASES`), built from `CASE_PAGE` and `CSI`: dark hero with breadcrumbs and `BreadcrumbList`
-JSON-LD, the challenge/solution/impact cards, the real proof, a prev/next chain, the CTA and the
-"case" reassure variant. They are in the sitemap. The old in-page anchors (`/our-work/#a1`,
-`#handyman`, `#allheart`) are forwarded by `HASH_REDIRECT_JS` at the top of `/our-work`, and the
-pre-2026-08 addresses `/work/<slug>/` are noindex meta-refresh stubs with a canonical to the new
-page. The A1 chart on its page is HTML (`a1_bars()`), not SVG, for the font reason under Motion.
+JSON-LD, the problem/changed/happened cards, the real proof, an optional close and source line,
+a prev/next chain, the CTA and the "case" reassure variant. They are in the sitemap, and
+`/our-work` carries a CollectionPage JSON-LD listing them (`WORK_LD`). Old in-page anchors
+(`/our-work/#a1`, `#allheart`, and `#handyman`, which now goes to `#more-work`) are forwarded by
+`HASH_REDIRECT_JS` at the top of `/our-work`, and the pre-2026-08 addresses `/work/<slug>/` are
+noindex meta-refresh stubs with a canonical to the new page. The A1 chart on its page is HTML (`a1_bars()`), not SVG, for the font reason under Motion.
 
 Case pages carry breadcrumbs plus `BreadcrumbList` schema, because they are landable straight
 from search and previously gave no route back up.
@@ -682,20 +711,20 @@ What is still open:
 - **Faces on one page out of five.** A visitor going homepage to packages to contact, the most
   likely path, still never sees a person. A crew photo beside the production-day tiers on
   `/packages` would be the literal proof of what those tiers sell.
-- **Recency, partly fixed (2026-10-06).** The `/our-work` "More results" block (`PROOF`) carries
-  real date ranges (Sep 2024 to Feb 2025, Mar 2024 to Mar 2025). Its figures come from the
-  owners' pitch deck and must stay in English formats (the deck's screenshots were Portuguese:
-  "509 mil" is 509K, "6.096" is 6,096). Bee Right There's impressions must not be called organic;
-  the two unnamed deck clients and reels from unnamed accounts stay off the site; 4 Points has no
-  dates in the deck, so it shows none.
+- **Recency, partly fixed (2026-10-06).** The Bee Right There and iComfort case pages carry real
+  dates (Aug and Sep 2024, early 2025; Mar 2024 to Mar 2025). Their figures and the 4 Points card
+  come from the owners and must stay in English formats (the deck's screenshots were Portuguese:
+  "509 mil" is 509K, "6.096" is 6,096). The two unnamed deck clients and reels from unnamed
+  accounts stay off the site; 4 Points has no dates, so it shows none.
 
 ## Accessibility rules that were bought the hard way
 
 - **Tap targets stay at least 24x24.** The old carousel dots (removed with the carousel in D5)
   failed Lighthouse's `target-size` until they became 24px buttons; footer and nav links are 44px.
 - **The nav CTA carries no `aria-label`.** See Navigation above.
-- **Alt text coverage is 100% and should stay there.** As of the 2026-10-06 redesign: 118 images
-  across five pages, 118 with an `alt`, 49 of them correctly empty for decorative art.
+- **Alt text coverage is 100% and should stay there.** As of release 3 (2026-10-06): 158 images
+  across the five main pages and four case pages, 158 with an `alt`, 44 of them correctly empty
+  for decorative art.
 
 ## Structured data
 
