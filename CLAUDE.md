@@ -430,6 +430,13 @@ not "impressions"; "likes, comments, shares and saves", not "engagements". The b
 problem", "What we changed", "What happened", and the new cases close with "What it did for them"
 plus a source line. Bee Right There's views must never be called organic (the source report mixed
 organic and paid); its engagements were organic.
+**iComfort's organic claim covers the first year only (R19, 2026-10-06).** 27 Mar 2024 to 11 Mar
+2025 (290 to 1,970 followers, 154 to 508 posts) is documented as organic. The count today (3,127
+followers and 1,085 posts on 6 Oct 2026, read from the public profile @icomfort.hvac) must never be
+called organic. The case page leads its stat row with today's count ("Instagram followers today, up
+from 290"), the chart carries it as a third point, the grid card adds one small line (`card_now` in
+`CASES`), and the close and source line carry it too; when the count is refreshed, change all five
+and the asserts beside `CASE_BY_ID` ("more than ten times" is checked as 3,127 / 290 > 10).
 
 **Handyman Dan is not a case study (R3).** It sits under More work on `/our-work` as a white-label
 commercial campaign with its spots, one owner-supplied call result and its note (see Voice).
@@ -537,7 +544,10 @@ carries `a1_bars()`, an HTML chart of the seven real view counts with the 100K l
 shape is the argument: one orange breakout and a tail that still clears the threshold. **If real
 reel stills ever arrive, they belong above that chart, not instead of it.** Bee Right There and
 iComfort have no stills either; their pages carry `before_after()` comparisons of their own
-figures (HTML bars, each change label asserted against the numbers by the build).
+figures (HTML bars, each change label asserted against the numbers by the build). It takes any
+number of periods: the change label always covers the first two (the documented before and after)
+and a later period is one more bar with no change claimed (iComfort's "6 Oct 2026", R19), so its
+chart title is scoped "First year: ...".
 
 The second `.ytplay` rule in the sheet (46x32, radius 8px, CSS triangle) was written for the old
 title cards, which are gone, but it is what gives the click-to-play spot button its shape: it

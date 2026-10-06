@@ -802,6 +802,7 @@ CSS = """<style>
   .pc-metric b{font-family:var(--display);font-weight:900;font-size:var(--f-mega);line-height:1;
     letter-spacing:-.02em;color:var(--orange);font-variant-numeric:tabular-nums;}
   .pc-metric span{font-size:var(--f-body);color:var(--ink-2);line-height:1.45;max-width:34ch;}
+  .pc-metric .pc-now{font-size:var(--f-sm);}
   .pc-who{margin-top:auto !important;padding-top:var(--s4);border-top:1px solid var(--line);
     font-size:var(--f-sm);color:var(--ink-3);}
   .pc-go{align-self:flex-start;display:inline-flex;align-items:center;min-height:24px;
@@ -2519,6 +2520,7 @@ CASES = [
          vertical="Home services", tag="Monthly program",
          problem="Twenty years in business and a feed that looked quiet.",
          card_metric="6.8x", card_line="the followers in under a year, all organic",
+         card_now="3,127 followers today",
          where="iComfort Heating and Air Conditioning &middot; San Fernando, CA",
          desc="iComfort Heating and Air Conditioning, a family-owned HVAC company in San "
               "Fernando, CA: Instagram from 290 to 1,970 followers in under a year, all organic."),
@@ -2538,6 +2540,9 @@ assert round(6634 / 843, 1) == 7.9 and round(78 / 21, 1) == 3.7
 assert round(27851 / 46, -2) == 600 and round(106439 / 57, -1) == 1870
 assert 150282 + 49380 + 28327 + 20431 + 16518 == 264938
 assert round(1970 / 290, 1) == 6.8 and 1970 - 290 == 1680 and 508 - 154 == 354
+# iComfort today (R19, public profile, 6 Oct 2026): 3,127 followers, 1,085 posts.
+# "more than ten times where it started" is 3,127 / 290 = 10.8x.
+assert 3127 / 290 > 10 and round(3127 / 290, 1) == 10.8
 
 
 def case_url(cid):
@@ -2557,7 +2562,9 @@ assert sorted(CARD_ORDER) == sorted(CASE_BY_ID), "CARD_ORDER must list every cas
 def case_card(c):
     return (f'<article class="pcard on-ink"><p class="pc-tag">{c["tag"]}</p>'
             f'<h3>{c["problem"]}</h3>'
-            f'<p class="pc-metric"><b>{c["card_metric"]}</b><span>{c["card_line"]}</span></p>'
+            f'<p class="pc-metric"><b>{c["card_metric"]}</b><span>{c["card_line"]}</span>'
+            + (f'<span class="pc-now">{c["card_now"]}</span>' if c.get("card_now") else "")
+            + '</p>'
             f'<p class="pc-who">{c["where"]}</p>'
             f'<a class="pc-go" href="{case_url(c["id"])}">Read the case'
             f'<span class="vh"> on {c["name"]}</span>&nbsp;&rarr;</a></article>')
@@ -2628,26 +2635,30 @@ def ops(rows):
 def before_after(title, periods, rows):
     """A flat before/after comparison as HTML bars and real text (an inline SVG with
     <text> made Archivo miss font-display:optional's window, see a1_bars). rows:
-    (label, before, after, change). Bars scale within each row, so a small rise
-    and a large one read differently at a glance. The change label is checked
-    against the numbers so the copy cannot drift from the data."""
-    a, b = periods
+    (label, one value per period, change). Bars scale within each row, so a small
+    rise and a large one read differently at a glance. The change label covers the
+    first two periods, the documented before and after, and is checked against
+    them so the copy cannot drift from the data; a later period (iComfort's count
+    today, R19) is one more bar, with no change claimed for it."""
     out = []
-    for label, x, y, chg in rows:
+    for label, *vals, chg in rows:
+        assert len(vals) == len(periods) >= 2, (label, vals, periods)
+        x, y = vals[0], vals[1]
         if chg.endswith("%"):
             assert chg == f"+{round((y - x) / x * 100)}%", (label, chg)
         elif chg.endswith("x"):
             assert chg == f"{round(y / x, 1)}x", (label, chg)
         elif chg.startswith("+"):
             assert chg == f"+{y - x:,}", (label, chg)
-        m = max(x, y)
+        m = max(vals)
         line = lambda when, v, cls: (
             f'<p class="ba-line{cls}"><span class="ba-when">{when}</span><span class="ba-track">'
             f'<span class="ba-bar" style="--w:{v / m:.2f}"></span>'
             f'<span class="ba-v">{v:,}</span></span></p>')
         out.append(f'<div class="ba-row"><p class="ba-k"><span>{label}</span>'
                    f'<span class="ba-chg">{chg}</span></p>'
-                   + line(a, x, "") + line(b, y, " is-after") + '</div>')
+                   + "".join(line(when, v, " is-after" if i else "")
+                             for i, (when, v) in enumerate(zip(periods, vals))) + '</div>')
     return (f'<div class="chartwrap"><p class="charttitle">{title}</p>'
             f'<div class="ba">{"".join(out)}</div></div>')
 
@@ -2707,25 +2718,27 @@ CASE_PAGE = {
         lede="iComfort Heating and Air Conditioning has served the San Fernando Valley since 2004. "
              "In March 2024 their Instagram had 290 followers and looked quiet. A year of daily "
              "posts later <strong>it had 1,970 followers, all organic</strong>, a library of 354 "
-             "new posts, and a technician whose heat pump explainer reached 150,282 views.",
-        ops=ops([("6.8x", "Instagram followers, 290 to 1,970"),
-                 ("354", "New posts in under a year"), ("265K", "Views on five TikToks"),
-                 ("100%", "Organic growth, no paid boosts")]),
+             "new posts, and a technician whose heat pump explainer reached 150,282 views. "
+             "Today, 3,127 people follow the account, more than ten times where it started.",
+        ops=ops([("3,127", "Instagram followers today, up from 290"),
+                 ("6.8x", "Followers in the first year, all organic"),
+                 ("265K", "Views on five TikToks"), ("354", "New posts in the first year")]),
         proof_head="A year of daily posts",
         proof=before_after(
-            "354 new posts. 6.8 times the followers.",
-            ("27 Mar 2024", "11 Mar 2025"),
-            [("Posts", 154, 508, "+354"), ("Instagram followers", 290, 1970, "6.8x")])
+            "First year: 354 new posts, 6.8 times the followers.",
+            ("27 Mar 2024", "11 Mar 2025", "6 Oct 2026"),
+            [("Posts", 154, 508, 1085, "+354"),
+             ("Instagram followers", 290, 1970, 3127, "6.8x")])
             + '\n  <h3 class="subhead">Five TikToks, Jul 2024 to Jan 2025</h3>\n  '
             + ops([("150,282", "TikTok views"), ("49,380", "TikTok views"),
                    ("28,327", "TikTok views"), ("20,431", "TikTok views"),
                    ("16,518", "TikTok views")]),
         close="A twenty-year-old family business now looks like what it is, busy, expert and "
-              "still here, to anyone who checks before they call. 1,970 people chose to keep "
-              "seeing their trucks and techs every day, and when a system fails, iComfort is the "
-              "name they have watched for a year.",
-        source="Figures from the account&#39;s own Instagram and TikTok, 27 Mar 2024 to "
-               "11 Mar 2025."),
+              "still here, to anyone who checks before they call. 3,127 people now follow their "
+              "trucks and techs, and when a system fails, iComfort is the name they have been "
+              "watching.",
+        source="Figures from the account&#39;s own Instagram and TikTok, 27&nbsp;Mar&nbsp;2024 to "
+               "11&nbsp;Mar&nbsp;2025; current count from the public profile, 6&nbsp;Oct&nbsp;2026."),
     "allheart": dict(
         kind="Campaign",
         roles=["Writer", "Producer"], tag="Ten spots, one shoot.",
