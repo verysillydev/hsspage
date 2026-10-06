@@ -1008,23 +1008,6 @@ CSS = """<style>
   /* .csi: the plain three-column challenge/solution/impact text blocks on
      every case study. (The homepage's manila-folder variant, .csi-photo, was
      retired on 2026-10-06 with the other faux-material textures.) */
-  /* "Three ways we work" (homepage, D2 2026-10-06): flat media-led cards. A
-     real still on top, then the label, the copy and a text link. Radius stays
-     inside the 2-4px rule; no icons or clip art. */
-  .ways{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s4);}
-  @media(min-width:760px){.ways{grid-template-columns:repeat(3,minmax(0,1fr));}}
-  .way{background:var(--ground-2);border-radius:var(--r-md);overflow:hidden;
-    display:flex;flex-direction:column;}
-  .way img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;}
-  .way-body{padding:var(--s5);display:flex;flex-direction:column;gap:var(--s2);flex:1;}
-  .way h3{margin:0;font-family:var(--display);font-size:var(--f-h3);font-weight:700;
-    letter-spacing:var(--t-head);line-height:1.15;}
-  .way p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
-  .way-go{margin-top:auto;padding-top:var(--s2);display:inline-flex;align-items:center;
-    min-height:24px;font-size:var(--f-sm);font-weight:650;color:var(--orange-text);
-    text-decoration:none;}
-  .way-go:hover{text-decoration:underline;}
-
   .csi{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--s3);
     margin-bottom:var(--s4);}
   .csi > div{background:var(--ground-2);border-radius:var(--r-sm);padding:var(--s5);}
@@ -1786,7 +1769,7 @@ MOTION_JS = """<script>
 
   /* (a) scroll reveals ---------------------------------------------------- */
   if(!reduce && 'IntersectionObserver' in window){
-    var SEL = '.sec-head,.cgcard,.benefit,.engine,.pkg,.csi > div,.way,.op,.spot,.reel,' +
+    var SEL = '.sec-head,.cgcard,.benefit,.engine,.pkg,.csi > div,.op,.spot,.reel,' +
               '.step2,.door,.always,.incl,.pn,.band-head,.lead,.member';
     var vh = window.innerHeight || 800;
     var targets = [].slice.call(document.querySelectorAll(SEL)).filter(function(e){
@@ -2852,45 +2835,6 @@ HOME_SPOTS = [(None, "All Heart", "Breaking Furniture 101", "0:30", "zaCFfVetfFI
               (None, "All Heart", "The Snake", "0:30", "TPDZ-OvRNgc"),
               (None, "Handyman Dan", "A Space Odyssey", "0:56", "AfkePSa8XLU")]
 
-# "Three ways we work" (D2, 2026-10-06): media-led cards, a real still on top
-# instead of the retired manila folders. Every image is footage the company shot:
-# an All Heart campaign frame, a client crew in a training room, and All Heart's
-# "The Influencer" spot framed through a phone camera, which shows the short-form
-# format without implying a creator client. The creator link is a conversion CTA,
-# so it goes through cta_href().
-WAYS = [
-    dict(img=f"{P}/ah4.jpg", alt="A family watching a kiddie pool in the living room, from the "
-                                 "All Heart campaign",
-         title="Campaigns",
-         copy="One premise strong enough to carry a whole package, shot in a single production "
-              "block so the cost lands once and the inventory lasts a year.",
-         href=case_url("allheart"), go="See the All Heart campaign"),
-    dict(img=f"{P}/og-cover.jpg", alt="A client&#39;s technicians in a training room while a "
-                                      "shoot is set up",
-         title="Monthly programs",
-         copy="A reel every weekday and graphics every weekend, planned and posted on a schedule "
-              "that does not depend on anyone at your company remembering to post.",
-         href="/packages/", go="See the monthly packages"),
-    dict(img=f"{S}/og/og-allheart.jpg", alt="A scene from All Heart&#39;s The Influencer spot, "
-                                            "framed through a phone camera",
-         title="Creator work",
-         copy="Short form built for reach, for creators and channels where the audience is the "
-              "business. We write the premise so it travels far past the size of the account "
-              "that posts it.",
-         href=cta_href(), go="Talk to us about creator work"),
-]
-
-
-def way_card(w):
-    src = asset(w["img"], "image/jpeg")
-    return (f'<article class="way"><img src="{src}"{dims(w["img"])} alt="{w["alt"]}" '
-            f'loading="lazy" decoding="async"><div class="way-body"><h3>{w["title"]}</h3>'
-            f'<p>{w["copy"]}</p><a class="way-go" href="{w["href"]}">{w["go"]} &rarr;</a>'
-            f'</div></article>')
-
-
-WAYS_CARDS = "\n".join(way_card(w) for w in WAYS)
-
 DOORS_STILL = (f'<img class="doors-bg" src="{asset(f"{P}/quality1.jpg", "image/jpeg")}"'
                f'{dims(f"{P}/quality1.jpg")} alt="" loading="lazy" decoding="async">')
 
@@ -2923,7 +2867,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views on 7 reels</span></a>
     <a class="stat" href="/our-work/#more-results"><span class="case">Bee Right There</span><span class="n">983K</span><span class="k">Views on one reel</span></a>
     <a class="stat" href="/our-work/#more-results"><span class="case">iComfort</span><span class="n">+1,680</span><span class="k">Organic followers, under a year</span></a>
-    <a class="stat" href="{case_url("handyman")}"><span class="case">Handyman Dan</span><span class="n">12</span><span class="k">Markets deployed</span></a>
+    <a class="stat" href="#roster"><span class="case">Roster</span><span class="n">{ROSTER_COUNT}</span><span class="k">Home service brands</span></a>
   </div>
   <div class="ctarow">
     <a class="cta" href="/packages/">See the packages</a>
@@ -2932,17 +2876,6 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   </div></div>
 </div>
 
-
-<section><div class="wrap">
-  <div class="sec-head">
-    <h2 class="display">Three ways we work</h2>
-    <p class="lede">All of it starts the same way, with a premise worth repeating. The difference is
-    how much of the year it has to cover.</p>
-  </div>
-  <div class="ways">
-{WAYS_CARDS}
-  </div>
-</div></section>
 
 <section id="roster" class="on-ink"><div class="wrap">
   <div class="sec-head bare">
