@@ -4115,6 +4115,21 @@ def validate(page, label):
     return page
 
 
+def strip_css_comments(page):
+    """The web build ships every page's <style> without its /* */ comments (release 10).
+    About 30KB of each page's inline CSS was explanation for whoever edits this file;
+    on a throttled phone (1.6Mbps) that is about 150ms before first paint. The source
+    keeps every comment. CSS has no // comments, and no value on the site contains
+    "/*" (the build asserts it), so removing them cannot change a rule."""
+    def clean(m):
+        css = m.group(2)
+        assert not re.search(r'(url\([^)]*/\*|content:\s*"[^"]*/\*)', css), "a CSS value contains /*"
+        css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+        css = re.sub(r"\n\s*\n+", "\n", css)        # the blank lines the comments left
+        return m.group(1) + css + m.group(3)
+    return re.sub(r"(<style[^>]*>)(.*?)(</style>)", clean, page, flags=re.S)
+
+
 def write_web(page, path, *, title, desc, og_image, url, noindex=False, extra_head=""):
     """Vercel serves the raw file, so each page supplies its own document shell.
 
@@ -4122,6 +4137,7 @@ def write_web(page, path, *, title, desc, og_image, url, noindex=False, extra_he
     URL was asked for, so it gets a robots noindex and no canonical, og:url or
     JSON-LD (any of those would claim an address the page does not own)."""
     page = re.sub(r'^\s*<title>[^<]*</title>\s*', '', page)   # head owns the title here
+    page = strip_css_comments(page)
     doc = (
         '<!doctype html>\n<html lang="en">\n<head>\n'
         '<meta charset="utf-8">\n'
