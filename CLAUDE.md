@@ -256,6 +256,10 @@ deployment details. The "Not leads. Anyone selling you leads from organic **shor
 guessing" paragraph on `/packages` is deliberate and must not be softened, it disqualifies the
 wrong buyer on purpose. The words "short form" in it are load bearing, see below.
 
+Short sentences. The owner dislikes run-on sentences (2026-10-06): one idea per sentence, split
+anything joined by a semicolon or a chain of commas. (First applied to the Bee Right There case
+page, R22.)
+
 ## The two engines
 
 The site sells two mechanisms and must never collapse them into one:

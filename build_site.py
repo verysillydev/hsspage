@@ -2585,16 +2585,17 @@ CSI = {
            "alone in a dark attic like the cold open of a horror film.",
            "1,100 shares on the lead reel. Audiences passed it along themselves, which is the "
            "premise working rather than the media budget."),
+    # R22 (owner copy, 2026-10-06): short sentences, one idea each.
     "beerightthere": (
-        "In the three weeks before we started, they published 46 posts. Together those posts were "
-        "seen 27,851 times, about 600 views a post. The effort was there; the posts gave nobody a "
-        "reason to stop scrolling.",
-        "Not the schedule. The ideas. Every reel was built on a moment homeowners and techs "
-        "recognize, from skipping the manual to ladder safety, and written so people watch to "
-        "the end and send it to someone.",
-        "In the next three weeks, 57 posts were seen 106,439 times, about 1,870 views a post. "
-        "Likes, comments, shares and saves went from 843 to 6,634, and new followers from 21 to "
-        "78. Then, in January and February 2025, three reels passed 300,000 views each; the "
+        "In the three weeks before we started, they published 46 posts. Together, those posts "
+        "were seen 27,851 times. That is about 600 views a post. The effort was there. The posts "
+        "just gave nobody a reason to stop scrolling.",
+        "Not the schedule. The ideas. We made their posts entertaining. Each reel starts from a "
+        "moment homeowners and techs recognize, like skipping the manual or climbing a sketchy "
+        "ladder. People watch to the end. Then they send it to a friend.",
+        "In the next three weeks, 57 posts were seen 106,439 times. That is about 1,870 views a "
+        "post. Likes, comments, shares and saves went from 843 to 6,634. New followers went from "
+        "21 to 78. In January and February 2025, three reels passed 300,000 views each. The "
         "biggest reached 982,880."),
     "icomfort": (
         "154 posts and 290 followers. A homeowner checking iComfort out before a call found a "
@@ -2688,11 +2689,11 @@ CASE_PAGE = {
     "beerightthere": dict(
         kind="Reach", roles=["Monthly program", "Short form"],
         tag="Nearly 4x the views in three weeks.",
-        lede="Bee Right There Heating &amp; Air, in Atascadero on California&#39;s Central Coast, "
-             "was already posting almost every day. Hardly anyone was watching. We changed what "
-             "they posted, not how often. In the first three weeks <strong>their posts were seen "
-             "nearly four times as often</strong>, and within months one reel passed 982,000 "
-             "views, for a company whose hometown has about 30,000 people.",
+        lede="Bee Right There Heating &amp; Air was already posting almost every day from "
+             "Atascadero, on California&#39;s Central Coast. Hardly anyone was watching. We "
+             "changed what they posted, not how often. In the first three weeks, <strong>their "
+             "posts were seen nearly four times as often</strong>. Within months, one reel passed "
+             "982,000 views. Their hometown has about 30,000 people.",
         ops=ops([("3.8x", "Times their posts were seen"),
                  ("7.9x", "Likes, comments, shares and saves"),
                  ("3.7x", "New followers"), ("983K", "Views on one reel")]),
@@ -2706,9 +2707,9 @@ CASE_PAGE = {
             + '\n  <h3 class="subhead">Three reels past 300,000 views</h3>\n  '
             + ops([("982,880", "Views, 12 Feb 2025"), ("316,814", "Views, 27 Jan 2025"),
                    ("316,402", "Views, 15 Jan 2025")]),
-        close="A small-town HVAC company became one people pass around. For a company in a town "
-              "of about 30,000, a reel with nearly a million views is attention on a scale local "
-              "advertising rarely reaches, and every view carried the Bee Right There name.",
+        close="A small-town HVAC company became one people pass around. Their town has about "
+              "30,000 people. A reel with nearly a million views is attention local advertising "
+              "rarely reaches. Every one of those views carried the Bee Right There name.",
         source="Figures from the account&#39;s own analytics for 9 to 31 Aug 2024 and 1 to 23 Sep "
                "2024; reel views as reported in early 2025. Atascadero population: 29,773 "
                "(2020 Census)."),
