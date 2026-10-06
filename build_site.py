@@ -1030,6 +1030,12 @@ CSS = """<style>
     grid-template-areas:"n case" "n k";column-gap:var(--s4);row-gap:2px;align-items:center;
     text-decoration:none;color:inherit;transition:background var(--ease);}
   .stat:hover{background:var(--ground-2);}
+  /* a cell whose parts link separately (Bee Right There on the homepage: the name to
+     the case, the number to the reel) instead of the whole cell */
+  .stat a.case{text-decoration:none;}
+  .stat a.case:hover{text-decoration:underline;text-underline-offset:3px;}
+  .stat a.n,.op a.n{text-decoration:underline;text-decoration-thickness:1px;
+    text-underline-offset:.16em;}
   .stat .case{grid-area:case;font-family:var(--display);font-variant-caps:all-small-caps;
     letter-spacing:.05em;font-size:var(--f-sm);color:var(--cyan-text);line-height:1.3;}
   .stat .n{grid-area:n;font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;
@@ -2572,6 +2578,18 @@ def a1_bars():
 # added 2026-10-06 (R4) from the owners' figures; Handyman Dan stopped being a case
 # the same day and lives in More work. tile_line is the one factual sentence on the
 # case's /our-work card. desc may carry &amp; (it lands in a meta attribute).
+# Bee Right There's top reel (12 Feb 2025). Its views were 982,880 when the case was
+# written; the owner reported 1.2 million on 6 Oct 2026, read from Instagram. Every
+# place the site shows it reads these, and the number links to the reel itself.
+BRT_REEL_URL = "https://www.instagram.com/reel/DF_u1LpPd-x/"
+BRT_REEL_M = 1.2
+BRT_REEL_SHORT, BRT_REEL_LONG = f"{BRT_REEL_M}M", f"{BRT_REEL_M} million"
+# "more than a million"; it can only have grown, and it is still the biggest of the
+# three reels that passed 300,000
+assert BRT_REEL_M > 1 and BRT_REEL_M * 1e6 > 982880 > 316814 > 316402 > 300000
+BRT_REEL_LABEL = f"{BRT_REEL_SHORT} views on Bee Right There&#39;s top reel, on Instagram"
+
+
 CASES = [
     dict(id="a1", slug="a1-air-conditioning", name="A1 Air Conditioning", og="og-a1.jpg",
          vertical="Home services", tag="Monthly program",
@@ -2587,8 +2605,8 @@ CASES = [
          card_metric="3.8x", card_line="the views in three weeks, on 24% more posts",
          where="Bee Right There Heating &amp; Air &middot; Atascadero, CA",
          desc="Bee Right There Heating &amp; Air, an HVAC company in Atascadero, CA: posts seen "
-              "3.8 times as often within three weeks, on 24% more posts, and a reel at "
-              "982,880 views."),
+              "3.8 times as often within three weeks, on 24% more posts, and a reel past "
+              f"{BRT_REEL_LONG} views."),
     dict(id="icomfort", slug="icomfort", name="iComfort",
          full="iComfort Heating and Air Conditioning", og="og-icomfort.jpg",
          vertical="Home services", tag="Monthly program",
@@ -2669,7 +2687,7 @@ CSI = {
         "In the next three weeks, 57 posts were seen 106,439 times. That is about 1,870 views a "
         "post. Likes, comments, shares and saves went from 843 to 6,634. New followers went from "
         "21 to 78. In January and February 2025, three reels passed 300,000 views each. The "
-        "biggest reached 982,880."),
+        f"biggest has passed {BRT_REEL_LONG}."),
     "icomfort": (
         "154 posts and 290 followers. A homeowner checking iComfort out before a call found a "
         "company that looked inactive, the opposite of twenty years in the Valley.",
@@ -2698,12 +2716,16 @@ def csi_block(cid):
 
 
 def ops(rows):
-    """A ruled row of figures. A range ("290 to 1,970") is marked data-static so the
-    count-up leaves it alone instead of counting only its first number."""
-    return ('<div class="ops">' + "".join(
-        f'<div class="op"><span class="n"{" data-static" if " to " in n else ""}>{n}</span>'
-        f'<span class="k">{k}</span></div>'
-        for n, k in rows) + '</div>')
+    """A ruled row of figures: (number, label) or (number, label, href, aria-label),
+    the second linking the number (Bee Right There's top reel). A range ("290 to
+    1,970") is marked data-static so the count-up leaves it alone instead of counting
+    only its first number."""
+    def cell(n, k, href=None, aria=None):
+        static = " data-static" if " to " in n else ""
+        num = (f'<a class="n" href="{href}" aria-label="{aria}"{static}>{n}</a>' if href else
+               f'<span class="n"{static}>{n}</span>')
+        return f'<div class="op">{num}<span class="k">{k}</span></div>'
+    return '<div class="ops">' + "".join(cell(*r) for r in rows) + '</div>'
 
 
 def before_after(title, periods, rows):
@@ -2765,11 +2787,12 @@ CASE_PAGE = {
         lede="Bee Right There Heating &amp; Air was already posting almost every day from "
              "Atascadero, on California&#39;s Central Coast. Hardly anyone was watching. We "
              "changed what they posted, not how often. In the first three weeks, <strong>their "
-             "posts were seen nearly four times as often</strong>. Within months, one reel passed "
-             "982,000 views. Their hometown has about 30,000 people.",
+             "posts were seen nearly four times as often</strong>. One reel has since passed "
+             f"{BRT_REEL_LONG} views. Their hometown has about 30,000 people.",
         ops=ops([("3.8x", "Times their posts were seen"),
                  ("7.9x", "Likes, comments, shares and saves"),
-                 ("3.7x", "New followers"), ("983K", "Views on one reel")]),
+                 ("3.7x", "New followers"),
+                 (BRT_REEL_SHORT, "Views on one reel", BRT_REEL_URL, BRT_REEL_LABEL)]),
         proof_head="Same schedule, different ideas",
         proof=before_after(
             "24% more posts. 3.8 times the views.",
@@ -2778,14 +2801,16 @@ CASE_PAGE = {
              ("Likes, comments, shares and saves", 843, 6634, "7.9x"),
              ("New followers", 21, 78, "3.7x")])
             + '\n  <h3 class="subhead">Three reels past 300,000 views</h3>\n  '
-            + ops([("982,880", "Views, 12 Feb 2025"), ("316,814", "Views, 27 Jan 2025"),
+            + ops([(BRT_REEL_SHORT, "Views, 12 Feb 2025", BRT_REEL_URL, BRT_REEL_LABEL),
+                   ("316,814", "Views, 27 Jan 2025"),
                    ("316,402", "Views, 15 Jan 2025")]),
         close="A small-town HVAC company became one people pass around. Their town has about "
-              "30,000 people. A reel with nearly a million views is attention local advertising "
-              "rarely reaches. Every one of those views carried the Bee Right There name.",
+              "30,000 people. A reel with more than a million views is attention local "
+              "advertising rarely reaches. Every one of those views carried the Bee Right There "
+              "name.",
         source="Figures from the account&#39;s own analytics for 9 to 31 Aug 2024 and 1 to 23 Sep "
-               "2024; reel views as reported in early 2025. Atascadero population: 29,773 "
-               "(2020 Census)."),
+               "2024; reel views as reported in early 2025. Top reel&#39;s current views from "
+               "Instagram, 6 Oct 2026. Atascadero population: 29,773 (2020 Census)."),
     "icomfort": dict(
         kind="Audience", roles=["Monthly program", "Short form"],
         tag="290 to 1,970 followers, no ads.",
@@ -3354,7 +3379,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   is yours</strong>.</p>
   <div class="stats quad">
     <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views on 7 reels</span></a>
-    <a class="stat" href="{case_url("beerightthere")}"><span class="case">Bee Right There</span><span class="n">983K</span><span class="k">Views on one reel</span></a>
+    <div class="stat"><a class="case" href="{case_url("beerightthere")}">Bee Right There</a><a class="n" href="{BRT_REEL_URL}" aria-label="{BRT_REEL_LABEL}">{BRT_REEL_SHORT}</a><span class="k">Views on one reel</span></div>
     <a class="stat" href="{case_url("icomfort")}"><span class="case">iComfort</span><span class="n">+1,680</span><span class="k">Organic followers, under a year</span></a>
     <a class="stat" href="#roster"><span class="case">Our Brands</span><span class="n">{ROSTER_COUNT}</span><span class="k">Home service companies</span></a>
   </div>

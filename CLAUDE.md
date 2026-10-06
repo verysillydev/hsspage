@@ -525,6 +525,14 @@ not "impressions"; "likes, comments, shares and saves", not "engagements". The b
 problem", "What we changed", "What happened", and the new cases close with "What it did for them"
 plus a source line. Bee Right There's views must never be called organic (the source report mixed
 organic and paid); its engagements were organic.
+**Bee Right There's top reel (12 Feb 2025) shows 1.2M (owner, 6 Oct 2026, from Instagram; it was
+982,880 when the case was written).** One constant pair, `BRT_REEL_M` and `BRT_REEL_URL`, feeds the
+homepage ledger, the case page's stat row, intro, What happened, reel list, close and the meta/OG
+description, and the build checks it is more than a million (the close says so) and above the old
+figure. The number is always a link to the reel itself, the clean URL with no tracking, in a new tab;
+on the homepage ledger that cell links its name to the case and its number to the reel, so it is a
+`<div>`, not one `<a>`. When the owner reports a new count, change the constant and the source
+line's date.
 **iComfort's organic claim covers the first year only (R19, 2026-10-06).** 27 Mar 2024 to 11 Mar
 2025 (290 to 1,970 followers, 154 to 508 posts) is documented as organic. The count today (3,127
 followers and 1,085 posts on 6 Oct 2026, read from the public profile @icomfort.hvac) must never be
