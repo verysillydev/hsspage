@@ -845,7 +845,13 @@ into its own system and the fingerprint returns.
 
 **Faces: done, mostly.** This section used to say there was not one face on the site. That is no
 longer true. `/team/` carries five real headshots (two leadership portraits, three crew) and zero
-`PERSON_ICON` placeholders. `PERSON_ICON` is still in the file as the fallback for anyone added
+`PERSON_ICON` placeholders. Crew headshots are 700x700 JPEGs at 68 to 86KB with the eyes about a third of the
+way down. **Yoni's (release 8, 2026-10-06)** is the owner's photo, kept as the master
+`post/yoni-paz-master.jpg` (1500x1861, not shipped): a 1500x1500 crop from y=60, scaled to 700x700
+(`post/yoni-paz.jpg`, ffmpeg q2, 67,770 bytes), with his eye line level with Sergy's. The source is
+framed tighter than the other two, so his face reads larger and the top of the polo's HSS mark
+shows at the bottom edge; a looser original from the same shoot would fix both. `og/og-team.jpg`
+was re-rendered with it (`node make_og.mjs`). `PERSON_ICON` is still in the file as the fallback for anyone added
 without a photo.
 
 What is still open:
