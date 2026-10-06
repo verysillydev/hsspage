@@ -243,7 +243,9 @@ title, short-sentence copy, a link or button, then media, with a hairline betwee
 - **01 Social Media Packages.** The primary button "Compare the packages" (`/packages/`)
   with "Month to month, with no setup fee.", then three Instagram profile grabs (`IG_GRABS`):
   iComfort, Veterans AC PHX, AC Plus. **Source:** the owner's 390px phone captures at 3x, login
-  wall and "Suggested for you" removed (`reports/hss-audit/iggrabs/`, outside the repo), resized to
+  wall and "Suggested for you" removed (`reports/hss-audit/iggrabs/`, outside the repo; iComfort's
+was replaced in release 10 from `iggrabs-final/`, because Instagram's logged-out web view had
+dropped its "followers / following" line), resized to
   780px WebP with cwebp at quality 82 (`post/ig-*.webp`). They sit in identical 390:766 frames
   (iComfort's crop), object-fit cover from the top, linked to the profiles in a new tab, captioned
   with name and "@handle &middot; N followers". **The follower counts (3,127 / 1,027 / 1,792) are the
