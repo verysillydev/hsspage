@@ -3520,15 +3520,19 @@ CONTACT_HTML = f"""<title>Contact</title>
 # these two lists rather than to the page structure.
 TEAM_LEADS = [
     {"name": "Craig Balog", "title": "Cofounder", "photo": "craig-balog.jpg",
-        "bio": "A filmmaker and photographer based in Beverly Hills with more than ten years "
-               "in the industry. Craig cofounded Home Service Studios out of its Marina del Rey "
-               "office, and stays hands on with the craft on every project the company shoots "
-               "for contractors."},
+        # R21 (owner copy, 2026-10-06). Production titles in <em>.
+        "bio": "A filmmaker and photographer with more than ten years in production, Craig "
+               "worked on the crews of network reality and game shows, including "
+               "<em>America&#39;s Got Talent</em> and <em>Family Feud</em>: television made "
+               "fast, on schedule, with real people instead of actors. That is exactly what "
+               "filming a contractor on a live job takes. He cofounded Home Service Studios out "
+               "of its Marina del Rey office and is hands-on with every shoot."},
     {"name": "Seth Yeager", "title": "Cofounder", "photo": "seth-yeager.jpg",
-        "bio": "Seth's background is on set: camera and electrical crew, cinematography and "
-               "stunt work in film and television, including second unit and assistant "
-               "directing on The Shop. He cofounded Home Service Studios to bring that "
-               "production experience to work for contractors."},
+        "bio": "Seth came up on set, working camera and electrical crew, cinematography and "
+               "stunts across film and television. He has worked on <em>The Chosen</em> and on "
+               "many independent films, and served in second unit and as an assistant director "
+               "on <em>The Shop</em>. He cofounded Home Service Studios to bring that production "
+               "standard to contractors."},
 ]
 TEAM_ROSTER = [
     {"name": "Paloma Barros", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
