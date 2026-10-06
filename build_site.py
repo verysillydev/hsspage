@@ -2174,7 +2174,7 @@ CLIENT_LOGOS = [
     ("logo_acplus.png",      "AC Plus Heating and Cooling"),
 
     ("logo_a1.png",          "A1 Air Conditioning and Heating"),
-    ("logo_icomfort.png",    "iComfort Heating and Air"),
+    ("logo_icomfort.png",    "iComfort Heating and Air Conditioning"),
     ("logo_goodguy.png",     "Good Guy Plumbing"),
     ("logo_premier.png",     "Premier Heating and Air"),
 
@@ -2419,19 +2419,19 @@ CASE_PAGE = {
 # ---- more results, from the owners' pitch deck -----------------------------
 # Owner approved 2026-10-06. Every figure is copied from the deck and written in
 # English formats (the deck's screenshots used Portuguese ones: "509 mil" is 509K,
-# "6.096" is 6,096). Rules that came with it: Be Right There's impressions are not
+# "6.096" is 6,096). Rules that came with it: Bee Right There's impressions are not
 # called organic (that report was filtered organic and paid; its engagements were
 # organic); the two unnamed clients and any reel from an account not named here
-# are excluded; there are no logos for Be Right There or 4 Points, so none are
+# are excluded; there are no logos for Bee Right There or 4 Points, so none are
 # drawn. The dates are real and double as the site's first recency signal; 4 Points
 # came without dates, so it shows none rather than a guessed one.
 PROOF = [
-    dict(client="Be Right There Heating and Air", who="@beerightthereheatingair on Instagram",
+    dict(client="Bee Right There Heating &amp; Air", who="@beerightthereheatingair on Instagram",
          metric="982,880", mlabel="Views on one reel",
          line="Two more reels passed 316,000 views. From 1 to 23 Sep 2024, impressions rose "
               "282% and organic engagements 687% on the 23 days before.",
          when="Sep 2024 to Feb 2025"),
-    dict(client="iComfort Heating and Air", who="@icomfort.hvac on Instagram",
+    dict(client="iComfort Heating and Air Conditioning", who="@icomfort.hvac on Instagram",
          metric="+1,680", mlabel="Followers in under a year, all organic",
          line="From 290 followers on 27 Mar 2024 to 1,970 on 11 Mar 2025. Five TikTok posts "
               "from the same stretch drew between 16,518 and 150,282 views.",
@@ -2921,7 +2921,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   is yours</strong>.</p>
   <div class="stats quad">
     <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views on 7 reels</span></a>
-    <a class="stat" href="/our-work/#more-results"><span class="case">Be Right There</span><span class="n">983K</span><span class="k">Views on one reel</span></a>
+    <a class="stat" href="/our-work/#more-results"><span class="case">Bee Right There</span><span class="n">983K</span><span class="k">Views on one reel</span></a>
     <a class="stat" href="/our-work/#more-results"><span class="case">iComfort</span><span class="n">+1,680</span><span class="k">Organic followers, under a year</span></a>
     <a class="stat" href="{case_url("handyman")}"><span class="case">Handyman Dan</span><span class="n">12</span><span class="k">Markets deployed</span></a>
   </div>

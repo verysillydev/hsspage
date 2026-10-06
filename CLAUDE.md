@@ -660,7 +660,7 @@ What is still open:
 - **Recency, partly fixed (2026-10-06).** The `/our-work` "More results" block (`PROOF`) carries
   real date ranges (Sep 2024 to Feb 2025, Mar 2024 to Mar 2025). Its figures come from the
   owners' pitch deck and must stay in English formats (the deck's screenshots were Portuguese:
-  "509 mil" is 509K, "6.096" is 6,096). Be Right There's impressions must not be called organic;
+  "509 mil" is 509K, "6.096" is 6,096). Bee Right There's impressions must not be called organic;
   the two unnamed deck clients and reels from unnamed accounts stay off the site; 4 Points has no
   dates in the deck, so it shows none.
 
