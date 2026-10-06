@@ -231,6 +231,16 @@ def img_size(path):
     raise ValueError(f"cannot read image size: {path}")
 
 
+_NUM_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+              "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+              "seventeen", "eighteen", "nineteen", "twenty"]
+
+
+def num_word(n):
+    """A count written out in words, for copy that should read as a sentence."""
+    return _NUM_WORDS[n] if 0 <= n < len(_NUM_WORDS) else format(n, ",")
+
+
 def dims(path):
     """width/height attributes for an <img>, from the file itself."""
     w, h = img_size(path)
@@ -475,6 +485,7 @@ CSS = """<style>
   .hero .stat:nth-child(1){animation-delay:.04s;}
   .hero .stat:nth-child(2){animation-delay:.10s;}
   .hero .stat:nth-child(3){animation-delay:.16s;}
+  .hero .stat:nth-child(4){animation-delay:.22s;}
 
   /* (b) count-up needs digits that do not jump width as they change */
   .stat .n,.op .n,.reel .vnum,.cc-metric b{font-variant-numeric:tabular-nums;}
@@ -903,6 +914,20 @@ CSS = """<style>
       padding:var(--s4) var(--s5) var(--s5);}
     .stat .case,.stat .n,.stat .k{grid-area:auto;}
   }
+  /* Four figures (the homepage hero since 2026-10-06): 2x2 on phones and
+     tablets, one row of four from 900px, with the same subgrid row alignment,
+     so there is never an orphan. The three-figure /our-work ledger keeps the
+     single-column phone rows above. */
+  .stats.quad{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .stats.quad .stat{grid-template-columns:none;grid-template-areas:none;grid-row:span 3;
+    grid-template-rows:subgrid;row-gap:var(--s1);align-items:start;
+    padding:var(--s3) var(--s4) var(--s4);}
+  .stats.quad .stat .case,.stats.quad .stat .n,.stats.quad .stat .k{grid-area:auto;}
+  @media(min-width:560px){
+    .stats.quad{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:row;}
+    .stats.quad .stat{padding:var(--s4) var(--s5) var(--s5);}
+  }
+  @media(min-width:900px){.stats.quad{grid-template-columns:none;grid-auto-flow:column;}}
   /* No subgrid: fall back to the reservation, so numbers still line up. */
   @supports not (grid-template-rows:subgrid){
     @media(min-width:560px){
@@ -993,6 +1018,26 @@ CSS = """<style>
     font-family:var(--display);line-height:1.1;}
   .op .k{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
     font-family:var(--mono);}
+
+  /* /our-work "More results": dated proof from three more accounts, ruled like
+     the other ledgers (gap:1px on --line) rather than three boxed cards */
+  .proofs{display:grid;grid-template-columns:minmax(0,1fr);gap:1px;background:var(--line);}
+  @media(min-width:900px){.proofs{grid-template-columns:repeat(3,minmax(0,1fr));}}
+  .proof{background:var(--ground);padding:var(--s5);display:flex;flex-direction:column;
+    gap:var(--s2);}
+  .proof h3{margin:0;font-family:var(--display);font-size:var(--f-h4);font-weight:700;
+    letter-spacing:var(--t-head);line-height:1.2;}
+  .proof .who{margin:0;font-size:var(--f-sm);color:var(--ink-3);}
+  .proof .pm{margin:var(--s2) 0 0;display:flex;flex-direction:column;gap:2px;}
+  .proof .pn{font-family:var(--display);font-size:var(--f-h2);font-weight:700;
+    color:var(--orange-text);letter-spacing:-.012em;line-height:1.05;
+    font-variant-numeric:tabular-nums;}
+  .proof .pl{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-3);font-family:var(--mono);}
+  .proof p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
+  .proof .when{margin-top:auto;padding-top:var(--s3);border-top:1px solid var(--line);
+    font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.05em;
+    font-size:var(--f-sm);color:var(--cyan-text);}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:var(--s5);}
   .spot{background:var(--panel);border-radius:var(--r-md);
@@ -1876,9 +1921,22 @@ MOTION_JS = """<script>
   /* (b) count up ---------------------------------------------------------- */
   var nums = [].slice.call(document.querySelectorAll('.stat .n, .op .n, .reel .vnum'));
   if(nums.length && !reduce && 'IntersectionObserver' in window){
+    /* thousands separators count too: a figure like +1,680 (or any price on
+       the ladder) used to parse as 1 followed by ",680", so it counted 0 to 1
+       in front of a frozen tail. The comma is stripped to count and put back
+       when formatting; the last frame restores the original text exactly. */
     var parse = function(s){
-      var m = String(s).match(/^([^0-9.]*)([0-9]+(?:\.[0-9]+)?)(.*)$/);
-      return m ? {pre: m[1], val: parseFloat(m[2]), post: m[3], dp: (m[2].split('.')[1]||'').length} : null;
+      var m = String(s).match(/^([^0-9.]*)([0-9][0-9,]*(?:\.[0-9]+)?)(.*)$/);
+      if(!m) return null;
+      var raw = m[2].replace(/,/g, '');
+      return {pre: m[1], val: parseFloat(raw), post: m[3], dp: (raw.split('.')[1]||'').length,
+              comma: m[2].indexOf(',') > -1, orig: String(s)};
+    };
+    var fmt = function(p, v){
+      var t = v.toFixed(p.dp);
+      if(p.comma) t = Number(t).toLocaleString('en-US',
+        {minimumFractionDigits: p.dp, maximumFractionDigits: p.dp});
+      return p.pre + t + p.post;
     };
     var nio = new IntersectionObserver(function(entries){
       entries.forEach(function(en){
@@ -1893,9 +1951,9 @@ MOTION_JS = """<script>
           if(t0 === null) t0 = ts;
           var k = Math.min((ts - t0) / dur, 1);
           var eased = 1 - Math.pow(1 - k, 3);          /* ease out cubic */
-          el.textContent = p.pre + (p.val * eased).toFixed(p.dp) + p.post;
+          el.textContent = fmt(p, p.val * eased);
           if(k < 1) requestAnimationFrame(step);
-          else el.textContent = p.pre + p.val.toFixed(p.dp) + p.post;
+          else el.textContent = p.orig;
         }
         requestAnimationFrame(step);
       });
@@ -2438,6 +2496,55 @@ CASE_BODY["allheart"] = f"""<section id="allheart"><div class="wrap">
 </div></section>"""
 
 
+# ---- more results, from the owners' pitch deck -----------------------------
+# Owner approved 2026-10-06. Every figure is copied from the deck and written in
+# English formats (the deck's screenshots used Portuguese ones: "509 mil" is 509K,
+# "6.096" is 6,096). Rules that came with it: Be Right There's impressions are not
+# called organic (that report was filtered organic and paid; its engagements were
+# organic); the two unnamed clients and any reel from an account not named here
+# are excluded; there are no logos for Be Right There or 4 Points, so none are
+# drawn. The dates are real and double as the site's first recency signal; 4 Points
+# came without dates, so it shows none rather than a guessed one.
+PROOF = [
+    dict(client="Be Right There Heating and Air", who="@beerightthereheatingair on Instagram",
+         metric="982,880", mlabel="Views on one reel",
+         line="Two more reels passed 316,000 views. From 1 to 23 Sep 2024, impressions rose "
+              "282% and organic engagements 687% on the 23 days before.",
+         when="Sep 2024 to Feb 2025"),
+    dict(client="iComfort Heating and Air", who="@icomfort.hvac on Instagram",
+         metric="+1,680", mlabel="Followers in under a year, all organic",
+         line="From 290 followers on 27 Mar 2024 to 1,970 on 11 Mar 2025. Five TikTok posts "
+              "from the same stretch drew between 16,518 and 150,282 views.",
+         when="Mar 2024 to Mar 2025"),
+    dict(client="4 Points", who="Home services",
+         metric="509K", mlabel="Views on one post",
+         line="Before us, eight posts drew 235 to 705 views each. In a sample of the same size "
+              "since, posts reached 509K, 89.4K, 24.6K and 6,096 views.",
+         when=""),
+]
+
+
+def proof_card(x):
+    when = f'<p class="when">{x["when"]}</p>' if x["when"] else ""
+    return (f'<article class="proof"><h3>{x["client"]}</h3><p class="who">{x["who"]}</p>'
+            f'<p class="pm"><span class="pn">{x["metric"]}</span>'
+            f'<span class="pl">{x["mlabel"]}</span></p>'
+            f'<p>{x["line"]}</p>{when}</article>')
+
+
+MORE_RESULTS = f"""<section id="more-results"><div class="wrap">
+  <div class="sec-head">
+    <p class="eyebrow">More results</p>
+    <h2 class="display">Three more accounts, with the dates attached</h2>
+    <p class="lede">Short form for three more home service companies, measured on their own
+    accounts.</p>
+  </div>
+  <div class="proofs">
+{chr(10).join(proof_card(x) for x in PROOF)}
+  </div>
+</div></section>"""
+
+
 # The footer every page shares. It used to be hand copied five times and had
 # shrunk to one sentence, a tiny "Contact" link and the meta line. Now it carries
 # the primary CTA (through book(), so it follows cta_href() like every other
@@ -2546,6 +2653,8 @@ html = f"""<title>Selected work, Home Service Studios</title>
 {chr(10).join(CASE_BODY[c["id"]] for c in CASES)}
 </div>
 
+{MORE_RESULTS}
+
 </main>
 
 {site_footer("work")}
@@ -2571,9 +2680,7 @@ money = lambda n: "$" + format(n, ",")
 # cheapest and dearest tier, and how many programs there are, in words.
 PRICE_MIN = min(t["price"] for t in PKG["tiers"])
 PRICE_MAX = max(t["price"] for t in PKG["tiers"])
-_NUM_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
-              "nine", "ten", "eleven", "twelve"]
-PROGRAMS_WORD = _NUM_WORDS[len(PKG["tiers"])]
+PROGRAMS_WORD = num_word(len(PKG["tiers"]))
 
 
 def pkg_card(tid):
@@ -2832,10 +2939,11 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   brands, builders, realtors and creators. One good video will not do it, and neither will the
   leads nobody can honestly promise you. It takes <strong>video worth watching, often enough to
   stay in mind</strong> until the day they need you.</p>
-  <div class="stats">
-    <a class="stat" href="/our-work/#a1"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">One client, 7 reels</span></a>
+  <div class="stats quad">
+    <a class="stat" href="/our-work/#a1"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views on 7 reels</span></a>
+    <a class="stat" href="/our-work/#more-results"><span class="case">Be Right There</span><span class="n">983K</span><span class="k">Views on one reel</span></a>
+    <a class="stat" href="/our-work/#more-results"><span class="case">iComfort</span><span class="n">+1,680</span><span class="k">Organic followers, under a year</span></a>
     <a class="stat" href="/our-work/#handyman"><span class="case">Handyman Dan</span><span class="n">12</span><span class="k">Markets deployed</span></a>
-    <a class="stat" href="#roster"><span class="case">Roster</span><span class="n">{ROSTER_COUNT}</span><span class="k">Brands</span></a>
   </div>
   <div class="ctarow">
     <a class="cta" href="/packages/">See the packages</a>
@@ -2870,8 +2978,8 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 <section id="roster"><div class="wrap">
   <div class="sec-head bare">
     <h2 class="display">Brands we write and produce for</h2>
-    <p class="lede">They are home service companies across the country, and most of them work in
-    heating, cooling, plumbing or electrical.</p>
+    <p class="lede">These are {num_word(ROSTER_COUNT)} home service companies across the country,
+    and most of them work in heating, cooling, plumbing or electrical.</p>
   </div>
   {logo_marquee()}
 </div></section>
@@ -3403,8 +3511,8 @@ if MODE == "web":
     # SITE now lives at the top of the file beside EMAIL, so JSON_LD can reach it
     # too. The old domain should 301 here rather than keep serving its stale
     # pre-rebrand build, which is the one part of this that is not a code change.
-    D1 = ("Three case studies from Home Service Studios, a Los Angeles writing and production "
-          "company. Short form and commercial work for HVAC and home service brands.")
+    D1 = ("Case studies from Home Service Studios, a Los Angeles video company: 2.26M views "
+          "for one HVAC client, 983K on one reel for another, spots licensed in 12 markets.")
     n1 = write_web(html, f"{OUT}/index.html",
                    title="Case Studies | Home Services Video Production | Home Service Studios",
                    desc=D1, og_image=f"{SITE}/our-work/a/og-cover.jpg",

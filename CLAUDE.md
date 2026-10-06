@@ -352,10 +352,12 @@ Grids with a fixed, awkward item count use **explicit breakpoint columns, not `a
 seven across from 1100px, and below that the breakout reel (`.is-top`) takes a full-width row over
 an even 3x2 (tablet) or 2x3 (phone), so there is never an orphan or grey filler. The old flex row
 had about 2px of slack at 1440 and dropped the seventh onto its own row whenever a slightly wider
-face rendered. Count up still targets `.reel .vnum` only, see `A1_REELS`. Both stat ledgers
-(homepage hero and `/our-work`) hold three figures since 2026-10-06: a single-column ledger on
-phones (number left, client and label right) and one row of equal columns from 560px
-(`grid-auto-flow:column`, so any count stays one row with no orphan or filler cell). From 560px
+face rendered. Count up still targets `.reel .vnum` only, see `A1_REELS`. The `/our-work` stat
+ledger holds three figures: a single-column ledger on phones (number left, client and label right)
+and one row of equal columns from 560px (`grid-auto-flow:column`). The homepage hero ledger holds
+four (`.stats.quad`, 2026-10-06): 2x2 on phones and tablets, one row of four from 900px. Neither
+ever leaves an orphan or filler cell. Count up handles thousands separators (`+1,680`, the price
+ladder) and always ends on the original text. From 560px
 each `.stat` is a `subgrid` spanning three rows, which lines up client, number and label across
 cells even when a name wraps; the old two-line `min-height` reservation on `.stat .case` survives
 only as the `@supports not (subgrid)` fallback.
@@ -599,9 +601,12 @@ What is still open:
 - **Faces on one page out of five.** A visitor going homepage to packages to contact, the most
   likely path, still never sees a person. A crew photo beside the production-day tiers on
   `/packages` would be the literal proof of what those tiers sell.
-- **Nothing on the site is dated.** No recency signal of any kind. A machine-made site has no
-  history; a real one leaks one constantly. One dated recent-work line would do more here than
-  any further design restraint.
+- **Recency, partly fixed (2026-10-06).** The `/our-work` "More results" block (`PROOF`) carries
+  real date ranges (Sep 2024 to Feb 2025, Mar 2024 to Mar 2025). Its figures come from the
+  owners' pitch deck and must stay in English formats (the deck's screenshots were Portuguese:
+  "509 mil" is 509K, "6.096" is 6,096). Be Right There's impressions must not be called organic;
+  the two unnamed deck clients and reels from unnamed accounts stay off the site; 4 Points has no
+  dates in the deck, so it shows none.
 
 ## Accessibility rules that were bought the hard way
 
