@@ -1153,6 +1153,44 @@ CSS = """<style>
     letter-spacing:-.02em;color:var(--orange-text);}
   .mw-stat span{font-size:var(--f-body);line-height:1.45;color:var(--ink);}
   .mw-note{margin:var(--s2) 0 var(--s5);font-size:var(--f-sm);color:var(--ink-2);max-width:62ch;}
+  /* What We Do (homepage, release 8): warm white ground, three numbered blocks with a
+     hairline between them. --ink-3 on --ground-2 is 4.32:1, so small text uses --ink-2. */
+  section.wwd{background:var(--ground-2);}
+  .wwd-block{padding:var(--s7) 0;}
+  .wwd-block:first-of-type{padding-top:0;}
+  .wwd-block:last-child{padding-bottom:0;}
+  .wwd-block + .wwd-block{border-top:1px solid var(--line);}
+  .wwd-num{margin:0;font-family:var(--display);font-weight:900;font-size:var(--f-mega);
+    line-height:1;letter-spacing:-.02em;color:var(--orange-text);font-variant-numeric:tabular-nums;}
+  .wwd-title{margin:var(--s3) 0 0;font-family:var(--display);font-weight:700;font-size:var(--f-h2);
+    line-height:1.15;letter-spacing:var(--t-head);color:var(--ink);}
+  .wwd-copy{margin:var(--s3) 0 0;font-size:var(--f-lede);line-height:1.55;color:var(--ink-2);
+    max-width:56ch;}
+  .wwd-small{margin:var(--s2) 0 0;font-size:var(--f-sm);color:var(--ink-2);}
+  .wwd-link{display:inline-flex;align-items:center;min-height:24px;margin-top:var(--s3);
+    font-weight:650;color:var(--orange-text);text-decoration:none;}
+  .wwd-link:hover{text-decoration:underline;text-underline-offset:3px;}
+  .wwd-block > .igrow,.wwd-block > .grid,.wwd-film{margin-top:var(--s6);}
+  /* three profile grabs in identical 390:766 frames, top aligned; a swipe strip on
+     phones, cards at 78% so the next one peeks */
+  .igrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5);}
+  .ig{margin:0;display:flex;flex-direction:column;gap:var(--s3);min-width:0;}
+  .ig-frame{display:block;aspect-ratio:390/766;border:1px solid var(--line);
+    border-radius:var(--r-lg);overflow:hidden;background:var(--ground);}
+  .ig-frame:focus-visible{border-radius:var(--r-lg);}
+  .ig-frame img{width:100%;height:100%;display:block;object-fit:cover;object-position:top;}
+  .ig figcaption{display:flex;flex-direction:column;gap:2px;}
+  .ig-name{font-weight:600;color:var(--ink);line-height:1.35;}
+  .ig-meta{font-size:var(--f-sm);color:var(--ink-2);}
+  @media(max-width:759px){
+    .igrow{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:var(--s4);
+      padding-bottom:var(--s2);scrollbar-width:thin;}
+    .igrow > .ig{flex:0 0 78%;scroll-snap-align:start;}
+  }
+  .wwd-film .vspot{border-radius:var(--r-md);}
+  .wwd-cap{margin:var(--s3) 0 0;display:flex;justify-content:space-between;align-items:baseline;
+    gap:var(--s3);font-size:var(--f-sm);color:var(--ink-2);}
+  .wwd-cap .du{font-family:var(--mono);flex:none;}
   /* a row of spots: three across from 760px (six make two even rows), and a
      horizontal swipe strip on phones so six cards do not stack 1,700px tall */
   /* any count: one row from 1100px when there are five, otherwise rows of three
@@ -2309,6 +2347,29 @@ assert "__FORM_TO__" not in FORM_JS, "form failover address was not substituted"
 SPOT_DIR = f"{S}/spots"
 
 
+def vspot_media(fn, du, poster_path, title):
+    """The hover-play picture shared by the spot cards and the homepage brand film:
+    <video preload="none" playsinline> from spots/ under a lazy poster <img>, the
+    whole picture one <button>. Behaviour lives in SOLO_JS. The duration label is
+    checked against the file, and mp4_info() refuses a file that is not faststart."""
+    path = os.path.join(SPOT_DIR, fn)
+    w, h, secs = mp4_info(path)
+    assert f"{int(secs) // 60}:{int(secs) % 60:02d}" == du, \
+        f"{fn} runs {secs:.1f}s but its label says {du}"
+    src = asset(path, "video/mp4")
+    poster = asset(poster_path, "image/webp" if poster_path.endswith(".webp") else "image/jpeg")
+    t = html_lib.escape(title, quote=True)
+    return (f'<div class="vspot" data-state="idle">'
+            f'<video src="{src}" preload="none" playsinline width="{w}" height="{h}" '
+            f'aria-hidden="true"></video>'
+            f'<img src="{poster}"{dims(poster_path)} alt="" loading="lazy" decoding="async">'
+            f'<button type="button" class="vplay" aria-label="Play {t}" data-title="{t}">'
+            f'<span class="vglyph">{PLAY_ICON}</span>'
+            f'<span class="vsnd"><span class="vsnd-off">{MUTED_ICON}Click for sound</span>'
+            f'<span class="vsnd-on">{SOUND_ICON}Sound on</span></span>'
+            f'</button></div>')
+
+
 def spot(fn, sc, nm, du, yt=None):
     """One commercial spot card. Two renderings:
 
@@ -2332,21 +2393,7 @@ def spot(fn, sc, nm, du, yt=None):
     meta = (f'<div class="meta"><span class="sc">{sc}</span><span class="nm">{t}</span>'
             f'<span class="du">{du}</span></div></article>')
     if fn and MODE == "web":
-        path = os.path.join(SPOT_DIR, fn)
-        w, h, secs = mp4_info(path)
-        assert f"{int(secs) // 60}:{int(secs) % 60:02d}" == du, \
-            f"{fn} runs {secs:.1f}s but its card says {du}"
-        src = asset(path, "video/mp4")
-        return (f'<article class="spot">'
-                f'<div class="vspot" data-state="idle">'
-                f'<video src="{src}" preload="none" playsinline width="{w}" height="{h}" '
-                f'aria-hidden="true"></video>'
-                f'<img src="{poster}"{dims(poster_path)} alt="" loading="lazy" decoding="async">'
-                f'<button type="button" class="vplay" aria-label="Play {t}" data-title="{t}">'
-                f'<span class="vglyph">{PLAY_ICON}</span>'
-                f'<span class="vsnd"><span class="vsnd-off">{MUTED_ICON}Click for sound</span>'
-                f'<span class="vsnd-on">{SOUND_ICON}Sound on</span></span>'
-                f'</button></div>' + meta)
+        return '<article class="spot">' + vspot_media(fn, du, poster_path, nm) + meta
     return (f'<article class="spot">'
             f'<div class="ytspot" data-yt="{yt}" data-title="{t}">'
             f'<img src="{poster}"{dims(poster_path)} alt="" loading="lazy">'
@@ -2571,7 +2618,6 @@ def case_card(c):
 
 
 CASE_GRID = "\n".join(case_card(CASE_BY_ID[k]) for k in CARD_ORDER)
-CASE_NAMES = ", ".join(c["name"] for c in CASES)   # the homepage case note, never typed
 
 
 
@@ -3188,6 +3234,65 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 # repeating either. Every asset here is one the other pages already copied out,
 # so the homepage adds markup and no new weight.
 
+# ---- What We Do (homepage, release 8) ----------------------------------------
+# Three Instagram profile grabs for block 01, left to right. Captured by the owner on a
+# 390px phone at 3x with the login wall and "Suggested for you" removed, resized to
+# 780px WebP (post/ig-*.webp). Follower counts are the public profile counts on
+# 6 Oct 2026: refresh them (and the grabs) together, see CLAUDE.md.
+IG_GRABS = [
+    ("ig-icomfort.webp", "iComfort Heating and Air Conditioning", "icomfort.hvac", "3,127"),
+    ("ig-veteransacphx.webp", "Veterans AC PHX", "veteransacphx", "1,027"),
+    ("ig-acplus.webp", "AC Plus Heating and Cooling", "acplus_hvac", "1,792"),
+]
+IG_COUNTS_DATE = "6 Oct 2026"
+
+
+def ig_grab(fn, name, handle, followers):
+    """One profile grab: a fixed 390:766 frame (iComfort's crop) so all three line up
+    whatever each capture's height, linked to the live profile."""
+    path = os.path.join(P, fn)
+    src = asset(path, "image/webp")
+    return (f'<figure class="ig"><a class="ig-frame" href="https://www.instagram.com/{handle}/">'
+            f'<img src="{src}"{dims(path)} alt="{name} Instagram profile, @{handle}" '
+            f'loading="lazy" decoding="async"></a>'
+            f'<figcaption><span class="ig-name">{name}</span>'
+            f'<span class="ig-meta">@{handle} &middot; {followers} followers</span></figcaption>'
+            f'</figure>')
+
+
+def brand_film():
+    """Block 03: the Quality brand film from 1:14 to the end (spots/quality-brand.mp4),
+    hover-play like the spots. Its poster is post/quality1.jpg, cut from the 1:14
+    frame, so the still matches the first frame. The inline artifact build cannot
+    carry the film, so it gets the still alone."""
+    if MODE != "web":
+        return (f'<div class="vspot"><img src="{asset(f"{P}/quality1.jpg", "image/jpeg")}"'
+                f'{dims(f"{P}/quality1.jpg")} alt="" loading="lazy"></div>')
+    return vspot_media("quality-brand.mp4", "1:44", f"{P}/quality1.jpg",
+                       "the Quality Heating Cooling Plumbing Electrical brand film")
+
+
+# Block 04, podcast production. The owner is supplying the example video (never a
+# Service MVP episode pulled from YouTube: the owner rejected the latest one). Set
+# PODCAST_VIDEO to (file in spots/, poster path, duration label "m:ss") once it is
+# encoded faststart; until then the block renders without media and its example
+# caption sits under the link. The duration is checked against the file like the spots.
+PODCAST_VIDEO = None
+PODCAST_CAPTION = "Service MVP Sales Training Podcast with Joe Crisara."
+
+
+def podcast_media():
+    """Block 04's media and caption, or the caption alone while there is no video."""
+    if not PODCAST_VIDEO:
+        return f'<p class="wwd-cap"><span>{PODCAST_CAPTION}</span></p>'
+    fn, poster_path, du = PODCAST_VIDEO
+    media = (vspot_media(fn, du, poster_path, "the Service MVP podcast") if MODE == "web" else
+             f'<div class="vspot"><img src="{asset(poster_path, "image/jpeg")}"'
+             f'{dims(poster_path)} alt="" loading="lazy"></div>')
+    return (f'<div class="wwd-film">{media}<p class="wwd-cap"><span>{PODCAST_CAPTION}</span>'
+            f'<span class="du">{du}</span></p></div>')
+
+
 # three spots that carry the range: two premises from All Heart, one from Handyman Dan.
 # Looked up by YouTube id, so the file, title and duration always match the lists.
 _SPOT_BY_YT = {x[4]: x for x in allheart + handyman}
@@ -3246,28 +3351,54 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   {logo_marquee()}
 </div></section>
 
-<section><div class="wrap">
+<section id="what-we-do" class="wwd"><div class="wrap">
   <div class="sec-head">
-    <h2 class="display">Proven results with real data</h2>
-    <p class="lede">One Tucson HVAC company with 9,200 followers now carries seven reels past
-    100,000 views, <strong>roughly 2.26 million views in a market of one million people</strong>.
-    The top one frames a technician alone in a dark attic like the cold open of a horror film. It
-    was shared 1,100 times, which is the premise working rather than the media budget.</p>
+    <h2 class="display">What We Do</h2>
   </div>
 
-  <div class="reels">
-{A1_REELS}
+  <div class="wwd-block">
+    <p class="wwd-num" aria-hidden="true">01</p>
+    <h3 class="wwd-title">Social media monthly packages</h3>
+    <p class="wwd-copy">A reel every weekday and graphics every weekend, planned and posted for
+    you. Here is what that looks like on three client accounts.</p>
+    <a class="wwd-link" href="/packages/">See the packages&nbsp;&rarr;</a>
+    <div class="igrow">
+{chr(10).join(ig_grab(*g) for g in IG_GRABS)}
+    </div>
   </div>
 
-  <h3 class="subhead">The work itself: commercial spots</h3>
-
-  <div class="grid">
+  <div class="wwd-block">
+    <p class="wwd-num" aria-hidden="true">02</p>
+    <h3 class="wwd-title">Commercial shoots</h3>
+    <p class="wwd-copy">Spots built on one strong idea. Shot in a single production block, so the
+    cost lands once.</p>
+    <a class="wwd-link" href="/our-work/all-heart/">See the All Heart campaign&nbsp;&rarr;</a>
+    <div class="grid">
 {chr(10).join(spot(*s) for s in HOME_SPOTS)}
+    </div>
   </div>
 
-  <div class="ctarow">
-    <a class="cta ghost" href="/our-work/">All case studies &rarr;</a>
-    <span class="ctanote">{CASE_NAMES}.</span>
+  <div class="wwd-block">
+    <p class="wwd-num" aria-hidden="true">03</p>
+    <h3 class="wwd-title">Brand videos</h3>
+    <p class="wwd-copy">A film that tells your company&#39;s story. Made for your homepage, your
+    YouTube and your hiring.</p>
+    <a class="wwd-link" href="https://www.youtube.com/watch?v=m3HEWS9qMTM">Watch the full film&nbsp;&rarr;</a>
+    <div class="wwd-film">
+    {brand_film()}
+    <p class="wwd-cap"><span>Brand film for Quality Heating Cooling Plumbing Electrical, Tulsa.</span>
+    <span class="du">1:44</span></p>
+    </div>
+  </div>
+
+  <div class="wwd-block">
+    <p class="wwd-num" aria-hidden="true">04</p>
+    <h3 class="wwd-title">Podcast production</h3>
+    <p class="wwd-copy">We build the set, run the shoot and handle the edit. You show up and
+    talk.</p>
+    <p class="wwd-small">Set build, production and post.</p>
+    <a class="wwd-link" href="https://www.youtube.com/channel/UC-0DMx1NEizXp3aRWcVv4ag">Watch Service MVP&nbsp;&rarr;</a>
+    {podcast_media()}
   </div>
 </div></section>
 
