@@ -516,18 +516,31 @@ CSS = """<style>
   .budgets{gap:var(--s3);}
   .budgetrow{display:grid;grid-template-columns:1fr;gap:var(--s2);}
   @media(min-width:560px){.budgetrow{grid-template-columns:repeat(auto-fit,minmax(172px,1fr));}}
-  .budgetrow .budget{display:flex;flex-direction:column;gap:2px;cursor:pointer;position:relative;
-    background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-sm);
-    padding:13px 13px 14px 38px;min-height:60px;justify-content:center;
-    transition:border-color var(--ease),background var(--ease);}
+  /* 2026-10-06: the radio used to be absolutely positioned at top:50%, which
+     put it about 17px below the first line of a two-line option and left its
+     circle (plus the UA's 5px left margin) touching the label text. Each option
+     is now a two-column grid: the real radio in column one, centred on the
+     first text row, a --s3 (12px) gap, then the price and tier lines. The whole
+     <label> is the hit area, so a tap anywhere on the card selects it. */
+  .budgetrow .budget{display:grid;grid-template-columns:auto minmax(0,1fr);
+    column-gap:var(--s3);row-gap:2px;align-items:center;align-content:center;
+    cursor:pointer;background:var(--ground-2);border:1px solid var(--line);
+    border-radius:var(--r-sm);padding:var(--s3) var(--s4);min-height:60px;
+    transition:border-color var(--ease),background var(--ease),box-shadow var(--ease);}
   .budget:hover{border-color:var(--ink-3);}
-  .budget input{position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  .budget input{grid-column:1;grid-row:1;margin:0;
     width:18px;height:18px;min-height:0;padding:0;accent-color:var(--orange-text);cursor:pointer;}
-  .budget:has(input:checked){border-color:var(--orange-text);background:var(--panel);}
+  /* checked: border and an inset ring read as a 2px frame without moving the
+     layout, plus the darker panel fill */
+  .budget:has(input:checked){border-color:var(--orange-text);background:var(--panel);
+    box-shadow:inset 0 0 0 1px var(--orange-text);}
   .budget:has(input:focus-visible){outline:2px solid var(--orange);outline-offset:2px;}
-  .budget .bv{font-size:var(--f-body);font-weight:650;color:var(--ink);white-space:nowrap;}
-  .budget .bt{font-family:var(--mono);font-size:var(--f-micro);color:var(--cyan-text);
-    letter-spacing:.08em;text-transform:uppercase;}
+  /* the card carries the focus ring, so the radio's own would only double it */
+  @supports selector(:has(*)){.budget input:focus-visible{outline:none;}}
+  .budget .bv{grid-column:2;grid-row:1;font-size:var(--f-body);font-weight:650;color:var(--ink);
+    line-height:1.4;white-space:nowrap;}
+  .budget .bt{grid-column:2;grid-row:2;font-family:var(--mono);font-size:var(--f-micro);
+    color:var(--cyan-text);letter-spacing:.06em;text-transform:uppercase;line-height:1.35;}
 
   /* errors appear next to the field they belong to, on blur, never as a summary */
   .ferr{font-size:var(--f-sm);color:#C0392B;min-height:0;display:none;}
