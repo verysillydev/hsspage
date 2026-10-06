@@ -491,16 +491,35 @@ CSS = """<style>
   @keyframes pushIn{from{transform:scale(1);}to{transform:scale(1.04);}}
   .banner.is-playing{animation:pushIn 8s cubic-bezier(.4,0,.2,1) forwards;}
 
-  /* (e) logo marquee */
+  /* (e) logo wall (D4, 2026-10-06): an ink band (.on-ink) with the marks in
+     light. Desktop: one line, a slow marquee. Phones and reduced motion: a
+     static grid instead, 3 across on phones and 5 across on desktop, which
+     both divide the 15 marks evenly; the loop's duplicate set (.dupe) is not
+     shown there. Every mark sits on the same 500x200 canvas at equal optical
+     ink area, so one width per breakpoint keeps them visually equal. */
   .marquee{overflow:hidden;position:relative;
     -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
     mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);}
   .marquee-track{display:flex;width:max-content;gap:var(--s7);align-items:center;
-    animation:marq 40s linear infinite;}
+    animation:marq 60s linear infinite;}
   .marquee:hover .marquee-track,.marquee:focus-within .marquee-track{animation-play-state:paused;}
   @keyframes marq{from{transform:translateX(0);}to{transform:translateX(-50%);}}
   .marquee .logomark{width:150px;flex:none;}
   @media(min-width:700px){.marquee .logomark{width:190px;}}
+  @media(max-width:759px),(prefers-reduced-motion:reduce){
+    .marquee{-webkit-mask-image:none;mask-image:none;}
+    .marquee-track{animation:none;transform:none;width:auto;display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5);}
+    .marquee .logomark{width:auto;}
+    .marquee .dupe{display:none;}
+  }
+  @media(min-width:760px) and (prefers-reduced-motion:reduce){
+    .marquee-track{grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--s6) var(--s7);}
+  }
+  /* the marks are single-colour --ink silhouettes, so on the ink band they
+     are simply inverted to a light grey rather than regenerated */
+  .on-ink .logomark img{filter:invert(1);opacity:.78;}
+  .on-ink .logomark:hover img{opacity:1;}
 
   /* (f) The sticky case header is deliberately not implemented. It was specced to
      orient a reader in a long page, but after the case split these pages run 180 to
@@ -765,7 +784,7 @@ CSS = """<style>
      so the brand's strongest look is not homepage-only. Contrast on #14171A,
      checked with the WCAG formula: --ink-2 #D8D3C9 12.6:1, --ink-3 #A8A29A
      7.4:1, --orange 4.8:1, --cyan 6.9:1. */
-  .hero.hero-bold,.hero.hero-dark{background:#14171A;color:#FFFFFF;
+  .hero.hero-bold,.hero.hero-dark,.on-ink{background:#14171A;color:#FFFFFF;
     --ground:#14171A; --ground-2:#1E2226; --panel:#262B30; --line:#33383D;
     --ink:#FFFFFF; --ink-2:#D8D3C9; --ink-3:#A8A29A;
     --orange-text:var(--orange); --cyan-text:var(--cyan);}
@@ -2450,9 +2469,12 @@ def site_footer(page=""):
 
 def logo_marquee():
     """The client wall as a continuous marquee. The track is duplicated because a
-    translateX of -50% only loops seamlessly if the second half repeats the first."""
+    translateX of -50% only loops seamlessly if the second half repeats the first.
+    The second set is marked .dupe (and hidden from assistive tech), so the static
+    grid used on phones and under reduced motion can drop it."""
     marks = "".join(logomark(*c) for c in CLIENT_LOGOS)
-    dupe = marks.replace('loading="lazy"', 'loading="lazy" aria-hidden="true"')
+    dupe = (marks.replace('class="logomark"', 'class="logomark dupe"')
+                 .replace('loading="lazy"', 'loading="lazy" aria-hidden="true"'))
     return (f'<div class="marquee"><div class="marquee-track">{marks}{dupe}</div></div>')
 
 
@@ -2492,7 +2514,7 @@ html = f"""<title>Selected work, Home Service Studios</title>
   </div></div>
 </section>
 
-<section class="no-rule"><div class="wrap">
+<section class="no-rule on-ink"><div class="wrap">
   <div class="sec-head">
     <p class="eyebrow">Roster</p>
     <h2 class="display">Writing and production across home services nationwide</h2>
@@ -2861,7 +2883,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   </div>
 </div></section>
 
-<section id="roster"><div class="wrap">
+<section id="roster" class="on-ink"><div class="wrap">
   <div class="sec-head bare">
     <h2 class="display">Brands we write and produce for</h2>
     <p class="lede">These are {num_word(ROSTER_COUNT)} home service companies across the country,
