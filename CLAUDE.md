@@ -182,7 +182,7 @@ timed poster hold (load delay, previously rejected) or self-hosting the loop.
 ## Homepage structure (release 8, 2026-10-06)
 
 Top to bottom: the hero (headline, lede, the four-cell ledger: A1, Bee Right There, iComfort, and
-"Our Brands" with `ROSTER_COUNT`), **Our Clients** (the logo marquee, `#roster`), **What We Do**
+"Our Brands" with `ROSTER_COUNT`, sub-label "Clients across the country"), **Our Clients** (the logo marquee, `#roster`), **What We Do**
 (`#what-we-do`, warm white `--ground-2`), the two doors (portfolio, packages) and the footer. The
 old "Proven results with real data" section (A1 lede, A1 reel strip, the commercial spots row, the
 "All case studies" link and case note) and the "Known and trusted before they need you." packages
@@ -240,9 +240,9 @@ so a reorder that breaks a rule fails the build; add a new mascot mark to `LOGO_
 marquee's duration scales with the count (about 4.6s per mark, 162s at 35) so a longer wall
 scrolls at the same calm speed, and the static wall (phones, reduced motion) wraps and centres its
 last row so no count leaves a corner orphan: at 35 that is eleven rows of three plus a centred
-pair on phones, and seven even rows of five under reduced motion. Note the homepage roster cell
-reads "Our Brands / 35 / Home service companies" while three of the 35 are an agency group, an
-agency and a sales trainer. Each is a flat silhouette,
+pair on phones, and seven even rows of five under reduced motion. The homepage roster cell reads
+"Our Brands / 35 / Clients across the country" (release 8): not "Home service companies", since
+three of the 35 are an agency group, an agency and a sales trainer. Each is a flat silhouette,
 alpha-only shape data on a transparent background, one uniform fill colour, scaled to equal
 optical ink area on an identical 500x200 canvas, which is what makes the grid space evenly
 without per logo tuning.

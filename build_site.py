@@ -3385,7 +3385,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views on 7 reels</span></a>
     <div class="stat"><a class="case" href="{case_url("beerightthere")}">Bee Right There</a><a class="n" href="{BRT_REEL_URL}" aria-label="{BRT_REEL_LABEL}">{BRT_REEL_SHORT}</a><span class="k">Views on one reel</span></div>
     <a class="stat" href="{case_url("icomfort")}"><span class="case">iComfort</span><span class="n">+1,680</span><span class="k">Organic followers, under a year</span></a>
-    <a class="stat" href="#roster"><span class="case">Our Brands</span><span class="n">{ROSTER_COUNT}</span><span class="k">Home service companies</span></a>
+    <a class="stat" href="#roster"><span class="case">Our Brands</span><span class="n">{ROSTER_COUNT}</span><span class="k">Clients across the country</span></a>
   </div>
   <div class="ctarow">
     <a class="cta" href="/packages/">See the packages</a>
