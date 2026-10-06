@@ -2461,7 +2461,7 @@ CASE_PAGE = {
   </div>""", ops=""),
     "beerightthere": dict(
         kind="Reach", roles=["Monthly program", "Short form"],
-        tag="Nearly 4x the reach in three weeks.",
+        tag="Nearly 4x the views in three weeks.",
         lede="Bee Right There Heating &amp; Air, in Atascadero on California&#39;s Central Coast, "
              "was already posting almost every day. Hardly anyone was watching. We changed what "
              "they posted, not how often. In the first three weeks <strong>their posts were seen "
