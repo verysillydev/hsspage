@@ -60,6 +60,12 @@ only in case hosting moves back. Use `./deploy_github.sh`.
 Note that a deploy publishes everything currently on `main`, not just your own change, because
 the build output is generated fresh from whatever the working tree holds.
 
+**`deploy/404.html`** (2026-10-06) is a branded not-found page (`NOT_FOUND_HTML`) that GitHub
+Pages serves for any missing path, at that path. It carries `<meta name="robots"
+content="noindex">`, no canonical, og:url or JSON-LD (`write_web(..., noindex=True)`), is left out
+of the sitemap, and every asset in it must stay root absolute. `python3 -m http.server` does not
+use it, so test it at `/404.html` locally.
+
 ## Rules the build enforces
 
 Two assertions run before anything is written to disk, so a bad build fails instead of shipping.

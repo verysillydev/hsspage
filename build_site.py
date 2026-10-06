@@ -3219,6 +3219,38 @@ TEAM_HTML = f"""<title>Meet the team</title>
 """
 
 
+# ---- 404 ------------------------------------------------------------------
+# GitHub Pages serves deploy/404.html for any path it cannot find, at that path,
+# so everything here must be root absolute (asset() already is) and the page is
+# noindex and left out of the sitemap. It routes to the three places a lost
+# visitor most likely wanted.
+NOT_FOUND_HTML = f"""<title>Page not found</title>
+{FONT_CSS}
+{CSS}
+<a class="skip" href="#main">Skip to content</a>
+{nav("")}
+
+<main id="main">
+<div class="hero">{SPLAT_SVG}<div class="wrap">
+  <p class="eyebrow">404 &middot; Page not found</p>
+  <h1 class="display">That page is not here.</h1>
+  <p class="sub">The link may be out of date, or the address may have a typo in it. The work,
+  the packages and a way to reach us are all one click away.</p>
+  <div class="ctarow">
+    <a class="cta" href="/our-work/">See the work</a>
+    <a class="cta ghost" href="/packages/">Monthly packages</a>
+    <a class="cta ghost" href="/contact/">Contact us</a>
+  </div>
+</div></div>
+</main>
+
+{site_footer("404")}
+{actionbar()}
+{SPLAT_JS}
+{NAV_JS}
+"""
+
+
 # ---- shared post processing, used by every page --------------------------
 
 FAVICON = "data:image/png;base64," + b64(f"{S}/logos_hss/favicon_hss.png")
@@ -3277,27 +3309,32 @@ def validate(page, label):
     return page
 
 
-def write_web(page, path, *, title, desc, og_image, url):
-    """Vercel serves the raw file, so each page supplies its own document shell."""
+def write_web(page, path, *, title, desc, og_image, url, noindex=False):
+    """Vercel serves the raw file, so each page supplies its own document shell.
+
+    noindex is for the 404: GitHub Pages serves that one file at whatever bad
+    URL was asked for, so it gets a robots noindex and no canonical, og:url or
+    JSON-LD (any of those would claim an address the page does not own)."""
     page = re.sub(r'^\s*<title>[^<]*</title>\s*', '', page)   # head owns the title here
     doc = (
         '<!doctype html>\n<html lang="en">\n<head>\n'
         '<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
         f'<title>{title}</title>\n'
-        f'<meta name="description" content="{desc}">\n'
+        + ('<meta name="robots" content="noindex">\n' if noindex else '')
+        + f'<meta name="description" content="{desc}">\n'
         '<meta property="og:type" content="website">\n'
         f'<meta property="og:title" content="{title}">\n'
         f'<meta property="og:description" content="{desc}">\n'
         f'<meta property="og:image" content="{og_image}">\n'
-        f'<meta property="og:url" content="{url}">\n'
-        '<meta property="og:site_name" content="Home Service Studios">\n'
-        f'<link rel="canonical" href="{url}">\n'
-        '<meta name="theme-color" content="#FFFFFF">\n'
+        + ('' if noindex else f'<meta property="og:url" content="{url}">\n')
+        + '<meta property="og:site_name" content="Home Service Studios">\n'
+        + ('' if noindex else f'<link rel="canonical" href="{url}">\n')
+        + '<meta name="theme-color" content="#FFFFFF">\n'
         '<meta name="twitter:card" content="summary_large_image">\n'
         f'<link rel="icon" href="{FAVICON}">\n'
-        + JSON_LD + '\n'
-        '</head>\n<body>\n' + page + '\n</body>\n</html>\n'
+        + ('' if noindex else JSON_LD + '\n')
+        + '</head>\n<body>\n' + page + '\n</body>\n</html>\n'
     )
     p = pathlib.Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -3342,6 +3379,12 @@ if MODE == "web":
                    desc=D4, og_image=f"{SITE}/our-work/a/og-cover.jpg",
                    url=f"{SITE}/contact/")
 
+    nf = validate(NOT_FOUND_HTML, "404")
+    write_web(nf, f"{S}/deploy/404.html", title="Page not found | Home Service Studios",
+              desc="This page is not here. See the work, the monthly packages, or contact "
+                   "Home Service Studios.",
+              og_image=f"{SITE}/our-work/a/og-cover.jpg", url=f"{SITE}/404.html", noindex=True)
+
     team = validate(TEAM_HTML, "team")
     D5 = ("Meet the Home Service Studios team: the people who write, shoot, cut and post "
           "home service video every month.")
@@ -3365,6 +3408,7 @@ if MODE == "web":
     # 3.5 sitemap so the new URLs get discovered. The five /work/<slug>/ pages
     # are gone (2026-08-27): each case now lives inline in .case-panels on
     # /our-work/, opened by the carousel instead of its own URL.
+    # 404.html is deliberately not listed: it is noindex and has no address of its own
     urls = ["/", "/our-work/", "/packages/", "/team/", "/contact/"]
     sm = ('<?xml version="1.0" encoding="UTF-8"?>\n'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
