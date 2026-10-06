@@ -3248,11 +3248,14 @@ TEAM_ROSTER = [
 ]
 
 
-def lead_card(p):
+def lead_card(p, first=False):
+    """first: the opening portrait is in the first viewport on phones and is the
+    page's LCP element, so it loads eagerly at high priority instead of lazily."""
     if p.get("photo"):
         src = asset(os.path.join(P, p["photo"]), "image/jpeg")
-        art = (f'<img src="{src}" alt="{p["name"]}" width="900" height="600" '
-               f'loading="lazy" decoding="async">')
+        load = 'loading="eager" fetchpriority="high"' if first else 'loading="lazy"'
+        art = (f'<img src="{src}" alt="{p["name"]}"{dims(os.path.join(P, p["photo"]))} '
+               f'{load} decoding="async">')
     else:
         art = PERSON_ICON
     return (f'<div class="lead"><div class="portrait">{art}</div>'
@@ -3263,7 +3266,7 @@ def lead_card(p):
 def member_card(p):
     if p.get("photo"):
         src = asset(os.path.join(P, p["photo"]), "image/jpeg")
-        art = (f'<img src="{src}" alt="{p["name"]}" width="700" height="700" '
+        art = (f'<img src="{src}" alt="{p["name"]}"{dims(os.path.join(P, p["photo"]))} '
                f'loading="lazy" decoding="async">')
     else:
         art = PERSON_ICON
@@ -3298,7 +3301,7 @@ TEAM_HTML = f"""<title>Meet the team</title>
     <h2 class="display">The people steering the work</h2>
   </div>
   <div class="leads">
-    {"".join(lead_card(p) for p in TEAM_LEADS)}
+    {"".join(lead_card(p, first=(i == 0)) for i, p in enumerate(TEAM_LEADS))}
   </div>
 </div></section>
 
