@@ -158,8 +158,11 @@ Two things to keep in mind if you touch these:
 
 ## Voice
 
-**Every page speaks as the company.** Home Service Studios is the company, Yoni Paz is founder and creative
-director, and the portfolio is company work with his byline on it. There is no first person
+**Every page speaks as the company.** Home Service Studios is the company. Craig Balog and Seth
+Yeager are the cofounders and owners; Yoni Paz is Creative Director and Producer. The portfolio is
+company work. (Corrected 2026-10-06 on the owners' confirmation: earlier copy called Yoni the
+founder and said he built the company, on `/our-work` and in his `/team` bio. Never credit him
+with founding, owning or building it.) There is no first person
 singular anywhere on the site; a build that reintroduces "I" or "my role" is a regression. This
 was the site's biggest problem before 2026-08-16: a buyer reading `/our-work` then `/packages` in
 one session could not tell whether it was one person or a company.

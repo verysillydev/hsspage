@@ -2365,10 +2365,10 @@ html = f"""<title>Selected work, Home Service Studios</title>
     <a class="cta ghost" href="/packages/">Monthly packages</a>
   </div>
   {reassure("work")}
-  <p class="ctanote" style="margin-top:16px;max-width:60ch;">Home Service Studios is led by a founder
-  and creative director who spent seven years across the creator economy, live streaming
-  and social commerce, running portfolios of more than ten thousand creators and one hundred and
-  twenty talent agencies before building this company around commercial work.</p>
+  <p class="ctanote" style="margin-top:16px;max-width:60ch;">Home Service Studios is run by its
+  cofounders, filmmaker Craig Balog and film and television crew veteran Seth Yeager, out of a
+  Marina del Rey office. Creative direction comes from Yoni Paz, who spent seven years across the
+  creator economy, live streaming and social commerce before turning to commercial work.</p>
 </div></div>
 
 <main id="main">
@@ -2668,7 +2668,7 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 
 # ---- homepage, the apex domain -------------------------------------------
 
-# The apex speaks as the company. /our-work is Yoni's personal credit list and
+# The apex speaks as the company. /our-work is the portfolio and
 # /packages is the retainer menu, so this page routes to both rather than
 # repeating either. Every asset here is one the other pages already copied out,
 # so the homepage adds markup and no new weight.
@@ -3045,12 +3045,13 @@ TEAM_LEADS = [
 ]
 TEAM_ROSTER = [
     {"name": "Paloma Barros", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
-    # Sourced from the paragraph already published on /our-work rather than
-    # written fresh, so the two pages describe him in the same terms.
+    # Describes him in the same terms as the /our-work paragraph. Craig Balog and
+    # Seth Yeager own the company (owner confirmed 2026-10-06); nothing here may
+    # read as Yoni having founded or built it.
     {"name": "Yoni Paz", "title": "Creative Director and Producer", "photo": "yoni-paz.jpg",
         "bio": "Seven years across the creator economy, live streaming and social commerce, "
                "running portfolios of more than ten thousand creators and one hundred and "
-               "twenty talent agencies, before building this company around commercial work."},
+               "twenty talent agencies, before turning to commercial work."},
     {"name": "Sergy Olkowski", "title": "Post Production Supervisor", "photo": "sergy-olkowski.jpg"},
 ]
 
