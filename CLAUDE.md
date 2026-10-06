@@ -5,6 +5,18 @@ framework, no template files and no component tree. Editing that script is how t
 
 **The brand is Home Service Studios (HSS), rebranded 2026-08-23 from Yoniverse Productions.**
 
+**Design rule, 2026-10-06 (owner feedback: "the manila folders are ugly"): no faux-material
+textures.** No paper, manila folders, blueprint, concrete/plaster, wood siding, scanned marker
+strokes, handwritten faces or background grain. Surfaces are flat: the ink (`#14171A`, every hero,
+the logo band, the "actually buying" panel) or the warm white ground with `--ground-2` cards. **The
+footage is the texture**: where a section needs an image, it is a real still from the company's
+own work (D2 "Three ways we work" cards, D5 case grid, D7 doors band). Benchmarks the owners
+pointed at: Lemonlight, Hook Agency, Valve+Meter, Smuggler, Clay (flat, heavy type, real footage,
+the actual deliverable shown); KickCharge is the dated counterexample. Kept on purpose: Archivo +
+Onest, the orange headline highlight bar, square orange and ghost buttons, the stat ledgers, the
+footer, the angled tier-group tabs on `/packages`, no pills, radii 2-4px, tracking <= .06em, only
+transform/opacity animate, `font-display:optional`.
+
 **Rule, 2026-10-06: Joseph Peretz and Sam Halaby are Yoniverse Productions clients and must never
 appear on this site.** Not as a case, a stat, a logo, a name in a list, alt text, a meta or OG
 description, JSON-LD, a link anchor (`#peretz`, `#sam`) or evidence for a claim ("six years deep",
@@ -152,13 +164,13 @@ material, and these were all photographic:
 
 | file | was | now |
 | --- | --- | --- |
-| `icons/hl-eyebrow` | 395KB PNG | 45KB WebP |
-| `icons/hl-heading` | 258KB PNG | 33KB WebP |
-| `icons/folder1..3` | ~390KB PNG each | ~8KB WebP each |
 | `logos_hss/nav_mark_hss` | 205KB PNG, 1072x517 | 2.4KB WebP, 174x84 |
-| `post/blueprint` | 289KB JPEG | 83KB WebP |
-| `post/siding` | 236KB JPEG | 72KB WebP |
-| `post/texture_plaster` | 492KB WebP, 1400px | 208KB WebP, 1100px |
+
+The marker strokes (`icons/hl-*`), manila folders (`icons/folder*`), `post/blueprint`,
+`post/siding` and `post/texture_plaster*` that were in this table were retired on 2026-10-06 with
+the flat redesign and deleted from the repo (with `fonts/caveat-700.woff2`, which only the marker
+sticker used): 467KB less shipped image weight and 76KB less inline font on `/our-work`. They are
+in git history if ever needed, but the design rule above says they should not come back.
 
 Shared assets went from 5.14MB to 2.63MB, and `/our-work` from 1,602 KiB to 619 KiB of
 total page weight. **The original PNG and JPEG files are kept beside the
@@ -170,8 +182,9 @@ Two things to keep in mind if you touch these:
 - **`nav_mark_hss.webp` is sized for its display box**, `height:28px` at 3x. The `width`/`height`
   attributes on the `<img>` in `nav()` must keep matching the file, or the reserved box changes
   and CLS comes back off zero.
-- **`texture_plaster` is `center/cover` on a panel, not a tile**, which is why it could lose
-  resolution safely. Do not apply the same reasoning to anything that repeats.
+- **Every `<img>` carries intrinsic `width`/`height` from `dims()`**, which reads the file header
+  (`img_size()`, standard library only, checked against `sips` on every image). Do not type
+  dimensions by hand.
 
 ## Voice
 
@@ -372,9 +385,11 @@ Three cases run **A1 Air Conditioning, Handyman Dan, All Heart** (Case 01 to 03)
 `/our-work` stat ledger matches. The homepage ledger is A1, Handyman Dan and the roster count. All
 three are home services; the retainer buyer is a home services owner, so A1, the one with numbers
 that owner can picture in their own market, opens. Each case eyebrow still carries its audience
-(`Home services`) so a future creator case can be told apart. The carousel hides its arrows and dots
-at widths where every card already fits (`CAROUSEL_FIT`, from `len(CASES)`), so adding a fourth case
-brings them back on desktop automatically. There is no creator case on the site; the "Creator work"
+(`Home services`) so a future creator case can be told apart. Since D5 (2026-10-06) the cases
+are a flat grid (`CASE_GRID`, `case_tile`), not a carousel: one large card plus two stacked on
+desktop, stacked on phones, each with a real still and its metric over it, except A1, whose lead
+card is its real numbers on ink (it has no still; never invent one). There is no creator case on
+the site; the "Creator work"
 service card and the word "creators" in the homepage hero stay pending a positioning decision with
 the owners, but nothing may cite a creator result that is not on the site.
 
@@ -429,6 +444,13 @@ go with it.
 **`font-display` is `optional`, not `swap`.** The fonts are inlined base64, so there is no fetch to
 wait for, but `swap` still repainted and reflowed the hero stat grid. That single reflow was the
 site's entire CLS: 0.18. With `optional` it is 0. Do not change this back.
+
+**The cost of `optional`: a face that misses its ~100ms window is never used for that page view.**
+Found 2026-10-06: a visible inline SVG with `<text>` at Archivo 700 (the A1 chart in the `/our-work`
+lead card) made Archivo 700 miss the window, and every Archivo 700 heading on the page rendered in
+the Arial Black fallback while `document.fonts` still reported the face "loaded". The decorative
+copy of the chart now has no `<text>` (`a1_chart(decorative=True)`). Check new pages for this by
+comparing a heading's rendered width with canvas `measureText` in Archivo and in Arial Black.
 
 Current as of 2026-08-16, mobile, all pages: performance 100, accessibility 98 to 100, SEO 100,
 best practices 100, LCP about 1.2s, CLS 0. **Not reverified since the 2026-08-23 rebrand** (new
@@ -560,7 +582,8 @@ into its own system and the fingerprint returns.
   the fill already separates it. Borders remain only where a panel is transparent.
 - **Rules carry weight.** Section breaks are a 3px orange-led rule; dividers inside a section stay
   1px. Previously every line on the site was the same weight, which is a texture of sameness.
-- **One surface has tooth.** Two radial gradients over the ground, about four lines of CSS.
+- **No surface has tooth any more.** The two-radial-gradient dot grain over the ground was
+  retired on 2026-10-06 with the other faux-material textures (see the design rule at the top).
 - **The column used to break once**, for a figure that hung into the margin. That figure was
   removed on 2026-10-06 and nothing sits outside the measure now. If one element ever earns it
   again, allow exactly one.
@@ -575,7 +598,8 @@ into its own system and the fingerprint returns.
   document rather than anything inside a viewport-height box. `.hero-media` now carries its own
   `padding-bottom` of the bar height plus the safe-area inset. Any new full-height section that
   bottom-anchors its content needs the same treatment.
-- **`.splat` is a scrolling SVG, not a canvas.** Every hero and footer carries the `SPLAT_SVG`
+- **`.splat` is a scrolling SVG, not a canvas.** Every hero (and, since 2026-10-06, only the
+  heroes, never the footer) carries the `SPLAT_SVG`
   markup: three full width bezier-tile traces, each looped with SMIL `animateTransform` by
   exactly one tile width so the scroll has no seam, a very small constant drift rather than
   anything jumpy. This is the same technique as the wave background on verysilly.dev, recoloured
@@ -614,15 +638,11 @@ What is still open:
 
 ## Accessibility rules that were bought the hard way
 
-- **Carousel dots are 24x24 buttons showing an 8px dot.** `padding:8px` plus
-  `background-clip:content-box` paints only the content box while keeping the whole button
-  touchable, and `.car-dots` gap drops to 0 so the row does not spread as the targets grow. The
-  old 8x8 button failed Lighthouse's `target-size` audit, which is the only reason `/our-work`
-  scored 95 on accessibility while every other page scored 100. Do not shrink the button back to
-  the size of the dot.
+- **Tap targets stay at least 24x24.** The old carousel dots (removed with the carousel in D5)
+  failed Lighthouse's `target-size` until they became 24px buttons; footer and nav links are 44px.
 - **The nav CTA carries no `aria-label`.** See Navigation above.
-- **Alt text coverage is 100% and should stay there.** As of 2026-10-06: 117 images across five
-  pages, 117 with an `alt`, 48 of them correctly empty for decorative art.
+- **Alt text coverage is 100% and should stay there.** As of the 2026-10-06 redesign: 118 images
+  across five pages, 118 with an `alt`, 49 of them correctly empty for decorative art.
 
 ## Structured data
 

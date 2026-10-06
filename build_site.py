@@ -1299,7 +1299,7 @@ CSS = """<style>
   .door:hover{border-color:rgba(var(--orange-rgb),.4);background:var(--ground-2);transform:translateY(-2px);}
   /* D7, 2026-10-06: the two doors sit on a full-bleed footage still (the
      Quality fleet frame from the brand film) under a dark scrim, replacing
-     the old wood-siding photo. A real <img> (lazy, intrinsic size) rather
+     the old wood-siding photo. A real image element (lazy, intrinsic size) rather
      than a CSS background, so it costs nothing until it is near the
      viewport and cannot shift layout. The cards keep their own light panel,
      so legibility never depends on the footage. */
