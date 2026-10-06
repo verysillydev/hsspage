@@ -2461,16 +2461,19 @@ A1_REELS = "\n".join(
     for i, v, l, t, th in a1
 )
 
-# The wall, in display order (R15, 2026-10-06: fourteen marks added from the HSS
-# Dropbox client folders, each logo taken from the company's own website; originals
-# and sources live outside the repo in reports/hss-audit/logos-new/originals/).
+# The wall, in display order. R15 (2026-10-06) added fourteen marks from the HSS
+# Dropbox client folders and release 8 (2026-10-06) eight more, all owner approved,
+# each logo taken from the company's own website; originals and sources live outside
+# the repo in reports/hss-audit/logos-new/ (manifest.json, originals/). HCCI stays out.
 # HVAC, plumbing and electrical brands lead; roofing, generators, GatorWraps and
-# garage doors come last. Busy mascot marks (All Heart, Bee Right There, iComfort,
-# Grasshopper, Good Guy, Warm Welcome, Doggone, Gengatorz, The Generator Guys,
-# GatorWraps) always have a plain wordmark between them in the marquee (including
-# where it loops back to the first mark), and in the phones' three-column grid none
-# sits beside or directly above another and they spread across all three columns
-# rather than stacking in one. Alt text uses "and", not &.
+# garage doors follow; the agencies and the sales trainer (Rocket Group, Lokal Media
+# House, Service MVP) come last. Busy mascot marks (All Heart, Bee Right There,
+# iComfort, Grasshopper, Good Guy, Warm Welcome, Doggone, Bellaire, Gengatorz, The
+# Generator Guys, GatorWraps) never sit next to each other: in the marquee (including
+# where it loops back to the first mark), in the phones' three-column grid (beside or
+# directly above) and in the five-column reduced-motion grid (directly above), and
+# they spread across all three phone columns. LOGO_MASCOTS and the asserts below the
+# list hold the order to that. Alt text uses "and", not &, and no person's name.
 CLIENT_LOGOS = [
     ("logo_allheart.png",      "All Heart Heating, Cooling and Plumbing"),
     ("logo_quality.png",       "Quality Heating Cooling Plumbing and Electric"),
@@ -2478,20 +2481,25 @@ CLIENT_LOGOS = [
     ("logo_a1.png",            "A1 Air Conditioning and Heating"),
     ("logo_vector.png",        "Vector Heating, Cooling, Plumbing and Electrical"),
     ("logo_harmony.png",       "Harmony Electrical, Plumbing and Air"),
-    ("logo_veterans.png",      "Veterans AC PHX"),
     ("logo_icomfort.png",      "iComfort Heating and Air Conditioning"),
+    ("logo_veterans.png",      "Veterans AC PHX"),
     ("logo_fiscor.png",        "Fiscor Plumbing and Air"),
-    ("logo_grasshopper.png",   "Grasshopper Heating, Cooling and Plumbing"),
     ("logo_monarch.png",       "Monarch Home Services"),
+    ("logo_grasshopper.png",   "Grasshopper Heating, Cooling and Plumbing"),
     ("logo_premier.png",       "Premier Heating and Air"),
-    ("logo_familyplumber.png", "The Family Plumber"),
     ("logo_goodguy.png",       "Good Guy Plumbing"),
+    ("logo_familyplumber.png", "The Family Plumber"),
     ("logo_acplus.png",        "AC Plus Heating and Cooling"),
     ("logo_martins.png",       "Martins A/C and Electric"),
-    ("logo_airone.png",        "Air One"),
     ("logo_warmwelcome.png",   "Warm Welcome Heating, Cooling and Plumbing"),
+    ("logo_airone.png",        "Air One"),
     ("logo_blanchards.png",    "Blanchards Refrigeration"),
+    ("logo_firstmate.png",     "First Mate Heating and Cooling"),
     ("logo_doggone.png",       "Doggone Good Heating and Cooling"),
+    ("logo_clogbusters.png",   "Clog Busters Drain Cleaning and Repair"),
+    ("logo_bellaire.png",      "Bellaire Air Conditioning and Heating"),
+    ("logo_4points.png",       "4 Points A/C and Heating"),
+    ("logo_allamerican.png",   "All American Heating and Plumbing"),
     ("logo_bluepeaks.png",     "Blue Peaks Roofing"),
     ("logo_gengatorz.png",     "Gengatorz Power Systems"),
     ("logo_genstar.png",       "Genstar Generator Service"),
@@ -2499,7 +2507,22 @@ CLIENT_LOGOS = [
     ("logo_selectpower.png",   "Select Power"),
     ("logo_gatorwraps.png",    "GatorWraps"),
     ("logo_stellar.png",       "Stellar Garage Doors"),
+    ("logo_rocketgroup.png",   "Rocket Group"),
+    ("logo_lmh.png",           "Lokal Media House"),
+    ("logo_servicemvp.png",    "Service MVP"),
 ]
+LOGO_MASCOTS = {"logo_allheart.png", "logo_beerightthere.png", "logo_icomfort.png",
+                "logo_grasshopper.png", "logo_goodguy.png", "logo_warmwelcome.png",
+                "logo_doggone.png", "logo_bellaire.png", "logo_gengatorz.png",
+                "logo_generatorguys.png", "logo_gatorwraps.png"}
+_m = [i for i, (fn, _) in enumerate(CLIENT_LOGOS) if fn in LOGO_MASCOTS]
+assert len(_m) == len(LOGO_MASCOTS), "a mascot mark is missing from the wall"
+assert not any(b - a in (1, 3, 5) for a in _m for b in _m if b > a), \
+    "two mascot marks sit side by side or stacked on the wall"
+assert not (0 in _m and len(CLIENT_LOGOS) - 1 in _m), "mascots meet where the marquee loops"
+assert {i % 3 for i in _m} == {0, 1, 2}, "mascots stack in one phone column"
+assert len({fn for fn, _ in CLIENT_LOGOS}) == len(CLIENT_LOGOS), "a logo is listed twice"
+assert not any(re.search(r"hcci", fn) for fn, _ in CLIENT_LOGOS), "HCCI stays off the wall"
 
 
 def logomark(fn, name):

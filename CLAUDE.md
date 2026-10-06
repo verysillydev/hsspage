@@ -178,15 +178,30 @@ timed poster hold (load delay, previously rejected) or self-hosting the loop.
 
 The marks live in `logos/` (PNG masters) with matching WebP copies in `logos_webp/` (what the
 wall ships, via `logomark()`); `CLIENT_LOGOS` sets the order and alt text, and the count shown
-anywhere (the homepage roster stat, `ROSTER_COUNT`) is derived from it, never typed. **Fourteen
-were added on 2026-10-06 (R15)** from the HSS Dropbox client folders, each logo taken from the
-company's own website; originals and their sources are in
-`reports/hss-audit/logos-new/originals/sources.tsv`, outside this repo. HCCI was left out (owner
-decision pending). The wall leads with HVAC, plumbing and electrical brands and puts roofing,
-generators, GatorWraps and garage doors last; busy mascot marks never sit next to each other in
-the marquee or the phone grid. The marquee's duration scales with the count (about 4.6s per
-mark) so a longer wall scrolls at the same calm speed, and the static wall (phones, reduced
-motion) wraps and centres its last row so no count leaves a corner orphan. Each is a flat silhouette,
+anywhere (the homepage roster stat, `ROSTER_COUNT`) is derived from it, never typed. **35 marks
+as of 2026-10-06.** Fourteen were added in R15 from the HSS Dropbox client folders and eight more
+in release 8 (owner reviewed and approved): Rocket Group, Lokal Media House, First Mate Heating and
+Cooling, Clog Busters Drain Cleaning and Repair, 4 Points A/C and Heating, All American Heating and
+Plumbing, Bellaire Air Conditioning and Heating and Service MVP. Each logo is taken from the
+company's own website; originals, sources and `manifest.json` (with a `batch` field) are in
+`reports/hss-audit/logos-new/`, outside this repo. Bee Right There and 4 Points are both on the
+wall now. HCCI stays out (owner decision pending). Alt text is the company name with ASCII "and";
+never a person's name (Rocket Group's mark is the company's alone).
+
+Order: HVAC, plumbing and electrical brands lead; roofing, generators, GatorWraps and garage doors
+follow; the agencies and the sales trainer (Rocket Group, Lokal Media House, Service MVP) come
+last. Busy mascot marks (`LOGO_MASCOTS`: All Heart, Bee Right There, iComfort, Grasshopper, Good
+Guy, Warm Welcome, Doggone, Bellaire, Gengatorz, The Generator Guys, GatorWraps) never sit next to
+each other: not in the marquee (including where it loops), not beside or above one another in the
+phones' three-column grid, not stacked in the five-column reduced-motion grid; and they spread
+across all three phone columns. **The build asserts all of this**, plus no duplicates and no HCCI,
+so a reorder that breaks a rule fails the build; add a new mascot mark to `LOGO_MASCOTS`. The
+marquee's duration scales with the count (about 4.6s per mark, 162s at 35) so a longer wall
+scrolls at the same calm speed, and the static wall (phones, reduced motion) wraps and centres its
+last row so no count leaves a corner orphan: at 35 that is eleven rows of three plus a centred
+pair on phones, and seven even rows of five under reduced motion. Note the homepage roster cell
+reads "Our Brands / 35 / Home service companies" while three of the 35 are an agency group, an
+agency and a sales trainer. Each is a flat silhouette,
 alpha-only shape data on a transparent background, one uniform fill colour, scaled to equal
 optical ink area on an identical 500x200 canvas, which is what makes the grid space evenly
 without per logo tuning.
