@@ -20,9 +20,11 @@ const TRADES = [
   "Remodeling, ADU or new build", "Real estate agent or brokerage",
   "Creator, artist or channel",
 ];
+// must stay identical to the bands build_site.py builds from data/packages.json
+// (budgetBands); the build asserts it, since a mismatch bounces real enquiries
 const BUDGETS = [
-  "$2,000 to $3,000", "$4,000 to $5,000",
-  "$10,000 to $15,000", "Not sure yet",
+  "$1,997 to $3,847", "$5,847 to $7,847",
+  "$10,847 to $13,847", "Not sure yet",
 ];
 
 const esc = (s) =>
