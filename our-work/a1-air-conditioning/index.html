@@ -751,23 +751,6 @@
   /* .csi: the plain three-column challenge/solution/impact text blocks on
      every case study. (The homepage's manila-folder variant, .csi-photo, was
      retired on 2026-10-06 with the other faux-material textures.) */
-  /* "Three ways we work" (homepage, D2 2026-10-06): flat media-led cards. A
-     real still on top, then the label, the copy and a text link. Radius stays
-     inside the 2-4px rule; no icons or clip art. */
-  .ways{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s4);}
-  @media(min-width:760px){.ways{grid-template-columns:repeat(3,minmax(0,1fr));}}
-  .way{background:var(--ground-2);border-radius:var(--r-md);overflow:hidden;
-    display:flex;flex-direction:column;}
-  .way img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;}
-  .way-body{padding:var(--s5);display:flex;flex-direction:column;gap:var(--s2);flex:1;}
-  .way h3{margin:0;font-family:var(--display);font-size:var(--f-h3);font-weight:700;
-    letter-spacing:var(--t-head);line-height:1.15;}
-  .way p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
-  .way-go{margin-top:auto;padding-top:var(--s2);display:inline-flex;align-items:center;
-    min-height:24px;font-size:var(--f-sm);font-weight:650;color:var(--orange-text);
-    text-decoration:none;}
-  .way-go:hover{text-decoration:underline;}
-
   .csi{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--s3);
     margin-bottom:var(--s4);}
   .csi > div{background:var(--ground-2);border-radius:var(--r-sm);padding:var(--s5);}
@@ -1358,7 +1341,7 @@
 
   /* (a) scroll reveals ---------------------------------------------------- */
   if(!reduce && 'IntersectionObserver' in window){
-    var SEL = '.sec-head,.cgcard,.benefit,.engine,.pkg,.csi > div,.way,.op,.spot,.reel,' +
+    var SEL = '.sec-head,.cgcard,.benefit,.engine,.pkg,.csi > div,.op,.spot,.reel,' +
               '.step2,.door,.always,.incl,.pn,.band-head,.lead,.member';
     var vh = window.innerHeight || 800;
     var targets = [].slice.call(document.querySelectorAll(SEL)).filter(function(e){
