@@ -2241,14 +2241,14 @@ def a1_bars():
     data = [("623K", 623, 1), ("428K", 428, 0), ("410K", 410, 0), ("312K", 312, 0),
             ("195K", 195, 0), ("162K", 162, 0), ("134K", 134, 0)]
     bars = "".join(
-        f'<div class="a1b{" is-top" if top else ""}" style="--h:{v / 623:.3f}">'
+        f'<div class="a1b{" is-top" if top else ""}" style="--h:{v / 623:.2f}">'
         f'<span class="v">{lab}</span><span class="bar"></span></div>'
         for lab, v, top in data)
     idx = "".join(f"<span>{i:02d}</span>" for i in range(1, len(data) + 1))
     return (f'<div class="a1bars" role="img" aria-label="Seven A1 reels by view count, from '
             f'623,000 down to 134,000, every one of them above 100,000">'
             f'<div class="a1plot" aria-hidden="true">'
-            f'<span class="a1t" style="--h:{100 / 623:.3f}"><span>100K</span></span>{bars}</div>'
+            f'<span class="a1t" style="--h:{100 / 623:.2f}"><span>100K</span></span>{bars}</div>'
             f'<div class="a1idx" aria-hidden="true">{idx}</div></div>')
 
 
