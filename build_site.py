@@ -261,6 +261,12 @@ CSS = """<style>
        component library. --r-pill keeps its name so call sites need not change. */
     --r-sm:2px; --r-md:3px; --r-lg:4px; --r-pill:2px;
 
+    /* How far an ambient YouTube iframe is oversized past its visible 16:9 box,
+       top and bottom, so YouTube's own title/uploader strip and bottom chrome
+       are drawn outside the clip (see .herobg-clip and iframe.banner). A floor,
+       not the value: both call sites scale it up with the player. */
+    --yt-chrome:120px;
+
     /* Tracking: display tightens, small caps open up. Nothing in between. */
     /* R6. Tracking never past .06em. Letterspacing blown out to .14em is a screen
        era tic; typographers open small caps a little and stop there. */
@@ -727,27 +733,36 @@ CSS = """<style>
     min-height:100vh;min-height:100dvh;
     display:flex;flex-direction:column;justify-content:flex-end;}
   /* object-fit is not reliably honoured on an <iframe> (notably Firefox),
-     so cover-cropping is done with the classic oversized/centered iframe
-     recipe instead, sized off vw/vh rather than the box itself: accurate
-     because .hero-media is pinned to viewport size right above. */
-  .hero-media .herobg{position:absolute;top:50%;left:50%;
-    width:100vw;height:56.25vw;min-height:100%;min-width:177.78vh;
-    transform:translate(-50%,-50%);pointer-events:none;}
+     so cover-cropping is done with a centered 16:9 box instead.
+     2026-10-06: YouTube draws its title/uploader strip ("HSS Website Banner
+     v02 / Sergy Olkowski") across the top of the player a few seconds into
+     playback, and no player param suppresses it; the poster only covers the
+     cueing phase. So the visible picture is now .herobg-clip, an exact 16:9
+     box that covers the hero (height is the larger of the hero's own height
+     and 56.25vw, width follows from aspect-ratio, so it covers at any aspect
+     and with dvh/lvh differences), with overflow:hidden. The iframe inside is
+     taller than the box by --yt-chrome (or 12% of the box, whichever is
+     larger) top and bottom. A player taller than 16:9 letterboxes its video
+     to full width and centres it, so the video lands exactly on the clip box
+     and YouTube's own chrome, which hugs the player's edges, lands in the
+     clipped margin. No delay, nothing to time. */
+  .hero-media .herobg-clip{position:absolute;top:50%;left:50%;z-index:0;
+    height:max(100%, 56.25vw);aspect-ratio:16/9;transform:translate(-50%,-50%);
+    overflow:hidden;pointer-events:none;}
+  .hero-media .herobg{position:absolute;left:0;top:calc(-1 * max(var(--yt-chrome), 12%));
+    width:100%;height:calc(100% + 2 * max(var(--yt-chrome), 12%));
+    border:0;pointer-events:none;}
   @media(max-width:600px){
-    /* less crop on narrow phones: 177.78vh (paired with min-height:100%)
-       guarantees full-height cover on any aspect ratio, which on a tall
-       narrow screen meant zooming the 16:9 video in hard enough that only
-       a thin vertical slice of its width ever showed. Replacing all four
-       of width/height/min-width/min-height together, not just min-width
-       alone: min-height:100% is still active from the base rule above, so
-       touching only min-width would leave the two fighting and stretch
-       the video out of its actual 16:9 shape rather than just cropping it
-       less. A fixed 133vh/74.8vh box (still exactly 16:9) trades a
-       modest, deliberate letterbox gap top and bottom (filled by the same
-       dark background already behind everything, so it is not jarring)
-       for meaningfully more of the actual footage, about the ~33% more
-       width visible that was asked for. */
-    .hero-media .herobg{width:133vh;height:74.8vh;min-width:133vh;min-height:74.8vh;}
+    /* less crop on narrow phones: full-height cover on a tall narrow screen
+       zooms the 16:9 video in hard enough that only a thin vertical slice
+       of its width ever shows. A fixed 74.8vh-tall box (aspect-ratio keeps
+       it exactly 16:9, so 133vh wide) trades a modest, deliberate letterbox
+       gap top and bottom (filled by the same dark background already behind
+       everything, so it is not jarring) for meaningfully more of the actual
+       footage, about the ~33% more width visible that was asked for. The
+       clip box still hides YouTube's chrome here, because the oversized
+       iframe is clipped by the box itself, not by the hero's edges. */
+    .hero-media .herobg-clip{height:74.8vh;}
     /* smaller title, same reasoning: less of the frame covered by
        text/scrim, more of the video underneath actually reads. Desktop's
        clamp is untouched. */
@@ -1161,7 +1176,16 @@ CSS = """<style>
      paused, a channel/share/watch-later overlay that leaves the site, and no
      URL param (controls=0 included) suppresses that. pointer-events:none
      means no click or tap can ever reach the iframe's own UI at all. */
-  iframe.banner{pointer-events:none;}
+  iframe.banner{pointer-events:none;border:0;
+    /* Same fix as .herobg-clip, 2026-10-06: the iframe is oversized by the
+       chrome margin top and bottom and pulled back with equal negative
+       margins, so its flow height is still exactly 56.25vw (no shift when it
+       replaces the placeholder) and .bannerwrap's overflow:hidden clips
+       YouTube's title strip and bottom chrome. 6.75vw is 12% of the
+       picture height, matching the hero. */
+    aspect-ratio:auto;height:calc(56.25vw + 2 * max(var(--yt-chrome), 6.75vw));
+    margin-top:calc(-1 * max(var(--yt-chrome), 6.75vw));
+    margin-bottom:calc(-1 * max(var(--yt-chrome), 6.75vw));}
   .banner img{width:100%;height:100%;display:block;object-fit:cover;}
   /* #yt-poster is a SIBLING of #yt-banner, not a child: the IFrame API
      replaces #yt-banner outright once it creates the player (see SOLO_JS),
@@ -2695,7 +2719,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 
 <div class="hero hero-bold">
   <div class="hero-media">
-    <div class="herobg" id="hero-yt" data-yt="SiJpWlQwk04" data-start="0"></div>
+    <div class="herobg-clip"><div class="herobg" id="hero-yt" data-yt="SiJpWlQwk04" data-start="0"></div></div>
     <div class="hero-poster" id="hero-yt-poster"></div>
     <div class="hero-scrim"></div>
     <div class="hero-yt-mask"></div>

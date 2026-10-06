@@ -107,6 +107,17 @@ but it retries on the next scroll back rather than degrading permanently.
 Only one video plays at a time; starting one rewinds every other. Videos marked `data-ambient`
 are exempt from that rule.
 
+**YouTube's title strip is clipped, not timed (2026-10-06).** The ambient embeds (homepage hero,
+`/our-work` banner) show YouTube's own "HSS Website Banner v02 / Sergy Olkowski" strip a few seconds
+into playback, after the poster has faded; no player param removes it. Both iframes are now taller
+than their visible 16:9 picture by `--yt-chrome` (120px floor, 12% of the picture above that) top
+and bottom: a player taller than 16:9 letterboxes its video to full width and centres it, so the
+picture lands exactly on the visible box and the chrome, which hugs the player's edges, is clipped
+(`.herobg-clip` for the hero, negative margins inside `.bannerwrap` for the banner). Do not shrink
+the iframe back to 16:9. Known residual: YouTube also draws a centre pause control for roughly the
+first five seconds of playback. It sits mid-picture, so no edge clip can hide it; the only fixes are a
+timed poster hold (load delay, previously rejected) or self-hosting the loop.
+
 ## Client logo wall
 
 15 marks in `logos/` (used full size on case pages via `c["logo"]`) plus matching WebP copies in
