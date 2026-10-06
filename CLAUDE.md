@@ -113,6 +113,15 @@ whole film, not a preview:
   "Click for sound" / "Sound on" hint shows while it plays. Once sound has been turned on, later
   hovers try with sound and fall back to muted when `play()` is refused. A 120ms hover-intent
   delay keeps a pointer crossing the grid from starting (and downloading) anything.
+- **Hover means the mouse really moved over the card (release 8).** When the page scrolls under
+  a resting mouse, browsers send enter events for whatever lands beneath it; before this fix that
+  started (and downloaded) films the visitor never pointed at. Now `pointerenter` only arms a card;
+  it starts on a mouse `pointermove` whose screen position actually changed (synthetic
+  post-scroll events keep the old one) and that comes at least 200ms after the last scroll, then
+  the 120ms intent delay. Leaving still stops it at once. The test for this rests the pointer on
+  empty space, scrolls a card under it by wheel and by script, asserts nothing plays or
+  downloads, then checks a 3px real move does start it. Test tools must move the mouse through a
+  nearby point first: a CDP jump to the exact spot it already rests on is, correctly, not a move.
 - Touch: tap plays inline with sound, tap again pauses. Reduced motion: no hover play, click or
   tap to play. Keyboard: the picture is one `<button>` ("Play <title>", "Pause <title>"); focus
   alone never plays; Enter/Space play and pause with sound.

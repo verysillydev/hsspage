@@ -1798,6 +1798,12 @@ SOLO_JS = """<script>
        button; a keyboard-activated click has e.detail 0): play and pause with
        sound, nothing starts by itself, focus alone never plays.
      - The end of a film puts the card back to its poster.
+     - Hover means the pointer really moved over the card (release 8, E). When
+       the page scrolls under a resting mouse, the browser sends enter events for
+       whatever lands beneath it; those only arm a card. It starts on a pointer
+       move whose screen position actually changed (synthetic post-scroll events
+       keep the old one), at least 200ms after the last scroll, then the 120ms
+       intent delay. Leaving still stops it at once.
      One at a time is the rule above: starting any video sends 'spotstop' to
      every other card. Only the films' first frames load before anything plays:
      preload="none", so a page load fetches no video at all. */
@@ -1806,13 +1812,25 @@ SOLO_JS = """<script>
     var mm = function(q){ return !!(window.matchMedia && window.matchMedia(q).matches); };
     var hoverUI = mm('(hover: hover) and (pointer: fine)') && !mm('(prefers-reduced-motion: reduce)');
     var soundOn = false;
+    var now = function(){ return (window.performance && performance.now) ? performance.now() : Date.now(); };
+    var lastScroll = -1e9, sx = null, sy = null, realMove = false;
+    if(hoverUI){
+      window.addEventListener('scroll', function(){ lastScroll = now(); }, {passive: true});
+      /* capture phase, so every card's own move listener sees this verdict */
+      document.addEventListener('pointermove', function(e){
+        /* the first move after load has nothing to compare with; the 200ms scroll
+           guard still catches a synthetic one, which follows a scroll by ~100ms */
+        realMove = e.pointerType === 'mouse' && (sx === null || e.screenX !== sx || e.screenY !== sy);
+        sx = e.screenX; sy = e.screenY;
+      }, {capture: true, passive: true});
+    }
     vspots.forEach(function(el){
       var v = el.querySelector('video');
       var btn = el.querySelector('.vplay');
       if(!v || !btn) return;
       var card = el.closest('.spot') || el;
       var title = btn.getAttribute('data-title') || '';
-      var over = false, wait = 0;
+      var over = false, armed = false, wait = 0;
       card.classList.add('is-vcard');
       if(hoverUI) el.classList.add('hover-ui');
 
@@ -1821,7 +1839,7 @@ SOLO_JS = """<script>
         btn.setAttribute('aria-label', (st === 'sound' ? 'Pause ' : 'Play ') + title);
       }
       function stop(){
-        clearTimeout(wait);
+        clearTimeout(wait); wait = 0;
         if(!v.paused) v.pause();
         try { if(v.currentTime) v.currentTime = 0; } catch(err){ /* not seekable yet */ }
         el.classList.remove('is-live');
@@ -1850,19 +1868,28 @@ SOLO_JS = """<script>
       v.addEventListener('spotstop', stop);
 
       if(hoverUI){
-        card.addEventListener('mouseenter', function(){
-          over = true;
-          clearTimeout(wait);
+        card.addEventListener('pointerenter', function(e){
+          if(e.pointerType !== 'mouse') return;
+          over = true; armed = true;
+        });
+        card.addEventListener('pointermove', function(e){
+          if(!over || !armed || wait || !realMove || now() - lastScroll < 200) return;
           /* a short intent delay: a pointer crossing the grid on its way
              somewhere else starts, and downloads, nothing */
-          wait = setTimeout(function(){ if(over) play(soundOn, true); }, 120);
+          wait = setTimeout(function(){
+            wait = 0;
+            if(over && armed && now() - lastScroll >= 200){ armed = false; play(soundOn, true); }
+          }, 120);
         });
-        card.addEventListener('mouseleave', function(){ over = false; stop(); });
+        card.addEventListener('pointerleave', function(e){
+          if(e.pointerType !== 'mouse') return;
+          over = false; armed = false; stop();
+        });
       }
 
       card.addEventListener('click', function(e){
         var st = el.getAttribute('data-state');
-        clearTimeout(wait);
+        clearTimeout(wait); wait = 0;
         if(hoverUI && e.detail !== 0){
           if(st === 'sound'){ v.muted = true; state('muted'); return; }
           soundOn = true;
