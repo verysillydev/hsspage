@@ -211,8 +211,8 @@ one session could not tell whether it was one person or a company.
 
 Never promise leads, calls or booked jobs from short form; the honest pitch is the long
 compounding play. **One reported call result exists, and it is not short form (R14, 2026-10-06):**
-Handyman Dan is shown on `/our-work` under More work as a white-label commercial campaign (six
-spots a home service company runs under its own name, in its own market), with the owner-supplied
+Handyman Dan is shown on `/our-work` under More work as a white-label commercial campaign (spots
+a home service company runs under its own name, in its own market), with the owner-supplied
 result that inbound calls for one company running the spots went from about one a week to about
 ten a day. It is a past result for paid commercial placement, always shown with its note ("One
 company's results; yours depend on where and how often the spots run."). Never name who ran the
@@ -432,7 +432,10 @@ plus a source line. Bee Right There's views must never be called organic (the so
 organic and paid); its engagements were organic.
 
 **Handyman Dan is not a case study (R3).** It sits under More work on `/our-work` as a white-label
-commercial campaign with its six spots, one owner-supplied call result and its note (see Voice).
+commercial campaign with its spots, one owner-supplied call result and its note (see Voice).
+Its copy is count-free ("Spots built to run in any market."). "Father Vs AC" was removed on
+2026-10-06 (R17): its picture carried one licensee's logo and phone number, which named who ran the
+campaign; its thumbnail was deleted. Never re-add a spot that shows a licensee's branding.
 Its old pages (`/our-work/handyman-dan/`, `/work/handyman-dan/`) are noindex stubs to
 `/our-work/#more-work`. Never mention market counts, account counts, licensing, twelve-month
 agreements, "earned back its cost" or spec production. The 4 Points result is a small card in
@@ -525,9 +528,7 @@ A1 had zero images and zero video, which is a credibility problem on a portfolio
 company. It was not fixed by changing which videos the case features.
 
 `post_yt/` holds the real YouTube thumbnails for the All Heart and Handyman Dan spots as WebP,
-keyed by video id. Known issue: Handyman Dan spot 04 ("Father Vs AC", `IppFw7pSssA`) shows a
-licensee's branding (iComfort's logo and phone number) in its thumbnail and in the video, which
-conflicts with the rule of never naming who ran the campaign. Re-fetch with `https://i.ytimg.com/vi/<id>/maxresdefault.jpg` if a thumbnail
+keyed by video id. Re-fetch with `https://i.ytimg.com/vi/<id>/maxresdefault.jpg` if a thumbnail
 ever changes on the channel.
 
 **A1** has no fetchable stills: the reels are on Facebook, which serves no public `og:image`
@@ -628,12 +629,12 @@ to send paperwork before a crew is on site, which is what a commercial client ac
 and All Heart use frames from the real footage; `/packages`, `/team`, `/contact` and the A1, Bee
 Right There and iComfort cases use cards rendered by `node make_og.mjs` (2026-10-06): flat ink,
 white Archivo with the orange bar, real material only (the team headshots, the clients' real
-numbers), the /packages price read from `data/packages.json`. `og-handyman.jpg` is no longer
-referenced (Handyman Dan has no page) but is still in `og/`. Rerun it after changing a card, the team photos or the price book; it
+numbers), the /packages price read from `data/packages.json`. Rerun it after changing a card, the team photos or the price book; it
 fails if a card reaches 150KB. `write_web()` emits og:image, its 1200x630 size and twitter:image. Before this, all nine pages shared one cover, so every
 case link shared in a text looked identical. `a1` has no still of its own and falls back to
 `og-cover.jpg` until 2026-10-06; it now has `og-a1.jpg` from `make_og.mjs`. Sources: `og-home` and
-`og-handyman` are frames from the 720p masters. The `og` field on each `CASES` entry is the case
+`og-allheart` are frames from the 720p masters (`og-handyman.jpg` was deleted in R17; no page used
+it). The `og` field on each `CASES` entry is the case
 page's og:image (`og/` is copied whole into the deploy).
 
 **Case pages (N1, 2026-10-06)** live at `/our-work/<slug>/` (`case_page()`, `case_url()`, slugs in

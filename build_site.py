@@ -1090,10 +1090,14 @@ CSS = """<style>
   .mw-note{margin:var(--s2) 0 var(--s5);font-size:var(--f-sm);color:var(--ink-2);max-width:62ch;}
   /* a row of spots: three across from 760px (six make two even rows), and a
      horizontal swipe strip on phones so six cards do not stack 1,700px tall */
-  .strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s4);}
+  /* any count: one row from 1100px when there are five, otherwise rows of three
+     with the last row centred, so a short row never sits in a corner */
+  .strip{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--s4);}
+  .strip > .spot{flex:0 0 calc((100% - 2 * var(--s4)) / 3);}
+  @media(min-width:1100px){.strip.five > .spot{flex-basis:calc((100% - 4 * var(--s4)) / 5);}}
   @media(max-width:759px){
-    .strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:var(--s3);
-      padding-bottom:var(--s2);scrollbar-width:thin;}
+    .strip{display:flex;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;
+      scroll-snap-type:x mandatory;gap:var(--s3);padding-bottom:var(--s2);scrollbar-width:thin;}
     .strip > .spot{flex:0 0 80%;scroll-snap-align:start;}
   }
   .proofs-one{background:none;}
@@ -2152,7 +2156,7 @@ allheart = [(None,"01","Breaking Furniture 101","0:30","zaCFfVetfFI"),
 
 handyman = [(None,"01","It's Way Hotter","0:30","E5qZHk03snY"),
     (None,"02","Don't Worry, You'll Get Used To It","0:30","4fUdKqK9cPM"),
-    (None,"03","Sleeping On The Job","0:30","S3Hkreuykvs"),(None,"04","Father Vs AC","0:15","IppFw7pSssA"),
+    (None,"03","Sleeping On The Job","0:30","S3Hkreuykvs"),
     (None,"05","A Space Odyssey","0:56","AfkePSa8XLU"),(None,"06","Where's That Coming From","0:30","Fodjt_xKovE")]
 
 # The banner is a three minute film, on YouTube as of 2026-08-26 (see SOLO_JS
@@ -2554,12 +2558,14 @@ def four_points_card(x, h="h4"):
 
 
 # More work (R3, 2026-10-06): Handyman Dan is no longer a case study, by the
-# owners' request. R14 gives its six spots a selling frame: a white-label commercial
+# owners' request. R14 gives its spots a selling frame: a white-label commercial
 # campaign a home service company runs under its own name. The one result is the
 # owner's: inbound calls for one company running the spots went from about one a
 # week to about ten a day. It is a reported past result for paid commercial
 # placement, never a promise, so the note under it stays. Never name who ran the
 # spots or how many did, and no market counts, account counts or licensing terms.
+# R17 dropped "Father Vs AC" (its picture carried one licensee's logo and phone
+# number, which named who ran the campaign); the strip numbers what remains.
 # The 4 Points result sits here too, as a small card rather than a case.
 MORE_WORK = f"""<section id="more-work"><div class="wrap">
   <div class="sec-head">
@@ -2567,15 +2573,15 @@ MORE_WORK = f"""<section id="more-work"><div class="wrap">
     <h2 class="display">More of the work</h2>
   </div>
   <p class="eyebrow mw-eyebrow">Handyman Dan &middot; Commercial campaign</p>
-  <h3 class="subhead">Six spots built to run in any market.</h3>
-  <p class="mw-body">A white-label commercial campaign: six spots a home service company runs
-  under its own name, in its own market.</p>
+  <h3 class="subhead">Spots built to run in any market.</h3>
+  <p class="mw-body">A white-label commercial campaign a home service company runs under its own
+  name, in its own market.</p>
   <p class="mw-stat"><b>10 a day</b><span>Inbound calls for one company running the spots, up
   from about one a week.</span></p>
   <p class="mw-note">One company&#39;s results; yours depend on where and how often the spots
   run.</p>
-  <div class="strip">
-{chr(10).join(spot(*x) for x in handyman)}
+  <div class="strip{" five" if len(handyman) == 5 else ""}">
+{chr(10).join(spot(fn, f"{i:02d}", nm, du, yt) for i, (fn, _, nm, du, yt) in enumerate(handyman, 1))}
   </div>
   <h3 class="subhead">One more short-form result</h3>
   <div class="proofs proofs-one">
