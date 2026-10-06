@@ -50,8 +50,8 @@ FORM_ACTION = f"https://formsubmit.co/{FORM_TO}"
 BOOK_URL = ""          # e.g. https://calendar.app.google/xxxxxxxx
 BOOKED = bool(BOOK_URL)
 
-REASSURE = ("Twenty minutes on Google Meet. We'll look at your market, your current content, "
-            "and whether a monthly program makes sense.")
+REASSURE = ("Twenty minutes on Google Meet. We'll look at your market and your current content. "
+            "Then we'll see if one of our Social Media Packages fits.")
 
 # what the form path actually promises, which is not a call yet.
 #
@@ -2665,7 +2665,7 @@ BRT_REEL_LABEL = f"{BRT_REEL_SHORT} views on Bee Right There&#39;s top reel, on 
 
 CASES = [
     dict(id="a1", slug="a1-air-conditioning", name="A1 Air Conditioning", og="og-a1.jpg",
-         vertical="Home services", tag="Monthly program",
+         vertical="Home services", tag="Social Media Packages",
          problem="A crowded market where every company looks the same.",
          card_metric="2.26M", card_line="views on seven reels, in a market of one million people",
          where="A1 Air Conditioning &middot; Tucson, AZ",
@@ -2673,7 +2673,7 @@ CASES = [
               "views, roughly 2.26 million views in a market of one million people."),
     dict(id="beerightthere", slug="bee-right-there", name="Bee Right There",
          full="Bee Right There Heating &amp; Air", og="og-bee-right-there.jpg",
-         vertical="Home services", tag="Monthly program",
+         vertical="Home services", tag="Social Media Packages",
          problem="Posting every day and reaching almost no one.",
          card_metric="3.8x", card_line="the views in three weeks, on 24% more posts",
          where="Bee Right There Heating &amp; Air &middot; Atascadero, CA",
@@ -2682,7 +2682,7 @@ CASES = [
               f"{BRT_REEL_LONG} views."),
     dict(id="icomfort", slug="icomfort", name="iComfort",
          full="iComfort Heating and Air Conditioning", og="og-icomfort.jpg",
-         vertical="Home services", tag="Monthly program",
+         vertical="Home services", tag="Social Media Packages",
          problem="Twenty years in business and a feed that looked quiet.",
          card_metric="6.8x", card_line="the followers in under a year, all organic",
          card_now="3,127 followers today",
@@ -2857,7 +2857,7 @@ CASE_PAGE = {
 {A1_REELS}
   </div>""", ops=""),
     "beerightthere": dict(
-        kind="Reach", roles=["Monthly program", "Short form"],
+        kind="Reach", roles=["Social Media Packages", "Short form"],
         tag="Nearly 4x the views in three weeks.",
         lede="Bee Right There Heating &amp; Air was already posting almost every day from "
              "Atascadero, on California&#39;s Central Coast. Hardly anyone was watching. We "
@@ -2888,7 +2888,7 @@ CASE_PAGE = {
                "2024; reel views as reported in early 2025. Top reel&#39;s current views from "
                "Instagram, 6 Oct 2026. Atascadero population: 29,773 (2020 Census)."),
     "icomfort": dict(
-        kind="Audience", roles=["Monthly program", "Short form"],
+        kind="Audience", roles=["Social Media Packages", "Short form"],
         tag="290 to 1,970 followers, no ads.",
         lede="iComfort Heating and Air Conditioning has served the San Fernando Valley since 2004. "
              "In March 2024 their Instagram had 290 followers and looked quiet. A year of daily "
@@ -3067,7 +3067,7 @@ html = f"""<title>Selected work, Home Service Studios</title>
   </div>
   <div class="ctarow">
     {book("Project%20enquiry", "Start a project")}
-    <a class="cta ghost" href="/packages/">Monthly packages</a>
+    <a class="cta ghost" href="/packages/">Social Media Packages</a>
   </div>
   {reassure("work")}
 </div></div>
@@ -3215,7 +3215,7 @@ ONBOARDING = "\n".join(
 ONBOARDING_NOTE = ("Timing depends on our production calendar when you sign up; we confirm "
                    "your dates on the kickoff call.")
 
-PACKAGES_HTML = f"""<title>Monthly content packages</title>
+PACKAGES_HTML = f"""<title>Social Media Packages</title>
 {FONT_CSS}
 {CSS}
 <a class="skip" href="#main">Skip to content</a>
@@ -3223,13 +3223,13 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 
 <main id="main">
 <div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
-  <p class="eyebrow">Monthly packages &middot; Home Service Studios</p>
+  <p class="eyebrow">Social Media Packages &middot; Home Service Studios</p>
   <h1 class="display">Known and trusted <span class="hl">before they need you.</span></h1>
   <p class="sub">Homeowners call the company they already recognize, and that recognition is built
   over months, not in a month. <strong>It only works if it actually runs</strong>, and these
   packages make it run without landing on your desk.</p>
   <div class="ctarow">
-    {book("Monthly%20packages")}
+    {book("Social%20Media%20Packages")}
     <a class="cta ghost" href="/our-work/">See the work first</a>
   </div>
   {reassure("packages")}
@@ -3329,7 +3329,7 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
   </div>
 
   <div class="ctarow">
-    {book("Monthly%20packages")}
+    {book("Social%20Media%20Packages")}
   </div>
   {reassure("packages-terms")}
   <p class="ctanote" style="margin-top:var(--s3);">Questions on terms?
@@ -3515,7 +3515,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 
   <div class="wwd-block">
     <p class="wwd-num" aria-hidden="true">01</p>
-    <h3 class="wwd-title">Social media monthly packages</h3>
+    <h3 class="wwd-title">Social Media Packages</h3>
     <p class="wwd-copy">A reel every weekday and graphics every weekend, planned and posted for
     you. Here is what that looks like on three client accounts.</p>
     <div class="ctarow">
@@ -3579,11 +3579,11 @@ HOME_HTML = f"""<title>Home Service Studios</title>
       <span class="go">Open the portfolio &rarr;</span>
     </a>
     <a class="door" href="/packages/">
-      <span class="tier">Retainers</span>
-      <h3>Hire us monthly</h3>
-      <p>{PROGRAMS_WORD.capitalize()} programs, plain terms, and an honest account of what
+      <span class="tier">Social Media Packages</span>
+      <h3>See the packages</h3>
+      <p>{PROGRAMS_WORD.capitalize()} packages, with plain terms. We are honest about what
       consistent content does and does not do.</p>
-      <span class="go">See the packages &rarr;</span>
+      <span class="go">Compare the packages &rarr;</span>
     </a>
   </div>
 </div></section>
@@ -3689,7 +3689,7 @@ def enquiry_form():
 
   <fieldset class="fld budgets">
     <legend>Roughly what you can spend a month</legend>
-    <span class="fhint">Nobody is held to this. It tells us which programs are
+    <span class="fhint">Nobody is held to this. It tells us which packages are
     worth talking about.</span>
     <div class="budgetrow">{budgets}</div>
     <span class="ferr" id="e-budget" role="alert"></span>
@@ -3723,8 +3723,8 @@ if BOOKED:
         '<section><div class="wrap">'
         '<div class="sec-head"><p class="eyebrow">Booking</p>'
         '<h2 class="display">Or pick a time now</h2>'
-        '<p class="lede">Twenty minutes on Google Meet. We look at your market, your current '
-        'content, and whether a monthly program makes sense. No deck, no pitch.</p></div>'
+        '<p class="lede">Twenty minutes on Google Meet. We look at your market and your current '
+        'content. Then we see if one of our Social Media Packages fits. No deck, no pitch.</p></div>'
         '<div class="schedwrap"><iframe src="' + BOOK_URL + '" title="Book a call with '
         'Home Service Studios" loading="lazy" style="border:0" width="100%" height="640" '
         'frameborder="0"></iframe></div>'
@@ -3747,7 +3747,7 @@ CONTACT_HTML = f"""<title>Contact</title>
   <h1 class="display">Talk <span class="hl">to us.</span></h1>
   <p class="sub">Tell us your city and your trade and we will come back with something specific
   to your market, not a brochure. If you would rather look first, the work is on the
-  <a href="/our-work/">case studies</a> and the monthly programs are
+  <a href="/our-work/">case studies</a> and our Social Media Packages are
   <a href="/packages/">priced in public</a>. You can also
   <a href="mailto:{EMAIL}">email us</a> directly, good for scope, budgets or anything with
   attachments, but the form below gets you a faster, more specific reply.</p>
@@ -3911,11 +3911,11 @@ TEAM_HTML = f"""<title>Meet the team</title>
       <span class="go">Open the portfolio &rarr;</span>
     </a>
     <a class="door" href="/packages/">
-      <span class="tier">Retainers</span>
-      <h3>Put them on your account</h3>
-      <p>{PROGRAMS_WORD.capitalize()} monthly programs, plain terms, and an honest account of
-      what consistent content does and does not do.</p>
-      <span class="go">See the packages &rarr;</span>
+      <span class="tier">Social Media Packages</span>
+      <h3>See the packages</h3>
+      <p>{PROGRAMS_WORD.capitalize()} packages, with plain terms. We are honest about what
+      consistent content does and does not do.</p>
+      <span class="go">Compare the packages &rarr;</span>
     </a>
   </div>
 </div></section>
@@ -4032,7 +4032,7 @@ NOT_FOUND_HTML = f"""<title>Page not found</title>
   the packages and a way to reach us are all one click away.</p>
   <div class="ctarow">
     <a class="cta" href="/our-work/">See the work</a>
-    <a class="cta ghost" href="/packages/">Monthly packages</a>
+    <a class="cta ghost" href="/packages/">Social Media Packages</a>
     <a class="cta ghost" href="/contact/">Contact us</a>
   </div>
 </div></div>
@@ -4084,7 +4084,7 @@ JSON_LD = (
     '"areaServed":"US","priceRange":"$$$",'
     '"description":"Video production for home service brands and creators.",'
     '"hasOfferCatalog":{"@type":"OfferCatalog",'
-    '"name":"Monthly video programs","itemListElement":[' + _OFFERS + ']}}'
+    '"name":"Social Media Packages","itemListElement":[' + _OFFERS + ']}}'
     '</script>'
 )
 
@@ -4174,11 +4174,11 @@ if MODE == "web":
                    url=f"{SITE}/our-work/", extra_head=WORK_LD)
 
     packages = validate(PACKAGES_HTML, "packages")
-    D2 = ("Monthly short-form video packages from Home Service Studios: a reel every "
+    D2 = ("Social Media Packages from Home Service Studios: a reel every "
           "weekday, graphics every weekend and stories across your platforms, from "
           f"{money(PRICE_MIN)} a month.")
     n2 = write_web(packages, f"{S}/deploy/packages/index.html",
-                   title="Monthly Video Packages for Home Services | Home Service Studios",
+                   title="Social Media Packages for Home Services | Home Service Studios",
                    desc=D2, og_image=f"{SITE}/og/og-packages.jpg",
                    url=f"{SITE}/packages/")
 
@@ -4231,7 +4231,7 @@ if MODE == "web":
 
     nf = validate(NOT_FOUND_HTML, "404")
     write_web(nf, f"{S}/deploy/404.html", title="Page not found | Home Service Studios",
-              desc="This page is not here. See the work, the monthly packages, or contact "
+              desc="This page is not here. See the work, the Social Media Packages, or contact "
                    "Home Service Studios.",
               og_image=f"{SITE}/our-work/a/og-cover.jpg", url=f"{SITE}/404.html", noindex=True)
 

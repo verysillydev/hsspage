@@ -51,7 +51,7 @@ authentication for homeservicestudios.com before assuming it's a code bug. Don't
 the same way without the same kind of explicit go ahead — it's a bigger, separate move (Vercel
 routing, canonical/SEO URLs) than the contact address was.
 
-Live: **/** (homepage), **/our-work** (portfolio), **/packages** (monthly retainers) and
+Live: **/** (homepage), **/our-work** (portfolio), **/packages** (Social Media Packages) and
 **/team** (roster, currently placeholder photos and copy for Yoni to fill in).
 `deploy/index.html` lands at the project root, so Vercel serves it at the apex.
 
@@ -346,6 +346,13 @@ Short sentences. The owner dislikes run-on sentences (2026-10-06): one idea per 
 anything joined by a semicolon or a chain of commas. (First applied to the Bee Right There case
 page, R22.)
 
+**The offering is called "Social Media Packages"** (title case, a product name; release 8, owner).
+Never "monthly packages", "monthly programs" or "retainers" in copy, tags, chips, eyebrows,
+headings, buttons, meta, OG cards or JSON-LD. "A Social Media Package" and "the packages" read
+naturally in a sentence. Billing language stays as it is: "month to month", "per month", "a
+month", "monthly ad budget", "first month", the prices. The nav label "Packages" stays for now.
+After a change, `grep -ri "monthly package\|monthly program\|retainer" deploy/` must show nothing.
+
 ## The two engines
 
 The site sells two mechanisms and must never collapse them into one:
@@ -367,7 +374,7 @@ three things at every tier" block.
 
 **Short form does not persist and the site must never say it does.** Individual posts decay;
 what accumulates is familiarity, and familiarity fades too once you stop. That decay is the
-argument *for* the retainer, not something to hide: if posts lasted, a client would buy one batch
+argument *for* the packages, not something to hide: if posts lasted, a client would buy one batch
 and leave. Only engine 2 genuinely does not expire, because someone searching finds a three year
 old video, so **"does not expire" lives in the Engine 02 panel and nowhere else**. As of
 2026-10-06 that panel states the mechanism only ("a video made for search keeps getting found years
@@ -378,9 +385,9 @@ library that keeps working" inside the block about what *short form* does, which
 engines collapsing back into one. It is now "Proof you are still around", which is a real short
 form benefit: the volume is what someone sees when they look you up before calling.
 
-**"Intent rather than attention" is the shared phrase**; it appears on `/packages` (Engine 02) and
-in the homepage's monthly packages lede, so the pages describe the same mechanism in the same
-words. Engine 2 is also what Platinum adds on top of Gold, so do not cut it.
+**"Intent rather than attention" is the shared phrase**; it appears on `/packages` (Engine 02)
+(and was in the homepage packages lede until release 8 removed that section), so the pages
+describe the same mechanism in the same words. Engine 2 is also what Platinum adds on top of Gold, so do not cut it.
 
 Never pin the pitch to one buying trigger. An earlier draft said recognition matters "when the
 unit dies", which pigeonholed the whole site as HVAC and technician facing. Name several triggers

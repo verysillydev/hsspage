@@ -52,9 +52,9 @@ const lines = `<svg class="lines" viewBox="0 0 1200 260" preserveAspectRatio="no
 const top = `<div class="top"><img src="${f('logos_hss/nav_mark_hss.webp')}" alt="">Home Service Studios</div>`;
 
 const cards = {
-  'og-packages': `${top}${lines}<div class="body"><p class="eyebrow">Monthly packages</p>
+  'og-packages': `${top}${lines}<div class="body"><p class="eyebrow">Social Media Packages</p>
     <h1 class="wide">Known and trusted<br><span class="hl">before they need you.</span></h1>
-    <p class="sub">${programs[0].toUpperCase() + programs.slice(1)} monthly programs, from ${money(minPrice)} a month.</p></div>`,
+    <p class="sub">${programs[0].toUpperCase() + programs.slice(1)} Social Media Packages, from ${money(minPrice)} a month.</p></div>`,
   'og-team': `${top}<div class="faces">${['craig-balog', 'seth-yeager', 'paloma-barro', 'yoni-paz', 'sergy-olkowski']
       .map(n => `<img src="${f('post/' + n + '.jpg')}" alt="">`).join('')}</div>${lines}
     <div class="body"><p class="eyebrow">Meet the team</p><h1>Meet <span class="hl">the team.</span></h1>
