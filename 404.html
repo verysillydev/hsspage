@@ -11,10 +11,10 @@
 <link rel="preload" href="/fonts/archivo-900.woff2" as="font" type="font/woff2" crossorigin>
 <title>Page not found | Home Service Studios</title>
 <meta name="robots" content="noindex">
-<meta name="description" content="This page is not here. See the work, the monthly packages, or contact Home Service Studios.">
+<meta name="description" content="This page is not here. See the work, the Social Media Packages, or contact Home Service Studios.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Page not found | Home Service Studios">
-<meta property="og:description" content="This page is not here. See the work, the monthly packages, or contact Home Service Studios.">
+<meta property="og:description" content="This page is not here. See the work, the Social Media Packages, or contact Home Service Studios.">
 <meta property="og:image" content="https://homeservicestudios.com/our-work/a/og-cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -706,6 +706,12 @@
     grid-template-areas:"n case" "n k";column-gap:var(--s4);row-gap:2px;align-items:center;
     text-decoration:none;color:inherit;transition:background var(--ease);}
   .stat:hover{background:var(--ground-2);}
+  /* a cell whose parts link separately (Bee Right There on the homepage: the name to
+     the case, the number to the reel) instead of the whole cell */
+  .stat a.case{text-decoration:none;}
+  .stat a.case:hover{text-decoration:underline;text-underline-offset:3px;}
+  .stat a.n,.op a.n{text-decoration:underline;text-decoration-thickness:1px;
+    text-underline-offset:.16em;}
   .stat .case{grid-area:case;font-family:var(--display);font-variant-caps:all-small-caps;
     letter-spacing:.05em;font-size:var(--f-sm);color:var(--cyan-text);line-height:1.3;}
   .stat .n{grid-area:n;font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;
@@ -829,6 +835,65 @@
     letter-spacing:-.02em;color:var(--orange-text);}
   .mw-stat span{font-size:var(--f-body);line-height:1.45;color:var(--ink);}
   .mw-note{margin:var(--s2) 0 var(--s5);font-size:var(--f-sm);color:var(--ink-2);max-width:62ch;}
+  /* What We Do (homepage, release 8): warm white ground, three numbered blocks with a
+     hairline between them. --ink-3 on --ground-2 is 4.32:1, so small text uses --ink-2. */
+  section.wwd{background:var(--ground-2);}
+  .wwd-block{padding:var(--s7) 0;}
+  .wwd-block:first-of-type{padding-top:0;}
+  .wwd-block:last-child{padding-bottom:0;}
+  .wwd-block + .wwd-block{border-top:1px solid var(--line);}
+  .wwd-num{margin:0;font-family:var(--display);font-weight:900;font-size:var(--f-mega);
+    line-height:1;letter-spacing:-.02em;color:var(--orange-text);font-variant-numeric:tabular-nums;}
+  .wwd-title{margin:var(--s3) 0 0;font-family:var(--display);font-weight:700;font-size:var(--f-h2);
+    line-height:1.15;letter-spacing:var(--t-head);color:var(--ink);}
+  .wwd-copy{margin:var(--s3) 0 0;font-size:var(--f-lede);line-height:1.55;color:var(--ink-2);
+    max-width:56ch;}
+  .wwd-small{margin:var(--s2) 0 0;font-size:var(--f-sm);color:var(--ink-2);}
+  .wwd-link{display:inline-flex;align-items:center;min-height:24px;margin-top:var(--s3);
+    font-weight:650;color:var(--orange-text);text-decoration:none;}
+  .wwd-link:hover{text-decoration:underline;text-underline-offset:3px;}
+  .wwd-block > .igrow,.wwd-block > .grid,.wwd-film{margin-top:var(--s6);}
+  /* block 01 carries the primary "Compare the packages" button (moved here from the
+     removed packages section); its note needs --ink-2 on this ground */
+  .wwd .ctarow{margin-top:var(--s5);}
+  .wwd .ctanote{color:var(--ink-2);}
+  /* three profile grabs in identical 390:766 frames, top aligned; a swipe strip on
+     phones, cards at 78% so the next one peeks */
+  .igrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5);}
+  .ig{margin:0;display:flex;flex-direction:column;gap:var(--s3);min-width:0;}
+  .ig-frame{display:block;aspect-ratio:390/766;border:1px solid var(--line);
+    border-radius:var(--r-lg);overflow:hidden;background:var(--ground);}
+  .ig-frame:focus-visible{border-radius:var(--r-lg);}
+  .ig-frame img{width:100%;height:100%;display:block;object-fit:cover;object-position:top;}
+  .ig figcaption{display:flex;flex-direction:column;gap:2px;}
+  .ig-name{font-weight:600;color:var(--ink);line-height:1.35;}
+  .ig-meta{font-size:var(--f-sm);color:var(--ink-2);}
+  @media(max-width:759px){
+    .igrow{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:var(--s4);
+      padding-bottom:var(--s2);scrollbar-width:thin;}
+    .igrow > .ig{flex:0 0 78%;scroll-snap-align:start;}
+  }
+  .wwd-film .vspot{border-radius:var(--r-md);}
+  /* testimonial (release 8): video with the pull quote beside it from 900px,
+     below it on phones */
+  .tmn{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s6);align-items:center;}
+  @media(min-width:900px){.tmn{grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:var(--s7);}}
+  .tmn-media .vspot{border-radius:var(--r-md);}
+  .tmn-quote{margin:0;}
+  .tmn-quote blockquote{margin:0;padding-left:var(--s5);border-left:3px solid var(--orange);}
+  .tmn-quote p{margin:0;font-family:var(--display);font-weight:600;font-size:var(--f-h3);
+    line-height:1.3;letter-spacing:var(--t-head);color:var(--ink);}
+  .tmn-quote figcaption{margin-top:var(--s4);padding-left:var(--s5);font-size:var(--f-sm);
+    color:var(--ink-2);}
+  .tmn-link{margin-top:var(--s5);}
+  /* captions: the site face on a solid scrim, and the sound hint moves to the top
+     corner so it never sits on a caption line */
+  .vspot video::cue{font-family:'Onest',-apple-system,sans-serif;color:#fff;
+    background:rgba(15,18,20,.82);line-height:1.35;}
+  .vspot.has-cc .vsnd{top:var(--s2);bottom:auto;}
+  .wwd-cap{margin:var(--s3) 0 0;display:flex;justify-content:space-between;align-items:baseline;
+    gap:var(--s3);font-size:var(--f-sm);color:var(--ink-2);}
+  .wwd-cap .du{font-family:var(--mono);flex:none;}
   /* a row of spots: three across from 760px (six make two even rows), and a
      horizontal swipe strip on phones so six cards do not stack 1,700px tall */
   /* any count: one row from 1100px when there are five, otherwise rows of three
@@ -1330,13 +1395,13 @@
   the packages and a way to reach us are all one click away.</p>
   <div class="ctarow">
     <a class="cta" href="/our-work/">See the work</a>
-    <a class="cta ghost" href="/packages/">Monthly packages</a>
+    <a class="cta ghost" href="/packages/">Social Media Packages</a>
     <a class="cta ghost" href="/contact/">Contact us</a>
   </div>
 </div></div>
 </main>
 
-<footer><div class="wrap"><div class="foot"><div class="foot-main"><p class="display foot-line">Let&#39;s make something that travels.</p><div class="foot-actions"><a class="cta" href="/contact/#start">Start a project</a><a class="foot-mail" href="mailto:info@homeservicestudios.com">info@homeservicestudios.com</a></div></div><nav class="foot-nav" aria-label="Footer"><a href="/our-work/">Work</a><a href="/packages/">Packages</a><a href="/team/">Team</a><a href="/contact/">Contact</a></nav></div><div class="foot-meta"><p>Los Angeles, CA &middot; Insured &middot; Working since 2019</p><p>&copy; 2026 Home Service Studios</p></div></div></footer>
+<footer><div class="wrap"><div class="foot"><div class="foot-main"><p class="display foot-line">Let&#39;s make something that travels.</p><div class="foot-actions"><a class="cta" href="/contact/#start">Start a project</a><a class="foot-mail" href="mailto:info@homeservicestudios.com">info@homeservicestudios.com</a></div></div><nav class="foot-nav" aria-label="Footer"><a href="/our-work/">Work</a><a href="/packages/">Packages</a><a href="/team/">Team</a><a href="/contact/">Contact</a></nav></div><div class="foot-meta"><p>Los Angeles, CA &middot; Insured &middot; Working since 2020</p><p>&copy; 2026 Home Service Studios</p></div></div></footer>
 <nav class="actionbar" aria-label="Quick actions"><a href="/contact/">Contact</a><a class="primary" href="/contact/#start">Start a project</a></nav>
 <script>
 (function(){
