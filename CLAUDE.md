@@ -90,13 +90,6 @@ Two assertions run before anything is written to disk, so a bad build fails inst
 2. **Output must be pure ASCII.** The artifact host owns `<head>` so no charset can be declared.
    Use HTML entities, for example `&middot;`.
 
-**Shipped CSS has no comments (release 10).** `write_web()` runs every page through
-`strip_css_comments()`: the `/* */` comments stay in `build_site.py` as documentation but never
-ship, which took about 30KB off every page (homepage 151KB to 120KB), about 150ms of first paint
-on a throttled phone. It asserts no CSS value contains `/*`. Verified by comparing every element's
-box and computed styles on six pages at 1440 and 390 before and after: zero differences. JS
-comments are not stripped (regex literals and URLs make that riskier for less gain).
-
 ## Things that have already broken once
 
 - **Asset paths must stay root absolute** (`/our-work/a/x.mp4`). Vercel serves `/our-work` with
