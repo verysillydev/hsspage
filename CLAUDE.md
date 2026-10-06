@@ -229,7 +229,11 @@ Never pin the pitch to one buying trigger. An earlier draft said recognition mat
 unit dies", which pigeonholed the whole site as HVAC and technician facing. Name several triggers
 (a breakdown, a move, a remodel) or none. **Specificity in evidence is an asset, specificity in
 the pitch is the trap**: case studies stay concrete about HVAC, vans and dark attics, while the
-hero and the benefit blocks stay trigger agnostic and cover creators too.
+hero and the benefit blocks stay trigger agnostic. **Since 2026-10-06 (owner approved) the homepage
+hero lede speaks to one audience with one promise**: home service companies, every month, so the
+name a homeowner already knows is theirs when a repair, a replacement or a remodel comes up. It no
+longer lists builders, realtors and creators. The "Creator work" service card and the creator
+option in the contact dropdown stay until the owners decide on creator work.
 
 Contact address on every page is `info@homeservicestudios.com` as of 2026-08-25 (was
 `yoni@yoniverseproductions.com`; homeservicestudios.com went live and the client confirmed it).

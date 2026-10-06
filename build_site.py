@@ -2935,10 +2935,9 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     </div>
   </div>
   <div class="hero-lines">{SPLAT_SVG}<div class="wrap">
-  <p class="sub">We write, shoot, cut and post short-form and commercial video for home service
-  brands, builders, realtors and creators. One good video will not do it, and neither will the
-  leads nobody can honestly promise you. It takes <strong>video worth watching, often enough to
-  stay in mind</strong> until the day they need you.</p>
+  <p class="sub">We write, shoot, edit and post video for home service companies every month, so
+  when a homeowner needs a repair, a replacement or a remodel, <strong>the name they already know
+  is yours</strong>.</p>
   <div class="stats quad">
     <a class="stat" href="/our-work/#a1"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views on 7 reels</span></a>
     <a class="stat" href="/our-work/#more-results"><span class="case">Be Right There</span><span class="n">983K</span><span class="k">Views on one reel</span></a>
