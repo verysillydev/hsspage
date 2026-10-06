@@ -1073,9 +1073,6 @@ CSS = """<style>
   .proof .pl{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;
     color:var(--ink-3);font-family:var(--mono);}
   .proof p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
-  .proof .when{margin-top:auto;padding-top:var(--s3);border-top:1px solid var(--line);
-    font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.05em;
-    font-size:var(--f-sm);color:var(--cyan-text);}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:var(--s5);}
   /* subheads inside a section (More work, the homepage spots row) */
@@ -1091,10 +1088,19 @@ CSS = """<style>
     .strip > .spot{flex:0 0 80%;scroll-snap-align:start;}
   }
   .proofs-one{background:none;}
-  @media(min-width:900px){.proofs-one{grid-template-columns:repeat(3,minmax(0,1fr));}}
   .proofs-one .proof{background:var(--ground-2);border-radius:var(--r-md);}
   /* --ink-3 on --ground-2 is 4.32:1; the small labels need --ink-2 here */
   .proofs-one .proof .who,.proofs-one .proof .pl{color:var(--ink-2);}
+  @media(min-width:900px){.proofs-one{grid-template-columns:minmax(0,2fr) minmax(0,1fr);}}
+  .fp{width:100%;border-collapse:collapse;margin:var(--s2) 0;font-size:var(--f-sm);}
+  .fp th,.fp td{text-align:left;padding:var(--s2) var(--s2) var(--s2) 0;
+    border-bottom:1px solid var(--line);vertical-align:top;}
+  .fp thead th{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.05em;
+    font-weight:700;color:var(--ink-2);}
+  .fp tbody th{font-weight:650;color:var(--ink);}
+  .fp td{color:var(--ink-2);font-variant-numeric:tabular-nums;}
+  .fp td:last-child{color:var(--ink);font-weight:650;}
+  .proof .fp-note{font-size:var(--f-sm);color:var(--ink-2);}
   .proof h4{margin:0;font-family:var(--display);font-size:var(--f-h4);font-weight:700;
     letter-spacing:var(--t-head);line-height:1.2;}
   .spot{background:var(--panel);border-radius:var(--r-md);
@@ -2313,16 +2319,17 @@ CASES = [
               "views, roughly 2.26 million views in a market of one million people."),
     dict(id="beerightthere", slug="bee-right-there", name="Bee Right There",
          full="Bee Right There Heating &amp; Air", og="og-bee-right-there.jpg",
-         vertical="Home services", metric="+282%", mlabel="Impressions in 23 days",
+         vertical="Home services", metric="3.8x", mlabel="Views in three weeks",
          still=None, logo=None,
-         tile_line="46 posts drew 27,851 impressions in 23 days. The next 57 drew 106,439.",
-         desc="Bee Right There Heating &amp; Air, an HVAC company in Atascadero, CA: impressions "
-              "up 282% in 23 days on 24% more posts, and reels that reached 982,880 views."),
+         tile_line="The views in three weeks, on 24% more posts.",
+         desc="Bee Right There Heating &amp; Air, an HVAC company in Atascadero, CA: posts seen "
+              "3.8 times as often within three weeks, on 24% more posts, and a reel at "
+              "982,880 views."),
     dict(id="icomfort", slug="icomfort", name="iComfort",
          full="iComfort Heating and Air Conditioning", og="og-icomfort.jpg",
          vertical="Home services", metric="6.8x", mlabel="Followers in under a year",
          still=None, logo="logo_icomfort.png",
-         tile_line="290 Instagram followers in March 2024, 1,970 by March 2025, all organic.",
+         tile_line="The followers in under a year, all organic.",
          desc="iComfort Heating and Air Conditioning, a family-owned HVAC company in San "
               "Fernando, CA: Instagram from 290 to 1,970 followers in under a year, all organic."),
     dict(id="allheart", og="og-allheart.jpg", slug="all-heart", name="All Heart",
@@ -2336,6 +2343,9 @@ CASES = [
 CASE_BY_ID = {c["id"]: c for c in CASES}
 # the stated multiples and rises must match the raw figures they come from
 assert round(106439 / 27851, 1) == 3.8 and round(57 / 46 - 1, 2) == 0.24
+assert round(6634 / 843, 1) == 7.9 and round(78 / 21, 1) == 3.7
+assert round(27851 / 46, -2) == 600 and round(106439 / 57, -1) == 1870
+assert 150282 + 49380 + 28327 + 20431 + 16518 == 264938
 assert round(1970 / 290, 1) == 6.8 and 1970 - 290 == 1680 and 508 - 154 == 354
 
 
@@ -2382,25 +2392,25 @@ CSI = {
            "1,100 shares on the lead reel. Audiences passed it along themselves, which is the "
            "premise working rather than the media budget."),
     "beerightthere": (
-        "Volume was not the problem. The account published 46 posts in the 23 days before we "
-        "started (9 to 31 Aug 2024), and together they drew 27,851 impressions. The posts were "
-        "there; nothing in them gave anyone a reason to stop scrolling.",
-        "Keep the cadence, change what goes out: reels built on moments every HVAC tech and "
-        "homeowner recognizes, from skipping the manual to ladder safety, written to be watched "
-        "to the end and passed along.",
-        "Over the next 23 days (1 to 23 Sep 2024), 57 posts drew 106,439 impressions, organic "
-        "engagements went from 843 to 6,634, and engagement per impression doubled from 3% to "
-        "6.2%. Followers went from 393 to 471. In early 2025 three reels passed 300,000 views."),
+        "In the three weeks before we started, they published 46 posts. Together those posts were "
+        "seen 27,851 times, about 600 views a post. The effort was there; the posts gave nobody a "
+        "reason to stop scrolling.",
+        "Not the schedule. The ideas. Every reel was built on a moment homeowners and techs "
+        "recognize, from skipping the manual to ladder safety, and written so people watch to "
+        "the end and send it to someone.",
+        "In the next three weeks, 57 posts were seen 106,439 times, about 1,870 views a post. "
+        "Likes, comments, shares and saves went from 843 to 6,634, and new followers from 21 to "
+        "78. Then, in January and February 2025, three reels passed 300,000 views each; the "
+        "biggest reached 982,880."),
     "icomfort": (
-        "In March 2024 the account had 154 posts and 290 followers. A homeowner checking the "
-        "company out before a call found a feed that looked quiet, the opposite of what twenty "
-        "years in the Valley should look like.",
-        "Post every day and put their own people in front of the camera: technicians explaining "
-        "real equipment in plain terms, the moments every tech knows, and the trends their "
-        "customers were already watching. The account went from 154 posts to 508 in under a year.",
-        "1,680 new followers in under a year, all organic, or 6.8 times the audience they started "
-        "with. A heat pump explainer from one of their technicians reached 150,282 views on "
-        "TikTok."),
+        "154 posts and 290 followers. A homeowner checking iComfort out before a call found a "
+        "company that looked inactive, the opposite of twenty years in the Valley.",
+        "Daily posting, led by their own people: technicians explaining real equipment in plain "
+        "terms, the moments every tech knows, and the trends their customers were already "
+        "watching.",
+        "In under a year the account grew from 290 followers to 1,970, all organic: nearly seven "
+        "times the audience. It went from 154 posts to 508. On TikTok, five of those posts alone "
+        "drew 264,938 views, led by a technician&#39;s heat pump explainer at 150,282."),
     "allheart": ("Fill a year of paid and organic inventory for a brand with no library and no "
                  "appetite for repeat shoot days.",
                  "Write one comic premise strong enough to sustain ten spots, then shoot the entire "
@@ -2411,9 +2421,9 @@ CSI = {
 
 def csi_block(cid):
     a, b, c = CSI[cid]
-    return (f'<div class="csi"><div><h3>The challenge</h3><p>{a}</p></div>'
-            f'<div><h3>The solution</h3><p>{b}</p></div>'
-            f'<div><h3>The impact</h3><p>{c}</p></div></div>')
+    return (f'<div class="csi"><div><h3>The problem</h3><p>{a}</p></div>'
+            f'<div><h3>What we changed</h3><p>{b}</p></div>'
+            f'<div><h3>What happened</h3><p>{c}</p></div></div>')
 
 
 def ops(rows):
@@ -2436,6 +2446,8 @@ def before_after(title, periods, rows):
     for label, x, y, chg in rows:
         if chg.endswith("%"):
             assert chg == f"+{round((y - x) / x * 100)}%", (label, chg)
+        elif chg.endswith("x"):
+            assert chg == f"{round(y / x, 1)}x", (label, chg)
         elif chg.startswith("+"):
             assert chg == f"+{y - x:,}", (label, chg)
         m = max(x, y)
@@ -2473,46 +2485,55 @@ CASE_PAGE = {
 {A1_REELS}
   </div>""", ops=""),
     "beerightthere": dict(
-        kind="Reach", roles=["Monthly program", "Short form"], tag="3.8 times the reach.",
-        lede="Bee Right There Heating &amp; Air is an HVAC company in Atascadero, on "
-             "California&#39;s Central Coast, in business since 2018. They were already posting "
-             "often. In the first 23 days after we took over, <strong>impressions rose 282% on "
-             "24% more posts</strong>, and later reels reached 982,880 views.",
-        ops=ops([("+282%", "Impressions"), ("+687%", "Organic engagements"),
-                 ("6.2%", "Engagement rate, up from 3%"), ("983K", "Views on one reel")]),
-        proof_head="Same cadence, different posts",
+        kind="Reach", roles=["Monthly program", "Short form"],
+        tag="Nearly 4x the reach in three weeks.",
+        lede="Bee Right There Heating &amp; Air, in Atascadero on California&#39;s Central Coast, "
+             "was already posting almost every day. Hardly anyone was watching. We changed what "
+             "they posted, not how often. In the first three weeks <strong>their posts were seen "
+             "nearly four times as often</strong>, and within months one reel passed 982,000 "
+             "views, for a company whose hometown has about 30,000 people.",
+        ops=ops([("3.8x", "Times their posts were seen"),
+                 ("7.9x", "Likes, comments, shares and saves"),
+                 ("3.7x", "New followers"), ("983K", "Views on one reel")]),
+        proof_head="Same schedule, different ideas",
         proof=before_after(
-            "Posts rose 24%. Impressions rose 282%.",
+            "24% more posts. 3.8 times the views.",
             ("9 to 31 Aug 2024", "1 to 23 Sep 2024"),
-            [("Posts", 46, 57, "+24%"), ("Impressions", 27851, 106439, "+282%"),
-             ("Organic engagements", 843, 6634, "+687%")])
+            [("Posts", 46, 57, "+24%"), ("Times seen", 27851, 106439, "3.8x"),
+             ("Likes, comments, shares and saves", 843, 6634, "7.9x"),
+             ("New followers", 21, 78, "3.7x")])
             + '\n  <h3 class="subhead">Three reels past 300,000 views</h3>\n  '
             + ops([("982,880", "Views, 12 Feb 2025"), ("316,814", "Views, 27 Jan 2025"),
                    ("316,402", "Views, 15 Jan 2025")]),
-        close="Posting more is the easy part. Bee Right There posted 24% more and reached nearly "
-              "four times as many people, because the posts were worth watching. The premise is "
-              "the part we are hired for.",
-        source="Figures from the account&#39;s own analytics for each period."),
+        close="A small-town HVAC company became one people pass around. For a company in a town "
+              "of about 30,000, a reel with nearly a million views is attention on a scale local "
+              "advertising rarely reaches, and every view carried the Bee Right There name.",
+        source="Figures from the account&#39;s own analytics for 9 to 31 Aug 2024 and 1 to 23 Sep "
+               "2024; reel views as reported in early 2025. Atascadero population: 29,773 "
+               "(2020 Census)."),
     "icomfort": dict(
-        kind="Audience", roles=["Monthly program", "Short form"], tag="290 to 1,970 followers.",
-        lede="iComfort Heating and Air Conditioning is a family-owned HVAC company in San "
-             "Fernando, California, serving the San Fernando Valley since 2004. Twenty years of "
-             "good work, and an Instagram account with 290 followers. In under a year of daily "
-             "posting <strong>it grew to 1,970, all of it organic</strong>.",
-        ops=ops([("290 to 1,970", "Instagram followers"), ("+1,680", "Organic, under a year"),
-                 ("354", "Posts in 50 weeks"), ("150K", "Views on the top TikTok")]),
-        proof_head="Under a year of daily posting",
+        kind="Audience", roles=["Monthly program", "Short form"],
+        tag="290 to 1,970 followers, no ads.",
+        lede="iComfort Heating and Air Conditioning has served the San Fernando Valley since 2004. "
+             "In March 2024 their Instagram had 290 followers and looked quiet. A year of daily "
+             "posts later <strong>it had 1,970 followers, all organic</strong>, a library of 354 "
+             "new posts, and a technician whose heat pump explainer reached 150,282 views.",
+        ops=ops([("6.8x", "Instagram followers, 290 to 1,970"),
+                 ("354", "New posts in under a year"), ("265K", "Views on five TikToks"),
+                 ("100%", "Organic growth, no paid boosts")]),
+        proof_head="A year of daily posts",
         proof=before_after(
-            "354 more posts, and 6.8 times the followers.",
+            "354 new posts. 6.8 times the followers.",
             ("27 Mar 2024", "11 Mar 2025"),
-            [("Posts", 154, 508, "+354"), ("Instagram followers", 290, 1970, "+1,680")])
+            [("Posts", 154, 508, "+354"), ("Instagram followers", 290, 1970, "6.8x")])
             + '\n  <h3 class="subhead">Five TikToks, Jul 2024 to Jan 2025</h3>\n  '
             + ops([("150,282", "TikTok views"), ("49,380", "TikTok views"),
                    ("28,327", "TikTok views"), ("20,431", "TikTok views"),
                    ("16,518", "TikTok views")]),
-        close="Followers are the people who chose to keep seeing a company&#39;s trucks, techs and "
-              "jobs in their feed. When their system fails, the name they reach for is one they "
-              "have watched for months. That recognition is what every package is built on.",
+        close="A twenty-year-old family business now looks like what it is, busy, expert and "
+              "still here, to anyone who checks before they call. 1,970 people chose to keep "
+              "seeing their trucks and techs every day, and when a system fails, iComfort is the "
+              "name they have watched for a year.",
         source="Figures from the account&#39;s own Instagram and TikTok, 27 Mar 2024 to "
                "11 Mar 2025."),
     "allheart": dict(
@@ -2534,19 +2555,27 @@ CASE_PAGE = {
 # it, so the card shows none. Bee Right There and iComfort, which used to sit beside
 # it in a "More results" block, are full case studies since R4.
 # 4 Points is a single short-form result, shown in More work rather than as a case.
-FOUR_POINTS = dict(client="4 Points", who="Home services",
-                   metric="509K", mlabel="Views on one post",
-                   line="Before us, eight posts drew 235 to 705 views each. In a sample of the same "
-                        "size since, posts reached 509K, 89.4K, 24.6K and 6,096 views.",
-                   when="")
+FOUR_POINTS = dict(client="4 Points", who="Home services", metric="509K",
+                   mlabel="Views on their best post, up from 705",
+                   rows=[("Eight posts, combined", "3,543 views", "about 636,000 views"),
+                         ("Typical post", "about 430 views", "about 4,300 views"),
+                         ("Best post", "705 views", "509,000 views")],
+                   line="Same account, same kind of business, about ten times the views on a "
+                        "typical post.",
+                   note="After figures are rounded from the account&#39;s own counts.")
 
 
-def proof_card(x, h="h3"):
-    when = f'<p class="when">{x["when"]}</p>' if x["when"] else ""
+def four_points_card(x, h="h4"):
+    """The 4 Points result (R12): a small card, not a case, with a real two-column
+    before/after table so it reads correctly to a screen reader too."""
+    rows = "".join(f'<tr><th scope="row">{k}</th><td>{a}</td><td>{b}</td></tr>'
+                   for k, a, b in x["rows"])
     return (f'<article class="proof"><{h}>{x["client"]}</{h}><p class="who">{x["who"]}</p>'
             f'<p class="pm"><span class="pfig">{x["metric"]}</span>'
             f'<span class="pl">{x["mlabel"]}</span></p>'
-            f'<p>{x["line"]}</p>{when}</article>')
+            f'<table class="fp"><thead><tr><td></td><th scope="col">Before us</th>'
+            f'<th scope="col">After</th></tr></thead><tbody>{rows}</tbody></table>'
+            f'<p>{x["line"]}</p><p class="fp-note">{x["note"]}</p></article>')
 
 
 # More work (R3, 2026-10-06): Handyman Dan is no longer a case study, by the
@@ -2564,7 +2593,7 @@ MORE_WORK = f"""<section id="more-work"><div class="wrap">
   </div>
   <h3 class="subhead">One more short-form result</h3>
   <div class="proofs proofs-one">
-{proof_card(FOUR_POINTS, "h4")}
+{four_points_card(FOUR_POINTS)}
   </div>
 </div></section>"""
 
@@ -3426,7 +3455,7 @@ def case_page(i):
     pills = "".join(f'<span class="pill">{r}</span>' for r in d["roles"])
     why = ""
     if d.get("close"):
-        why = (f'<div class="case-why"><p class="eyebrow">Why it matters</p>'
+        why = (f'<div class="case-why"><p class="eyebrow">What it did for them</p>'
                f'<p class="case-close">{d["close"]}</p>'
                + (f'<p class="case-src">{d["source"]}</p>' if d.get("source") else "")
                + '</div>')

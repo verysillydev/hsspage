@@ -70,8 +70,8 @@ const cards = {
   'og-bee-right-there': `${top}<div class="bars pair">${[27851, 106439]
       .map((v, i) => `<span class="${i ? 'lead' : ''}" style="height:${(v / 106439 * 100).toFixed(1)}%"></span>`).join('')}</div>${lines}
     <div class="body"><p class="eyebrow">Case study &middot; Bee Right There Heating &amp; Air</p>
-    <h1><span class="hl">+282% impressions.</span></h1>
-    <p class="sub">46 posts drew 27,851 impressions in 23 days. The next 57 drew 106,439.</p></div>`,
+    <h1><span class="hl">3.8x the views.</span></h1>
+    <p class="sub">46 posts were seen 27,851 times. The next 57, in three weeks, 106,439 times.</p></div>`,
   'og-icomfort': `${top}<div class="bars pair">${[290, 1970]
       .map((v, i) => `<span class="${i ? 'lead' : ''}" style="height:${(v / 1970 * 100).toFixed(1)}%"></span>`).join('')}</div>${lines}
     <div class="body"><p class="eyebrow">Case study &middot; iComfort Heating and Air Conditioning</p>
