@@ -17,14 +17,16 @@ Onest, the orange headline highlight bar, square orange and ghost buttons, the s
 footer, the angled tier-group tabs on `/packages`, no pills, radii 2-4px, tracking <= .06em, only
 transform/opacity animate, `font-display:optional`.
 
-**Rule, 2026-10-06: Joseph Peretz and Sam Halaby are Yoniverse Productions clients and must never
-appear on this site.** Not as a case, a stat, a logo, a name in a list, alt text, a meta or OG
-description, JSON-LD, a link anchor (`#peretz`, `#sam`) or evidence for a claim ("six years deep",
-"605M", "128M", "258 videos"). Their cases, assets (`post/sam*.jpg`, `post/_yt*.jpg`, the Sam logo,
-`og-peretz`/`og-sam`, the nine Peretz YouTube thumbnails) and copy were removed on 2026-10-06 and
-the site reads as if they were never there. The ADU Insider logo stays: it is not confirmed to be
-Peretz's. Older notes below that mentioned them have been rewritten, not just deleted, so do not
-restore them from git history.
+**Rule, 2026-10-06: Yoniverse Productions clients must never appear on this site: Joseph
+Peretz, Sam Halaby, Neo Builders and ADU Insider** (the last two confirmed by the owner the same
+day). Not as a case, a stat, a logo, a name in a list, alt text, a meta or OG description,
+JSON-LD, a link anchor (`#peretz`, `#sam`) or evidence for a claim ("six years deep", "605M",
+"128M", "258 videos"). Their cases, assets (`post/sam*.jpg`, `post/_yt*.jpg`, the Sam, Neo
+Builders and ADU Insider logos, `og-peretz`/`og-sam`, the nine Peretz YouTube thumbnails) and
+copy were removed on 2026-10-06 and the site reads as if they were never there. The "Remodeling,
+ADU or new build" option in the /contact trade dropdown is a trade category, not a client, and
+stays (it must match `api_contact.js`). Older notes below that mentioned them have been
+rewritten, not just deleted, so do not restore them from git history.
 
 **`SITE` moved to `https://homeservicestudios.com` on 2026-09-03** and now lives at the top of
 `build_site.py` beside `EMAIL`, not inside the `if MODE == "web"` block where it used to sit.
@@ -561,7 +563,7 @@ It is grouped rather than one flat list because the earlier version offered both
 theirs. The single trades are now mutually exclusive and **"More than one of these"** is the
 explicit escape hatch, which is the only honest way to do single select over overlapping
 categories. Order inside "Home services" follows the real client mix, HVAC first, because twelve
-of the fifteen logos on the wall are HVAC, plumbing or electrical. Realtors live under "Property
+of the thirteen logos on the wall are HVAC, plumbing or electrical. Realtors live under "Property
 and building" alongside remodel and ADU work, since that is the same buyer conversation.
 
 ## Credentials and link previews

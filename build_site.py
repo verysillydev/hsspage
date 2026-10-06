@@ -521,15 +521,20 @@ CSS = """<style>
   @keyframes marq{from{transform:translateX(0);}to{transform:translateX(-50%);}}
   .marquee .logomark{width:150px;flex:none;}
   @media(min-width:700px){.marquee .logomark{width:190px;}}
+  /* The static wall (phones, reduced motion) wraps and centres its last row, so
+     any number of marks works: CLIENT_LOGOS changes as clients come and go
+     (13 after R10, more on the way), and a fixed 3- or 5-column grid left an
+     orphan in the corner whenever the count did not divide evenly. */
   @media(max-width:759px),(prefers-reduced-motion:reduce){
     .marquee{-webkit-mask-image:none;mask-image:none;}
-    .marquee-track{animation:none;transform:none;width:auto;display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5);}
-    .marquee .logomark{width:auto;}
+    .marquee-track{animation:none;transform:none;width:auto;display:flex;flex-wrap:wrap;
+      justify-content:center;gap:var(--s5);}
+    .marquee .logomark{width:calc((100% - 2 * var(--s5)) / 3);}
     .marquee .dupe{display:none;}
   }
   @media(min-width:760px) and (prefers-reduced-motion:reduce){
-    .marquee-track{grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--s6) var(--s7);}
+    .marquee-track{gap:var(--s6) var(--s7);}
+    .marquee .logomark{width:calc((100% - 4 * var(--s7)) / 5);}
   }
   /* the marks are single-colour --ink silhouettes, so on the ink band they
      are simply inverted to a light grey rather than regenerated */
@@ -2207,8 +2212,6 @@ CLIENT_LOGOS = [
     ("logo_airone.png",      "Air One"),
 
     ("logo_blanchards.png",  "Blanchards Refrigeration"),
-    ("logo_neobuilders.png", "Neo Builders"),
-    ("logo_aduinsider.png",  "ADU Insider"),
     ("logo_doggone.png",     "Doggone Good Heating and Cooling"),
 ]
 
@@ -3067,7 +3070,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 # Now the single trades are mutually exclusive and "More than one of these" is the
 # explicit escape hatch, which is the only honest way to do single select here.
 # Order within the first group follows the actual client mix: HVAC leads because
-# twelve of the fifteen logos on the wall are HVAC, plumbing or electrical.
+# twelve of the thirteen logos on the wall are HVAC, plumbing or electrical.
 TRADE_GROUPS = [
     ("Home services", ["HVAC", "Plumbing", "Electrical", "Roofing", "Garage doors",
                        "More than one of these", "Another home service"]),
