@@ -271,11 +271,6 @@ FONT_CSS = ("<style>"
     + "".join(_face("Archivo", w, f"{S}/fonts/archivo-{w}.woff2") for w in (400, 700, 900))
     + "</style>")
 
-# Caveat: the one use is the hand-marked case study callout on /our-work/, so this
-# is its own small style block rather than folded into FONT_CSS above, which loads
-# on every page. No sense paying for a handwriting font on pages that never use it.
-CAVEAT_FONT_CSS = "<style>" + _face("Caveat", 700, f"{S}/fonts/caveat-700.woff2") + "</style>"
-
 CSS = """<style>
   :root{
     --ground:#FFFFFF; --ground-2:#F5F4F1; --panel:#EFEEEA;
@@ -355,11 +350,10 @@ CSS = """<style>
     .marquee-track{animation:none !important;transform:none !important;}
     .banner{animation:none !important;transform:none !important;}
   }
+  /* flat ground (2026-10-06): the two-radial-gradient dot grain that gave the
+     page "tooth" went with the other faux-material textures; footage is the
+     only texture on the site now */
   body{margin:0;padding:0;background:var(--ground);color:var(--ink);
-    background-image:
-      radial-gradient(circle at 25% 30%, rgba(20,23,26,.05) 0 1px, transparent 1px),
-      radial-gradient(circle at 75% 70%, rgba(20,23,26,.04) 0 1px, transparent 1px);
-    background-size:9px 9px, 13px 13px;
     font:var(--f-lede)/1.62 'Onest',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
   .display{font-family:var(--display);font-weight:700;
@@ -685,7 +679,7 @@ CSS = """<style>
     font-size:var(--f-sm);color:var(--cyan-text);}
   .cc-name{font-size:var(--f-h3);font-weight:700;letter-spacing:var(--t-head);line-height:1.15;}
   .cc-blurb{font-size:var(--f-body);color:var(--ink-2);line-height:1.5;}
-  .cc-metric{font-size:var(--f-sm);color:var(--ink-3);border-top:1px solid var(--line);
+  .cc-metric{font-size:var(--f-sm);color:var(--ink-2);border-top:1px solid var(--line);
     padding-top:var(--s3);margin-top:var(--s1);}
   .cc-metric b{font-family:var(--display);font-size:var(--f-h4);color:var(--orange-text);
     font-weight:700;margin-right:8px;}
@@ -954,53 +948,17 @@ CSS = """<style>
     border-radius:var(--r-pill);padding:4px var(--s3);font-size:var(--f-lede);font-weight:400;
     font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.05em;}
 
-  /* .csi is shared by two different things: the plain three-column
-     challenge/solution/impact text blocks on every case study, and the
-     homepage's photo-backed "three ways we work" cards (.csi-photo). The
-     photo-only rules below (aspect-ratio box, the image layer, top padding
-     tuned to a folder photo, centered titles) used to sit on the bare .csi
-     selector, which meant the case study cards inherited a forced 4:3 box
-     with no content to fill it: two or three lines of plain text at the
-     top of a much taller box, leaving a wall of empty space below before
-     the next section. Scoping them to .csi-photo fixes that and restores
-     the plain flat card for everything else. */
+  /* .csi: the plain three-column challenge/solution/impact text blocks on
+     every case study. (The homepage's manila-folder variant, .csi-photo, was
+     retired on 2026-10-06 with the other faux-material textures.) */
   .csi{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--s3);
     margin-bottom:var(--s4);}
-  /* > not a bare descendant combinator: a plain "div" also matches
-     .csi-body (nested one level deeper inside .csi-photo's own wrapper
-     div), not just the wrapper itself, and its higher specificity
-     (element+class beats .csi-body's class alone) overrode .csi-body's own
-     padding down to nothing, which is what put the folder card text flush
-     against the edges. > restricts the match to the direct child wrapper,
-     so .csi-body's own rule applies uncontested. */
   .csi > div{background:var(--ground-2);border-radius:var(--r-sm);padding:var(--s5);}
-  .csi-photo > div{position:relative;overflow:hidden;background:none;padding:0;
-    aspect-ratio:4/3;}
-  .csi-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    z-index:0;pointer-events:none;}
-  /* no scrim: the folder paper itself is light enough that dark ink text
-     sits on it cleanly, same contrast logic as the flat --ground-2 card
-     this replaced. A dark gradient here was tried first and made the copy
-     harder to read, not easier, fighting the photo instead of sitting on it. */
-  /* top anchored, not bottom: with flex-end a longer paragraph in one card
-     pulled that card's own title down with it, so the three titles never
-     lined up. Anchoring from the top instead means each title sits right
-     under the same fixed padding on every card regardless of how many
-     lines its own paragraph wraps to. */
-  /* padding-top as a percentage, not a token: percentage padding resolves
-     against the card's own WIDTH, and since every card is pinned to
-     aspect-ratio:4/3, that keeps the clearance under the folder's tab/paper
-     notch proportionally constant at any card size instead of a fixed px
-     offset that would be too little on a big card or eat half a small one. */
-  .csi-body{position:relative;z-index:2;height:100%;padding:var(--s5);
-    padding-top:20%;display:flex;flex-direction:column;justify-content:flex-start;}
   .csi h3{margin:0 0 var(--s2);font-family:var(--mono);font-size:var(--f-micro);
     letter-spacing:var(--t-caps);text-transform:uppercase;color:var(--orange-text);font-weight:600;}
-  .csi-photo h3{text-align:center;}
   /* the outcome column carries the secondary hue so results read apart from setup */
   .csi div:nth-child(3) h3{color:var(--cyan-text);}
   .csi p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
-  .csi-photo p{color:var(--ink);text-shadow:0 1px 2px rgba(255,255,255,.35);}
 
   /* Ruled ledger, not bordered cards: same technique as the hero .stats row
      (gap:1px on a --line background, each cell its own --ground fill), so a
@@ -1212,18 +1170,14 @@ CSS = """<style>
   .pkg:has(.best){border-color:rgba(var(--orange-rgb),.4);}
 
   /* the constant, stated before the tiers so the tiers are easier to read */
-  .always{background:var(--ground-2) url(__TEXTURE_PLASTER__) center/cover no-repeat;
-    border:1px solid var(--line);border-radius:var(--r-md);
+  /* flat since 2026-10-06 (was a concrete-plaster photo with shadowed white
+     text on it) */
+  .always{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
     padding:var(--s6) var(--s5);margin-bottom:var(--s8);}
-  /* White reads as the intended look against the plaster photo, but plain white
-     text only clears 3.5:1 on this midtone texture, short of the 4.5:1 body
-     text needs (heading is bold and large enough that 3.5:1 is fine there).
-     The shadow is legibility insurance against the mottled, uneven texture,
-     not decoration: some patches of the photo run darker than the average. */
   .always h2{margin:0 0 var(--s2);font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);
-    color:#FFFFFF;text-shadow:0 2px 6px rgba(0,0,0,.55);}
-  .always .sub2{margin:0 0 var(--s5);font-size:var(--f-body);color:#FFFFFF;max-width:68ch;
-    line-height:1.58;text-shadow:0 2px 6px rgba(0,0,0,.55);}
+    color:var(--ink);}
+  .always .sub2{margin:0 0 var(--s5);font-size:var(--f-body);color:var(--ink-2);max-width:68ch;
+    line-height:1.58;}
 
   /* the four benefits: numeral led, so the block reads as a designed grid rather
      than four paragraphs in boxes */
@@ -1328,110 +1282,9 @@ CSS = """<style>
     text-decoration:none;color:inherit;
     transition:border-color var(--ease),background var(--ease),transform var(--ease);}
   .door:hover{border-color:rgba(var(--orange-rgb),.4);background:var(--ground-2);transform:translateY(-2px);}
-  /* siding photo behind the section, not just the two cards: same "real
-     material, not a placeholder" reasoning as the folder cards and the
-     case study photos elsewhere on the site. */
-  .doors-section{background:var(--ground) url(__DOOR_SIDING__) center/cover no-repeat;}
+  /* flat since 2026-10-06 (was a wood-siding photo) */
+  .doors-section{background:var(--ground-2);}
 
-  /* blueprint texture behind the case study carousel. The cards themselves
-     (.ccard) carry their own opaque panel background, so they are
-     unaffected either way. The image (plus its vignette and saturation
-     tweak) lives on ::before rather than directly on the section: a
-     filter applies to the whole element including its children, and this
-     section's children are real content (the carousel, the cards' own
-     text) that should not get desaturated along with the backdrop. */
-  .case-studies-section{position:relative;background:var(--ground);}
-  /* height:100% explicitly, not left to inset:0 alone: the generic
-     section::before rule (the orange/cyan top divider every section gets)
-     also targets this same ::before and sets height:3px, and since this
-     rule never touched "height" as its own property, that 3px still won
-     the cascade for it even though "background" here (higher specificity,
-     a class selector vs. a bare type selector) correctly overrode the
-     other rule's background. Collapsed the whole vignette+photo layer
-     down to an invisible sliver. */
-  .case-studies-section::before{content:"";position:absolute;inset:0;height:100%;
-    z-index:0;
-    background:radial-gradient(ellipse at center,rgba(0,0,0,0) 55%,rgba(0,0,0,.35) 100%),
-      url(__BLUEPRINT__) center/cover no-repeat;
-    filter:saturate(.95);}
-  .case-studies-section > *{position:relative;z-index:1;}
-  /* No box around the whole block: a highlighter does not mark a
-     paragraph as one rectangle, it marks line by line. So there is no
-     container background/shape here at all, only spacing; each text
-     element carries its own .mark span (see markup) with the highlight
-     background, and box-decoration-break:clone is what makes that
-     background redraw separately under every wrapped line instead of
-     stretching across the whole block. Caveat (see CAVEAT_FONT_CSS, this
-     page only) instead of the site's own display face, for "hand
-     written". This used to be pulled out of the page flow entirely
-     (position:absolute) and float over the carousel on a guessed
-     margin-top, which needed a fixed pixel estimate of a height that
-     actually changes with copy and viewport width, and kept landing
-     wrong. In flow instead, centered, so it just occupies its own real
-     space in the blue above the cards and the carousel begins wherever
-     that space actually ends, correct at any size without maintaining a
-     magic number. */
-  .sec-head.on-photo{width:fit-content;max-width:min(92%,680px);
-    margin:0 auto var(--s7);text-align:center;}
-  /* real scanned marker strokes (see icons/hl-eyebrow.png, hl-heading.png),
-     not a CSS-drawn shape: the clip-path polygon tried first still read as
-     a clean geometric zigzag, nothing like an actual highlighter pass. The
-     image lives on ::before, not .mark itself, so the .75 opacity from the
-     brief (25% down from solid) fades just the stroke, not the text
-     sitting on it. background-size:100% 100% stretches each stroke to fit
-     its own text box exactly; box-decoration-break:clone (on both .mark
-     and ::before, so the image is included) is what redraws that fit
-     independently under every wrapped line instead of one stroke
-     stretching across the whole paragraph. */
-  /* z-index:0, not just position:relative: a positioned element only
-     establishes its own stacking context if it also has an explicit
-     z-index. Without one, ::before's z-index:-1 below was escaping to
-     whatever the nearest actual stacking context up the page happened to
-     be, painting behind unrelated content there instead of just behind
-     this element's own text, and shifting (the highlight flashing in
-     then vanishing) as that unrelated context's own stacking changed,
-     e.g. from the scroll-reveal fades elsewhere on the page. */
-  /* more vertical padding than before (.14em wasn't enough room for
-     Caveat's tall ascenders/low descenders, which were poking past the
-     stroke's top edge) plus a further negative inset on ::before so the
-     image bleeds a little past even that padded box. Opacity up from .75
-     to .92, brighter per the follow-up. */
-  /* Guessing top/bottom padding split by eye, twice, landed wrong both
-     times (the mono eyebrow and the Caveat heading have very different
-     ascender/descender metrics, so the same padding never centers both
-     the same way, and there's no way to measure the right split without
-     a real render). flex centering does not need that guess at all: it
-     centers whatever the text's actual rendered box turns out to be,
-     correct regardless of font metrics. Traded away box-decoration-break
-     per-line highlighting to get it (an inline-flex box cannot fragment
-     across wrapped lines the way true inline content can), but neither
-     "CASE STUDIES" nor the heading actually wraps within this section's
-     max-width in practice, so that trade costs nothing real here. */
-  .sec-head.on-photo .mark{position:relative;z-index:0;color:#14171A;
-    display:inline-flex;align-items:center;justify-content:center;
-    padding:.22em .55em;}
-  .sec-head.on-photo .mark::before{content:"";position:absolute;inset:-8% -2%;z-index:-1;
-    background-repeat:no-repeat;background-size:100% 100%;background-position:center;
-    opacity:.92;}
-  /* direct pixel nudges against the real render: the heading's ascenders
-     (the capital opening the line) were poking out above the stroke while a visible
-     gap of orange sat unused below the descenders, so the stroke itself
-     shifts up to close both gaps at once; the eyebrow needed the opposite,
-     smaller move. */
-  .sec-head.on-photo .eyebrow .mark::before{background-image:url(__HL_EYEBROW__);
-    transform:translateY(5px);}
-  .sec-head.on-photo h2 .mark::before{background-image:url(__HL_HEADING__);
-    transform:translateY(12px);}
-  /* mobile only: +12px was tuned against a desktop (Firefox) render:
-     narrow viewport, iOS Safari, and Caveat's own webfont metrics differ
-     enough between the two that the same offset left the heading's
-     ascenders sitting above the stroke instead of inside it, spilling
-     onto the raw blueprint. Desktop's value is untouched. */
-  @media(max-width:619px){
-    .sec-head.on-photo h2 .mark::before{transform:translateY(-10px);}
-  }
-  .sec-head.on-photo h2{font-family:'Caveat',cursive;font-size:clamp(34px,5vw,52px);
-    font-weight:700;line-height:1.35;}
   .door .tier{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
     text-transform:uppercase;color:var(--cyan-text);}
   .door h3{margin:0;font-size:var(--f-h2);font-weight:700;letter-spacing:var(--t-head);}
@@ -1508,20 +1361,11 @@ CSS = """<style>
 </style>"""
 
 # CSS above is a plain string, not an f-string (it holds far too many literal
-# {braces} to make that safe), so the packages page's "what you are actually
-# buying" panel background is patched in after the fact via a placeholder
-# rather than an inline asset() call.
-# 2026-09-03: the decorative art below was shipping as PNG, which is the wrong
-# container for photographic and scanned material and was costing about 1.2MB a
-# visit (hl-eyebrow alone was 395KB for one highlight stroke). All of it is now
-# WebP, written with Pillow, which is still the only tool on this machine that
-# writes WebP. The originals are kept beside the new files as the masters; if a
-# quality call here ever needs revisiting, re-encode from the .png, not the .webp.
-CSS = CSS.replace("__TEXTURE_PLASTER__", asset(f"{P}/texture_plaster_o.webp", "image/webp"))
-CSS = CSS.replace("__DOOR_SIDING__", asset(f"{P}/siding.webp", "image/webp"))
-CSS = CSS.replace("__BLUEPRINT__", asset(f"{P}/blueprint.webp", "image/webp"))
-CSS = CSS.replace("__HL_EYEBROW__", asset(f"{S}/icons/hl-eyebrow.webp", "image/webp"))
-CSS = CSS.replace("__HL_HEADING__", asset(f"{S}/icons/hl-heading.webp", "image/webp"))
+# {braces} to make that safe). If it ever needs an asset URL, patch it in after
+# the fact via a placeholder, as the retired texture images used to be.
+# 2026-10-06: those textures (plaster, siding, blueprint, marker strokes, the
+# manila folders) and the Caveat font that only the marker sticker used were
+# retired for a flat look; footage is the only texture now.
 
 # Full width, gently scrolling data traces, the same technique as the wave
 # background on verysilly.dev: smooth repeating bezier tiles inside an
@@ -2590,7 +2434,6 @@ def logo_marquee():
 
 html = f"""<title>Selected work, Home Service Studios</title>
 {FONT_CSS}
-{CAVEAT_FONT_CSS}
 {CSS}
 <a class="skip" href="#main">Skip to content</a>
 {nav("work")}
@@ -2632,10 +2475,10 @@ html = f"""<title>Selected work, Home Service Studios</title>
   {logo_marquee()}
 </div></section>
 
-<section class="case-studies-section"><div class="wrap">
-  <div class="sec-head on-photo">
-    <p class="eyebrow"><span class="mark">Case studies</span></p>
-    <h2 class="display"><span class="mark">Three clients, three kinds of proof</span></h2>
+<section><div class="wrap">
+  <div class="sec-head">
+    <p class="eyebrow">Case studies</p>
+    <h2 class="display">Three clients, three kinds of proof</h2>
   </div>
   <div class="carousel{CAROUSEL_FIT}">
     <button type="button" class="car-arrow car-prev" aria-label="Previous client">{ARROW_LEFT}</button>
@@ -2904,15 +2747,6 @@ HOME_SPOTS = [(None, "All Heart", "Breaking Furniture 101", "0:30", "zaCFfVetfFI
               (None, "All Heart", "The Snake", "0:30", "TPDZ-OvRNgc"),
               (None, "Handyman Dan", "A Space Odyssey", "0:56", "AfkePSa8XLU")]
 
-# Client-supplied folder illustrations for the "Three ways we work" cards
-# (icons/, cut from Folder_Icons{1,2,3}_00000.png: pure black background keyed
-# to alpha, autocropped, downscaled). Assignment per the client's own layout:
-# icon 2 left (Campaigns), icon 3 middle (Monthly programs), icon 1 right
-# (Creator work).
-CSI_ICON_CAMPAIGNS = asset(f"{S}/icons/folder2.webp", "image/webp")
-CSI_ICON_MONTHLY = asset(f"{S}/icons/folder3.webp", "image/webp")
-CSI_ICON_CREATOR = asset(f"{S}/icons/folder1.webp", "image/webp")
-
 HOME_HTML = f"""<title>Home Service Studios</title>
 {FONT_CSS}
 {CSS}
@@ -2958,19 +2792,16 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <p class="lede">All of it starts the same way, with a premise worth repeating. The difference is
     how much of the year it has to cover.</p>
   </div>
-  <div class="csi csi-photo">
-    <div><img class="csi-bg" src="{CSI_ICON_CAMPAIGNS}"{dims(f"{S}/icons/folder2.webp")} alt="" loading="lazy">
-      <div class="csi-body"><h3>Campaigns</h3><p>One premise strong enough to carry a whole package,
+  <div class="csi">
+    <div><h3>Campaigns</h3><p>One premise strong enough to carry a whole package,
       shot in a single production block so the cost lands once and the inventory lasts a
-      year.</p></div></div>
-    <div><img class="csi-bg" src="{CSI_ICON_MONTHLY}"{dims(f"{S}/icons/folder3.webp")} alt="" loading="lazy">
-      <div class="csi-body"><h3>Monthly programs</h3><p>A reel every weekday and graphics every
+      year.</p></div>
+    <div><h3>Monthly programs</h3><p>A reel every weekday and graphics every
       weekend, planned and posted on a schedule that does not depend on anyone at your company
-      remembering to post.</p></div></div>
-    <div><img class="csi-bg" src="{CSI_ICON_CREATOR}"{dims(f"{S}/icons/folder1.webp")} alt="" loading="lazy">
-      <div class="csi-body"><h3>Creator work</h3><p>Short form built for reach, for creators and
+      remembering to post.</p></div>
+    <div><h3>Creator work</h3><p>Short form built for reach, for creators and
       channels where the audience is the business. We write the premise so it travels far past the
-      size of the account that posts it.</p></div></div>
+      size of the account that posts it.</p></div>
   </div>
 </div></section>
 
