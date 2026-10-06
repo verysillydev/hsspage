@@ -964,7 +964,8 @@ CSS = """<style>
   .spot .sc{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
     font-size:var(--f-sm);color:var(--orange-text);}
   .spot .nm{font-size:var(--f-h4);font-weight:600;letter-spacing:var(--t-head);}
-  .spot .du{font-family:var(--mono);font-size:var(--f-sm);color:var(--ink-3);}
+  /* --ink-2, not --ink-3: the card is --panel, and --ink-3 on it is 4.09:1 */
+  .spot .du{font-family:var(--mono);font-size:var(--f-sm);color:var(--ink-2);}
 
   /* Ruled ledger, same technique as .stats/.ops: each cell was previously its
      own bordered, radiused, backgrounded box with a gap around it, seven
@@ -1152,8 +1153,9 @@ CSS = """<style>
   .engine h3{margin:0;font-size:var(--f-h3);font-weight:700;letter-spacing:var(--t-head);}
   .edia{width:100%;height:auto;display:block;margin:var(--s1) 0;}
   .engine p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
+  /* --ink-2, not --ink-3: the panel is --ground-2, and --ink-3 on it is 4.32:1 */
   .engine .ewhere{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:.06em;
-    text-transform:uppercase;color:var(--ink-3);border-top:1px solid var(--line);
+    text-transform:uppercase;color:var(--ink-2);border-top:1px solid var(--line);
     padding-top:var(--s3);margin-top:auto;}
   .engine.is-two .ewhere{color:var(--orange-text);}
 
