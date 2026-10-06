@@ -357,12 +357,12 @@ CSS = """<style>
      ordinary tracking, quiet, with nothing in front of it. A label announces the
      section; it does not need a flag to announce the label. */
   .eyebrow{font-family:var(--display);font-variant-caps:all-small-caps;
-    font-size:var(--f-lede);letter-spacing:.07em;text-transform:none;
+    font-size:var(--f-lede);letter-spacing:.06em;text-transform:none;
     color:var(--ink-3);margin:0;display:block;font-weight:400;}
 
   .wrap{max-width:1120px;margin:0 auto;padding:0 var(--s5);}
   a{color:var(--orange-text);}
-  a:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:2px;}
+  a:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:var(--r-sm);}
 
   /* Sticky top bar. Translucent with a blur so the full bleed banner video can
      pass under it and the labels stay readable. It only grows a background and a
@@ -548,7 +548,7 @@ CSS = """<style>
   .fld{display:flex;flex-direction:column;gap:6px;min-width:0;border:0;padding:0;margin:0;}
   .fld > label,.fld > legend{font-size:var(--f-sm);font-weight:650;color:var(--ink);padding:0;}
   .fld .opt{font-weight:400;color:var(--ink-3);font-size:var(--f-micro);
-    text-transform:uppercase;letter-spacing:.1em;font-family:var(--mono);margin-left:6px;}
+    text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin-left:6px;}
   /* reserved whether or not there is a hint, so every field is the same height
      and the inputs line up across both columns */
   .fhint{font-size:var(--f-sm);color:var(--ink-3);line-height:1.45;min-height:1.45em;}
@@ -1063,7 +1063,7 @@ CSS = """<style>
      width here is tied to height via aspect-ratio, one taller card in the
      row inflated every thumbnail's width right along with it. Fixed at
      44x74 (9:15.1, close enough) sidesteps that entirely. */
-  .rthumb{width:44px;height:74px;border-radius:2px;flex:none;object-fit:cover;}
+  .rthumb{width:44px;height:74px;border-radius:var(--r-sm);flex:none;object-fit:cover;}
   .reel .l{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
     font-family:var(--mono);}
 
@@ -1073,7 +1073,7 @@ CSS = """<style>
   /* Written for the old title cards and kept because it is what gives the
      click-to-play spot button its 46x32 shape: it overrides the circle above. */
   .ytplay{position:absolute;left:50%;top:50%;width:46px;height:32px;margin:-16px 0 0 -23px;
-    border-radius:8px;background:rgba(15,18,20,.72);transition:background var(--ease);}
+    border-radius:var(--r-lg);background:rgba(15,18,20,.72);transition:background var(--ease);}
   .ytplay::after{content:"";position:absolute;left:18px;top:9px;border-style:solid;
     border-width:7px 0 7px 12px;border-color:transparent transparent transparent #F2EFE9;}
 
@@ -2137,14 +2137,14 @@ def a1_chart(dark=False, decorative=False):
                    f'font-weight="700">{lab}</text>')
         labels += (f'<text x="{x + bw/2:.0f}" y="{BASE + 20}" text-anchor="middle" fill="{sub}" '
                    f'font-size="11" font-family="Archivo,sans-serif" font-weight="700" '
-                   f'letter-spacing="1">{"0" + str(i+1)}</text>')
+                   f'letter-spacing=".6">{"0" + str(i+1)}</text>')
     # the 100k line the whole tail clears
     ty = BASE - round(100 / 623 * 132)
     lx = PAD + 7 * (bw + gap) - gap + 10          # just past the last bar
     thresh = (f'<line x1="{PAD}" y1="{ty}" x2="{lx - 6}" y2="{ty}" stroke="#F04820" '
               f'stroke-width="1" stroke-dasharray="4 4" opacity=".5"/>'
               f'<text x="{lx}" y="{ty + 4}" fill="{tlab}" font-size="11" '
-              f'font-family="Archivo,sans-serif" font-weight="700" letter-spacing="1">100K</text>')
+              f'font-family="Archivo,sans-serif" font-weight="700" letter-spacing=".6">100K</text>')
     a11y = ('aria-hidden="true"' if decorative else
             'role="img" aria-label="Seven A1 reels by view count, from 623,000 down to 134,000, '
             'every one of them above 100,000"')
