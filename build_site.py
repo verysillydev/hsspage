@@ -425,11 +425,9 @@ CSS = """<style>
   .hero .stat:nth-child(1){animation-delay:.04s;}
   .hero .stat:nth-child(2){animation-delay:.10s;}
   .hero .stat:nth-child(3){animation-delay:.16s;}
-  .hero .stat:nth-child(4){animation-delay:.22s;}
-  .hero .stat:nth-child(5){animation-delay:.28s;}
 
   /* (b) count-up needs digits that do not jump width as they change */
-  .stat .n,.op .n,.reel .vnum,.sh .v,.cc-metric b{font-variant-numeric:tabular-nums;}
+  .stat .n,.op .n,.reel .vnum,.cc-metric b{font-variant-numeric:tabular-nums;}
 
   /* (d) hero film: a slow push in, transform only, clipped by the wrapper so a
      1.04 scale on a 100vw element cannot create a horizontal scrollbar */
@@ -540,11 +538,6 @@ CSS = """<style>
     letter-spacing:var(--t-head);}
   .fdone p{margin:0;color:var(--ink-2);line-height:1.55;max-width:60ch;}
 
-  /* The 128M figure briefly hung -92px into the margin. In a two column grid that
-     margin is the image column, so the leading digit sat behind the thumbnail.
-     Removed: a device that only works in a single column layout does not belong
-     next to an image. */
-
   /* Sticky action bar, phones only. Trades buyers call, and on a long case page the
      header scrolls away. Sits above the safe area on notched devices. */
   .actionbar{position:fixed;left:0;right:0;bottom:0;z-index:55;display:flex;gap:1px;
@@ -575,7 +568,7 @@ CSS = """<style>
 
   /* case study carousel on /our-work/. Cards are buttons (see case_card):
      clicking one reveals its full write-up in .case-panels below instead of
-     navigating to its own page, which is what these five used to be. */
+     navigating to its own page, which is what each case used to be. */
   .carousel{position:relative;display:flex;align-items:center;gap:var(--s3);}
   .car-viewport{flex:1 1 auto;min-width:0;overflow:hidden;}
   .ccards{display:flex;gap:var(--s4);overflow-x:auto;scroll-snap-type:x mandatory;
@@ -642,6 +635,14 @@ CSS = """<style>
     border-radius:50%;border:0;background-color:var(--line);
     background-clip:content-box;cursor:pointer;}
   .car-dot.is-active{background-color:var(--orange-text);}
+  /* Arrows and dots only mean something when there is more to scroll to. The
+     build marks the carousel .fits-3 / .fits-2 from len(CASES) (see
+     CAROUSEL_FIT), so at widths where every card is already on screen they
+     are not drawn at all rather than sitting there inert. Decided at build
+     time, not measured in JS, so nothing shifts after load. Narrower screens
+     keep the full carousel. */
+  @media(min-width:960px){.carousel.fits-3 .car-arrow,.car-dots.fits-3{display:none;}}
+  @media(min-width:620px){.carousel.fits-2 .car-arrow,.car-dots.fits-2{display:none;}}
 
   /* Each is the exact same section markup a standalone case page used to
      render on its own; only one shows at a time, toggled by CAROUSEL_JS. */
@@ -803,21 +804,46 @@ CSS = """<style>
     padding-top:var(--s6);padding-bottom:var(--s8);}
 
   /* hairline gaps rather than per-cell borders: an adjacent-sibling rule left a
-     stray line on the first item of every wrapped row on a phone */
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));
+     stray line on the first item of every wrapped row on a phone.
+     2026-10-06: both ledgers (homepage hero, /our-work) hold three figures. On a
+     phone they are a single-column ledger, one figure per row with the number
+     on the left, because three columns at 390px left about 89px for text and
+     "Conditioning" alone does not fit in that. From 560px up every figure sits
+     in one row: grid-auto-flow:column makes one equal column per item, so any
+     count lays out as a single row and there is never an orphan or an empty
+     filler cell. */
+  .stats{display:grid;grid-template-columns:minmax(0,1fr);
     gap:1px;background:var(--line);margin-top:var(--s7);}
-  .stat{background:var(--ground);padding:var(--s4) var(--s5) var(--s5);
-    display:flex;flex-direction:column;gap:var(--s1);text-decoration:none;color:inherit;
-    transition:background var(--ease);}
+  .stat{background:var(--ground);padding:var(--s3) var(--s4);
+    display:grid;grid-template-columns:4.4em minmax(0,1fr);
+    grid-template-areas:"n case" "n k";column-gap:var(--s4);row-gap:2px;align-items:center;
+    text-decoration:none;color:inherit;transition:background var(--ease);}
   .stat:hover{background:var(--ground-2);}
-  /* reserve two lines so a wrapped client name does not push its number out of
-     line with the rest of the row */
-  .stat .case{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.05em;
-    font-size:var(--f-sm);color:var(--cyan-text);line-height:1.3;min-height:2.6em;}
-  .stat .n{font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;color:var(--orange-text);
-    font-family:var(--display);line-height:1.1;}
-  .stat .k{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
-    font-family:var(--mono);line-height:1.35;min-height:2.7em;}
+  .stat .case{grid-area:case;font-family:var(--display);font-variant-caps:all-small-caps;
+    letter-spacing:.05em;font-size:var(--f-sm);color:var(--cyan-text);line-height:1.3;}
+  .stat .n{grid-area:n;font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;
+    color:var(--orange-text);font-family:var(--display);line-height:1.1;}
+  .stat .k{grid-area:k;font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-3);font-family:var(--mono);line-height:1.35;}
+  @media(min-width:560px){
+    .stats{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);}
+    /* Subgrid lines the three rows (client, number, label) up across every
+       cell, so a client name that wraps at tablet widths cannot push its
+       number out of line with its neighbours. This replaces the old fixed
+       two-line reservation on .case, which left an empty line under every
+       name once three columns gave them room to sit on one line. */
+    .stat{grid-template-columns:none;grid-template-areas:none;
+      grid-row:span 3;grid-template-rows:subgrid;row-gap:var(--s1);align-items:start;
+      padding:var(--s4) var(--s5) var(--s5);}
+    .stat .case,.stat .n,.stat .k{grid-area:auto;}
+  }
+  /* No subgrid: fall back to the reservation, so numbers still line up. */
+  @supports not (grid-template-rows:subgrid){
+    @media(min-width:560px){
+      .stat{display:flex;flex-direction:column;gap:var(--s1);}
+      .stat .case{min-height:2.6em;}
+    }
+  }
 
   section{padding:var(--s-sec) 0;position:relative;scroll-margin-top:76px;}
   /* section breaks get a heavier rule than anything inside a section, so the page
@@ -902,37 +928,6 @@ CSS = """<style>
   .op .k{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
     font-family:var(--mono);}
 
-  /* hero feature card */
-  .feature{display:grid;grid-template-columns:1fr;gap:var(--s6);align-items:center;}
-  /* A 9:16 still at .85fr ran 642px tall against a 324px text block, twice its
-     height, which read as an image with a caption rather than a figure with an
-     argument. Capped so the two columns are close to level. */
-  @media(min-width:820px){
-    .feature{grid-template-columns:minmax(170px,215px) 1fr;align-items:center;}
-    .feature .fstack{max-width:60ch;}
-  }
-  .feature .shot{position:relative;display:block;border-radius:var(--r-lg);overflow:hidden;
-    border:1px solid var(--line);background:#000;}
-  /* The source is a YouTube Shorts still: a vertical video pillarboxed into a 16:9
-     file with blurred filler either side. Cropping back to 9:16 throws the filler
-     away and keeps the actual frame. height:auto is load bearing: without it the
-     img's height attribute wins and pins the frame at 640px whatever the column
-     does, which is what put the leading digit of 128M behind the image. */
-  .feature .shot img{width:100%;height:auto;display:block;aspect-ratio:9/16;object-fit:cover;}
-  /* Single column: a 9:16 frame at full width is 600px tall and swallows the
-     viewport before the number is reached. Cap it so both land on one screen. */
-  .feature .shot{max-width:230px;}
-  .feature .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    background:rgba(10,12,14,.28);transition:background var(--ease);}
-  .feature .shot:hover .play{background:rgba(10,12,14,.06);}
-  .feature .play span{width:62px;height:62px;border-radius:var(--r-pill);background:rgba(242,239,233,.94);
-    display:flex;align-items:center;justify-content:center;color:#14171A;font-size:21px;padding-left:5px;}
-  .bignum{font-size:var(--f-mega);font-weight:700;letter-spacing:-.045em;color:var(--orange-text);
-    line-height:.88;font-family:var(--display);}
-  .feature p{margin:0;color:var(--ink-2);font-size:var(--f-body);line-height:1.6;}
-  .feature p strong{color:var(--ink);font-weight:600;}
-  .fstack{display:flex;flex-direction:column;gap:var(--s4);}
-
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:var(--s5);}
   .spot{background:var(--panel);border-radius:var(--r-md);
     overflow:hidden;display:flex;flex-direction:column;}
@@ -1002,57 +997,15 @@ CSS = """<style>
   .reel .l{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
     font-family:var(--mono);}
 
-  /* six shorts from the same body of work, most viewed first */
+  /* label row above a grid of clips (the homepage "Commercial spots") */
   .shorts-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s4);
     flex-wrap:wrap;margin:var(--s7) 0 var(--s4);}
-  .shorts{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s3);}
-  @media(min-width:560px){.shorts{grid-template-columns:repeat(3,1fr);}}
-  @media(min-width:900px){.shorts{grid-template-columns:repeat(6,1fr);}}
-  .sh{display:block;text-decoration:none;background:var(--ground-2);border:1px solid var(--line);
-    border-radius:var(--r-sm);overflow:hidden;
-    transition:border-color var(--ease),background var(--ease),transform var(--ease);}
-  .sh:hover{border-color:var(--cyan-text);background:var(--panel);transform:translateY(-2px);}
-  .sh .th{position:relative;display:block;}
-  .sh .th img{width:100%;display:block;aspect-ratio:9/16;object-fit:cover;}
-  .sh .cap{padding:var(--s3);display:flex;flex-direction:column;gap:var(--s1);}
-  .sh .v{font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;color:var(--ink);
-    font-family:var(--display);line-height:1.15;}
-  .sh .l{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
-    font-family:var(--mono);}
-
-  /* the funnel is a real sequence, so the numbering carries meaning */
-  .funnel{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3);
-    margin-bottom:var(--s6);}
-  .step{background:var(--ground-2);border-radius:var(--r-sm);
-    padding:var(--s5);display:flex;flex-direction:column;gap:var(--s2);position:relative;}
-  .step .sn{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
-    color:var(--cyan-text);}
-  .step h3{margin:0;font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);}
-  .step p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
-
-  .titles{display:grid;grid-template-columns:repeat(auto-fill,minmax(266px,1fr));gap:var(--s3);}
-  .tcard{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-sm);
-    display:flex;flex-direction:column;text-decoration:none;overflow:hidden;
-    color:inherit;transition:border-color var(--ease),background var(--ease),transform var(--ease);}
-  .tcard:hover{border-color:var(--cyan-text);background:var(--panel);transform:translateY(-2px);}
-  .tcard .tag{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
-    text-transform:uppercase;align-self:flex-start;}
-  .tcard .tag.tour{color:var(--cyan-text);}
-  .tcard .tag.exp{color:var(--orange-text);}
-  .tcard .tag.lead{color:var(--orange-text);border:1px solid rgba(var(--orange-rgb),.4);
-    background:rgba(var(--orange-rgb),.10);border-radius:var(--r-pill);padding:3px 10px;}
-  .tcard .tt{font-size:var(--f-body);font-weight:550;line-height:1.4;letter-spacing:var(--t-head);}
-  /* real YouTube thumbnails, pulled from the same video ids these cards link to */
-  .titles{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
-  .tthumb{position:relative;display:block;aspect-ratio:16/9;background:#000;}
-  .tthumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  /* Written for the old title cards and kept because it is what gives the
+     click-to-play spot button its 46x32 shape: it overrides the circle above. */
   .ytplay{position:absolute;left:50%;top:50%;width:46px;height:32px;margin:-16px 0 0 -23px;
     border-radius:8px;background:rgba(15,18,20,.72);transition:background var(--ease);}
   .ytplay::after{content:"";position:absolute;left:18px;top:9px;border-style:solid;
     border-width:7px 0 7px 12px;border-color:transparent transparent transparent #F2EFE9;}
-  .tcard:hover .ytplay{background:var(--orange);}
-  .tcard:hover .ytplay::after{border-left-color:#14171A;}
-  .tbody{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s4);}
 
   /* client wall: every mark is pre-rendered onto an identical canvas with equal
      optical ink area, so the grid spaces itself without per logo tuning. */
@@ -1329,7 +1282,7 @@ CSS = """<style>
     background-repeat:no-repeat;background-size:100% 100%;background-position:center;
     opacity:.92;}
   /* direct pixel nudges against the real render: the heading's ascenders
-     (the "F" in "Five") were poking out above the stroke while a visible
+     (the capital opening the line) were poking out above the stroke while a visible
      gap of orange sat unused below the descenders, so the stroke itself
      shifts up to close both gaps at once; the eyebrow needed the opposite,
      smaller move. */
@@ -1686,7 +1639,7 @@ NAV_JS = """<script>
 </script>"""
 
 
-# /our-work/ only: the five case cards are buttons, not links (see case_card).
+# /our-work/ only: the case cards are buttons, not links (see case_card).
 # Clicking one reveals that case's full write-up (still the exact same markup
 # case_page() used to build a whole page from, just living in .case-panels
 # instead) below the carousel, and clicking the same card again collapses it.
@@ -1778,8 +1731,8 @@ MOTION_JS = """<script>
 
   /* (a) scroll reveals ---------------------------------------------------- */
   if(!reduce && 'IntersectionObserver' in window){
-    var SEL = '.sec-head,.ccard,.benefit,.engine,.pkg,.csi > div,.op,.spot,.reel,.sh,' +
-              '.step,.step2,.tcard,.door,.feature,.always,.incl,.pn,.band-head,.lead,.member';
+    var SEL = '.sec-head,.ccard,.benefit,.engine,.pkg,.csi > div,.op,.spot,.reel,' +
+              '.step2,.door,.always,.incl,.pn,.band-head,.lead,.member';
     var vh = window.innerHeight || 800;
     var targets = [].slice.call(document.querySelectorAll(SEL)).filter(function(e){
       /* nothing above the fold gets a reveal: that space belongs to the hero
@@ -2103,8 +2056,6 @@ handyman = [(None,"01","It's Way Hotter","0:30","E5qZHk03snY"),
     (None,"03","Sleeping On The Job","0:30","S3Hkreuykvs"),(None,"04","Father Vs AC","0:15","IppFw7pSssA"),
     (None,"05","A Space Odyssey","0:56","AfkePSa8XLU"),(None,"06","Where's That Coming From","0:30","Fodjt_xKovE")]
 
-yt = asset(f"{P}/_yt.jpg", "image/jpeg")
-
 # The banner is a three minute film, on YouTube as of 2026-08-26 (see SOLO_JS
 # for the ambient autoplay/loop-to-1:14 handling, which replaces #yt-banner
 # with the actual player once it scrolls into view). Inlining it as base64
@@ -2119,26 +2070,6 @@ if MODE == "web":
 else:
     BANNER_MEDIA = (f'<div class="bannerwrap"><img class="banner" src="{_bposter}" '
                     f'alt="Quality Heating Cooling Plumbing Electrical website banner film"></div>')
-
-# Sam Halaby shorts, most viewed first. Display figures are rounded from the
-# exact view counts in the YouTube player data:
-#   27,545,773 / 24,209,643 / 12,386,169 / 9,502,205 / 7,375,746 / 3,132,865
-# sam7 and sam8 are new filenames rather than reused ones, so the already
-# deployed sam2 and sam6 cannot be served from cache in their place.
-sam_shorts = [("DSlESrTFvXE", "sam4.jpg", "27.5M"),
-              ("Cr1LTNIsiUk", "sam7.jpg", "24.2M"),
-              ("403h7URKz8s", "sam1.jpg", "12.4M"),
-              ("imKJBmkcifw", "sam5.jpg", "9.5M"),
-              ("vuFJ408hhSA", "sam8.jpg", "7.4M"),
-              ("j-TPiHVoGuM", "sam3.jpg", "3.1M")]
-
-def short(vid, thumb, views):
-    return (f'<a class="sh" href="https://www.youtube.com/shorts/{vid}">'
-            f'<span class="th"><img src="{asset(f"{P}/{thumb}", "image/jpeg")}" '
-            f'width="360" height="640" loading="lazy" decoding="async" '
-            f'alt="Sam Halaby short, {views} views"></span>'
-            f'<span class="cap"><span class="v">{views}</span>'
-            f'<span class="l">Views</span></span></a>')
 
 # thumb ids are 2026-08-26 crops of screenshots the client sent (Facebook serves
 # no public og:image/thumbnail without auth, see the case-visuals note in
@@ -2167,7 +2098,6 @@ A1_REELS = "\n".join(
 )
 
 CLIENT_LOGOS = [
-    ("logo_samhalaby.png",   "Sam Halaby"),
     ("logo_allheart.png",    "All Heart Heating and Cooling"),
     ("logo_veterans.png",    "Veterans AC PHX"),
     ("logo_acplus.png",      "AC Plus Heating and Cooling"),
@@ -2198,33 +2128,9 @@ def logomark(fn, name):
             f'loading="lazy" decoding="async"></div>')
 
 
-
-# The nine Peretz videos, with their real YouTube thumbnails pulled from the same
-# video ids the page already links to. The titles are the strategy on this account,
-# so the card leads with the thumbnail and keeps the title verbatim.
-PERETZ_TITLES = [
-    ("52WDcQztJaM", "lead", "Lead magnet",
-     "340 sq ft Los Angeles Garage Conversion + FREE ADU Floor Plan Download"),
-    ("h874duk79gg", "exp",  "Explainer", "NEW ADU Laws in 2025 Are a GAMECHANGER"),
-    ("p0ke0hdSBHo", "tour", "Tour", "THE ADU FINAL WALKTHROUGH YOU&#39;VE BEEN WAITING FOR"),
-    ("LBOZsBnpEvo", "tour", "Tour", "440 sq ft ADU Tour in Culver City"),
-    ("XZGJHHBfiRw", "tour", "Tour", "Los Angeles Above Garage ADU Tour, 500 sq ft"),
-    ("J8CwbSBXxOg", "tour", "Tour", "ADU 2 Bed 2 Bath 750 sq ft Property Tour"),
-    ("NQYrUAl-adI", "tour", "Tour", "340 sq ft Garage Conversion in Culver City"),
-    ("Nks3ejFl9Io", "tour", "Tour", "Garage Conversion Inspired by Santorini, Valley Glen"),
-    ("ztnHUaPrB8M", "tour", "Tour", "500 sq ft ADU Tour in Thousand Oaks"),
-]
-
-
-def ytcard(vid, tag, taglabel, title):
-    thumb = asset(os.path.join(S, "post_yt", vid + ".webp"), "image/webp")
-    return (f'<a class="tcard" href="https://www.youtube.com/watch?v={vid}">'
-            f'<span class="tthumb"><img src="{thumb}" alt="{title}" width="700" height="394" '
-            f'loading="lazy" decoding="async"><span class="ytplay" aria-hidden="true"></span></span>'
-            f'<span class="tbody"><span class="tag {tag}">{taglabel}</span>'
-            f'<span class="tt">{title}</span></span></a>')
-
-PERETZ_CARDS = "\n".join(ytcard(*x) for x in PERETZ_TITLES)
+# The roster stat on the homepage counts the wall rather than restating a number
+# by hand, so adding or removing a logo can never leave the two disagreeing.
+ROSTER_COUNT = len(CLIENT_LOGOS)
 
 
 # A1's reels live on Facebook, which serves no public thumbnail, so the page gets a
@@ -2263,10 +2169,11 @@ def a1_chart():
             f'stroke-width="1"/>{thresh}{bars}{labels}</svg>')
 
 
-# ---- the five case studies, each now its own page ------------------------
+# ---- the three case studies, shown inline on /our-work/ --------------------
 
-# Order here is the reading order everywhere: the index, the prev/next chain and
-# the homepage stat bar. Home services first, Sam as the closing flex.
+# Order here is the reading order everywhere: the carousel, its dots and the case
+# panels below it. A1 leads because it is the one with numbers a home service
+# owner can picture in their own market.
 CASES = [
     dict(id="a1",       slug="a1-air-conditioning", name="A1 Air Conditioning", og=None,
          vertical="Home services", metric="2.26M", mlabel="Views in a market of one million",
@@ -2275,13 +2182,6 @@ CASES = [
                "social, paid and brand video.",
          desc="How a Tucson HVAC company with 9,200 followers built seven reels past 100,000 "
               "views, roughly 2.26 million views in a market of one million people."),
-    dict(id="peretz", og="og-peretz.jpg",   slug="joseph-peretz", name="Joseph Peretz",
-         vertical="Home services", metric="50%", mlabel="Of the company's annual projects",
-         still=None, logo=None,
-         blurb="Six years on a Los Angeles ADU builder's channel, built to fill a construction "
-               "calendar rather than chase reach.",
-         desc="Six years and 258 videos on a Los Angeles ADU builder's channel. About half the "
-              "company's annual projects now originate there, on builds worth $100,000 to $500,000."),
     dict(id="handyman", og="og-handyman.jpg", slug="handyman-dan", name="Handyman Dan",
          vertical="Home services", metric="12", mlabel="Markets deployed",
          still="hd5.jpg", logo=None,
@@ -2296,13 +2196,6 @@ CASES = [
                "the cost lands once.",
          desc="Ten commercial spots written and produced in a single production block on one "
               "premise: the contractor you want versus the contractor you got."),
-    dict(id="sam", og="og-sam.jpg",      slug="sam-halaby", name="Sam Halaby",
-         vertical="Creator", metric="605M", mlabel="Views for one artist",
-         still="sam4.jpg", logo="logo_samhalaby.png",
-         blurb="Every short-form video for the artist known as The Color Hunter, written and "
-               "directed. One of them reached 128 million views.",
-         desc="Every short-form video for the artist The Color Hunter: 605 million channel views, "
-              "33 videos past a million, and one at 128 million."),
 ]
 CASE_BY_ID = {c["id"]: c for c in CASES}
 
@@ -2335,6 +2228,11 @@ def case_card(c):
             f'</span></button>')
 
 CASE_INDEX = "\n".join(case_card(c) for c in CASES)
+# How many cards are on screen at once: three from 960px, two from 620px (see
+# .ccard). If every case fits at one of those widths the arrows and dots are
+# hidden there, since there is nothing left to scroll to.
+CAROUSEL_FIT = " ".join(c for c, n in (("fits-3", 3), ("fits-2", 2)) if len(CASES) <= n)
+CAROUSEL_FIT = (" " + CAROUSEL_FIT) if CAROUSEL_FIT else ""
 CASE_DOTS = "\n".join(f'<button type="button" class="car-dot" data-case="{c["id"]}" '
                        f'aria-label="{c["name"]}"></button>' for c in CASES)
 
@@ -2376,56 +2274,9 @@ CASE_BODY["a1"] = f"""<section id="a1"><div class="wrap">
 {A1_REELS}
   </div>
 </div></section>"""
-CASE_BODY["peretz"] = f"""<section id="peretz"><div class="wrap">
-  <div class="sec-head casehead">
-    <p class="eyebrow">Case 02 &middot; Home services &middot; Conversion</p>
-    <h2 class="display">Joseph Peretz</h2>
-    <div class="role"><span class="lbl">Our role</span><span class="pill">Content Strategist</span><span class="pill">Producer</span></div>
-    <p class="lede">The most commercially valuable channel here is also the smallest. We have spent six
-    years on a Los Angeles ADU builder's channel, now 258 videos deep, built to fill a construction
-    calendar rather than to chase reach. We run it end to end: strategy, production, publishing and
-    performance analysis.</p>
-  </div>
-
-  <div class="csi">
-    <div><h3>The challenge</h3><p>A general contractor competes for high-value jobs against every other
-      builder in Los Angeles, and bought construction leads arrive expensive and cold.</p></div>
-    <div><h3>The solution</h3><p>A library built for intent rather than attention. The audience is smaller,
-      but it skews heavily toward homeowners researching a build of their own, and the work compounds. These
-      videos still bring in leads years after they were posted.</p></div>
-    <div><h3>The impact</h3><p>About half of the company's annual projects now originate from the channel, in
-      a category where a single build runs from roughly $100,000 for a garage conversion to over
-      $500,000.</p></div>
-  </div>
-
-  <div class="ops">
-    <div class="op"><span class="n">6 yrs</span><span class="k">On the account</span></div>
-    <div class="op"><span class="n">258</span><span class="k">Video library</span></div>
-    <div class="op"><span class="n">50%</span><span class="k">Of projects sourced</span></div>
-  </div>
-
-  <div class="funnel">
-    <div class="step"><span class="sn">STEP 01</span><h3>Explain</h3>
-      <p>Videos on ADU law reach homeowners still working out whether they are allowed to build at all.</p></div>
-    <div class="step"><span class="sn">STEP 02</span><h3>Show</h3>
-      <p>Property tours, titled by square footage, type and neighborhood, catch people who already
-      know what they want.</p></div>
-    <div class="step"><span class="sn">STEP 03</span><h3>Capture</h3>
-      <p>A free floor plan download turns a viewer into a named contact.</p></div>
-    <div class="step"><span class="sn">STEP 04</span><h3>Book</h3>
-      <p>A free consultation turns that contact into a scheduled project.</p></div>
-  </div>
-
-  <p class="lede" style="margin:0 0 18px;">The titles are the strategy: square footage, project type
-  and neighborhood, written for someone typing exactly that into a search bar.</p>
-
-  <div class="titles">
-{PERETZ_CARDS}
-  </div>
-</div></section>"""
 CASE_BODY["handyman"] = f"""<section id="handyman"><div class="wrap">
   <div class="sec-head casehead">
-    <p class="eyebrow">Case 03 &middot; Home services &middot; Scale</p>
+    <p class="eyebrow">Case 02 &middot; Home services &middot; Scale</p>
     <h2 class="display">Handyman Dan</h2>
     <div class="role"><span class="lbl">Our role</span><span class="pill">Writer</span><span class="pill">Producer</span></div>
     <p class="lede">We wrote and produced a six-spot package once, then <strong>deployed it across twelve
@@ -2455,7 +2306,7 @@ CASE_BODY["handyman"] = f"""<section id="handyman"><div class="wrap">
 </div></section>"""
 CASE_BODY["allheart"] = f"""<section id="allheart"><div class="wrap">
   <div class="sec-head casehead">
-    <p class="eyebrow">Case 04 &middot; Home services &middot; Campaign</p>
+    <p class="eyebrow">Case 03 &middot; Home services &middot; Campaign</p>
     <h2 class="display">All Heart</h2>
     <div class="role"><span class="lbl">Our role</span><span class="pill">Writer</span><span class="pill">Producer</span></div>
     <p class="lede">We wrote and produced a <strong>ten-spot campaign in a single production
@@ -2482,47 +2333,6 @@ CASE_BODY["allheart"] = f"""<section id="allheart"><div class="wrap">
 {chr(10).join(spot(*s) for s in allheart)}
   </div>
 </div></section>"""
-CASE_BODY["sam"] = f"""<section id="sam"><div class="wrap">
-  <div class="sec-head casehead">
-    <p class="eyebrow">Case 05 &middot; Creator &middot; Audience</p>
-    <h2 class="display">Sam Halaby</h2>
-    <div class="role"><span class="lbl">Our role</span><span class="pill">Writer</span><span class="pill">Director</span></div>
-    <p class="lede">We write and direct every short-form video for the artist known as The Color Hunter.
-    The channel has 170,000 subscribers and <strong>more than 600 million views</strong>, and thirty-three
-    of the videos have passed a million on their own.</p>
-  </div>
-
-  <div class="ops">
-    <div class="op"><span class="n">605M</span><span class="k">Total channel views</span></div>
-    <div class="op"><span class="n">33</span><span class="k">Shorts past a million</span></div>
-    <div class="op"><span class="n">12</span><span class="k">Shorts past ten million</span></div>
-    <div class="op"><span class="n">170K</span><span class="k">Subscribers</span></div>
-  </div>
-
-  <div class="feature">
-    <a class="shot" href="https://www.youtube.com/shorts/ls_vYanttiI">
-      <img src="{yt}" alt="Sam Halaby short, paint on matzah" width="360" height="640"
-        loading="lazy" decoding="async">
-      <span class="play"><span>&#9654;</span></span>
-    </a>
-    <div class="fstack">
-      <span class="bignum">128M</span>
-      <p><strong>Our most viewed and most shared video to date.</strong> 448,000 likes, eleven
-      seconds long, and 128 million views on a channel with 170,000 subscribers.</p>
-      <p>Cross-platform performance carried the same shape. Reach at this scale is not bought, it is written.
-      This is what happens when the premise does the work instead of the spend.</p>
-      <p><a href="https://www.youtube.com/shorts/ls_vYanttiI">Watch on YouTube &rarr;</a></p>
-    </div>
-  </div>
-
-  <div class="shorts-head">
-    <p class="eyebrow">Also written and directed</p>
-  </div>
-
-  <div class="shorts">
-{chr(10).join(short(*s) for s in sam_shorts)}
-  </div>
-</div></section>"""
 
 
 def logo_marquee():
@@ -2542,15 +2352,13 @@ html = f"""<title>Selected work, Home Service Studios</title>
 {nav("work")}
 <div class="hero">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Selected work &middot; Home Service Studios</p>
-  <h1 class="display">Five clients.<br>Five kinds of proof.</h1>
-  <p class="sub">From a brand-new account with zero followers to an artist at six hundred million
-  views. <strong>The approach does not change.</strong></p>
+  <h1 class="display">Three clients.<br>Three kinds of proof.</h1>
+  <p class="sub">From one HVAC company&#39;s feed to a spot package licensed across twelve
+  markets. <strong>The approach does not change.</strong></p>
   <div class="stats">
     <a class="stat" href="#a1"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">One client, 7 reels</span></a>
-    <a class="stat" href="#peretz"><span class="case">Joseph Peretz</span><span class="n">50%</span><span class="k">Of projects sourced</span></a>
     <a class="stat" href="#handyman"><span class="case">Handyman Dan</span><span class="n">12</span><span class="k">Markets deployed</span></a>
     <a class="stat" href="#allheart"><span class="case">All Heart</span><span class="n">10</span><span class="k">Spots delivered</span></a>
-    <a class="stat" href="#sam"><span class="case">Sam Halaby</span><span class="n">605M</span><span class="k">Views for one artist</span></a>
   </div>
   <div class="ctarow">
     {book("Project%20enquiry", "Start a project")}
@@ -2583,16 +2391,16 @@ html = f"""<title>Selected work, Home Service Studios</title>
 <section class="case-studies-section"><div class="wrap">
   <div class="sec-head on-photo">
     <p class="eyebrow"><span class="mark">Case studies</span></p>
-    <h2 class="display"><span class="mark">Five clients, five kinds of proof</span></h2>
+    <h2 class="display"><span class="mark">Three clients, three kinds of proof</span></h2>
   </div>
-  <div class="carousel">
+  <div class="carousel{CAROUSEL_FIT}">
     <button type="button" class="car-arrow car-prev" aria-label="Previous client">{ARROW_LEFT}</button>
     <div class="car-viewport"><div class="ccards">
 {CASE_INDEX}
     </div></div>
     <button type="button" class="car-arrow car-next" aria-label="Next client">{ARROW_RIGHT}</button>
   </div>
-  <div class="car-dots">
+  <div class="car-dots{CAROUSEL_FIT}">
 {CASE_DOTS}
   </div>
 </div></section>
@@ -2767,8 +2575,8 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
         {ENGINE_LONG}
         <p>Made for intent rather than attention, aimed at someone already searching for what you
         sell. Fewer people, each one further along. Slower to start, it does produce trackable
-        inbound, and <strong>unlike short form it does not expire</strong>: one client&#39;s channel
-        is six years deep and still booking work from videos posted at the beginning.</p>
+        inbound, and <strong>unlike short form it does not expire</strong>: a video made for
+        search keeps getting found years after it is posted.</p>
         <span class="ewhere">Studio and Studio Max only</span>
       </div>
     </div>
@@ -2803,17 +2611,6 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
     <div class="reels">
 {A1_REELS}
     </div>
-    <div class="ops" style="margin-top:22px;">
-      <div class="op"><span class="n">50%</span><span class="k">Of one client&#39;s annual projects</span></div>
-      <div class="op"><span class="n">6 yrs</span><span class="k">That account has run</span></div>
-      <div class="op"><span class="n">258</span><span class="k">Videos in their library</span></div>
-      <div class="op"><span class="n">$100K+</span><span class="k">Value of one job it sources</span></div>
-    </div>
-    <p class="ctanote" style="margin-top:14px;">A Los Angeles ADU builder, six years in on what is
-    now the Studio Max shape: weekly long form built around what people actually search, plus regular
-    posting everywhere else. About half of the company&#39;s annual projects now start on that
-    channel, in a category where a single build runs from roughly $100,000 to over $500,000.
-    <a href="/our-work/#peretz">Read that case</a>.</p>
   </div>
 
   {pkg_group("we-shoot")}
@@ -2916,11 +2713,9 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   leads nobody can honestly promise you. It takes <strong>video worth watching, often enough to
   stay in mind</strong> until the day they need you.</p>
   <div class="stats">
-    <a class="stat" href="/our-work/#peretz"><span class="case">Joseph Peretz</span><span class="n">50%</span><span class="k">Of projects sourced</span></a>
     <a class="stat" href="/our-work/#a1"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">One client, 7 reels</span></a>
     <a class="stat" href="/our-work/#handyman"><span class="case">Handyman Dan</span><span class="n">12</span><span class="k">Markets deployed</span></a>
-    <a class="stat" href="#roster"><span class="case">Roster</span><span class="n">16</span><span class="k">Brands and creators</span></a>
-    <a class="stat" href="/our-work/#sam"><span class="case">Sam Halaby</span><span class="n">605M</span><span class="k">Views for one artist</span></a>
+    <a class="stat" href="#roster"><span class="case">Roster</span><span class="n">{ROSTER_COUNT}</span><span class="k">Brands</span></a>
   </div>
   <div class="ctarow">
     <a class="cta" href="/packages/">See the packages</a>
@@ -2947,7 +2742,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
       month, on a schedule that does not depend on anyone at your company remembering to
       film.</p></div></div>
     <div><img class="csi-bg" src="{CSI_ICON_CREATOR}" alt="" loading="lazy">
-      <div class="csi-body"><h3>Creator work</h3><p>Short form built for reach, for artists and
+      <div class="csi-body"><h3>Creator work</h3><p>Short form built for reach, for creators and
       channels where the audience is the business. We write the premise so it travels far past the
       size of the account that posts it.</p></div></div>
   </div>
@@ -2955,9 +2750,9 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 
 <section id="roster"><div class="wrap">
   <div class="sec-head bare">
-    <h2 class="display">Brands and creators</h2>
-    <p class="lede">Writing and production across home services nationwide, plus creator work in art,
-    live streaming and social commerce.</p>
+    <h2 class="display">Brands we write and produce for</h2>
+    <p class="lede">They are home service companies across the country, and most of them work in
+    heating, cooling, plumbing or electrical.</p>
   </div>
   {logo_marquee()}
 </div></section>
@@ -2984,42 +2779,9 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   </div>
 
   <div class="ctarow">
-    <a class="cta ghost" href="/our-work/">All five case studies &rarr;</a>
-    <span class="ctanote">A1 Air Conditioning, Joseph Peretz, Handyman Dan, All Heart, Sam Halaby.</span>
+    <a class="cta ghost" href="/our-work/">All three case studies &rarr;</a>
+    <span class="ctanote">A1 Air Conditioning, Handyman Dan, All Heart.</span>
   </div>
-</div></section>
-
-<section><div class="wrap">
-  <div class="sec-head bare">
-    <h2 class="display">And when the job is pure reach</h2>
-    <p class="lede">Different job, different measure. A creator is not trying to be remembered
-    later, they are trying to be watched now, by people who have never heard of them.
-    <strong>Nothing gets a video watched by strangers except the premise</strong>, which is the
-    part we are actually hired for.</p>
-  </div>
-
-  <div class="feature">
-    <a class="shot" href="https://www.youtube.com/shorts/ls_vYanttiI">
-      <img src="{yt}" alt="Sam Halaby short, paint on matzah" width="360" height="640"
-        loading="lazy" decoding="async">
-      <span class="play"><span>&#9654;</span></span>
-    </a>
-    <div class="fstack">
-      <span class="bignum">128M</span>
-      <p><strong>Our most viewed and most shared video to date.</strong> 448,000 likes, eleven
-      seconds long, and 128 million views on a channel with 170,000 subscribers.</p>
-      <p>Written and directed for the artist Sam Halaby, whose channel has passed 605 million
-      views with thirty-three videos over a million on their own. Reach at this scale is not
-      bought, it is written, and nothing about that video cost more than the ones around it.</p>
-      <p><a href="/our-work/#sam">See the creator case &rarr;</a></p>
-    </div>
-  </div>
-
-  <div class="ctarow">
-    {book("Creator%20project", "Talk about creator work", "cta ghost")}
-    <span class="ctanote">Creator work is quoted per project, not on the monthly packages.</span>
-  </div>
-  {reassure("home")}
 </div></section>
 
 <section><div class="wrap">
@@ -3044,7 +2806,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <a class="door" href="/our-work/">
       <span class="tier">Portfolio</span>
       <h3>See the work</h3>
-      <p>Five case studies with the numbers attached, and the reasoning behind each one.</p>
+      <p>Three case studies with the numbers attached, and the reasoning behind each one.</p>
       <span class="go">Open the portfolio &rarr;</span>
     </a>
     <a class="door" href="/packages/">
@@ -3086,7 +2848,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 # Now the single trades are mutually exclusive and "More than one of these" is the
 # explicit escape hatch, which is the only honest way to do single select here.
 # Order within the first group follows the actual client mix: HVAC leads because
-# twelve of the sixteen logos on the wall are HVAC, plumbing or electrical.
+# twelve of the fifteen logos on the wall are HVAC, plumbing or electrical.
 TRADE_GROUPS = [
     ("Home services", ["HVAC", "Plumbing", "Electrical", "Roofing", "Garage doors",
                        "More than one of these", "Another home service"]),
@@ -3368,7 +3130,7 @@ TEAM_HTML = f"""<title>Meet the team</title>
     <a class="door" href="/our-work/">
       <span class="tier">Portfolio</span>
       <h3>See what they made</h3>
-      <p>Five case studies with the numbers attached, shot and cut by the people above.</p>
+      <p>Three case studies with the numbers attached, shot and cut by the people above.</p>
       <span class="go">Open the portfolio &rarr;</span>
     </a>
     <a class="door" href="/packages/">
@@ -3496,8 +3258,8 @@ if MODE == "web":
     # SITE now lives at the top of the file beside EMAIL, so JSON_LD can reach it
     # too. The old domain should 301 here rather than keep serving its stale
     # pre-rebrand build, which is the one part of this that is not a code change.
-    D1 = ("Five case studies from Home Service Studios, a Los Angeles writing and production "
-          "company. Short form and commercial work across home services and the creator economy.")
+    D1 = ("Three case studies from Home Service Studios, a Los Angeles writing and production "
+          "company. Short form and commercial work for HVAC and home service brands.")
     n1 = write_web(html, f"{OUT}/index.html",
                    title="Case Studies | Home Services Video Production | Home Service Studios",
                    desc=D1, og_image=f"{SITE}/our-work/a/og-cover.jpg",
@@ -3521,7 +3283,7 @@ if MODE == "web":
 
     team = validate(TEAM_HTML, "team")
     D5 = ("Meet the Home Service Studios team: the people who write, shoot, cut and post "
-          "home services and creator video every month.")
+          "home service video every month.")
     n5 = write_web(team, f"{S}/deploy/team/index.html",
                    title="Meet the Team | Home Service Studios",
                    desc=D5, og_image=f"{SITE}/our-work/a/og-cover.jpg",
@@ -3529,7 +3291,7 @@ if MODE == "web":
 
     home = validate(HOME_HTML, "home")
     D3 = ("Los Angeles video production for HVAC, plumbing and home service brands. Written, "
-          "shot, cut and posted monthly. 128M+ views produced.")
+          "shot, cut and posted monthly. 2.26M views for one HVAC client.")
     n3 = write_web(home, f"{S}/deploy/index.html",
                    title="Home Services Video Production | Los Angeles | Home Service Studios",
                    desc=D3, og_image=f"{SITE}/og/og-home.jpg",
