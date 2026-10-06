@@ -481,6 +481,7 @@
   .pc-metric b{font-family:var(--display);font-weight:900;font-size:var(--f-mega);line-height:1;
     letter-spacing:-.02em;color:var(--orange);font-variant-numeric:tabular-nums;}
   .pc-metric span{font-size:var(--f-body);color:var(--ink-2);line-height:1.45;max-width:34ch;}
+  .pc-metric .pc-now{font-size:var(--f-sm);}
   .pc-who{margin-top:auto !important;padding-top:var(--s4);border-top:1px solid var(--line);
     font-size:var(--f-sm);color:var(--ink-3);}
   .pc-go{align-self:flex-start;display:inline-flex;align-items:center;min-height:24px;
@@ -863,7 +864,8 @@
     overflow:hidden;display:flex;flex-direction:column;}
   .spot video{width:100%;display:block;background:#000;aspect-ratio:16/9;object-fit:cover;}
   /* Click-to-play YouTube spots. Poster and button only until clicked, see
-     MOTION_JS (h): the iframe is swapped in on click, never loaded before. */
+     YT_SPOT_JS: the iframe is swapped in on click, never loaded before. Inline
+     artifact build only since release 4; the web build self-hosts (.vspot). */
   .ytspot{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;overflow:hidden;}
   .ytspot img{width:100%;height:100%;display:block;object-fit:cover;}
   .ytspot iframe{width:100%;height:100%;display:block;border:0;}
@@ -873,6 +875,39 @@
     transition:background var(--ease),transform var(--ease);}
   .ytplay svg{margin-left:2px;}
   .ytspot:hover .ytplay{background:var(--orange);transform:translate(-50%,-50%) scale(1.06);}
+  /* Self-hosted hover-play spots (All Heart, Handyman Dan; release 4), behaviour in
+     SOLO_JS. Same 16:9 cover framing as the YouTube cards. The lazy poster <img>
+     sits over the <video> until a frame is actually playing (.is-live), then fades;
+     stopping brings it back. The whole picture is one button, the accessible
+     control; the card around it also takes clicks and hover. */
+  .is-vcard{cursor:pointer;}
+  .vspot{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;}
+  .vspot video,.vspot img{position:absolute;inset:0;width:100%;height:100%;display:block;
+    object-fit:cover;}
+  /* 1px past every edge, clipped by the box: the composited video layer snaps to
+     whole device pixels and left a 1px black sliver along a fractional bottom edge */
+  .vspot video{inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);}
+  .vspot img{transition:opacity var(--ease);}
+  .vspot.is-live img{opacity:0;}
+  .vplay{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;
+    background:none;color:#fff;cursor:pointer;font:inherit;}
+  /* orange ring with a dark inner ring: visible on any frame, light or dark */
+  .vplay:focus-visible{outline:3px solid var(--orange);outline-offset:-3px;
+    box-shadow:inset 0 0 0 6px rgba(15,18,20,.85);}
+  .vglyph{position:absolute;left:50%;top:50%;width:46px;height:32px;margin:-16px 0 0 -23px;
+    border-radius:var(--r-lg);background:rgba(15,18,20,.72);display:flex;align-items:center;
+    justify-content:center;transition:opacity var(--ease),transform var(--ease);}
+  .vglyph svg{margin-left:2px;}
+  .is-vcard:hover .vglyph,.vplay:focus-visible .vglyph{background:var(--orange);transform:scale(1.06);}
+  .vspot[data-state="muted"] .vglyph,.vspot[data-state="sound"] .vglyph{opacity:0;}
+  /* the sound hint, pointer devices only (.hover-ui), while the spot plays */
+  .vsnd{position:absolute;right:var(--s2);bottom:var(--s2);padding:var(--s1) var(--s2);
+    border-radius:var(--r-sm);background:rgba(15,18,20,.8);font-size:var(--f-micro);
+    font-weight:600;line-height:1.2;opacity:0;transition:opacity var(--ease);pointer-events:none;}
+  .vsnd span{display:inline-flex;align-items:center;gap:var(--s1);}
+  .vspot .vsnd-on,.vspot[data-state="sound"] .vsnd-off{display:none;}
+  .vspot[data-state="sound"] .vsnd-on{display:inline-flex;}
+  .vspot.hover-ui[data-state="muted"] .vsnd,.vspot.hover-ui[data-state="sound"] .vsnd{opacity:1;}
   .spot .meta{padding:var(--s4);display:flex;flex-direction:column;gap:var(--s1);}
   .spot .sc{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
     font-size:var(--f-sm);color:var(--orange-text);}
@@ -1348,6 +1383,7 @@
   }
 })();
 </script>
+
 <script>
 (function(){
   var n = document.getElementById('nav');
@@ -1478,61 +1514,11 @@
     nums.forEach(function(e){ nio.observe(e); });
   }
 
-  /* (c) hover to preview, pointer devices only ---------------------------- */
-  var fine = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  if(fine && !reduce){
-    [].slice.call(document.querySelectorAll('.spot video')).forEach(function(v){
-      var card = v.closest('.spot') || v.parentNode;
-      card.addEventListener('mouseenter', function(){
-        if(v.hasAttribute('controls') && !v.paused) return;
-        v.muted = true; v.playsInline = true;
-        var pr = v.play(); if(pr && pr.catch) pr.catch(function(){});
-      });
-      card.addEventListener('mouseleave', function(){
-        if(v.paused) return;
-        v.pause();
-        try { v.currentTime = 0; } catch(err){}
-      });
-    });
-  }
-
   /* (d) hero film push in: as of 2026-08-26 the banner is a YouTube embed, so
      "started playing" is a YT.Player onStateChange event, not a <video>
      'playing' event; that's handled in SOLO_JS, next to the rest of the
      banner's ambient-play logic, not here. */
 
-  /* (h) YouTube spots, click to play. Plain iframe swap, not the IFrame Player
-     API: nothing about this needs programmatic control, so there is nothing to
-     load until someone actually clicks. youtube-nocookie.com sets no tracking
-     cookie until playback starts. Only one plays at a time; starting a second
-     puts the first back to its poster, same rule SOLO_JS applies to the
-     self-hosted videos.
-     controls=0 is load bearing, not cosmetic: YouTube's native control bar
-     carries its own logo button that opens youtube.com in a new tab, and an
-     ended video falls through to a related-videos screen that does the same.
-     loop=1 with playlist set to the video's own id is the documented trick
-     for looping a single video (loop=1 alone only loops playlists), which
-     also means it never reaches that ended state at all. */
-  var ytSpots = [].slice.call(document.querySelectorAll('.ytspot'));
-  if(ytSpots.length){
-    var ytReset = null;
-    ytSpots.forEach(function(el){
-      var poster = el.innerHTML;
-      var id = el.getAttribute('data-yt');
-      var title = el.getAttribute('data-title') || '';
-      if(!id) return;
-      function reset(){ el.innerHTML = poster; }
-      el.addEventListener('click', function(){
-        if(ytReset && ytReset !== reset) ytReset();
-        el.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id +
-          '?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=0&disablekb=1&' +
-          'loop=1&playlist=' + id + '" title="' + title + '" '+
-          'allow="autoplay; encrypted-media; picture-in-picture" '+
-          'loading="lazy"></iframe>';
-        ytReset = reset;
-      });
-    });
-  }
 })();
 </script>
 

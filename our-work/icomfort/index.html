@@ -481,6 +481,7 @@
   .pc-metric b{font-family:var(--display);font-weight:900;font-size:var(--f-mega);line-height:1;
     letter-spacing:-.02em;color:var(--orange);font-variant-numeric:tabular-nums;}
   .pc-metric span{font-size:var(--f-body);color:var(--ink-2);line-height:1.45;max-width:34ch;}
+  .pc-metric .pc-now{font-size:var(--f-sm);}
   .pc-who{margin-top:auto !important;padding-top:var(--s4);border-top:1px solid var(--line);
     font-size:var(--f-sm);color:var(--ink-3);}
   .pc-go{align-self:flex-start;display:inline-flex;align-items:center;min-height:24px;
@@ -863,7 +864,8 @@
     overflow:hidden;display:flex;flex-direction:column;}
   .spot video{width:100%;display:block;background:#000;aspect-ratio:16/9;object-fit:cover;}
   /* Click-to-play YouTube spots. Poster and button only until clicked, see
-     MOTION_JS (h): the iframe is swapped in on click, never loaded before. */
+     YT_SPOT_JS: the iframe is swapped in on click, never loaded before. Inline
+     artifact build only since release 4; the web build self-hosts (.vspot). */
   .ytspot{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;overflow:hidden;}
   .ytspot img{width:100%;height:100%;display:block;object-fit:cover;}
   .ytspot iframe{width:100%;height:100%;display:block;border:0;}
@@ -873,6 +875,39 @@
     transition:background var(--ease),transform var(--ease);}
   .ytplay svg{margin-left:2px;}
   .ytspot:hover .ytplay{background:var(--orange);transform:translate(-50%,-50%) scale(1.06);}
+  /* Self-hosted hover-play spots (All Heart, Handyman Dan; release 4), behaviour in
+     SOLO_JS. Same 16:9 cover framing as the YouTube cards. The lazy poster <img>
+     sits over the <video> until a frame is actually playing (.is-live), then fades;
+     stopping brings it back. The whole picture is one button, the accessible
+     control; the card around it also takes clicks and hover. */
+  .is-vcard{cursor:pointer;}
+  .vspot{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;}
+  .vspot video,.vspot img{position:absolute;inset:0;width:100%;height:100%;display:block;
+    object-fit:cover;}
+  /* 1px past every edge, clipped by the box: the composited video layer snaps to
+     whole device pixels and left a 1px black sliver along a fractional bottom edge */
+  .vspot video{inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);}
+  .vspot img{transition:opacity var(--ease);}
+  .vspot.is-live img{opacity:0;}
+  .vplay{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;
+    background:none;color:#fff;cursor:pointer;font:inherit;}
+  /* orange ring with a dark inner ring: visible on any frame, light or dark */
+  .vplay:focus-visible{outline:3px solid var(--orange);outline-offset:-3px;
+    box-shadow:inset 0 0 0 6px rgba(15,18,20,.85);}
+  .vglyph{position:absolute;left:50%;top:50%;width:46px;height:32px;margin:-16px 0 0 -23px;
+    border-radius:var(--r-lg);background:rgba(15,18,20,.72);display:flex;align-items:center;
+    justify-content:center;transition:opacity var(--ease),transform var(--ease);}
+  .vglyph svg{margin-left:2px;}
+  .is-vcard:hover .vglyph,.vplay:focus-visible .vglyph{background:var(--orange);transform:scale(1.06);}
+  .vspot[data-state="muted"] .vglyph,.vspot[data-state="sound"] .vglyph{opacity:0;}
+  /* the sound hint, pointer devices only (.hover-ui), while the spot plays */
+  .vsnd{position:absolute;right:var(--s2);bottom:var(--s2);padding:var(--s1) var(--s2);
+    border-radius:var(--r-sm);background:rgba(15,18,20,.8);font-size:var(--f-micro);
+    font-weight:600;line-height:1.2;opacity:0;transition:opacity var(--ease);pointer-events:none;}
+  .vsnd span{display:inline-flex;align-items:center;gap:var(--s1);}
+  .vspot .vsnd-on,.vspot[data-state="sound"] .vsnd-off{display:none;}
+  .vspot[data-state="sound"] .vsnd-on{display:inline-flex;}
+  .vspot.hover-ui[data-state="muted"] .vsnd,.vspot.hover-ui[data-state="sound"] .vsnd{opacity:1;}
   .spot .meta{padding:var(--s4);display:flex;flex-direction:column;gap:var(--s1);}
   .spot .sc{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
     font-size:var(--f-sm);color:var(--orange-text);}
@@ -1297,22 +1332,22 @@
     <span aria-current="page">iComfort</span></nav>
   <p class="eyebrow">Case 03 &middot; Home services &middot; Audience</p>
   <h1 class="display">iComfort.<br><span class="hl">290 to 1,970 followers, no ads.</span></h1>
-  <p class="sub">iComfort Heating and Air Conditioning has served the San Fernando Valley since 2004. In March 2024 their Instagram had 290 followers and looked quiet. A year of daily posts later <strong>it had 1,970 followers, all organic</strong>, a library of 354 new posts, and a technician whose heat pump explainer reached 150,282 views.</p>
+  <p class="sub">iComfort Heating and Air Conditioning has served the San Fernando Valley since 2004. In March 2024 their Instagram had 290 followers and looked quiet. A year of daily posts later <strong>it had 1,970 followers, all organic</strong>, a library of 354 new posts, and a technician whose heat pump explainer reached 150,282 views. Today, 3,127 people follow the account, more than ten times where it started.</p>
   <div class="role"><span class="lbl">Our role</span><span class="pill">Monthly program</span><span class="pill">Short form</span></div>
 </div></div>
 
 <section><div class="wrap">
   <div class="sec-head"><h2 class="display">How it worked</h2></div>
   <div class="csi"><div><h3>The problem</h3><p class="csi-lead">Twenty years in business and a feed that looked quiet.</p><p>154 posts and 290 followers. A homeowner checking iComfort out before a call found a company that looked inactive, the opposite of twenty years in the Valley.</p></div><div><h3>What we changed</h3><p>Daily posting, led by their own people: technicians explaining real equipment in plain terms, the moments every tech knows, and the trends their customers were already watching.</p></div><div><h3>What happened</h3><p>In under a year the account grew from 290 followers to 1,970, all organic: nearly seven times the audience. It went from 154 posts to 508. On TikTok, five of those posts alone drew 264,938 views, led by a technician&#39;s heat pump explainer at 150,282.</p></div></div>
-  <div class="ops"><div class="op"><span class="n">6.8x</span><span class="k">Instagram followers, 290 to 1,970</span></div><div class="op"><span class="n">354</span><span class="k">New posts in under a year</span></div><div class="op"><span class="n">265K</span><span class="k">Views on five TikToks</span></div><div class="op"><span class="n">100%</span><span class="k">Organic growth, no paid boosts</span></div></div>
+  <div class="ops"><div class="op"><span class="n">3,127</span><span class="k">Instagram followers today, up from 290</span></div><div class="op"><span class="n">6.8x</span><span class="k">Followers in the first year, all organic</span></div><div class="op"><span class="n">265K</span><span class="k">Views on five TikToks</span></div><div class="op"><span class="n">354</span><span class="k">New posts in the first year</span></div></div>
 </div></section>
 
 <section><div class="wrap">
   <div class="sec-head"><h2 class="display">A year of daily posts</h2></div>
-  <div class="chartwrap"><p class="charttitle">354 new posts. 6.8 times the followers.</p><div class="ba"><div class="ba-row"><p class="ba-k"><span>Posts</span><span class="ba-chg">+354</span></p><p class="ba-line"><span class="ba-when">27 Mar 2024</span><span class="ba-track"><span class="ba-bar" style="--w:0.30"></span><span class="ba-v">154</span></span></p><p class="ba-line is-after"><span class="ba-when">11 Mar 2025</span><span class="ba-track"><span class="ba-bar" style="--w:1.00"></span><span class="ba-v">508</span></span></p></div><div class="ba-row"><p class="ba-k"><span>Instagram followers</span><span class="ba-chg">6.8x</span></p><p class="ba-line"><span class="ba-when">27 Mar 2024</span><span class="ba-track"><span class="ba-bar" style="--w:0.15"></span><span class="ba-v">290</span></span></p><p class="ba-line is-after"><span class="ba-when">11 Mar 2025</span><span class="ba-track"><span class="ba-bar" style="--w:1.00"></span><span class="ba-v">1,970</span></span></p></div></div></div>
+  <div class="chartwrap"><p class="charttitle">First year: 354 new posts, 6.8 times the followers.</p><div class="ba"><div class="ba-row"><p class="ba-k"><span>Posts</span><span class="ba-chg">+354</span></p><p class="ba-line"><span class="ba-when">27 Mar 2024</span><span class="ba-track"><span class="ba-bar" style="--w:0.14"></span><span class="ba-v">154</span></span></p><p class="ba-line is-after"><span class="ba-when">11 Mar 2025</span><span class="ba-track"><span class="ba-bar" style="--w:0.47"></span><span class="ba-v">508</span></span></p><p class="ba-line is-after"><span class="ba-when">6 Oct 2026</span><span class="ba-track"><span class="ba-bar" style="--w:1.00"></span><span class="ba-v">1,085</span></span></p></div><div class="ba-row"><p class="ba-k"><span>Instagram followers</span><span class="ba-chg">6.8x</span></p><p class="ba-line"><span class="ba-when">27 Mar 2024</span><span class="ba-track"><span class="ba-bar" style="--w:0.09"></span><span class="ba-v">290</span></span></p><p class="ba-line is-after"><span class="ba-when">11 Mar 2025</span><span class="ba-track"><span class="ba-bar" style="--w:0.63"></span><span class="ba-v">1,970</span></span></p><p class="ba-line is-after"><span class="ba-when">6 Oct 2026</span><span class="ba-track"><span class="ba-bar" style="--w:1.00"></span><span class="ba-v">3,127</span></span></p></div></div></div>
   <h3 class="subhead">Five TikToks, Jul 2024 to Jan 2025</h3>
   <div class="ops"><div class="op"><span class="n">150,282</span><span class="k">TikTok views</span></div><div class="op"><span class="n">49,380</span><span class="k">TikTok views</span></div><div class="op"><span class="n">28,327</span><span class="k">TikTok views</span></div><div class="op"><span class="n">20,431</span><span class="k">TikTok views</span></div><div class="op"><span class="n">16,518</span><span class="k">TikTok views</span></div></div>
-  <div class="case-why"><p class="eyebrow">What it did for them</p><p class="case-close">A twenty-year-old family business now looks like what it is, busy, expert and still here, to anyone who checks before they call. 1,970 people chose to keep seeing their trucks and techs every day, and when a system fails, iComfort is the name they have watched for a year.</p><p class="case-src">Figures from the account&#39;s own Instagram and TikTok, 27 Mar 2024 to 11 Mar 2025.</p></div>
+  <div class="case-why"><p class="eyebrow">What it did for them</p><p class="case-close">A twenty-year-old family business now looks like what it is, busy, expert and still here, to anyone who checks before they call. 3,127 people now follow their trucks and techs, and when a system fails, iComfort is the name they have been watching.</p><p class="case-src">Figures from the account&#39;s own Instagram and TikTok, 27&nbsp;Mar&nbsp;2024 to 11&nbsp;Mar&nbsp;2025; current count from the public profile, 6&nbsp;Oct&nbsp;2026.</p></div>
 </div></section>
 
 <section><div class="wrap">
@@ -1335,6 +1370,7 @@
   }
 })();
 </script>
+
 <script>
 (function(){
   var n = document.getElementById('nav');
@@ -1465,61 +1501,11 @@
     nums.forEach(function(e){ nio.observe(e); });
   }
 
-  /* (c) hover to preview, pointer devices only ---------------------------- */
-  var fine = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  if(fine && !reduce){
-    [].slice.call(document.querySelectorAll('.spot video')).forEach(function(v){
-      var card = v.closest('.spot') || v.parentNode;
-      card.addEventListener('mouseenter', function(){
-        if(v.hasAttribute('controls') && !v.paused) return;
-        v.muted = true; v.playsInline = true;
-        var pr = v.play(); if(pr && pr.catch) pr.catch(function(){});
-      });
-      card.addEventListener('mouseleave', function(){
-        if(v.paused) return;
-        v.pause();
-        try { v.currentTime = 0; } catch(err){}
-      });
-    });
-  }
-
   /* (d) hero film push in: as of 2026-08-26 the banner is a YouTube embed, so
      "started playing" is a YT.Player onStateChange event, not a <video>
      'playing' event; that's handled in SOLO_JS, next to the rest of the
      banner's ambient-play logic, not here. */
 
-  /* (h) YouTube spots, click to play. Plain iframe swap, not the IFrame Player
-     API: nothing about this needs programmatic control, so there is nothing to
-     load until someone actually clicks. youtube-nocookie.com sets no tracking
-     cookie until playback starts. Only one plays at a time; starting a second
-     puts the first back to its poster, same rule SOLO_JS applies to the
-     self-hosted videos.
-     controls=0 is load bearing, not cosmetic: YouTube's native control bar
-     carries its own logo button that opens youtube.com in a new tab, and an
-     ended video falls through to a related-videos screen that does the same.
-     loop=1 with playlist set to the video's own id is the documented trick
-     for looping a single video (loop=1 alone only loops playlists), which
-     also means it never reaches that ended state at all. */
-  var ytSpots = [].slice.call(document.querySelectorAll('.ytspot'));
-  if(ytSpots.length){
-    var ytReset = null;
-    ytSpots.forEach(function(el){
-      var poster = el.innerHTML;
-      var id = el.getAttribute('data-yt');
-      var title = el.getAttribute('data-title') || '';
-      if(!id) return;
-      function reset(){ el.innerHTML = poster; }
-      el.addEventListener('click', function(){
-        if(ytReset && ytReset !== reset) ytReset();
-        el.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id +
-          '?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=0&disablekb=1&' +
-          'loop=1&playlist=' + id + '" title="' + title + '" '+
-          'allow="autoplay; encrypted-media; picture-in-picture" '+
-          'loading="lazy"></iframe>';
-        ytReset = reset;
-      });
-    });
-  }
 })();
 </script>
 

@@ -480,6 +480,7 @@
   .pc-metric b{font-family:var(--display);font-weight:900;font-size:var(--f-mega);line-height:1;
     letter-spacing:-.02em;color:var(--orange);font-variant-numeric:tabular-nums;}
   .pc-metric span{font-size:var(--f-body);color:var(--ink-2);line-height:1.45;max-width:34ch;}
+  .pc-metric .pc-now{font-size:var(--f-sm);}
   .pc-who{margin-top:auto !important;padding-top:var(--s4);border-top:1px solid var(--line);
     font-size:var(--f-sm);color:var(--ink-3);}
   .pc-go{align-self:flex-start;display:inline-flex;align-items:center;min-height:24px;
@@ -862,7 +863,8 @@
     overflow:hidden;display:flex;flex-direction:column;}
   .spot video{width:100%;display:block;background:#000;aspect-ratio:16/9;object-fit:cover;}
   /* Click-to-play YouTube spots. Poster and button only until clicked, see
-     MOTION_JS (h): the iframe is swapped in on click, never loaded before. */
+     YT_SPOT_JS: the iframe is swapped in on click, never loaded before. Inline
+     artifact build only since release 4; the web build self-hosts (.vspot). */
   .ytspot{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;overflow:hidden;}
   .ytspot img{width:100%;height:100%;display:block;object-fit:cover;}
   .ytspot iframe{width:100%;height:100%;display:block;border:0;}
@@ -872,6 +874,39 @@
     transition:background var(--ease),transform var(--ease);}
   .ytplay svg{margin-left:2px;}
   .ytspot:hover .ytplay{background:var(--orange);transform:translate(-50%,-50%) scale(1.06);}
+  /* Self-hosted hover-play spots (All Heart, Handyman Dan; release 4), behaviour in
+     SOLO_JS. Same 16:9 cover framing as the YouTube cards. The lazy poster <img>
+     sits over the <video> until a frame is actually playing (.is-live), then fades;
+     stopping brings it back. The whole picture is one button, the accessible
+     control; the card around it also takes clicks and hover. */
+  .is-vcard{cursor:pointer;}
+  .vspot{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;}
+  .vspot video,.vspot img{position:absolute;inset:0;width:100%;height:100%;display:block;
+    object-fit:cover;}
+  /* 1px past every edge, clipped by the box: the composited video layer snaps to
+     whole device pixels and left a 1px black sliver along a fractional bottom edge */
+  .vspot video{inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);}
+  .vspot img{transition:opacity var(--ease);}
+  .vspot.is-live img{opacity:0;}
+  .vplay{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;
+    background:none;color:#fff;cursor:pointer;font:inherit;}
+  /* orange ring with a dark inner ring: visible on any frame, light or dark */
+  .vplay:focus-visible{outline:3px solid var(--orange);outline-offset:-3px;
+    box-shadow:inset 0 0 0 6px rgba(15,18,20,.85);}
+  .vglyph{position:absolute;left:50%;top:50%;width:46px;height:32px;margin:-16px 0 0 -23px;
+    border-radius:var(--r-lg);background:rgba(15,18,20,.72);display:flex;align-items:center;
+    justify-content:center;transition:opacity var(--ease),transform var(--ease);}
+  .vglyph svg{margin-left:2px;}
+  .is-vcard:hover .vglyph,.vplay:focus-visible .vglyph{background:var(--orange);transform:scale(1.06);}
+  .vspot[data-state="muted"] .vglyph,.vspot[data-state="sound"] .vglyph{opacity:0;}
+  /* the sound hint, pointer devices only (.hover-ui), while the spot plays */
+  .vsnd{position:absolute;right:var(--s2);bottom:var(--s2);padding:var(--s1) var(--s2);
+    border-radius:var(--r-sm);background:rgba(15,18,20,.8);font-size:var(--f-micro);
+    font-weight:600;line-height:1.2;opacity:0;transition:opacity var(--ease);pointer-events:none;}
+  .vsnd span{display:inline-flex;align-items:center;gap:var(--s1);}
+  .vspot .vsnd-on,.vspot[data-state="sound"] .vsnd-off{display:none;}
+  .vspot[data-state="sound"] .vsnd-on{display:inline-flex;}
+  .vspot.hover-ui[data-state="muted"] .vsnd,.vspot.hover-ui[data-state="sound"] .vsnd{opacity:1;}
   .spot .meta{padding:var(--s4);display:flex;flex-direction:column;gap:var(--s1);}
   .spot .sc{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
     font-size:var(--f-sm);color:var(--orange-text);}
@@ -1353,9 +1388,9 @@
   <h3 class="subhead">The work itself: commercial spots</h3>
 
   <div class="grid">
-<article class="spot"><div class="ytspot" data-yt="zaCFfVetfFI" data-title="Breaking Furniture 101"><img src="/our-work/a/zaCFfVetfFI.webp" width="700" height="394" alt="" loading="lazy"><button type="button" class="ytplay" aria-label="Play Breaking Furniture 101"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div><div class="meta"><span class="sc">All Heart</span><span class="nm">Breaking Furniture 101</span><span class="du">0:30</span></div></article>
-<article class="spot"><div class="ytspot" data-yt="TPDZ-OvRNgc" data-title="The Snake"><img src="/our-work/a/TPDZ-OvRNgc.webp" width="700" height="394" alt="" loading="lazy"><button type="button" class="ytplay" aria-label="Play The Snake"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div><div class="meta"><span class="sc">All Heart</span><span class="nm">The Snake</span><span class="du">0:30</span></div></article>
-<article class="spot"><div class="ytspot" data-yt="AfkePSa8XLU" data-title="A Space Odyssey"><img src="/our-work/a/AfkePSa8XLU.webp" width="700" height="394" alt="" loading="lazy"><button type="button" class="ytplay" aria-label="Play A Space Odyssey"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div><div class="meta"><span class="sc">Handyman Dan</span><span class="nm">A Space Odyssey</span><span class="du">0:56</span></div></article>
+<article class="spot"><div class="vspot" data-state="idle"><video src="/our-work/a/ah01.mp4" preload="none" playsinline width="1280" height="720" aria-hidden="true"></video><img src="/our-work/a/zaCFfVetfFI.webp" width="700" height="394" alt="" loading="lazy" decoding="async"><button type="button" class="vplay" aria-label="Play Breaking Furniture 101" data-title="Breaking Furniture 101"><span class="vglyph"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span class="vsnd"><span class="vsnd-off"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>Click for sound</span><span class="vsnd-on"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>Sound on</span></span></button></div><div class="meta"><span class="sc">All Heart</span><span class="nm">Breaking Furniture 101</span><span class="du">0:30</span></div></article>
+<article class="spot"><div class="vspot" data-state="idle"><video src="/our-work/a/ah03.mp4" preload="none" playsinline width="1280" height="720" aria-hidden="true"></video><img src="/our-work/a/TPDZ-OvRNgc.webp" width="700" height="394" alt="" loading="lazy" decoding="async"><button type="button" class="vplay" aria-label="Play The Snake" data-title="The Snake"><span class="vglyph"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span class="vsnd"><span class="vsnd-off"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>Click for sound</span><span class="vsnd-on"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>Sound on</span></span></button></div><div class="meta"><span class="sc">All Heart</span><span class="nm">The Snake</span><span class="du">0:30</span></div></article>
+<article class="spot"><div class="vspot" data-state="idle"><video src="/our-work/a/hd05.mp4" preload="none" playsinline width="1280" height="720" aria-hidden="true"></video><img src="/our-work/a/AfkePSa8XLU.webp" width="700" height="394" alt="" loading="lazy" decoding="async"><button type="button" class="vplay" aria-label="Play A Space Odyssey" data-title="A Space Odyssey"><span class="vglyph"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span class="vsnd"><span class="vsnd-off"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>Click for sound</span><span class="vsnd-on"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>Sound on</span></span></button></div><div class="meta"><span class="sc">Handyman Dan</span><span class="nm">A Space Odyssey</span><span class="du">0:56</span></div></article>
   </div>
 
   <div class="ctarow">
@@ -1427,12 +1462,110 @@
     for(var i = 0; i < all.length; i++){
       var v = all[i];
       if(v === started || v.hasAttribute('data-ambient')) continue;
+      /* a hover-play spot card resets itself (pause, 0:00, poster back on) */
+      if(v.parentNode && v.parentNode.classList && v.parentNode.classList.contains('vspot')){
+        v.dispatchEvent(new Event('spotstop'));
+        continue;
+      }
       if(!v.paused) v.pause();
       if(v.currentTime !== 0){
         try { v.currentTime = 0; } catch(err) { /* not seekable yet */ }
       }
     }
   }, true);
+
+  /* Hover-play spots (.vspot: the All Heart and Handyman Dan films, self-hosted
+     since release 4). The whole film plays, not a preview.
+     - Real hover (hover:hover and pointer:fine), no reduced motion: entering the
+       card plays from 0:00, muted (browsers refuse sound without a click);
+       leaving pauses, rewinds to 0:00 and puts the poster back. A click turns
+       sound on (a click is a user gesture, so unmuted play is allowed) and the
+       film keeps playing; another click mutes it again. Once sound has been
+       turned on, later hovers try with sound and fall back to muted if the
+       browser refuses (NotAllowedError).
+     - Touch, reduced motion, and the keyboard everywhere (Enter/Space on the
+       button; a keyboard-activated click has e.detail 0): play and pause with
+       sound, nothing starts by itself, focus alone never plays.
+     - The end of a film puts the card back to its poster.
+     One at a time is the rule above: starting any video sends 'spotstop' to
+     every other card. Only the films' first frames load before anything plays:
+     preload="none", so a page load fetches no video at all. */
+  var vspots = [].slice.call(document.querySelectorAll('.vspot'));
+  if(vspots.length){
+    var mm = function(q){ return !!(window.matchMedia && window.matchMedia(q).matches); };
+    var hoverUI = mm('(hover: hover) and (pointer: fine)') && !mm('(prefers-reduced-motion: reduce)');
+    var soundOn = false;
+    vspots.forEach(function(el){
+      var v = el.querySelector('video');
+      var btn = el.querySelector('.vplay');
+      if(!v || !btn) return;
+      var card = el.closest('.spot') || el;
+      var title = btn.getAttribute('data-title') || '';
+      var over = false, wait = 0;
+      card.classList.add('is-vcard');
+      if(hoverUI) el.classList.add('hover-ui');
+
+      function state(st){
+        el.setAttribute('data-state', st);
+        btn.setAttribute('aria-label', (st === 'sound' ? 'Pause ' : 'Play ') + title);
+      }
+      function stop(){
+        clearTimeout(wait);
+        if(!v.paused) v.pause();
+        try { if(v.currentTime) v.currentTime = 0; } catch(err){ /* not seekable yet */ }
+        el.classList.remove('is-live');
+        state('idle');
+      }
+      function play(withSound, fromStart){
+        if(fromStart){ try { v.currentTime = 0; } catch(err){} }
+        v.muted = !withSound;
+        state(withSound ? 'sound' : 'muted');
+        var pr = v.play();
+        if(pr && pr.catch) pr.catch(function(err){
+          /* AbortError means it was stopped before it started: nothing to do */
+          if(!err || err.name !== 'NotAllowedError') return;
+          if(!v.muted && hoverUI && over){
+            v.muted = true;
+            state('muted');
+            var again = v.play();
+            if(again && again.catch) again.catch(function(){ stop(); });
+          } else {
+            stop();
+          }
+        });
+      }
+      v.addEventListener('playing', function(){ el.classList.add('is-live'); });
+      v.addEventListener('ended', stop);
+      v.addEventListener('spotstop', stop);
+
+      if(hoverUI){
+        card.addEventListener('mouseenter', function(){
+          over = true;
+          clearTimeout(wait);
+          /* a short intent delay: a pointer crossing the grid on its way
+             somewhere else starts, and downloads, nothing */
+          wait = setTimeout(function(){ if(over) play(soundOn, true); }, 120);
+        });
+        card.addEventListener('mouseleave', function(){ over = false; stop(); });
+      }
+
+      card.addEventListener('click', function(e){
+        var st = el.getAttribute('data-state');
+        clearTimeout(wait);
+        if(hoverUI && e.detail !== 0){
+          if(st === 'sound'){ v.muted = true; state('muted'); return; }
+          soundOn = true;
+          if(st === 'muted' && !v.paused){ v.muted = false; state('sound'); }
+          else play(true, st === 'idle');
+          return;
+        }
+        if(st === 'sound'){ v.pause(); state('paused'); return; }
+        soundOn = true;
+        if(st === 'muted' && !v.paused){ v.muted = false; state('sound'); }
+        else play(true, st === 'idle');
+      });
+    });
+  }
 
   /* Ambient YouTube backgrounds: autoplay muted, only once actually on
      screen (nothing loads up front, not even the IFrame API script), pause
@@ -1702,61 +1835,11 @@
     nums.forEach(function(e){ nio.observe(e); });
   }
 
-  /* (c) hover to preview, pointer devices only ---------------------------- */
-  var fine = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  if(fine && !reduce){
-    [].slice.call(document.querySelectorAll('.spot video')).forEach(function(v){
-      var card = v.closest('.spot') || v.parentNode;
-      card.addEventListener('mouseenter', function(){
-        if(v.hasAttribute('controls') && !v.paused) return;
-        v.muted = true; v.playsInline = true;
-        var pr = v.play(); if(pr && pr.catch) pr.catch(function(){});
-      });
-      card.addEventListener('mouseleave', function(){
-        if(v.paused) return;
-        v.pause();
-        try { v.currentTime = 0; } catch(err){}
-      });
-    });
-  }
-
   /* (d) hero film push in: as of 2026-08-26 the banner is a YouTube embed, so
      "started playing" is a YT.Player onStateChange event, not a <video>
      'playing' event; that's handled in SOLO_JS, next to the rest of the
      banner's ambient-play logic, not here. */
 
-  /* (h) YouTube spots, click to play. Plain iframe swap, not the IFrame Player
-     API: nothing about this needs programmatic control, so there is nothing to
-     load until someone actually clicks. youtube-nocookie.com sets no tracking
-     cookie until playback starts. Only one plays at a time; starting a second
-     puts the first back to its poster, same rule SOLO_JS applies to the
-     self-hosted videos.
-     controls=0 is load bearing, not cosmetic: YouTube's native control bar
-     carries its own logo button that opens youtube.com in a new tab, and an
-     ended video falls through to a related-videos screen that does the same.
-     loop=1 with playlist set to the video's own id is the documented trick
-     for looping a single video (loop=1 alone only loops playlists), which
-     also means it never reaches that ended state at all. */
-  var ytSpots = [].slice.call(document.querySelectorAll('.ytspot'));
-  if(ytSpots.length){
-    var ytReset = null;
-    ytSpots.forEach(function(el){
-      var poster = el.innerHTML;
-      var id = el.getAttribute('data-yt');
-      var title = el.getAttribute('data-title') || '';
-      if(!id) return;
-      function reset(){ el.innerHTML = poster; }
-      el.addEventListener('click', function(){
-        if(ytReset && ytReset !== reset) ytReset();
-        el.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id +
-          '?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=0&disablekb=1&' +
-          'loop=1&playlist=' + id + '" title="' + title + '" '+
-          'allow="autoplay; encrypted-media; picture-in-picture" '+
-          'loading="lazy"></iframe>';
-        ytReset = reset;
-      });
-    });
-  }
 })();
 </script>
 
