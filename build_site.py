@@ -194,6 +194,48 @@ def nav(active=""):
 
 def b64(p): return base64.b64encode(pathlib.Path(p).read_bytes()).decode()
 
+
+def img_size(path):
+    """Intrinsic (width, height) of a JPEG, PNG or WebP, read from the file header
+    with the standard library only (Pillow is not available to every Python on
+    this machine). Used for the width/height attributes on every <img>, so the
+    browser reserves the right box before the image arrives and CLS stays 0; the
+    numbers always come from the file, never typed by hand."""
+    b = pathlib.Path(path).read_bytes()
+    if b[:8] == b"\x89PNG\r\n\x1a\n":
+        return int.from_bytes(b[16:20], "big"), int.from_bytes(b[20:24], "big")
+    if b[:4] == b"RIFF" and b[8:12] == b"WEBP":
+        kind = b[12:16]
+        if kind == b"VP8 ":
+            return (int.from_bytes(b[26:28], "little") & 0x3FFF,
+                    int.from_bytes(b[28:30], "little") & 0x3FFF)
+        if kind == b"VP8L":
+            v = int.from_bytes(b[21:25], "little")
+            return (v & 0x3FFF) + 1, ((v >> 14) & 0x3FFF) + 1
+        if kind == b"VP8X":
+            return (int.from_bytes(b[24:27], "little") + 1,
+                    int.from_bytes(b[27:30], "little") + 1)
+    if b[:2] == b"\xff\xd8":
+        i = 2
+        while i < len(b):
+            while b[i] == 0xFF:
+                i += 1
+            marker = b[i]; i += 1
+            if marker in (0xD8, 0x01) or 0xD0 <= marker <= 0xD7:
+                continue
+            seg = int.from_bytes(b[i:i + 2], "big")
+            if marker in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7,
+                          0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                return int.from_bytes(b[i + 5:i + 7], "big"), int.from_bytes(b[i + 3:i + 5], "big")
+            i += seg
+    raise ValueError(f"cannot read image size: {path}")
+
+
+def dims(path):
+    """width/height attributes for an <img>, from the file itself."""
+    w, h = img_size(path)
+    return f' width="{w}" height="{h}"'
+
 def asset(path, mime):
     """Inline as a data URI for the artifact, or copy out and link for the web build."""
     if MODE == "web":
@@ -1205,6 +1247,9 @@ CSS = """<style>
     margin-top:calc(-1 * max(var(--yt-chrome), 6.75vw));
     margin-bottom:calc(-1 * max(var(--yt-chrome), 6.75vw));}
   .banner img{width:100%;height:100%;display:block;object-fit:cover;}
+  /* the poster carries width/height for CLS; height:auto lets aspect-ratio:16/9
+     size it rather than the height attribute's raw pixel value */
+  img.banner{height:auto;}
   /* #yt-poster is a SIBLING of #yt-banner, not a child: the IFrame API
      replaces #yt-banner outright once it creates the player (see SOLO_JS),
      so a poster nested inside it would vanish the instant the iframe shows
@@ -2079,10 +2124,11 @@ def spot(fn, sc, nm, du, yt=None):
     play. Without `yt` it's the original self-hosted video, kept as a
     fallback for clips not yet uploaded to YouTube."""
     if yt:
-        poster = asset(os.path.join(S, "post_yt", yt + ".webp"), "image/webp")
+        poster_path = os.path.join(S, "post_yt", yt + ".webp")
+        poster = asset(poster_path, "image/webp")
         return (f'<article class="spot">'
                 f'<div class="ytspot" data-yt="{yt}" data-title="{nm}">'
-                f'<img src="{poster}" alt="" loading="lazy">'
+                f'<img src="{poster}"{dims(poster_path)} alt="" loading="lazy">'
                 f'<button type="button" class="ytplay" aria-label="Play {nm}">{PLAY_ICON}</button>'
                 f'</div>'
                 f'<div class="meta"><span class="sc">{sc}</span><span class="nm">{nm}</span>'
@@ -2120,7 +2166,8 @@ _bposter = asset(f"{P}/quality1.jpg", "image/jpeg")
 if MODE == "web":
     BANNER_MEDIA = (f'<div class="bannerwrap"><div class="banner" id="yt-banner" '
                     f'data-yt="m3HEWS9qMTM" data-start="74"></div>'
-                    f'<img class="banner posterlay" id="yt-poster" src="{_bposter}" loading="lazy" '
+                    f'<img class="banner posterlay" id="yt-poster" src="{_bposter}"'
+                    f'{dims(f"{P}/quality1.jpg")} loading="lazy" '
                     f'alt="Quality Heating Cooling Plumbing Electrical website banner film"></div>')
 else:
     BANNER_MEDIA = (f'<div class="bannerwrap"><img class="banner" src="{_bposter}" '
@@ -2148,7 +2195,8 @@ A1_REELS = "\n".join(
     # span with no img in it, is what keeps that safe.
     f'<a class="reel{" is-top" if t else ""}" href="https://www.facebook.com/reel/{i}">'
     f'<div class="rmeta"><span class="vnum">{v}</span><span class="l">{l}</span></div>'
-    f'<img class="rthumb" src="{asset(f"{P}/{th}.webp", "image/webp")}" alt="" loading="lazy"></a>'
+    f'<img class="rthumb" src="{asset(f"{P}/{th}.webp", "image/webp")}"{dims(f"{P}/{th}.webp")} '
+    f'alt="" loading="lazy"></a>'
     for i, v, l, t, th in a1
 )
 
@@ -2804,15 +2852,15 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     how much of the year it has to cover.</p>
   </div>
   <div class="csi csi-photo">
-    <div><img class="csi-bg" src="{CSI_ICON_CAMPAIGNS}" alt="" loading="lazy">
+    <div><img class="csi-bg" src="{CSI_ICON_CAMPAIGNS}"{dims(f"{S}/icons/folder2.webp")} alt="" loading="lazy">
       <div class="csi-body"><h3>Campaigns</h3><p>One premise strong enough to carry a whole package,
       shot in a single production block so the cost lands once and the inventory lasts a
       year.</p></div></div>
-    <div><img class="csi-bg" src="{CSI_ICON_MONTHLY}" alt="" loading="lazy">
+    <div><img class="csi-bg" src="{CSI_ICON_MONTHLY}"{dims(f"{S}/icons/folder3.webp")} alt="" loading="lazy">
       <div class="csi-body"><h3>Monthly programs</h3><p>A reel every weekday and graphics every
       weekend, planned and posted on a schedule that does not depend on anyone at your company
       remembering to post.</p></div></div>
-    <div><img class="csi-bg" src="{CSI_ICON_CREATOR}" alt="" loading="lazy">
+    <div><img class="csi-bg" src="{CSI_ICON_CREATOR}"{dims(f"{S}/icons/folder1.webp")} alt="" loading="lazy">
       <div class="csi-body"><h3>Creator work</h3><p>Short form built for reach, for creators and
       channels where the audience is the business. We write the premise so it travels far past the
       size of the account that posts it.</p></div></div>
