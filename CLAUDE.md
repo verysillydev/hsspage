@@ -102,8 +102,9 @@ Two assertions run before anything is written to disk, so a bad build fails inst
 
 ## Video
 
-**The commercial spots are self-hosted for hover play; YouTube stays for the hero and the banner
-(release 4, 2026-10-06, owner request).** The All Heart case page's ten spots, the Handyman Dan
+**The commercial spots are self-hosted for hover play (release 4, 2026-10-06, owner request);
+the homepage hero is self-hosted too since release 10 (see Homepage hero), and YouTube now
+remains only for the `/our-work` Quality banner.** The All Heart case page's ten spots, the Handyman Dan
 strip under More work on `/our-work`, and on the homepage the three spots in What We Do block 02,
 the Quality brand film in block 03 and (once supplied) the podcast video in block 04 play the
 whole film, not a preview:
@@ -177,20 +178,58 @@ Only one video plays at a time; starting one rewinds every other, and a spot car
 back to its poster (`SOLO_JS` sends it a `spotstop` event). Videos marked `data-ambient` are
 exempt from that rule.
 
-**YouTube's title strip is clipped, not timed (2026-10-06).** The ambient embeds (homepage hero,
-`/our-work` banner) show YouTube's own "HSS Website Banner v02 / Sergy Olkowski" strip a few seconds
-into playback, after the poster has faded; no player param removes it. Both iframes are now taller
-than their visible 16:9 picture by `--yt-chrome` (120px floor, 12% of the picture above that) top
-and bottom: a player taller than 16:9 letterboxes its video to full width and centres it, so the
-picture lands exactly on the visible box and the chrome, which hugs the player's edges, is clipped
-(`.herobg-clip` for the hero, negative margins inside `.bannerwrap` for the banner). Do not shrink
-the iframe back to 16:9. Known residual: YouTube also draws a centre pause control for roughly the
-first five seconds of playback. It sits mid-picture, so no edge clip can hide it; the only fixes are a
-timed poster hold (load delay, previously rejected) or self-hosting the loop.
+**YouTube's title strip is clipped, not timed (2026-10-06).** The `/our-work` banner (the only
+YouTube ambient embed left since release 10) shows YouTube's own "HSS Website Banner v02 / Sergy
+Olkowski" strip a few seconds into playback, after the poster has faded; no player param removes
+it. The iframe is taller than its visible 16:9 picture by `--yt-chrome` (120px floor, 12% of the
+picture above that) top and bottom: a player taller than 16:9 letterboxes its video to full width
+and centres it, so the picture lands exactly on the visible box and the chrome, which hugs the
+player's edges, is clipped (negative margins inside `.bannerwrap`). Do not shrink the iframe back
+to 16:9. Known residual: YouTube also draws a centre pause control for roughly the first five
+seconds of playback. It sits mid-picture, so no edge clip can hide it; the fix, if the owner wants
+it, is self-hosting the banner the way the homepage hero now is.
+
+## Homepage hero (release 10, owner, 2026-10-06)
+
+**The hero film covers the whole hero box at every size** (`object-fit:cover`, centred, no band
+anywhere). This reverses the old phone letterbox (a 74.8vh 16:9 box that left a black band above
+the picture) and drops YouTube for the hero entirely (no IFrame API, no oversized iframe, no
+title-strip mask; nothing third-party loads on the homepage now). Do not bring a letterbox back.
+- **Files:** `spots/hero-540.mp4` (960x540, 3.3MB) up to 760px wide, `spots/hero-720.mp4`
+  (1280x720, 5.6MB) above; silent, faststart, 1:26.5, from the same film as the old YouTube hero
+  (`SiJpWlQwk04`). The build checks both are faststart and the same length.
+- **`HERO_JS`** (at the end of the page) picks one file by width and only then sets `src`, so a
+  visitor downloads one film, never both. **Under `prefers-reduced-motion` or Save-Data it sets no
+  `src` at all: the poster is the hero.** The film is `autoplay muted loop playsinline
+  preload="metadata" disablepictureinpicture`, `data-ambient` (the one-at-a-time rule ignores it),
+  pauses off screen, and retries on the first touch (iOS Low Power Mode refuses autoplay silently).
+- **Poster and LCP:** the poster is the film's first frame (`post/hero-poster.jpg` master; 960 and
+  1280 WebP), so the first paint matches the first frame and the film fades in over it once it is
+  actually playing. **Phones paint an inline placeholder first**: `post/hero-poster-lqip.webp`, the
+  same frame at 960x540 and WebP quality 3 (6.5KB), as a data URI, which paints with the headline;
+  the sharp poster loads at low priority over it. Measured on the throttled phone profile: a
+  preloaded 27KB poster cost about 130ms of first paint, the placeholder costs nothing measurable
+  (LCP 1,200ms against release 9's 1,228ms; the LCP element is the placeholder). All three layers
+  are 960x540 on phones on purpose: Chrome sizes an upscaled image by its intrinsic pixels, and a
+  smaller placeholder let the film's first frame become the LCP at about 3s. Desktop preloads its
+  1280 poster, which is its LCP (about 50ms).
+- **The text comes first in the DOM**, poster and film after it (absolutely positioned under it by
+  z-index). With the poster first, Chrome painted the poster before the headline was parsed and the
+  text block then shifted in (CLS 0.053). Keep `HERO_JS` at the end of the page for the same reason.
+- **Legibility:** the footage now sits behind the text on phones too, so the scrim starts earlier
+  (clear to 28%, 0.7 at 58%, 0.9 at the bottom) and the hero eyebrow is white. Measured across eight
+  frames of the loop (the brightest background behind the text): eyebrow 5.4:1 at 1440, 6.4 to 9.9:1
+  on phones and tablet; headline 9:1 or better everywhere.
+- The phone action bar clearance (`.hero-media` bottom padding) is unchanged: at 390x664 the
+  headline ends at 604px and the bar starts at 609px.
+
+**Do not strip CSS comments from the shipped pages to win first paint** without solving font timing
+first: tried in release 10, it took 30KB off every page but painted the hero before Archivo 900
+arrived, so the headline rendered in the Arial Black fallback on every cold throttled load (reverted).
 
 ## Homepage structure (release 8, 2026-10-06)
 
-Top to bottom: the hero (headline, lede, the four-cell ledger: A1, Bee Right There, iComfort, and
+Top to bottom: the hero (the self-hosted film, see Homepage hero; headline, lede, the four-cell ledger: A1, Bee Right There, iComfort, and
 "Our Brands" with `ROSTER_COUNT`, sub-label "Clients across the country"), **Our Clients** (the logo marquee, `#roster`), **What We Do**
 (`#what-we-do`, warm white `--ground-2`), **From a client** (`#from-a-client`, the testimonial,
 see below), the two doors (portfolio, packages) and the footer. The

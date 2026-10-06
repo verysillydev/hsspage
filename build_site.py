@@ -389,10 +389,11 @@ CSS = """<style>
        component library. --r-pill keeps its name so call sites need not change. */
     --r-sm:2px; --r-md:3px; --r-lg:4px; --r-pill:2px;
 
-    /* How far an ambient YouTube iframe is oversized past its visible 16:9 box,
-       top and bottom, so YouTube's own title/uploader strip and bottom chrome
-       are drawn outside the clip (see .herobg-clip and iframe.banner). A floor,
-       not the value: both call sites scale it up with the player. */
+    /* How far the /our-work banner's ambient YouTube iframe is oversized past its
+       visible 16:9 box, top and bottom, so YouTube's own title/uploader strip and
+       bottom chrome are drawn outside the clip (see iframe.banner). A floor, not
+       the value: the call site scales it up with the player. The homepage hero is
+       self-hosted since release 10 and does not use it. */
     --yt-chrome:120px;
 
     /* Tracking: display tightens, small caps open up. Nothing in between. */
@@ -916,78 +917,39 @@ CSS = """<style>
      line-height (room for the highlight bar) match the homepage */
   .hero-dark h1{font-weight:900;letter-spacing:-.025em;line-height:1.18;}
 
-  /* 2026-08-26: hero video pass. The black bg + animated .splat lines move
-     down to only the lower half now (.hero-lines, behind the sub copy,
-     stats and CTAs); the headline instead sits, bottom anchored, over an
-     ambient looping YouTube background video (.hero-media) that fills the
-     full viewport edge to edge, same IFrame Player technique and
-     poster-mask trick as the Quality banner (see setupAmbient in SOLO_JS).
-     Kept deliberately close to verysilly.dev's hero: full bleed, mostly
-     undimmed footage, and a compact text block rather than type filling
-     the whole frame. */
+  /* Homepage hero (release 10, owner, 2026-10-06): a self-hosted silent film that
+     COVERS the whole hero box at every size, object-fit:cover and centred, with
+     no band anywhere. This reverses the earlier phone letterbox (a 74.8vh 16:9 box
+     that left a black band above the picture, plus YouTube's pause icon
+     mid-picture). The first paint is the poster (<picture>, the film's first
+     frame, 960 or 1280 wide by the same 760px breakpoint the film uses); the
+     <video> sits over it at opacity 0 and fades in once it is actually playing,
+     so there is no flash and no band. HERO_JS picks the file. The headline sits,
+     bottom anchored, over the footage. */
   .hero-media{position:relative;overflow:hidden;background:#14171A;
     min-height:100vh;min-height:100dvh;
     display:flex;flex-direction:column;justify-content:flex-end;}
-  /* object-fit is not reliably honoured on an <iframe> (notably Firefox),
-     so cover-cropping is done with a centered 16:9 box instead.
-     2026-10-06: YouTube draws its title/uploader strip ("HSS Website Banner
-     v02 / Sergy Olkowski") across the top of the player a few seconds into
-     playback, and no player param suppresses it; the poster only covers the
-     cueing phase. So the visible picture is now .herobg-clip, an exact 16:9
-     box that covers the hero (height is the larger of the hero's own height
-     and 56.25vw, width follows from aspect-ratio, so it covers at any aspect
-     and with dvh/lvh differences), with overflow:hidden. The iframe inside is
-     taller than the box by --yt-chrome (or 12% of the box, whichever is
-     larger) top and bottom. A player taller than 16:9 letterboxes its video
-     to full width and centres it, so the video lands exactly on the clip box
-     and YouTube's own chrome, which hugs the player's edges, lands in the
-     clipped margin. No delay, nothing to time. */
-  .hero-media .herobg-clip{position:absolute;top:50%;left:50%;z-index:0;
-    height:max(100%, 56.25vw);aspect-ratio:16/9;transform:translate(-50%,-50%);
-    overflow:hidden;pointer-events:none;}
-  .hero-media .herobg{position:absolute;left:0;top:calc(-1 * max(var(--yt-chrome), 12%));
-    width:100%;height:calc(100% + 2 * max(var(--yt-chrome), 12%));
-    border:0;pointer-events:none;}
+  .hero-lqip,.hero-poster,.hero-poster img,.hero-video{position:absolute;inset:0;width:100%;height:100%;}
+  .hero-lqip,.hero-poster{z-index:0;}
+  .hero-lqip,.hero-poster img,.hero-video{display:block;object-fit:cover;object-position:center;}
+  .hero-video{z-index:0;opacity:0;transition:opacity .6s ease;pointer-events:none;}
+  .hero-video.is-on{opacity:1;}
   @media(max-width:600px){
-    /* less crop on narrow phones: full-height cover on a tall narrow screen
-       zooms the 16:9 video in hard enough that only a thin vertical slice
-       of its width ever shows. A fixed 74.8vh-tall box (aspect-ratio keeps
-       it exactly 16:9, so 133vh wide) trades a modest, deliberate letterbox
-       gap top and bottom (filled by the same dark background already behind
-       everything, so it is not jarring) for meaningfully more of the actual
-       footage, about the ~33% more width visible that was asked for. The
-       clip box still hides YouTube's chrome here, because the oversized
-       iframe is clipped by the box itself, not by the hero's edges. */
-    .hero-media .herobg-clip{height:74.8vh;}
-    /* smaller title, same reasoning: less of the frame covered by
-       text/scrim, more of the video underneath actually reads. Desktop's
-       clamp is untouched. */
+    /* smaller title: less of the frame covered by text and scrim, more of the
+       footage reads. Desktop's clamp is untouched. */
     .hero-bold h1{font-size:clamp(26px, 8px + 5vw, 42px);}
   }
-  /* clickable, not pointer-events:none like the iframe under it: iOS
-     (Low Power Mode especially) silently refuses muted autoplay on a good
-     fraction of real phones, and the YouTube IFrame API gives no error
-     for this, it just never leaves the cued state, so the poster would
-     stay up forever with no way to start the video at all. A tap always
-     bypasses autoplay restrictions on every platform, so the fallback is
-     to make the poster itself the play button (see setupAmbient). */
-  .hero-poster{position:absolute;inset:0;z-index:2;background:#14171A;
-    transition:opacity .6s ease;cursor:pointer;}
-  .hero-poster.is-hidden{opacity:0;pointer-events:none;}
-  /* YouTube always draws its own watermark in this corner with controls=0
-     and no param removes it; the oversized crop above may or may not push
-     it past the edge depending on viewport aspect, so this covers it
-     directly rather than leaving it to chance. */
-  .hero-yt-mask{position:absolute;right:0;bottom:0;z-index:2;pointer-events:none;
-    width:min(220px,32%);height:min(84px,16%);
-    background:linear-gradient(135deg,rgba(20,23,26,0) 0%,
-      rgba(20,23,26,.94) 55%,rgba(20,23,26,1) 100%);}
   /* light touch, not a wash: most of the frame stays undimmed, darkening
      only where the headline actually sits so the video reads clean rather
      than muddy, the opposite problem the first pass had. */
   .hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;
-    background:linear-gradient(180deg,rgba(20,23,26,0) 0%,rgba(20,23,26,0) 42%,
-      rgba(20,23,26,.48) 74%,rgba(20,23,26,.86) 100%);}
+    background:linear-gradient(180deg,rgba(20,23,26,0) 0%,rgba(20,23,26,0) 28%,
+      rgba(20,23,26,.7) 58%,rgba(20,23,26,.9) 100%);}
+  /* release 10: the footage now covers the whole hero on phones too (it used to
+     letterbox, with the text over a black band), so the scrim starts earlier and
+     the eyebrow is lighter: measured over the brightest frames of the loop, the
+     eyebrow keeps AA contrast at 390, 768 and 1440 wide. */
+  .hero-media .eyebrow{color:#FFFFFF;}
   /* extra bottom padding (rather than var(--s7) alone) pulls the whole
      block up off the very bottom edge of the 100vh frame: on shorter
      browser windows the headline was tall enough to push its last line
@@ -1576,7 +1538,7 @@ CSS = """<style>
      URL param (controls=0 included) suppresses that. pointer-events:none
      means no click or tap can ever reach the iframe's own UI at all. */
   iframe.banner{pointer-events:none;border:0;
-    /* Same fix as .herobg-clip, 2026-10-06: the iframe is oversized by the
+    /* 2026-10-06 (the same clip the YouTube hero used until release 10): the iframe is oversized by the
        chrome margin top and bottom and pulled back with equal negative
        margins, so its flow height is still exactly 56.25vw (no shift when it
        replaces the placeholder) and .bannerwrap's overflow:hidden clips
@@ -1933,9 +1895,8 @@ SOLO_JS = """<script>
      data-start mark rather than to zero. None of that is native <video>
      behavior, so it cannot reuse the seek/ended/loadedmetadata logic above;
      the YouTube IFrame Player API has its own equivalents (seekTo,
-     onStateChange, playVideo/pauseVideo). Two instances share this as of
-     2026-08-26 (the Quality banner, the homepage hero video), hence a
-     function rather than one-off code: each gets its own player/observer
+     onStateChange, playVideo/pauseVideo). Since release 10 only the /our-work Quality banner uses it (the homepage
+     hero is self-hosted); it stays a function for a second ambient embed: each gets its own player/observer
      closure, but only one IFrame API script tag ever loads. */
   function loadApiThen(cb){
     if(window.YT && window.YT.Player){ cb(); return; }
@@ -2062,7 +2023,6 @@ SOLO_JS = """<script>
   }
 
   setupAmbient('yt-banner', 'yt-poster', 'banner');
-  setupAmbient('hero-yt', 'hero-yt-poster', 'herobg');
 })();
 </script>"""
 
@@ -2199,10 +2159,10 @@ MOTION_JS = """<script>
     nums.forEach(function(e){ nio.observe(e); });
   }
 
-  /* (d) hero film push in: as of 2026-08-26 the banner is a YouTube embed, so
-     "started playing" is a YT.Player onStateChange event, not a <video>
-     'playing' event; that's handled in SOLO_JS, next to the rest of the
-     banner's ambient-play logic, not here. */
+  /* (d) banner push in: the /our-work banner is a YouTube embed, so "started
+     playing" is a YT.Player onStateChange event, handled in SOLO_JS next to the
+     rest of the banner's ambient-play logic, not here. The homepage hero is
+     self-hosted since release 10 (HERO_JS) and has no push in. */
 
 })();
 </script>"""
@@ -3362,6 +3322,71 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
 # repeating either. Every asset here is one the other pages already copied out,
 # so the homepage adds markup and no new weight.
 
+# ---- Homepage hero (release 10, owner, 2026-10-06) --------------------------------
+# Self-hosted, silent, 1:26.5, from the same film as the old YouTube hero (SiJpWlQwk04):
+# spots/hero-540.mp4 (960x540) up to 760px wide, spots/hero-720.mp4 (1280x720) above.
+# HERO_JS chooses one before setting src, so a visitor downloads one file, never both,
+# and none at all under prefers-reduced-motion or Save-Data (poster only). The poster
+# is the film's first frame (post/hero-poster.jpg master; 960 and 1280 WebP).
+# First paint without costing LCP: on a throttled phone (1.6Mbps) a 27KB poster in
+# the critical path delayed first paint by about 130ms. So phones paint an inline
+# placeholder first: post/hero-poster-lqip.webp, the same frame at 960x540 and WebP
+# quality 3 (6.5KB), as a data URI that paints with the headline. The sharp poster
+# then loads at low priority and paints over it, and the film fades in over that.
+# All three are 960x540 to Chrome, so neither later layer is a "larger" LCP
+# candidate (a smaller placeholder let the film's first frame become LCP at ~3s).
+# Desktop is not bandwidth bound: its 1280 poster is preloaded and is the LCP.
+HERO_FILMS = ("hero-540.mp4", "hero-720.mp4")
+HERO_POSTERS = (f"{P}/hero-poster-960.webp", f"{P}/hero-poster-1280.webp")
+if MODE == "web":
+    _hero_secs = []
+    for _f in HERO_FILMS:
+        _w, _h, _secs = mp4_info(os.path.join(SPOT_DIR, _f))   # refuses non-faststart
+        _hero_secs.append(_secs)
+    assert abs(_hero_secs[0] - _hero_secs[1]) < 0.1, "the two hero encodes are not the same film"
+    _HERO_SRC = [asset(os.path.join(SPOT_DIR, f), "video/mp4") for f in HERO_FILMS]
+else:
+    _HERO_SRC = ["", ""]
+_HP = [asset(x, "image/webp") for x in HERO_POSTERS]
+HERO_LQIP = f"{P}/hero-poster-lqip.webp"
+assert img_size(HERO_LQIP) == img_size(HERO_POSTERS[0]), "the placeholder must match the phone poster's size"
+HERO_MEDIA = (f'<img class="hero-lqip" src="data:image/webp;base64,{b64(HERO_LQIP)}"{dims(HERO_LQIP)} alt="">'
+              f'<picture class="hero-poster"><source media="(min-width: 761px)" srcset="{_HP[1]}"'
+              f'{dims(HERO_POSTERS[1])}><img src="{_HP[0]}"{dims(HERO_POSTERS[0])} alt="" '
+              f'fetchpriority="low" decoding="async"></picture>'
+              + (f'<video class="hero-video" id="hero-video" autoplay muted loop playsinline '
+                 f'preload="metadata" disablepictureinpicture aria-hidden="true" data-ambient '
+                 f'data-sm="{_HERO_SRC[0]}" data-lg="{_HERO_SRC[1]}"></video>' if MODE == "web" else ""))
+# Desktop's first paint is the 1280 poster, preloaded; phones paint the inline placeholder.
+HERO_PRELOAD = f'<link rel="preload" as="image" href="{_HP[1]}" media="(min-width: 761px)" fetchpriority="high">'
+HERO_JS = """<script>
+/* The hero film: one file by width (<=760px the 540p encode, above it the 720p),
+   chosen here before src is set, so nothing downloads that will not play. Under
+   reduced motion or Save-Data there is no src at all: the poster is the hero.
+   data-ambient keeps the one-at-a-time rule (SOLO_JS) from ever stopping it or
+   being stopped by it. It pauses off screen and resumes on return. iOS Low Power
+   Mode refuses autoplay silently, so the first touch anywhere retries it. */
+(function(){
+  var v = document.getElementById('hero-video');
+  if(!v) return;
+  var mm = function(q){ return !!(window.matchMedia && window.matchMedia(q).matches); };
+  var conn = navigator.connection || {};
+  if(mm('(prefers-reduced-motion: reduce)') || conn.saveData) return;
+  v.muted = true;
+  v.src = mm('(max-width: 760px)') ? v.getAttribute('data-sm') : v.getAttribute('data-lg');
+  v.addEventListener('playing', function(){ v.classList.add('is-on'); });
+  function go(){ var p = v.play(); if(p && p.catch) p.catch(function(){}); }
+  go();
+  document.addEventListener('touchstart', go, {passive: true, once: true});
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting) go(); else v.pause(); });
+    }, {threshold: 0}).observe(v);
+  }
+})();
+</script>"""
+
+
 # ---- What We Do (homepage, release 8) ----------------------------------------
 # Three Instagram profile grabs for block 01, left to right. Captured by the owner on a
 # 390px phone at 3x with the login wall and "Suggested for you" removed, resized to
@@ -3477,10 +3502,10 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 <main id="main">
 <div class="hero hero-bold">
   <div class="hero-media">
-    <div class="herobg-clip"><div class="herobg" id="hero-yt" data-yt="SiJpWlQwk04" data-start="0"></div></div>
-    <div class="hero-poster" id="hero-yt-poster"></div>
-    <div class="hero-scrim"></div>
-    <div class="hero-yt-mask"></div>
+    <!-- the text comes first in the DOM: a poster earlier in the markup let Chrome
+         paint the image before the headline was parsed, and the text block then
+         shifted into place (CLS). Poster, film and scrim are absolutely positioned
+         under it by z-index, so the order changes nothing on screen. -->
     <div class="wrap">
       <div class="herotext">
         <p class="eyebrow">Home Service Studios &middot; Los Angeles</p>
@@ -3488,6 +3513,8 @@ HOME_HTML = f"""<title>Home Service Studios</title>
       </div>
       <div class="scrollhint">{SCROLL_ICON}</div>
     </div>
+    {HERO_MEDIA}
+    <div class="hero-scrim"></div>
   </div>
   <div class="hero-lines">{SPLAT_SVG}<div class="wrap">
   <p class="sub">We write, shoot, edit and post video for home service companies every month, so
@@ -3604,6 +3631,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 {SOLO_JS}
 {NAV_JS}
 {MOTION_JS}
+{HERO_JS}
 """
 
 
@@ -4257,7 +4285,7 @@ if MODE == "web":
     n3 = write_web(home, f"{S}/deploy/index.html",
                    title="Home Services Video Production | Los Angeles | Home Service Studios",
                    desc=D3, og_image=f"{SITE}/og/og-home.jpg",
-                   url=f"{SITE}/")
+                   url=f"{SITE}/", extra_head=HERO_PRELOAD)
 
     # the serverless function that receives the contact form
     os.makedirs(f"{S}/deploy/api", exist_ok=True)
