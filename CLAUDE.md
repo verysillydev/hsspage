@@ -581,6 +581,13 @@ figure. The number is always a link to the reel itself, the clean URL with no tr
 on the homepage ledger that cell links its name to the case and its number to the reel, so it is a
 `<div>`, not one `<a>`. When the owner reports a new count, change the constant and the source
 line's date.
+**A1's figures are from their first six months with us (release 9, owner).** Every visible
+2.26M carries that frame: the case H1 ("2.26M views in six months."), the intro, the stat row
+(which leads with "6 months / From the first post"), the reels chart title, the grid card, both
+hero ledgers ("Views in six months"), the meta and OG descriptions and the A1 OG card. **The seven
+reels are only the biggest of everything posted in that span**, and the copy says so. There are no
+per-post dates and no views for the other posts: never invent either, and never imply 2.26M is
+the account's total.
 **iComfort's organic claim covers the first year only (R19, 2026-10-06).** 27 Mar 2024 to 11 Mar
 2025 (290 to 1,970 followers, 154 to 508 posts) is documented as organic. The count today (3,127
 followers and 1,085 posts on 6 Oct 2026, read from the public profile @icomfort.hvac) must never be

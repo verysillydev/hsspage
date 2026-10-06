@@ -65,8 +65,8 @@ const cards = {
   'og-a1': `${top}<div class="bars">${[623, 428, 410, 312, 195, 162, 134]
       .map((v, i) => `<span class="${i ? '' : 'lead'}" style="height:${(v / 623 * 100).toFixed(1)}%"></span>`).join('')}</div>${lines}
     <div class="body"><p class="eyebrow">Case study &middot; A1 Air Conditioning</p>
-    <h1><span class="hl">2.26M views.</span></h1>
-    <p class="sub">Seven reels past 100,000 views for a Tucson HVAC company with 9,200 followers.</p></div>`,
+    <h1><span class="hl">2.26M views</span><br>in six months.</h1>
+    <p class="sub">The seven biggest reels from their first six months, for a Tucson HVAC company with 9,200 followers.</p></div>`,
   'og-bee-right-there': `${top}<div class="bars pair">${[27851, 106439]
       .map((v, i) => `<span class="${i ? 'lead' : ''}" style="height:${(v / 106439 * 100).toFixed(1)}%"></span>`).join('')}</div>${lines}
     <div class="body"><p class="eyebrow">Case study &middot; Bee Right There Heating &amp; Air</p>

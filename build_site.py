@@ -2667,10 +2667,11 @@ CASES = [
     dict(id="a1", slug="a1-air-conditioning", name="A1 Air Conditioning", og="og-a1.jpg",
          vertical="Home services", tag="Social Media Packages",
          problem="A crowded market where every company looks the same.",
-         card_metric="2.26M", card_line="views on seven reels, in a market of one million people",
+         card_metric="2.26M", card_line="views on seven reels in their first six months",
          where="A1 Air Conditioning &middot; Tucson, AZ",
-         desc="How a Tucson HVAC company with 9,200 followers built seven reels past 100,000 "
-              "views, roughly 2.26 million views in a market of one million people."),
+         desc="A Tucson HVAC company with 9,200 followers. In their first six months with us, "
+              "seven reels passed 100,000 views: roughly 2.26 million views in six months, in a "
+              "market of one million people."),
     dict(id="beerightthere", slug="bee-right-there", name="Bee Right There",
          full="Bee Right There Heating &amp; Air", og="og-bee-right-there.jpg",
          vertical="Home services", tag="Social Media Packages",
@@ -2840,14 +2841,18 @@ CASE_PAGE = {
         kind="Reach",
         # H (release 8): HSS ran their organic short form only, never paid advertising or
         # brand video for A1. Never claim otherwise.
-        roles=["Social Media Packages", "Short form"], tag="2.26M views.",
+        # Release 9 (owner): every A1 figure is from their FIRST SIX MONTHS with us, and the
+        # seven reels are only the biggest of everything posted in that span. There are no
+        # per-post dates and no views for the other posts: never invent either.
+        roles=["Social Media Packages", "Short form"], tag="2.26M views in six months.",
         lede="Ongoing Social Media Packages work on their organic short-form video. A Tucson HVAC "
-             "company with 9,200 followers now carries <strong>seven reels past 100,000 views and "
-             "three past 400,000</strong>. That is roughly 2.26 million views, in a market of one "
-             "million people.",
+             "company with 9,200 followers. In their first six months with us, <strong>seven "
+             "reels passed 100,000 views and three passed 400,000</strong>. That is roughly 2.26 "
+             "million views, in a market of one million people. And those are only the seven "
+             "biggest. Every other video we posted in those six months added views on top.",
         proof_head="The reels",
         proof=f"""<div class="chartwrap">
-    <p class="charttitle">Seven reels, by views. Every one of them clears 100,000.</p>
+    <p class="charttitle">The seven biggest reels from their first six months. Every one clears 100,000.</p>
     {a1_bars()}
     <p class="chartnote">The lead reel frames a technician alone in a dark attic like the cold
     open of a horror film. It was shared 1,100 times, which is the shape of the whole account:
@@ -2855,7 +2860,10 @@ CASE_PAGE = {
   </div>
   <div class="reels">
 {A1_REELS}
-  </div>""", ops=""),
+  </div>""",
+        ops=ops([("6 months", "From the first post"),
+                 ("2.26M", "Views on the seven biggest reels"),
+                 ("7", "Reels past 100,000 views"), ("3", "Reels past 400,000 views")])),
     "beerightthere": dict(
         kind="Reach", roles=["Social Media Packages", "Short form"],
         tag="Nearly 4x the views in three weeks.",
@@ -3060,7 +3068,7 @@ html = f"""<title>Selected work, Home Service Studios</title>
   <p class="sub">{num_word(len(CASES)).capitalize()} home service companies, the problem each one
   started with, and what changed, <strong>measured on their own accounts</strong>.</p>
   <div class="stats quad">
-    <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views on 7 reels</span></a>
+    <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views in six months</span></a>
     <a class="stat" href="{case_url("beerightthere")}"><span class="case">Bee Right There</span><span class="n">3.8x</span><span class="k">Views in three weeks</span></a>
     <a class="stat" href="{case_url("icomfort")}"><span class="case">iComfort</span><span class="n">6.8x</span><span class="k">Followers in under a year</span></a>
     <a class="stat" href="{case_url("allheart")}"><span class="case">All Heart</span><span class="n">10</span><span class="k">Spots from one shoot</span></a>
@@ -3486,7 +3494,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   when a homeowner needs a repair, a replacement or a remodel, <strong>the name they already know
   is yours</strong>.</p>
   <div class="stats quad">
-    <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views on 7 reels</span></a>
+    <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views in six months</span></a>
     <div class="stat"><a class="case" href="{case_url("beerightthere")}">Bee Right There</a><a class="n" href="{BRT_REEL_URL}" aria-label="{BRT_REEL_LABEL}">{BRT_REEL_SHORT}</a><span class="k">Views on one reel</span></div>
     <a class="stat" href="{case_url("icomfort")}"><span class="case">iComfort</span><span class="n">+1,680</span><span class="k">Organic followers, under a year</span></a>
     <a class="stat" href="#roster"><span class="case">Our Brands</span><span class="n">{ROSTER_COUNT}</span><span class="k">Clients across the country</span></a>
@@ -4158,7 +4166,7 @@ if MODE == "web":
     # too. The old domain should 301 here rather than keep serving its stale
     # pre-rebrand build, which is the one part of this that is not a code change.
     D1 = (f"{num_word(len(CASES)).capitalize()} home service companies and what changed: "
-          "2.26M views for A1 in Tucson, 3.8x the views for Bee Right There, 6.8x the "
+          "2.26M views in six months for A1 in Tucson, 3.8x the views for Bee Right There, 6.8x the "
           "followers for iComfort, ten spots from one shoot for All Heart.")
     # The portfolio as structured data: a CollectionPage listing every case page.
     WORK_LD = ('<script type="application/ld+json">' + json.dumps({
@@ -4245,7 +4253,7 @@ if MODE == "web":
 
     home = validate(HOME_HTML, "home")
     D3 = ("Los Angeles video production for HVAC, plumbing and home service brands. Written, "
-          "shot, cut and posted monthly. 2.26M views for one HVAC client.")
+          "shot, cut and posted monthly. 2.26M views in six months for one HVAC client.")
     n3 = write_web(home, f"{S}/deploy/index.html",
                    title="Home Services Video Production | Los Angeles | Home Service Studios",
                    desc=D3, og_image=f"{SITE}/og/og-home.jpg",
