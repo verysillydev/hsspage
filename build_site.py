@@ -761,6 +761,25 @@ CSS = """<style>
     font-variant-caps:normal !important;letter-spacing:var(--t-head);font-size:var(--f-sm);
     display:inline-flex;align-items:center;min-height:40px;}
   .navcta:hover{filter:brightness(1.08);}
+  /* The box is sized to the label in Onest, so it cannot grow when Onest lands
+     after first paint (since N5 the fonts are files; the -apple-system fallback
+     is about 6px narrower for "Contact" and 11px for "Start a project", which
+     shifted the whole right side of the bar, CLS about 0.001 on throttled
+     phones). em-based, so it scales with the fluid label size. */
+  .navcta{justify-content:center;min-width:calc(3.9em + 24px);}
+  @media(min-width:560px){.navcta{min-width:calc(7em + 40px);}}
+  /* below 560px the row needed about 354px of a 342px content box once the
+     brand set in Onest, so the right group overflowed into the page padding
+     and moved when the font arrived; a tighter gap and CTA padding make it fit */
+  @media(max-width:559px){.navin{gap:var(--s2);} .navcta{padding:0 var(--s3);}}
+  /* On a slow connection the browser can paint while the nav's HTML is only
+     half parsed (the toggle in, the CTA not yet), and the right-aligned group
+     then grew leftwards when the CTA arrived: a 0.0016 shift on throttled
+     phones. Reserving the group's final width (toggle 40px + its 10px gap + the
+     CTA's own minimum) means a partly parsed nav already sits in its final box. */
+  @media(max-width:559px){.navright{min-width:calc(50px + 3.9 * var(--f-sm) + 24px);}}
+  @media(min-width:560px) and (max-width:619px){
+    .navright{min-width:calc(40px + var(--s5) + 7 * var(--f-sm) + 40px);}}
   .navcta .ctashort{display:inline;}
   .navcta .ctalong{display:none;}
   @media(min-width:560px){
