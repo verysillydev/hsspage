@@ -2889,7 +2889,7 @@ def site_footer(page=""):
             f'<nav class="foot-nav" aria-label="Footer">{links}</nav>'
             f'</div>'
             f'<div class="foot-meta">'
-            f'<p>Los Angeles, CA &middot; Insured &middot; Working since 2019</p>'
+            f'<p>Los Angeles, CA &middot; Insured &middot; Working since 2020</p>'
             f'<p>&copy; {YEAR} Home Service Studios</p>'
             f'</div>'
             f'</div></footer>')

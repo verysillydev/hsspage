@@ -670,7 +670,7 @@ and building" alongside remodel and ADU work, since that is the same buyer conve
 
 ## Credentials and link previews
 
-**Insured and working since 2019** sit in the footer meta line on every page, deliberately
+**Insured and working since 2020** sit in the footer meta line on every page, deliberately
 understated: for a trades buyer these are expected rather than impressive, so they read as facts
 beside the address, not as badges. The `/packages` terms grid carries the longer version, offering
 to send paperwork before a crew is on site, which is what a commercial client actually needs.
