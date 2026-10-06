@@ -130,11 +130,13 @@ def reassure(page="home"):
     return f'<p class="reassure">{REASSURE_VARIANTS.get(page, REASSURE_FORM)}</p>'
 
 def actionbar():
-    """Phones only. Two thumbs, two jobs: reach out, or send the details."""
-    return (f'<div class="actionbar">'
+    """Phones only. Two thumbs, two jobs: reach out, or send the details.
+    A <nav> with its own label, not a bare div: it sits outside <main> and
+    <footer>, and axe's region rule flags content outside every landmark."""
+    return (f'<nav class="actionbar" aria-label="Quick actions">'
             f'<a href="/contact/">Contact</a>'
             f'<a class="primary" href="{cta_href()}">'
-            f'{"Book a call" if BOOKED else "Start a project"}</a></div>')
+            f'{"Book a call" if BOOKED else "Start a project"}</a></nav>')
 
 
 def nav(active=""):
@@ -159,7 +161,7 @@ def nav(active=""):
     # must keep matching the file or the reserved box changes and CLS comes back.
     icon = asset(f"{S}/logos_hss/nav_mark_hss.webp", "image/webp")
     return (
-        '<nav class="nav" id="nav"><div class="wrap navin">'
+        '<nav class="nav" id="nav" aria-label="Primary"><div class="wrap navin">'
         f'<a class="brand" href="/"><img class="brandmark" src="{icon}" alt="" '
         f'width="174" height="84">Home Service Studios</a>'
         '<div class="navright">'
@@ -2379,6 +2381,7 @@ html = f"""<title>Selected work, Home Service Studios</title>
 {CSS}
 <a class="skip" href="#main">Skip to content</a>
 {nav("work")}
+<main id="main">
 <div class="hero">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Selected work &middot; Home Service Studios</p>
   <h1 class="display">Three clients.<br>Three kinds of proof.</h1>
@@ -2400,7 +2403,6 @@ html = f"""<title>Selected work, Home Service Studios</title>
   creator economy, live streaming and social commerce before turning to commercial work.</p>
 </div></div>
 
-<main id="main">
 <section id="quality" class="flush">
   {BANNER_MEDIA}
   <div class="wrap"><div class="bannercap">
@@ -2542,6 +2544,7 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 <a class="skip" href="#main">Skip to content</a>
 {nav("packages")}
 
+<main id="main">
 <div class="hero">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Monthly packages &middot; Home Service Studios</p>
   <h1 class="display">Known and trusted before they need you.</h1>
@@ -2556,7 +2559,6 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
   {reassure("packages")}
 </div></div>
 
-<main id="main">
 <section><div class="wrap">
 
   <div class="always">
@@ -2722,6 +2724,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 <a class="skip" href="#main">Skip to content</a>
 {nav("home")}
 
+<main id="main">
 <div class="hero hero-bold">
   <div class="hero-media">
     <div class="herobg-clip"><div class="herobg" id="hero-yt" data-yt="SiJpWlQwk04" data-start="0"></div></div>
@@ -2753,7 +2756,6 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   </div></div>
 </div>
 
-<main id="main">
 
 <section><div class="wrap">
   <div class="sec-head">
@@ -2993,6 +2995,7 @@ CONTACT_HTML = f"""<title>Contact</title>
 <a class="skip" href="#main">Skip to content</a>
 {nav("contact")}
 
+<main id="main">
 <div class="hero hero-contact">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Contact &middot; Home Service Studios</p>
   <h1 class="display">Talk to us.</h1>
@@ -3008,7 +3011,6 @@ CONTACT_HTML = f"""<title>Contact</title>
   {reassure("contact")}
 </div></div>
 
-<main id="main">
 
 {SCHEDULER_SECTION}
 
@@ -3121,6 +3123,7 @@ TEAM_HTML = f"""<title>Meet the team</title>
 <a class="skip" href="#main">Skip to content</a>
 {nav("team")}
 
+<main id="main">
 <div class="hero">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Meet the team &middot; Home Service Studios</p>
   <h1 class="display">Meet the team.</h1>
@@ -3129,7 +3132,6 @@ TEAM_HTML = f"""<title>Meet the team</title>
   as they are ready.</p>
 </div></div>
 
-<main id="main">
 <section><div class="wrap">
   <div class="sec-head">
     <p class="eyebrow">Leadership</p>
