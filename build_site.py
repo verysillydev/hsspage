@@ -1198,11 +1198,6 @@ CSS = """<style>
   .band-head{display:flex;flex-direction:column;gap:var(--s2);margin-bottom:0;}
   .band-head h2{font-size:var(--f-h2);}
   .band-head p{margin:0;color:var(--ink-2);font-size:var(--f-body);max-width:62ch;line-height:1.58;}
-  /* this one lede only: the reels row right below it now runs the full
-     .wrap width (7-across fix), and a 62ch paragraph above a full-width
-     row read as narrow/awkward next to it. Every other .band-head keeps
-     the 62ch measure. */
-  .band-head.full-lede p{max-width:none;}
 
   /* 2026-08-24: bold pass. Each program group reads as a filed folder, a colored
      tab above a lighter body, rather than a plain heading. The cut top-right
@@ -1373,7 +1368,6 @@ CSS = """<style>
     .edia{max-width:220px;}
     .ob{grid-template-columns:repeat(2,minmax(0,1fr));}
     .ob li{display:flex;flex-direction:column;gap:2px;padding:var(--s3);}
-    .reel{padding:var(--s3);}
   }
 
   .incl{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
@@ -2870,18 +2864,6 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
   </div>
 
   {pkg_group("you-supply")}
-
-  <div class="band">
-    <div class="band-head full-lede">
-      <p class="eyebrow">Proof, before you look at the bigger numbers</p>
-      <h2 class="display">This is what running it looks like</h2>
-      <p>These seven reels, all of them ours, carry roughly 2.26 million views for A1 Air
-      Conditioning, a Tucson HVAC company with 9,200 followers in a market of one million people.</p>
-    </div>
-    <div class="reels">
-{A1_REELS}
-    </div>
-  </div>
 
   {pkg_group("two-days")}
 

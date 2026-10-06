@@ -307,7 +307,9 @@ Starter up each tier includes a dedicated monthly ad budget ($150 to $750, `adSp
 drops to `--f-sm`, the Terms are one `<details>` per term (open by default; `TERMS_JS` closes them
 below 760px only, so desktop and no-JS readers see everything), and Bronze/Gold list what they add
 to Starter/Silver instead of repeating every line. The "Not leads..." lede, every tier and the A1
-reels next to the prices were left as they were. Do not grow it back without a reason.
+reels were left as they were at the time; R13 later removed the A1 reels from `/packages` (see
+Ordering and audience), which brought it to 7,227px at 390 wide (desktop 5,945px). Do not grow it
+back without a reason.
 
 Gone with the old book and not to be re-added without the owners: the Studio and Studio Max
 tiers, application-only tiers, per-reel prices (`perAsset`), the six- and twelve-month milestones
@@ -403,8 +405,11 @@ the site; the "Creator work"
 service card and the word "creators" in the homepage hero stay pending a positioning decision with
 the owners, but nothing may cite a creator result that is not on the site.
 
-`A1_REELS` is built once above the pages and reused on all three, so the pricing page has real
-proof sitting next to a price. Pricing pages convert on that adjacency; do not strip it back out.
+`A1_REELS` is built once and reused on the homepage and the A1 case page. **No proof block inside
+`/packages` (owner, 2026-10-06, R13).** The old rule ("pricing pages convert on that adjacency; do
+not strip it back out") is reversed: the "Proof, before you look at the bigger numbers" A1 reel
+strip that sat between Baby Steps and Starter was removed, and the owner does not want proof inside
+the price list. The tier groups follow each other directly.
 
 ## The reassurance line varies by page
 
