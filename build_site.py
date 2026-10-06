@@ -1059,8 +1059,13 @@ CSS = """<style>
     font-weight:900;letter-spacing:-.01em;font-size:var(--f-h3);padding:var(--s3) var(--s6) var(--s3) var(--s5);
     clip-path:polygon(0 0,calc(100% - 22px) 0,100% 100%,0 100%);margin-bottom:calc(var(--s4) * -1);
     position:relative;z-index:1;box-shadow:0 10px 18px -10px rgba(0,0,0,.4);}
-  .band-tab.t-orange{background:var(--orange);}
-  .band-tab.t-cyan{background:var(--cyan);}
+  /* 2026-10-06: the two bright tabs carry ink, not white. White on the cyan
+     was 2.61:1 (axe color-contrast, fails AA even as large text) and white on
+     the orange only 3.71:1. Ink is 6.89:1 on cyan and 4.84:1 on orange, so
+     both pass AA at any size, they stay a matched pair, and it is the same
+     ink-on-orange the site's CTAs already use. The ink tab keeps white. */
+  .band-tab.t-orange{background:var(--orange);color:#14171A;}
+  .band-tab.t-cyan{background:var(--cyan);color:#14171A;}
   .band-tab.t-ink{background:var(--ink);}
   .band-body{background:var(--ground-2);border-radius:0 var(--r-lg) var(--r-lg) var(--r-lg);
     padding:var(--s6) var(--s5) var(--s5);}
