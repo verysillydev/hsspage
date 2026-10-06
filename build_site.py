@@ -3164,8 +3164,7 @@ TEAM_HTML = f"""<title>Meet the team</title>
   <p class="eyebrow">Meet the team &middot; Home Service Studios</p>
   <h1 class="display">Meet the team.</h1>
   <p class="sub">Every video on this site was written, shot and cut by people you could actually
-  meet, not a vendor network stitched together per project. Headshots and bios are landing here
-  as they are ready.</p>
+  meet, not a vendor network stitched together per project.</p>
 </div></div>
 
 <section><div class="wrap">
