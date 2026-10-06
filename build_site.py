@@ -70,6 +70,8 @@ REASSURE_VARIANTS = {
              "business day, about your market rather than in general."),
     "packages": ("Under a minute to fill in. You get a real answer within one business day, "
                  "about your city and your trade, not a brochure."),
+    "case": ("Under a minute and six questions. A real person answers within one business "
+             "day, about your market rather than with a template."),
     "contact": ("Six questions, under a minute. One business day to a reply, written by "
                 "someone here who has looked at your market."),
     # /packages calls reassure() twice, once at the top and once under the terms
@@ -535,6 +537,30 @@ CSS = """<style>
   .charttitle{margin:0 0 var(--s4);font-size:var(--f-h4);font-weight:650;
     letter-spacing:var(--t-head);}
   .a1chart{width:100%;height:auto;display:block;}
+  /* The A1 chart on its case page is HTML, not SVG: its numbers and labels are
+     real text in the page's own faces. An inline SVG with <text> made Archivo
+     700 miss font-display:optional's window (see a1_chart). --plot is the
+     tallest bar; every bar is a fraction of it. */
+  .a1bars{--plot:150px;}
+  .a1plot{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
+    gap:var(--s1);align-items:end;height:calc(var(--plot) + 2em);padding-right:3em;
+    border-bottom:1px solid var(--line);}
+  @media(min-width:560px){.a1plot,.a1idx{gap:var(--s3);}}
+  .a1b{display:flex;flex-direction:column;align-items:center;gap:var(--s1);min-width:0;}
+  .a1b .v{font-family:var(--display);font-weight:700;font-size:var(--f-micro);color:var(--ink);
+    line-height:1;white-space:nowrap;}
+  @media(min-width:560px){.a1b .v{font-size:var(--f-sm);}}
+  .a1b .bar{display:block;width:100%;height:calc(var(--h) * var(--plot));
+    background:rgba(var(--cyan-rgb),.55);border-radius:var(--r-md) var(--r-md) 0 0;}
+  .a1b.is-top .bar{background:var(--orange);}
+  .a1t{position:absolute;left:0;right:3em;bottom:calc(var(--h) * var(--plot));
+    border-top:1px dashed rgba(var(--orange-rgb),.5);}
+  .a1t span{position:absolute;left:100%;margin-left:var(--s1);top:-.75em;font-family:var(--display);font-weight:700;
+    font-size:var(--f-micro);line-height:1.5;color:var(--orange-text);letter-spacing:.05em;}
+  .a1idx{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--s1);
+    padding-right:3em;margin-top:var(--s2);}
+  .a1idx span{text-align:center;font-family:var(--display);font-weight:700;font-size:var(--f-micro);
+    color:var(--ink-2);letter-spacing:.05em;}
   .chartnote{margin:var(--s4) 0 0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;
     max-width:70ch;}
 
@@ -683,11 +709,22 @@ CSS = """<style>
     letter-spacing:var(--t-head);line-height:1.15;}
   .cg-go{margin-top:var(--s2);font-size:var(--f-sm);font-weight:650;color:var(--orange-text);}
 
-  /* Each is the exact same section markup a standalone case page used to
-     render on its own; only one shows at a time, opened by CASES_JS from the
-     URL hash the case cards link to. */
-  .case-panels > section{display:none;}
-  .case-panels > section.is-active{display:block;}
+  /* case pages (N1): breadcrumbs in the dark hero, a prev/next chain at the foot */
+  .crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:0 var(--s2);margin:0 0 var(--s4);
+    font-size:var(--f-sm);color:var(--ink-3);}
+  .crumbs a{display:inline-flex;align-items:center;min-height:24px;color:var(--ink-2);
+    text-decoration:none;}
+  .crumbs a:hover{color:var(--ink);text-decoration:underline;}
+  .crumbs [aria-current]{color:var(--ink);}
+  .hero .role{margin-top:var(--s5);}
+  .pnrow{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s3);}
+  @media(min-width:760px){.pnrow{grid-template-columns:1fr 1fr;}.pn.next{grid-column:2;text-align:right;}}
+  .pn{display:flex;flex-direction:column;gap:var(--s1);padding:var(--s5);background:var(--ground-2);
+    border-radius:var(--r-md);text-decoration:none;color:inherit;transition:transform var(--ease);}
+  .pn:hover{transform:translateY(-2px);}
+  .pn-l{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
+    font-size:var(--f-sm);color:var(--cyan-text);}
+  .pn-n{font-family:var(--display);font-size:var(--f-h3);font-weight:700;letter-spacing:var(--t-head);}
 
   /* sits under a booking CTA, so nobody has to guess what happens after the click */
   .reassure{margin:var(--s3) 0 0;font-size:var(--f-sm);color:var(--ink-3);max-width:52ch;
@@ -964,10 +1001,12 @@ CSS = """<style>
      cards, which is exactly the "default look" the six rules elsewhere on
      this sheet exist to avoid; .op is shared across every case page's stat
      row and the packages page, so fixing it here fixes all of them at once. */
-  .ops{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;
-    background:var(--line);margin-bottom:var(--s4);}
-  .op{background:var(--ground);padding:var(--s4);display:flex;flex-direction:column;gap:var(--s1);
-    transition:background var(--ease);}
+  /* wrapping flex, not an auto-fit grid (2026-10-06): with a grid, five
+     figures on a phone left the fifth beside an empty grey cell; growing flex
+     items stretch whatever lands on the last row to the full width instead */
+  .ops{display:flex;flex-wrap:wrap;gap:1px;background:var(--line);margin-bottom:var(--s4);}
+  .op{flex:1 1 140px;min-width:0;background:var(--ground);padding:var(--s4);display:flex;
+    flex-direction:column;gap:var(--s1);transition:background var(--ease);}
   .op:hover{background:var(--ground-2);}
   .op .n{font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;color:var(--cyan-text);
     font-family:var(--display);line-height:1.1;}
@@ -1652,35 +1691,6 @@ NAV_JS = """<script>
 </script>"""
 
 
-# /our-work/ only. The case cards are plain links to #a1, #handyman and #allheart.
-# This opens the matching write-up in .case-panels (each is the markup a case page
-# used to be) and scrolls to it, on load and on every hash change, so the
-# homepage's /our-work/#a1-style links land on the right case too.
-CASES_JS = """<script>
-(function(){
-  var panels = document.getElementById('case-panels');
-  if(!panels) return;
-  var sections = [].slice.call(panels.children);
-  var cards = [].slice.call(document.querySelectorAll('.cgcard'));
-  function open(){
-    var id = (location.hash || '').slice(1);
-    if(!id || !sections.some(function(s){ return s.id === id; })) return;
-    sections.forEach(function(s){ s.classList.toggle('is-active', s.id === id); });
-    cards.forEach(function(c){ c.classList.toggle('is-active', c.getAttribute('href') === '#' + id); });
-    var t = document.getElementById(id);
-    /* one tick so display:none -> block lands before measuring position */
-    setTimeout(function(){ t.scrollIntoView({behavior: 'smooth', block: 'start'}); }, 60);
-  }
-  /* a click on the card that is already open does not change the hash */
-  cards.forEach(function(c){
-    c.addEventListener('click', function(){ if(c.getAttribute('href') === location.hash) open(); });
-  });
-  open();
-  window.addEventListener('hashchange', open);
-})();
-</script>"""
-
-
 MOTION_JS = """<script>
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2156,6 +2166,22 @@ def a1_chart(dark=False, decorative=False):
             f'stroke-width="1"/>{thresh}{bars}{labels}</svg>')
 
 
+def a1_bars():
+    """The same seven real view counts as a1_chart(), as HTML bars (see .a1bars)."""
+    data = [("623K", 623, 1), ("428K", 428, 0), ("410K", 410, 0), ("312K", 312, 0),
+            ("195K", 195, 0), ("162K", 162, 0), ("134K", 134, 0)]
+    bars = "".join(
+        f'<div class="a1b{" is-top" if top else ""}" style="--h:{v / 623:.3f}">'
+        f'<span class="v">{lab}</span><span class="bar"></span></div>'
+        for lab, v, top in data)
+    idx = "".join(f"<span>{i:02d}</span>" for i in range(1, len(data) + 1))
+    return (f'<div class="a1bars" role="img" aria-label="Seven A1 reels by view count, from '
+            f'623,000 down to 134,000, every one of them above 100,000">'
+            f'<div class="a1plot" aria-hidden="true">'
+            f'<span class="a1t" style="--h:{100 / 623:.3f}"><span>100K</span></span>{bars}</div>'
+            f'<div class="a1idx" aria-hidden="true">{idx}</div></div>')
+
+
 # ---- the three case studies, shown inline on /our-work/ --------------------
 
 # Order here is the reading order everywhere: the carousel, its dots and the case
@@ -2187,6 +2213,11 @@ CASES = [
 CASE_BY_ID = {c["id"]: c for c in CASES}
 
 
+def case_url(cid):
+    """Each case has its own page at /our-work/<slug>/ (N1, 2026-10-06)."""
+    return f"/our-work/{CASE_BY_ID[cid]['slug']}/"
+
+
 # The still each case card leads with. Handyman Dan uses its 1200px OG frame, which
 # holds up at the card's 2x size; A1 has no still, so it gets the data panel.
 CASE_TILE_STILL = {"handyman": f"{S}/og/og-handyman.jpg", "allheart": f"{P}/ah1.jpg"}
@@ -2204,10 +2235,10 @@ def case_tile(c, lead=False):
         art = (f'<span class="cg-art cg-data"><span class="cg-top">{metric}'
                f'<span class="cg-line">Seven reels past 100,000 views for a Tucson HVAC company '
                f'with 9,200 followers.</span></span>{a1_chart(dark=True, decorative=True)}</span>')
-    return (f'<a class="cgcard{" is-lead" if lead else ""}" href="#{c["id"]}">{art}'
+    return (f'<a class="cgcard{" is-lead" if lead else ""}" href="{case_url(c["id"])}">{art}'
             f'<span class="cg-body"><span class="cg-vert">{c["vertical"]}</span>'
             f'<span class="cg-name">{c["name"]}</span>'
-            f'<span class="cg-go">See the case &darr;</span></span></a>')
+            f'<span class="cg-go">See the case &rarr;</span></span></a>')
 
 
 CASE_GRID = "\n".join(case_tile(c, lead=(i == 0)) for i, c in enumerate(CASES))
@@ -2217,98 +2248,83 @@ CASE_GRID = "\n".join(case_tile(c, lead=(i == 0)) for i, c in enumerate(CASES))
 
 
 
-CASE_BODY = {}
-CASE_BODY["a1"] = f"""<section id="a1"><div class="wrap">
-  <div class="sec-head casehead">
-    <p class="eyebrow">Case 01 &middot; Home services &middot; Reach</p>
-    <h2 class="display">A1 Air Conditioning</h2>
-    <div class="role"><span class="lbl">Our role</span><span class="pill">Video Distribution</span><span class="pill">Monthly Package</span></div>
-    <p class="lede">An ongoing monthly engagement covering their entire video distribution: organic social,
-    paid advertising and brand video. A Tucson HVAC company with 9,200 followers, now carrying
-    <strong>seven reels past 100,000 views and three past 400,000</strong>, for roughly 2.26 million
-    views in a market of one million people.</p>
-  </div>
+CSI = {
+    "a1": ("Local service advertising is interchangeable. Same vans, same promises, nothing "
+           "anyone would repeat.",
+           "Treat the service call as a premise. The best-performing spot frames a technician "
+           "alone in a dark attic like the cold open of a horror film.",
+           "1,100 shares on the lead reel. Audiences passed it along themselves, which is the "
+           "premise working rather than the media budget."),
+    "handyman": ("Home service brands rarely commission real commercial work because they cannot "
+                 "picture what it looks like or what it returns.",
+                 "Build the package on spec across three cut lengths, so every placement is covered "
+                 "and the work can be evaluated as finished product rather than a pitch.",
+                 "One production, twelve markets, twelve accounts on annual agreements. The package "
+                 "earned back its cost many times over."),
+    "allheart": ("Fill a year of paid and organic inventory for a brand with no library and no "
+                 "appetite for repeat shoot days.",
+                 "Write one comic premise strong enough to sustain ten spots, then shoot the entire "
+                 "campaign in one block so the cost lands once.",
+                 "Ten finished spots from a single production, delivered complete and in scope."),
+}
 
-  <div class="csi">
-    <div><h3>The challenge</h3><p>Local service advertising is interchangeable. Same vans, same promises,
-      nothing anyone would repeat.</p></div>
-    <div><h3>The solution</h3><p>Treat the service call as a premise. The best-performing spot frames a
-      technician alone in a dark attic like the cold open of a horror film.</p></div>
-    <div><h3>The impact</h3><p>1,100 shares on the lead reel. Audiences passed it along themselves, which is
-      the premise working rather than the media budget.</p></div>
-  </div>
 
-  <div class="chartwrap">
+def csi_block(cid):
+    a, b, c = CSI[cid]
+    return (f'<div class="csi"><div><h3>The challenge</h3><p>{a}</p></div>'
+            f'<div><h3>The solution</h3><p>{b}</p></div>'
+            f'<div><h3>The impact</h3><p>{c}</p></div></div>')
+
+
+def ops(rows):
+    return ('<div class="ops">' + "".join(
+        f'<div class="op"><span class="n">{n}</span><span class="k">{k}</span></div>'
+        for n, k in rows) + '</div>')
+
+
+# What each case page carries: the hero's eyebrow, roles, the highlighted phrase
+# in its headline and its lede, then the proof itself. Copy is the case write-ups
+# that used to live in the /our-work panels, unchanged.
+CASE_PAGE = {
+    "a1": dict(
+        eyebrow="Case 01 &middot; Home services &middot; Reach",
+        roles=["Video Distribution", "Monthly Package"], tag="2.26M views.",
+        lede="An ongoing monthly engagement covering their entire video distribution: organic "
+             "social, paid advertising and brand video. A Tucson HVAC company with 9,200 "
+             "followers, now carrying <strong>seven reels past 100,000 views and three past "
+             "400,000</strong>, for roughly 2.26 million views in a market of one million people.",
+        proof_head="The reels",
+        proof=f"""<div class="chartwrap">
     <p class="charttitle">Seven reels, by views. Every one of them clears 100,000.</p>
-    {a1_chart()}
+    {a1_bars()}
     <p class="chartnote">The lead reel frames a technician alone in a dark attic like the cold
     open of a horror film. It was shared 1,100 times, which is the shape of the whole account:
     one breakout carried by a premise, and a tail that still outperforms the market.</p>
   </div>
-
   <div class="reels">
 {A1_REELS}
-  </div>
-</div></section>"""
-CASE_BODY["handyman"] = f"""<section id="handyman"><div class="wrap">
-  <div class="sec-head casehead">
-    <p class="eyebrow">Case 02 &middot; Home services &middot; Scale</p>
-    <h2 class="display">Handyman Dan</h2>
-    <div class="role"><span class="lbl">Our role</span><span class="pill">Writer</span><span class="pill">Producer</span></div>
-    <p class="lede">We wrote and produced a six-spot package once, then <strong>deployed it across twelve
-    markets nationwide</strong> and licensed it to twelve accounts on twelve-month agreements.</p>
-  </div>
-
-  <div class="csi">
-    <div><h3>The challenge</h3><p>Home service brands rarely commission real commercial work because they
-      cannot picture what it looks like or what it returns.</p></div>
-    <div><h3>The solution</h3><p>Build the package on spec across three cut lengths, so every placement is
-      covered and the work can be evaluated as finished product rather than a pitch.</p></div>
-    <div><h3>The impact</h3><p>One production, twelve markets, twelve accounts on annual agreements. The
-      package earned back its cost many times over.</p></div>
-  </div>
-
-  <div class="ops">
-    <div class="op"><span class="n">12</span><span class="k">Markets deployed</span></div>
-    <div class="op"><span class="n">12</span><span class="k">Accounts licensed</span></div>
-    <div class="op"><span class="n">12mo</span><span class="k">Agreement length</span></div>
-    <div class="op"><span class="n">6</span><span class="k">Spots delivered</span></div>
-    <div class="op"><span class="n">3</span><span class="k">Cut lengths</span></div>
-  </div>
-
-  <div class="grid">
-{chr(10).join(spot(*s) for s in handyman)}
-  </div>
-</div></section>"""
-CASE_BODY["allheart"] = f"""<section id="allheart"><div class="wrap">
-  <div class="sec-head casehead">
-    <p class="eyebrow">Case 03 &middot; Home services &middot; Campaign</p>
-    <h2 class="display">All Heart</h2>
-    <div class="role"><span class="lbl">Our role</span><span class="pill">Writer</span><span class="pill">Producer</span></div>
-    <p class="lede">We wrote and produced a <strong>ten-spot campaign in a single production
-    block</strong>. One premise carries the whole package: the contractor you want versus the
-    contractor you got.</p>
-  </div>
-
-  <div class="csi">
-    <div><h3>The challenge</h3><p>Fill a year of paid and organic inventory for a brand with no library and
-      no appetite for repeat shoot days.</p></div>
-    <div><h3>The solution</h3><p>Write one comic premise strong enough to sustain ten spots, then shoot the
-      entire campaign in one block so the cost lands once.</p></div>
-    <div><h3>The impact</h3><p>Ten finished spots from a single production, delivered complete and in scope.</p></div>
-  </div>
-
-  <div class="ops">
-    <div class="op"><span class="n">10</span><span class="k">Spots delivered</span></div>
-    <div class="op"><span class="n">1</span><span class="k">Production block</span></div>
-    <div class="op"><span class="n">11</span><span class="k">Shot list sheets</span></div>
-    <div class="op"><span class="n">100%</span><span class="k">Scope delivered</span></div>
-  </div>
-
-  <div class="grid">
-{chr(10).join(spot(*s) for s in allheart)}
-  </div>
-</div></section>"""
+  </div>""", ops=""),
+    "handyman": dict(
+        eyebrow="Case 02 &middot; Home services &middot; Scale",
+        roles=["Writer", "Producer"], tag="Twelve markets.",
+        lede="We wrote and produced a six-spot package once, then <strong>deployed it across "
+             "twelve markets nationwide</strong> and licensed it to twelve accounts on "
+             "twelve-month agreements.",
+        proof_head="The spots",
+        proof=f'<div class="grid">\n{chr(10).join(spot(*x) for x in handyman)}\n  </div>',
+        ops=ops([("12", "Markets deployed"), ("12", "Accounts licensed"),
+                 ("12mo", "Agreement length"), ("6", "Spots delivered"), ("3", "Cut lengths")])),
+    "allheart": dict(
+        eyebrow="Case 03 &middot; Home services &middot; Campaign",
+        roles=["Writer", "Producer"], tag="Ten spots, one shoot.",
+        lede="We wrote and produced a <strong>ten-spot campaign in a single production "
+             "block</strong>. One premise carries the whole package: the contractor you want "
+             "versus the contractor you got.",
+        proof_head="The spots",
+        proof=f'<div class="grid">\n{chr(10).join(spot(*x) for x in allheart)}\n  </div>',
+        ops=ops([("10", "Spots delivered"), ("1", "Production block"),
+                 ("11", "Shot list sheets"), ("100%", "Scope delivered")])),
+}
 
 
 # ---- more results, from the owners' pitch deck -----------------------------
@@ -2406,7 +2422,15 @@ def logo_marquee():
 
 
 
+# The case write-ups used to open inline on /our-work from #a1, #handyman and
+# #allheart, and the homepage and outside links still use those. This forwards
+# them to the case pages before anything paints.
+HASH_REDIRECT_JS = ("<script>(function(){var m={" + ",".join(
+    f'"{c["id"]}":"{case_url(c["id"])}"' for c in CASES)
+    + "};var h=(location.hash||'').slice(1);if(m[h])location.replace(m[h]);})();</script>")
+
 html = f"""<title>Selected work, Home Service Studios</title>
+{HASH_REDIRECT_JS}
 {FONT_CSS}
 {CSS}
 <a class="skip" href="#main">Skip to content</a>
@@ -2418,9 +2442,9 @@ html = f"""<title>Selected work, Home Service Studios</title>
   <p class="sub">From one HVAC company&#39;s feed to a spot package licensed across twelve
   markets. <strong>The approach does not change.</strong></p>
   <div class="stats">
-    <a class="stat" href="#a1"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">One client, 7 reels</span></a>
-    <a class="stat" href="#handyman"><span class="case">Handyman Dan</span><span class="n">12</span><span class="k">Markets deployed</span></a>
-    <a class="stat" href="#allheart"><span class="case">All Heart</span><span class="n">10</span><span class="k">Spots delivered</span></a>
+    <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">One client, 7 reels</span></a>
+    <a class="stat" href="{case_url("handyman")}"><span class="case">Handyman Dan</span><span class="n">12</span><span class="k">Markets deployed</span></a>
+    <a class="stat" href="{case_url("allheart")}"><span class="case">All Heart</span><span class="n">10</span><span class="k">Spots delivered</span></a>
   </div>
   <div class="ctarow">
     {book("Project%20enquiry", "Start a project")}
@@ -2459,10 +2483,6 @@ html = f"""<title>Selected work, Home Service Studios</title>
   </div>
 </div></section>
 
-<div class="case-panels" id="case-panels">
-{chr(10).join(CASE_BODY[c["id"]] for c in CASES)}
-</div>
-
 {MORE_RESULTS}
 
 </main>
@@ -2473,7 +2493,7 @@ html = f"""<title>Selected work, Home Service Studios</title>
 {SOLO_JS}
 {NAV_JS}
 {MOTION_JS}
-{CASES_JS}
+
 """
 
 # ---- packages page --------------------------------------------------------
@@ -2748,7 +2768,7 @@ WAYS = [
          title="Campaigns",
          copy="One premise strong enough to carry a whole package, shot in a single production "
               "block so the cost lands once and the inventory lasts a year.",
-         href="/our-work/#allheart", go="See the All Heart campaign"),
+         href=case_url("allheart"), go="See the All Heart campaign"),
     dict(img=f"{P}/og-cover.jpg", alt="A client&#39;s technicians in a training room while a "
                                       "shoot is set up",
          title="Monthly programs",
@@ -2804,10 +2824,10 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   when a homeowner needs a repair, a replacement or a remodel, <strong>the name they already know
   is yours</strong>.</p>
   <div class="stats quad">
-    <a class="stat" href="/our-work/#a1"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views on 7 reels</span></a>
+    <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views on 7 reels</span></a>
     <a class="stat" href="/our-work/#more-results"><span class="case">Be Right There</span><span class="n">983K</span><span class="k">Views on one reel</span></a>
     <a class="stat" href="/our-work/#more-results"><span class="case">iComfort</span><span class="n">+1,680</span><span class="k">Organic followers, under a year</span></a>
-    <a class="stat" href="/our-work/#handyman"><span class="case">Handyman Dan</span><span class="n">12</span><span class="k">Markets deployed</span></a>
+    <a class="stat" href="{case_url("handyman")}"><span class="case">Handyman Dan</span><span class="n">12</span><span class="k">Markets deployed</span></a>
   </div>
   <div class="ctarow">
     <a class="cta" href="/packages/">See the packages</a>
@@ -3228,6 +3248,76 @@ TEAM_HTML = f"""<title>Meet the team</title>
 """
 
 
+# ---- case pages ---------------------------------------------------------------
+def case_page(i):
+    """A case study page at /our-work/<slug>/, in the D5 style: the dark hero with
+    breadcrumbs, the challenge/solution/impact cards and the real proof, then a
+    prev/next chain to its neighbours and the CTA. Returns (html, crumb JSON-LD)."""
+    c = CASES[i]
+    d = CASE_PAGE[c["id"]]
+    prev_c = CASES[i - 1] if i > 0 else None
+    next_c = CASES[i + 1] if i < len(CASES) - 1 else None
+    chain = ""
+    if prev_c:
+        chain += (f'<a class="pn prev" href="{case_url(prev_c["id"])}">'
+                  f'<span class="pn-l">Previous case</span><span class="pn-n">{prev_c["name"]}</span></a>')
+    if next_c:
+        chain += (f'<a class="pn next" href="{case_url(next_c["id"])}">'
+                  f'<span class="pn-l">Next case</span><span class="pn-n">{next_c["name"]}</span></a>')
+    crumb_ld = ('<script type="application/ld+json">'
+                '{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":['
+                '{"@type":"ListItem","position":1,"name":"Home","item":"' + SITE + '/"},'
+                '{"@type":"ListItem","position":2,"name":"Work","item":"' + SITE + '/our-work/"},'
+                '{"@type":"ListItem","position":3,"name":' + json.dumps(c["name"])
+                + ',"item":"' + SITE + case_url(c["id"]) + '"}]}</script>')
+    pills = "".join(f'<span class="pill">{r}</span>' for r in d["roles"])
+    page = f"""<title>{c["name"]}</title>
+{FONT_CSS}
+{CSS}
+<a class="skip" href="#main">Skip to content</a>
+{nav("work")}
+
+<main id="main">
+<div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span>
+    <a href="/our-work/">Work</a><span aria-hidden="true">/</span>
+    <span aria-current="page">{c["name"]}</span></nav>
+  <p class="eyebrow">{d["eyebrow"]}</p>
+  <h1 class="display">{c["name"]}.<br><span class="hl">{d["tag"]}</span></h1>
+  <p class="sub">{d["lede"]}</p>
+  <div class="role"><span class="lbl">Our role</span>{pills}</div>
+</div></div>
+
+<section><div class="wrap">
+  <div class="sec-head"><h2 class="display">How it worked</h2></div>
+  {csi_block(c["id"])}
+  {d["ops"]}
+</div></section>
+
+<section><div class="wrap">
+  <div class="sec-head"><h2 class="display">{d["proof_head"]}</h2></div>
+  {d["proof"]}
+</div></section>
+
+<section><div class="wrap">
+  <div class="pnrow">{chain}</div>
+  <div class="ctarow">
+    {book("Project%20enquiry", "Start a project")}
+    <a class="cta ghost" href="/our-work/">All {num_word(len(CASES))} case studies</a>
+  </div>
+  {reassure("case")}
+</div></section>
+</main>
+
+{site_footer("case")}
+{actionbar()}
+{SPLAT_JS}
+{NAV_JS}
+{MOTION_JS}
+"""
+    return page, crumb_ld
+
+
 # ---- 404 ------------------------------------------------------------------
 # GitHub Pages serves deploy/404.html for any path it cannot find, at that path,
 # so everything here must be root absolute (asset() already is) and the page is
@@ -3318,7 +3408,7 @@ def validate(page, label):
     return page
 
 
-def write_web(page, path, *, title, desc, og_image, url, noindex=False):
+def write_web(page, path, *, title, desc, og_image, url, noindex=False, extra_head=""):
     """Vercel serves the raw file, so each page supplies its own document shell.
 
     noindex is for the 404: GitHub Pages serves that one file at whatever bad
@@ -3342,7 +3432,7 @@ def write_web(page, path, *, title, desc, og_image, url, noindex=False):
         + '<meta name="theme-color" content="#14171A">\n'
         '<meta name="twitter:card" content="summary_large_image">\n'
         f'<link rel="icon" href="{FAVICON}">\n'
-        + ('' if noindex else JSON_LD + '\n')
+        + ('' if noindex else JSON_LD + '\n') + (extra_head + '\n' if extra_head else '')
         + '</head>\n<body>\n' + page + '\n</body>\n</html>\n'
     )
     p = pathlib.Path(path)
@@ -3388,6 +3478,27 @@ if MODE == "web":
                    desc=D4, og_image=f"{SITE}/our-work/a/og-cover.jpg",
                    url=f"{SITE}/contact/")
 
+    # case pages (N1). OG art: the per-case frames in og/; A1 has no still yet.
+    case_sizes = []
+    for i, c in enumerate(CASES):
+        page, crumb_ld = case_page(i)
+        page = validate(page, c["slug"])
+        og = f"{SITE}/og/{c['og']}" if c.get("og") else f"{SITE}/our-work/a/og-cover.jpg"
+        case_sizes.append((c["slug"], write_web(
+            page, f"{S}/deploy{case_url(c['id'])}index.html",
+            title=f"{c['name']} case study | Home Service Studios", desc=c["desc"],
+            og_image=og, url=f"{SITE}{case_url(c['id'])}", extra_head=crumb_ld)))
+        # the pre-2026-08 address of the same case, kept alive as a redirect
+        legacy = (f'<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
+                  f'<title>{c["name"]} case study</title><meta name="robots" content="noindex">'
+                  f'<link rel="canonical" href="{SITE}{case_url(c["id"])}">'
+                  f'<meta http-equiv="refresh" content="0; url={case_url(c["id"])}"></head>'
+                  f'<body><a href="{case_url(c["id"])}">{c["name"]} case study</a></body></html>\n')
+        validate(legacy, "legacy " + c["slug"])
+        lp = pathlib.Path(f"{S}/deploy/work/{c['slug']}/index.html")
+        lp.parent.mkdir(parents=True, exist_ok=True)
+        lp.write_text(legacy, encoding="utf-8")
+
     nf = validate(NOT_FOUND_HTML, "404")
     write_web(nf, f"{S}/deploy/404.html", title="Page not found | Home Service Studios",
               desc="This page is not here. See the work, the monthly packages, or contact "
@@ -3418,7 +3529,8 @@ if MODE == "web":
     # are gone (2026-08-27): each case now lives inline in .case-panels on
     # /our-work/, opened by the carousel instead of its own URL.
     # 404.html is deliberately not listed: it is noindex and has no address of its own
-    urls = ["/", "/our-work/", "/packages/", "/team/", "/contact/"]
+    urls = (["/", "/our-work/"] + [case_url(c["id"]) for c in CASES]
+            + ["/packages/", "/team/", "/contact/"])
     sm = ('<?xml version="1.0" encoding="UTF-8"?>\n'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
           + "".join(f"  <url><loc>{SITE}{u}</loc></url>\n" for u in urls)
@@ -3438,6 +3550,8 @@ if MODE == "web":
     print(f"  our-work/index.html  -> {n1/1024:.0f} KB")
     print(f"  packages/index.html  -> {n2/1024:.0f} KB")
     print(f"  team/index.html      -> {n5/1024:.0f} KB")
+    for slug, n in case_sizes:
+        print(f"  our-work/{slug}/ -> {n/1024:.0f} KB")
     print(f"  shared assets        -> {assets/1048576:.2f} MB")
 else:
     out = f"{S}/site.html"

@@ -560,8 +560,16 @@ to send paperwork before a crew is on site, which is what a commercial client ac
 `build_site.py` copies into the deploy. Before this, all nine pages shared one cover, so every
 case link shared in a text looked identical. `a1` has no still of its own and falls back to
 `og-cover.jpg`; give it a real one if reel stills ever arrive. Sources: `og-home` and
-`og-handyman` are frames from the 720p masters. The `og` field on each `CASES` entry is a leftover
-from the per-case pages and is not read by the build; `og/` is copied whole into the deploy.
+`og-handyman` are frames from the 720p masters. The `og` field on each `CASES` entry is the case
+page's og:image (`og/` is copied whole into the deploy).
+
+**Case pages (N1, 2026-10-06)** live at `/our-work/<slug>/` (`case_page()`, `case_url()`, slugs in
+`CASES`), built from `CASE_PAGE` and `CSI`: dark hero with breadcrumbs and `BreadcrumbList`
+JSON-LD, the challenge/solution/impact cards, the real proof, a prev/next chain, the CTA and the
+"case" reassure variant. They are in the sitemap. The old in-page anchors (`/our-work/#a1`,
+`#handyman`, `#allheart`) are forwarded by `HASH_REDIRECT_JS` at the top of `/our-work`, and the
+pre-2026-08 addresses `/work/<slug>/` are noindex meta-refresh stubs with a canonical to the new
+page. The A1 chart on its page is HTML (`a1_bars()`), not SVG, for the font reason under Motion.
 
 Case pages carry breadcrumbs plus `BreadcrumbList` schema, because they are landable straight
 from search and previously gave no route back up.
