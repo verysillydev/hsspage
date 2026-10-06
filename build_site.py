@@ -1171,6 +1171,11 @@ CSS = """<style>
      text on it) */
   .always{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
     padding:var(--s6) var(--s5);margin-bottom:var(--s8);}
+  /* D6: the "what you are actually buying" block is a flat ink panel; .on-ink
+     re-themes its heading, copy and the four benefit cards (--panel becomes a
+     dark card, --cyan-text the bright cyan). The steps block and the tiers
+     stay on warm white. */
+  .always.on-ink{background:#14171A;border-color:#14171A;}
   .always h2{margin:0 0 var(--s2);font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);
     color:var(--ink);}
   .always .sub2{margin:0 0 var(--s5);font-size:var(--f-body);color:var(--ink-2);max-width:68ch;
@@ -2539,7 +2544,7 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 
 <section><div class="wrap">
 
-  <div class="always">
+  <div class="always on-ink">
     <h2>What you are actually buying</h2>
     <p class="sub2">Not leads. Anyone selling you leads from organic short form is guessing.
     Consistent short form reliably does four things, and all four compound.</p>
