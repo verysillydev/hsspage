@@ -2838,11 +2838,13 @@ def before_after(title, periods, rows):
 CASE_PAGE = {
     "a1": dict(
         kind="Reach",
-        roles=["Video Distribution", "Monthly Package"], tag="2.26M views.",
-        lede="An ongoing monthly engagement covering their entire video distribution: organic "
-             "social, paid advertising and brand video. A Tucson HVAC company with 9,200 "
-             "followers, now carrying <strong>seven reels past 100,000 views and three past "
-             "400,000</strong>, for roughly 2.26 million views in a market of one million people.",
+        # H (release 8): HSS ran their organic short form only, never paid advertising or
+        # brand video for A1. Never claim otherwise.
+        roles=["Social Media Packages", "Short form"], tag="2.26M views.",
+        lede="Ongoing Social Media Packages work on their organic short-form video. A Tucson HVAC "
+             "company with 9,200 followers now carries <strong>seven reels past 100,000 views and "
+             "three past 400,000</strong>. That is roughly 2.26 million views, in a market of one "
+             "million people.",
         proof_head="The reels",
         proof=f"""<div class="chartwrap">
     <p class="charttitle">Seven reels, by views. Every one of them clears 100,000.</p>
