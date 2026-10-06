@@ -140,8 +140,17 @@ timed poster hold (load delay, previously rejected) or self-hosting the loop.
 
 ## Client logo wall
 
-15 marks in `logos/` (used full size on case pages via `c["logo"]`) plus matching WebP copies in
-`logos_webp/` (used in the scaled-down marquee/wall via `logomark()`). Each is a flat silhouette,
+The marks live in `logos/` (PNG masters) with matching WebP copies in `logos_webp/` (what the
+wall ships, via `logomark()`); `CLIENT_LOGOS` sets the order and alt text, and the count shown
+anywhere (the homepage roster stat, `ROSTER_COUNT`) is derived from it, never typed. **Fourteen
+were added on 2026-10-06 (R15)** from the HSS Dropbox client folders, each logo taken from the
+company's own website; originals and their sources are in
+`reports/hss-audit/logos-new/originals/sources.tsv`, outside this repo. HCCI was left out (owner
+decision pending). The wall leads with HVAC, plumbing and electrical brands and puts roofing,
+generators, GatorWraps and garage doors last; busy mascot marks never sit next to each other in
+the marquee or the phone grid. The marquee's duration scales with the count (about 4.6s per
+mark) so a longer wall scrolls at the same calm speed, and the static wall (phones, reduced
+motion) wraps and centres its last row so no count leaves a corner orphan. Each is a flat silhouette,
 alpha-only shape data on a transparent background, one uniform fill colour, scaled to equal
 optical ink area on an identical 500x200 canvas, which is what makes the grid space evenly
 without per logo tuning.
@@ -155,7 +164,7 @@ machine writes WebP: not `sips`, not ImageMagick, not cwebp). If a logo ever loo
 almost certainly why. The old "do not try full colour, it was attempted and rejected" rule was
 about full colour clashing on a *dark* ground; the ground is white now, so that specific
 reasoning no longer applies, but nobody has revisited whether full colour is worth doing this
-time and it's still one uniform fill for all 15 marks. The homepage roster stat reads its number
+time and it's still one uniform fill for every mark. The homepage roster stat reads its number
 from `ROSTER_COUNT = len(CLIENT_LOGOS)`, so adding or removing a mark updates it; never type it.
 
 ## Image formats
@@ -574,8 +583,10 @@ It is grouped rather than one flat list because the earlier version offered both
 "HVAC, plumbing and electrical", which gave a two-trade contractor no way to know which was
 theirs. The single trades are now mutually exclusive and **"More than one of these"** is the
 explicit escape hatch, which is the only honest way to do single select over overlapping
-categories. Order inside "Home services" follows the real client mix, HVAC first, because twelve
-of the thirteen logos on the wall are HVAC, plumbing or electrical. Realtors live under "Property
+categories. Order inside "Home services" follows the real client mix, HVAC first, because most
+of the logos on the wall are HVAC, plumbing or electrical. "Generators" was added on 2026-10-06
+(R15) when four generator companies joined the wall; it sits after "Garage doors". The build now
+asserts the `TRADES` parity with `api_contact.js` (tested: a mismatch fails the build). Realtors live under "Property
 and building" alongside remodel and ADU work, since that is the same buyer conversation.
 
 ## Credentials and link previews

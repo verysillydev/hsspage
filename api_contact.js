@@ -15,7 +15,7 @@ const FROM_NAME = "Home Service Studios";
 
 // must stay identical to TRADE_GROUPS in build_site.py, or valid submissions bounce
 const TRADES = [
-  "HVAC", "Plumbing", "Electrical", "Roofing", "Garage doors",
+  "HVAC", "Plumbing", "Electrical", "Roofing", "Garage doors", "Generators",
   "More than one of these", "Another home service",
   "Remodeling, ADU or new build", "Real estate agent or brokerage",
   "Creator, artist or channel",

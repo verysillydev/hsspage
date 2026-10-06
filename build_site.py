@@ -2198,23 +2198,44 @@ A1_REELS = "\n".join(
     for i, v, l, t, th in a1
 )
 
+# The wall, in display order (R15, 2026-10-06: fourteen marks added from the HSS
+# Dropbox client folders, each logo taken from the company's own website; originals
+# and sources live outside the repo in reports/hss-audit/logos-new/originals/).
+# HVAC, plumbing and electrical brands lead; roofing, generators, GatorWraps and
+# garage doors come last. Busy mascot marks (All Heart, Bee Right There, iComfort,
+# Grasshopper, Good Guy, Warm Welcome, Doggone, Gengatorz, The Generator Guys,
+# GatorWraps) always have a plain wordmark between them in the marquee (including
+# where it loops back to the first mark), and in the phones' three-column grid none
+# sits beside or directly above another and they spread across all three columns
+# rather than stacking in one. Alt text uses "and", not &.
 CLIENT_LOGOS = [
-    ("logo_allheart.png",    "All Heart Heating and Cooling"),
-    ("logo_veterans.png",    "Veterans AC PHX"),
-    ("logo_acplus.png",      "AC Plus Heating and Cooling"),
-
-    ("logo_a1.png",          "A1 Air Conditioning and Heating"),
-    ("logo_icomfort.png",    "iComfort Heating and Air Conditioning"),
-    ("logo_goodguy.png",     "Good Guy Plumbing"),
-    ("logo_premier.png",     "Premier Heating and Air"),
-
-    ("logo_martins.png",     "Martins A/C and Electric"),
-    ("logo_stellar.png",     "Stellar Garage Doors"),
-    ("logo_quality.png",     "Quality Heating Cooling Plumbing and Electric"),
-    ("logo_airone.png",      "Air One"),
-
-    ("logo_blanchards.png",  "Blanchards Refrigeration"),
-    ("logo_doggone.png",     "Doggone Good Heating and Cooling"),
+    ("logo_allheart.png",      "All Heart Heating and Cooling"),
+    ("logo_quality.png",       "Quality Heating Cooling Plumbing and Electric"),
+    ("logo_beerightthere.png", "Bee Right There Heating and Air"),
+    ("logo_a1.png",            "A1 Air Conditioning and Heating"),
+    ("logo_vector.png",        "Vector Heating, Cooling, Plumbing and Electrical"),
+    ("logo_harmony.png",       "Harmony Electrical, Plumbing and Air"),
+    ("logo_veterans.png",      "Veterans AC PHX"),
+    ("logo_icomfort.png",      "iComfort Heating and Air Conditioning"),
+    ("logo_fiscor.png",        "Fiscor Plumbing and Air"),
+    ("logo_grasshopper.png",   "Grasshopper Heating, Cooling and Plumbing"),
+    ("logo_monarch.png",       "Monarch Home Services"),
+    ("logo_premier.png",       "Premier Heating and Air"),
+    ("logo_familyplumber.png", "The Family Plumber"),
+    ("logo_goodguy.png",       "Good Guy Plumbing"),
+    ("logo_acplus.png",        "AC Plus Heating and Cooling"),
+    ("logo_martins.png",       "Martins A/C and Electric"),
+    ("logo_airone.png",        "Air One"),
+    ("logo_warmwelcome.png",   "Warm Welcome Heating, Cooling and Plumbing"),
+    ("logo_blanchards.png",    "Blanchards Refrigeration"),
+    ("logo_doggone.png",       "Doggone Good Heating and Cooling"),
+    ("logo_bluepeaks.png",     "Blue Peaks Roofing"),
+    ("logo_gengatorz.png",     "Gengatorz Power Systems"),
+    ("logo_genstar.png",       "Genstar Generator Service"),
+    ("logo_generatorguys.png", "The Generator Guys"),
+    ("logo_selectpower.png",   "Select Power"),
+    ("logo_gatorwraps.png",    "GatorWraps"),
+    ("logo_stellar.png",       "Stellar Garage Doors"),
 ]
 
 
@@ -2605,7 +2626,11 @@ def logo_marquee():
     marks = "".join(logomark(*c) for c in CLIENT_LOGOS)
     dupe = (marks.replace('class="logomark"', 'class="logomark dupe"')
                  .replace('loading="lazy"', 'loading="lazy" aria-hidden="true"'))
-    return (f'<div class="marquee"><div class="marquee-track">{marks}{dupe}</div></div>')
+    # The loop length grows with the wall, so the duration does too: about 4.6s per
+    # mark keeps the scroll at the speed it had with 13 marks over 60s.
+    dur = round(len(CLIENT_LOGOS) * 60 / 13)
+    return (f'<div class="marquee"><div class="marquee-track" style="animation-duration:{dur}s">'
+            f'{marks}{dupe}</div></div>')
 
 
 
@@ -3072,15 +3097,20 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 # Now the single trades are mutually exclusive and "More than one of these" is the
 # explicit escape hatch, which is the only honest way to do single select here.
 # Order within the first group follows the actual client mix: HVAC leads because
-# twelve of the thirteen logos on the wall are HVAC, plumbing or electrical.
+# most of the logos on the wall are HVAC, plumbing or electrical.
 TRADE_GROUPS = [
-    ("Home services", ["HVAC", "Plumbing", "Electrical", "Roofing", "Garage doors",
+    ("Home services", ["HVAC", "Plumbing", "Electrical", "Roofing", "Garage doors", "Generators",
                        "More than one of these", "Another home service"]),
     ("Property and building", ["Remodeling, ADU or new build",
                                "Real estate agent or brokerage"]),
     ("Something else", ["Creator, artist or channel"]),
 ]
 TRADES = [x for _, opts in TRADE_GROUPS for x in opts]
+# api_contact.js validates the trade against its own TRADES list and bounces anything
+# else with a 400, so the two must stay identical (same check as the budget bands).
+_api_trades = re.findall(r'"([^"]*)"', re.search(
+    r"const TRADES = \[(.*?)\];", pathlib.Path(f"{S}/api_contact.js").read_text(), re.S).group(1))
+assert _api_trades == TRADES, "api_contact.js TRADES must match TRADE_GROUPS: " + repr(TRADES)
 
 # Shown as visible radios, not a dropdown, on purpose. A buyer who never opens the
 # menu never learns where the floor is, and self-selection out is a feature here.
