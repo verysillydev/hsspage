@@ -458,8 +458,8 @@ face rendered. Count up still targets `.reel .vnum` only, see `A1_REELS`. Both h
 (homepage and `/our-work`) hold four figures (`.stats.quad`): 2x2 on phones and tablets, one row
 of four from 900px. A ledger of another count falls back to `.stats`: a single-column ledger on
 phones and one row of equal columns from 560px (`grid-auto-flow:column`). Neither
-ever leaves an orphan or filler cell. Count up handles thousands separators (`+1,680`, the price
-ladder) and always ends on the original text. From 560px
+ever leaves an orphan or filler cell. Count up handles thousands separators (`+1,680`, and the
+old homepage price strip) and always ends on the original text. From 560px
 each `.stat` is a `subgrid` spanning three rows, which lines up client, number and label across
 cells even when a name wraps; the old two-line `min-height` reservation on `.stat .case` survives
 only as the `@supports not (subgrid)` fallback.
@@ -810,8 +810,10 @@ anywhere on the site) and `sameAs` (no confirmed social profile URLs).
 ## Pricing has one source of truth
 
 `data/packages.json` holds every tier, price, feature and group. `/packages/` renders from
-`pkg_group()` and the home page strip from `price_ladder()`, both reading that file, so the two
-pages **cannot** disagree. They did once, which is why this exists.
+`pkg_group()`, reading that file. The homepage used to carry a six-price strip
+(`price_ladder()`) from the same file; release 8 removed that section and the function, so the
+homepage shows no prices and links to `/packages/` with the "Compare the packages" button in What
+We Do block 01. If prices ever return to another page, read them from `PKG` the same way.
 
 **A build assertion fails the build if any price string appears in `build_site.py`.** Tested: it
 does fail. If you need a price in copy, pull it from `PKG` rather than typing it.

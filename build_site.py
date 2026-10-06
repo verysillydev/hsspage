@@ -1171,6 +1171,10 @@ CSS = """<style>
     font-weight:650;color:var(--orange-text);text-decoration:none;}
   .wwd-link:hover{text-decoration:underline;text-underline-offset:3px;}
   .wwd-block > .igrow,.wwd-block > .grid,.wwd-film{margin-top:var(--s6);}
+  /* block 01 carries the primary "Compare the packages" button (moved here from the
+     removed packages section); its note needs --ink-2 on this ground */
+  .wwd .ctarow{margin-top:var(--s5);}
+  .wwd .ctanote{color:var(--ink-2);}
   /* three profile grabs in identical 390:766 frames, top aligned; a swipe strip on
      phones, cards at 78% so the next one peeks */
   .igrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5);}
@@ -3061,14 +3065,6 @@ def pkg_group(gid):
             f'<div class="pkgs">{cards}</div></div></div>')
 
 
-def price_ladder():
-    """The home page strip. Same source, so it cannot disagree with the tiers."""
-    return "".join(
-        f'<div class="op"><span class="n">{money(c["price"])}</span>'
-        f'<span class="k">{c["name"]} &middot; {c["tagline"]}</span></div>'
-        for c in PKG["tiers"])
-
-
 # Two small diagrams for the packages page. The first is breadth: a lot of posts,
 # familiarity rising slowly across all of them. The second is depth: fewer people,
 # each one further along, narrowing to a booked job.
@@ -3384,7 +3380,10 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <h3 class="wwd-title">Social media monthly packages</h3>
     <p class="wwd-copy">A reel every weekday and graphics every weekend, planned and posted for
     you. Here is what that looks like on three client accounts.</p>
-    <a class="wwd-link" href="/packages/">See the packages&nbsp;&rarr;</a>
+    <div class="ctarow">
+      <a class="cta" href="/packages/">Compare the packages</a>
+      <span class="ctanote">Month to month, with no setup fee.</span>
+    </div>
     <div class="igrow">
 {chr(10).join(ig_grab(*g) for g in IG_GRABS)}
     </div>
@@ -3422,23 +3421,6 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <p class="wwd-small">Set build, production and post.</p>
     <a class="wwd-link" href="https://www.youtube.com/channel/UC-0DMx1NEizXp3aRWcVv4ag">Watch Service MVP&nbsp;&rarr;</a>
     {podcast_media()}
-  </div>
-</div></section>
-
-<section><div class="wrap">
-  <div class="sec-head">
-    <p class="eyebrow">Monthly packages</p>
-    <h2 class="display">Known and trusted before they need you.</h2>
-    <p class="lede">Nobody calls a home service company because they saw one good video. They call
-    the company they already recognize, and <strong>that recognition is built over months, not in a
-    month</strong>. There are {PROGRAMS_WORD} monthly programs, from footage your own team
-    supplies to our crew on site four times a year, and every one of them posts a reel every
-    weekday. The top one adds long form built for intent rather than attention.</p>
-  </div>
-  <div class="ops">{price_ladder()}</div>
-  <div class="ctarow">
-    <a class="cta" href="/packages/">Compare the packages</a>
-    <span class="ctanote">Month to month, with no setup fee.</span>
   </div>
 </div></section>
 
