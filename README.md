@@ -11,6 +11,7 @@ script, `build_site.py`, which holds the markup, the CSS, and the copy.
 build_site.py          the whole site: markup, CSS, copy, and both build modes
 deploy.sh              rebuild and push live in one command
 make_wm.py             regenerates the watermark overlay (wm.png)
+make_og.mjs            renders the 1200x630 link-preview cards in og/ (node make_og.mjs)
 wm.png                 the diagonal lattice watermark burned into every video
 vid/wm/                the 16 watermarked spots (All Heart ah1-ah10, Handyman Dan hd1-hd6)
 post/                  poster frames cut from the watermarked videos, plus the YouTube thumbnail

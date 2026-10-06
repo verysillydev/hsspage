@@ -2237,7 +2237,7 @@ def a1_bars():
 # panels below it. A1 leads because it is the one with numbers a home service
 # owner can picture in their own market.
 CASES = [
-    dict(id="a1",       slug="a1-air-conditioning", name="A1 Air Conditioning", og=None,
+    dict(id="a1",       slug="a1-air-conditioning", name="A1 Air Conditioning", og="og-a1.jpg",
          vertical="Home services", metric="2.26M", mlabel="Views in a market of one million",
          still=None, logo="logo_a1.png",
          blurb="An ongoing monthly engagement across their entire video distribution: organic "
@@ -3482,11 +3482,14 @@ def write_web(page, path, *, title, desc, og_image, url, noindex=False, extra_he
         f'<meta property="og:title" content="{title}">\n'
         f'<meta property="og:description" content="{desc}">\n'
         f'<meta property="og:image" content="{og_image}">\n'
+        '<meta property="og:image:width" content="1200">\n'
+        '<meta property="og:image:height" content="630">\n'
         + ('' if noindex else f'<meta property="og:url" content="{url}">\n')
         + '<meta property="og:site_name" content="Home Service Studios">\n'
         + ('' if noindex else f'<link rel="canonical" href="{url}">\n')
         + '<meta name="theme-color" content="#14171A">\n'
         '<meta name="twitter:card" content="summary_large_image">\n'
+        f'<meta name="twitter:image" content="{og_image}">\n'
         f'<link rel="icon" href="{FAVICON}">\n'
         + ('' if noindex else JSON_LD + '\n') + (extra_head + '\n' if extra_head else '')
         + '</head>\n<body>\n' + page + '\n</body>\n</html>\n'
@@ -3523,7 +3526,7 @@ if MODE == "web":
           f"{money(PRICE_MIN)} a month.")
     n2 = write_web(packages, f"{S}/deploy/packages/index.html",
                    title="Monthly Video Packages for Home Services | Home Service Studios",
-                   desc=D2, og_image=f"{SITE}/our-work/a/og-cover.jpg",
+                   desc=D2, og_image=f"{SITE}/og/og-packages.jpg",
                    url=f"{SITE}/packages/")
 
     contact = validate(CONTACT_HTML, "contact")
@@ -3531,7 +3534,7 @@ if MODE == "web":
           "and we will come back with something specific to your market.")
     n4 = write_web(contact, f"{S}/deploy/contact/index.html",
                    title="Contact | Home Service Studios",
-                   desc=D4, og_image=f"{SITE}/our-work/a/og-cover.jpg",
+                   desc=D4, og_image=f"{SITE}/og/og-contact.jpg",
                    url=f"{SITE}/contact/")
 
     # case pages (N1). OG art: the per-case frames in og/; A1 has no still yet.
@@ -3566,7 +3569,7 @@ if MODE == "web":
           "home service video every month.")
     n5 = write_web(team, f"{S}/deploy/team/index.html",
                    title="Meet the Team | Home Service Studios",
-                   desc=D5, og_image=f"{SITE}/our-work/a/og-cover.jpg",
+                   desc=D5, og_image=f"{SITE}/og/og-team.jpg",
                    url=f"{SITE}/team/")
 
     home = validate(HOME_HTML, "home")

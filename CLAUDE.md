@@ -564,10 +564,14 @@ beside the address, not as badges. The `/packages` terms grid carries the longer
 to send paperwork before a crew is on site, which is what a commercial client actually needs.
 **Do not state a coverage amount or promise a certificate by name** unless Yoni confirms it.
 
-**OG art is per case**, cut from the real footage at 1200x630 and living in `og/`, which
-`build_site.py` copies into the deploy. Before this, all nine pages shared one cover, so every
+**OG art is per page and per case** (1200x630, in `og/`, copied into the deploy). The homepage,
+Handyman Dan and All Heart use frames from the real footage; `/packages`, `/team`, `/contact` and
+the A1 case use cards rendered by `node make_og.mjs` (2026-10-06): flat ink, white Archivo with the
+orange bar, real material only (the team headshots, A1's real numbers), the /packages price read
+from `data/packages.json`. Rerun it after changing a card, the team photos or the price book; it
+fails if a card reaches 150KB. `write_web()` emits og:image, its 1200x630 size and twitter:image. Before this, all nine pages shared one cover, so every
 case link shared in a text looked identical. `a1` has no still of its own and falls back to
-`og-cover.jpg`; give it a real one if reel stills ever arrive. Sources: `og-home` and
+`og-cover.jpg` until 2026-10-06; it now has `og-a1.jpg` from `make_og.mjs`. Sources: `og-home` and
 `og-handyman` are frames from the 720p masters. The `og` field on each `CASES` entry is the case
 page's og:image (`og/` is copied whole into the deploy).
 
