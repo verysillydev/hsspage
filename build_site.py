@@ -1175,9 +1175,6 @@ CSS = """<style>
   .reel .l{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
     font-family:var(--mono);}
 
-  /* label row above a grid of clips (the homepage "Commercial spots") */
-  .shorts-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s4);
-    flex-wrap:wrap;margin:var(--s7) 0 var(--s4);}
   /* Written for the old title cards and kept because it is what gives the
      click-to-play spot button its 46x32 shape: it overrides the circle above. */
   .ytplay{position:absolute;left:50%;top:50%;width:46px;height:32px;margin:-16px 0 0 -23px;
@@ -2544,8 +2541,8 @@ CASE_PAGE = {
              "versus the contractor you got.",
         proof_head="The spots",
         proof=f'<div class="grid">\n{chr(10).join(spot(*x) for x in allheart)}\n  </div>',
-        ops=ops([("10", "Spots delivered"), ("1", "Production block"),
-                 ("11", "Shot list sheets"), ("100%", "Scope delivered")])),
+        ops=ops([("10", "Spots"), ("1", "Production block"),
+                 ("3", "Cut lengths: 15, 30 and 42 seconds")])),
 }
 
 
@@ -2790,9 +2787,7 @@ ENGINE_LONG = ('<svg class="edia" viewBox="0 0 300 92" role="img" aria-label="A 
 # visitors see every term as before. Wording unchanged.
 TERMS = [
     ("Starting and stopping", "There is no setup fee. When you want out, we ask for 30 days "
-     "notice and one final payment, so the shortest a package runs is two months. You keep every "
-     "frame we shot and everything we posted, permanently."),
-    ("Commitment", "Every package runs month to month, on the notice terms above."),
+     "notice and one final payment, so the shortest a package runs is two months."),
     ("Ad budget", "From Starter up, each package includes the monthly ad budget shown on its card, "
      "which our team manages for you. It goes behind your own content; it is not a promise of "
      "leads."),
@@ -3047,16 +3042,14 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 {A1_REELS}
   </div>
 
-  <div class="shorts-head">
-    <p class="eyebrow">Commercial spots</p>
-  </div>
+  <h3 class="subhead">The work itself: commercial spots</h3>
 
   <div class="grid">
 {chr(10).join(spot(*s) for s in HOME_SPOTS)}
   </div>
 
   <div class="ctarow">
-    <a class="cta ghost" href="/our-work/">All three case studies &rarr;</a>
+    <a class="cta ghost" href="/our-work/">All case studies &rarr;</a>
     <span class="ctanote">{CASE_NAMES}.</span>
   </div>
 </div></section>
@@ -3083,7 +3076,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <a class="door" href="/our-work/">
       <span class="tier">Portfolio</span>
       <h3>See the work</h3>
-      <p>Three case studies with the numbers attached, and the reasoning behind each one.</p>
+      <p>Case studies with the numbers attached, and the reasoning behind each one.</p>
       <span class="go">Open the portfolio &rarr;</span>
     </a>
     <a class="door" href="/packages/">
@@ -3307,7 +3300,7 @@ CONTACT_HTML = f"""<title>Contact</title>
 TEAM_LEADS = [
     {"name": "Craig Balog", "title": "Cofounder", "photo": "craig-balog.jpg",
         "bio": "A filmmaker and photographer based in Beverly Hills with more than ten years "
-               "in the industry. Craig founded Home Service Studios out of its Marina del Rey "
+               "in the industry. Craig cofounded Home Service Studios out of its Marina del Rey "
                "office, and stays hands on with the craft on every project the company shoots "
                "for contractors."},
     {"name": "Seth Yeager", "title": "Cofounder", "photo": "seth-yeager.jpg",
@@ -3406,7 +3399,7 @@ TEAM_HTML = f"""<title>Meet the team</title>
     <a class="door" href="/our-work/">
       <span class="tier">Portfolio</span>
       <h3>See what they made</h3>
-      <p>Three case studies with the numbers attached, shot and cut by the people above.</p>
+      <p>Case studies with the numbers attached, shot and cut by the people above.</p>
       <span class="go">Open the portfolio &rarr;</span>
     </a>
     <a class="door" href="/packages/">
@@ -3490,7 +3483,7 @@ def case_page(i):
   <div class="pnrow">{chain}</div>
   <div class="ctarow">
     {book("Project%20enquiry", "Start a project")}
-    <a class="cta ghost" href="/our-work/">All {num_word(len(CASES))} case studies</a>
+    <a class="cta ghost" href="/our-work/">All case studies</a>
   </div>
   {reassure("case")}
 </div></section>
