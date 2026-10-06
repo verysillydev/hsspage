@@ -104,8 +104,9 @@ Two assertions run before anything is written to disk, so a bad build fails inst
 
 **The commercial spots are self-hosted for hover play; YouTube stays for the hero and the banner
 (release 4, 2026-10-06, owner request).** The All Heart case page's ten spots, the Handyman Dan
-strip under More work on `/our-work` and the homepage "The work itself: commercial spots" row play
-the whole film, not a preview:
+strip under More work on `/our-work`, and on the homepage the three spots in What We Do block 02,
+the Quality brand film in block 03 and (once supplied) the podcast video in block 04 play the
+whole film, not a preview:
 - Real hover (`(hover: hover) and (pointer: fine)`), no reduced motion: entering a card plays from
   0:00 muted (browsers refuse sound without a click), leaving pauses, rewinds to 0:00 and brings
   the poster back. A click turns sound on and it keeps playing (another click mutes); a small
@@ -117,16 +118,20 @@ the whole film, not a preview:
   alone never plays; Enter/Space play and pause with sound.
 - The end of a film, or another video starting, puts a card back to its poster.
 
-All of it is in `SOLO_JS` (which case pages with spots now carry too). Markup comes from `spot()`:
-`<video preload="none" playsinline>` with width/height read from the file by `mp4_info()`, under
-the lazy `post_yt/<id>.webp` poster `<img>` (not the poster attribute, which loads eagerly and
-cannot come back after playback). **A page load fetches no video at all** (verified per release);
+All of it is in `SOLO_JS` (which case pages with spots now carry too). Markup comes from
+`vspot_media()`, shared by `spot()`, `brand_film()` and `podcast_media()`: `<video preload="none"
+playsinline>` with width/height read from the file by `mp4_info()`, under a lazy poster `<img>`
+(`post_yt/<id>.webp` for the spots, `post/quality1.jpg` for the brand film; not the poster
+attribute, which loads eagerly and cannot come back after playback). Every film's duration label is
+checked against its file there, and `mp4_info()` refuses one that is not faststart. **A page load fetches no video at all** (verified per release);
 keep it that way.
 
 The files are `spots/` (committed, about 54 MB): `ah01`-`ah10` in the order of the `allheart`
 list, and `hd01 hd02 hd03 hd05 hd06`, which keep the original six-spot numbering (there is no
-`hd04`: Father Vs AC was removed in R17 and must not return). 720p H.264, AAC 96k, encoded from
-the owner's own YouTube uploads; the YouTube ids stay in the lists as the reference copy and the
+`hd04`: Father Vs AC was removed in R17 and must not return), plus `quality-brand.mp4` (release 8,
+20.9 MB, 1:44): the Quality Heating Cooling Plumbing Electrical brand film **cut from 1:14 to the
+end**, the same part the `/our-work` banner opens on, so its poster `post/quality1.jpg` (the 1:14
+frame) matches its first frame. 720p H.264, AAC 96k, encoded from the owner's own YouTube uploads; the YouTube ids stay in the lists as the reference copy and the
 poster key. The web build copies a file to `/our-work/a/` only when a card uses it. The build
 refuses a spot whose duration does not match its card label, one that is not faststart (moov must
 come before mdat: re-encode with `-movflags +faststart`), two cards sharing a file, a page with
@@ -173,6 +178,40 @@ picture lands exactly on the visible box and the chrome, which hugs the player's
 the iframe back to 16:9. Known residual: YouTube also draws a centre pause control for roughly the
 first five seconds of playback. It sits mid-picture, so no edge clip can hide it; the only fixes are a
 timed poster hold (load delay, previously rejected) or self-hosting the loop.
+
+## Homepage structure (release 8, 2026-10-06)
+
+Top to bottom: the hero (headline, lede, the four-cell ledger: A1, Bee Right There, iComfort, and
+"Our Brands" with `ROSTER_COUNT`), **Our Clients** (the logo marquee, `#roster`), **What We Do**
+(`#what-we-do`, warm white `--ground-2`), the two doors (portfolio, packages) and the footer. The
+old "Proven results with real data" section (A1 lede, A1 reel strip, the commercial spots row, the
+"All case studies" link and case note) and the "Known and trusted before they need you." packages
+section (lede, six-price strip, its button row) were removed in release 8; the homepage carries no
+prices.
+
+What We Do is four numbered blocks, each a large orange number (`--f-mega`, `--orange-text`), a
+title, short-sentence copy, a link or button, then media, with a hairline between blocks:
+- **01 Social media monthly packages.** The primary button "Compare the packages" (`/packages/`)
+  with "Month to month, with no setup fee.", then three Instagram profile grabs (`IG_GRABS`):
+  iComfort, Veterans AC PHX, AC Plus. **Source:** the owner's 390px phone captures at 3x, login
+  wall and "Suggested for you" removed (`reports/hss-audit/iggrabs/`, outside the repo), resized to
+  780px WebP with cwebp at quality 82 (`post/ig-*.webp`). They sit in identical 390:766 frames
+  (iComfort's crop), object-fit cover from the top, linked to the profiles in a new tab, captioned
+  with name and "@handle &middot; N followers". **The follower counts (3,127 / 1,027 / 1,792) are the
+  public counts on 6 Oct 2026** (`IG_COUNTS_DATE`); refresh counts and grabs together, and keep the
+  iComfort count in step with its case page (R19). A swipe strip at 78% on phones, never stacked.
+- **02 Commercial shoots.** "See the All Heart campaign", then the three hover-play spot cards
+  (`HOME_SPOTS`).
+- **03 Brand videos.** "Watch the full film" (YouTube, new tab), then the Quality brand film at full
+  width (`brand_film()`, see Video), captioned "Brand film for Quality Heating Cooling Plumbing
+  Electrical, Tulsa." with 1:44.
+- **04 Podcast production.** "Watch Service MVP" (the channel, new tab), the small line "Set build,
+  production and post." and the example caption "Service MVP Sales Training Podcast with Joe
+  Crisara." **The media is one constant, `PODCAST_VIDEO`:** `None` until the owner supplies the
+  file, so the block renders without media and the caption sits under the link. Set it to
+  (file in `spots/`, poster path, "m:ss") after encoding faststart, and the block shows a
+  hover-play video with the caption and duration under it (tested with a stand-in). **Never use a
+  Service MVP episode pulled from YouTube**: the owner rejected the latest one.
 
 ## Client logo wall
 
@@ -503,11 +542,11 @@ agreements, "earned back its cost" or spec production. The 4 Points result is a 
 More work, not a case.
 
 **Copy is count-free wherever a case count would be typed (R6):** "All case studies", "Case
-studies with the numbers attached", and the homepage case note is built from `CASES`
-(`CASE_NAMES`). Where a number reads naturally (the `/our-work` lede's "Four home service
+studies with the numbers attached". (The homepage case note built from `CASES`, `CASE_NAMES`,
+went with the homepage proof section in release 8.) Where a number reads naturally (the `/our-work` lede's "Four home service
 companies", the roster stat) it is derived with `num_word(len(...))`, never typed.
 
-`A1_REELS` is built once and reused on the homepage and the A1 case page. **No proof block inside
+`A1_REELS` is built once for the A1 case page (the homepage strip went in release 8). **No proof block inside
 `/packages` (owner, 2026-10-06, R13).** The old rule ("pricing pages convert on that adjacency; do
 not strip it back out") is reversed: the "Proof, before you look at the bigger numbers" A1 reel
 strip that sat between Baby Steps and Starter was removed, and the owner does not want proof inside
@@ -737,7 +776,8 @@ into its own system and the fingerprint returns.
   removed on 2026-10-06 and nothing sits outside the measure now. If one element ever earns it
   again, allow exactly one.
 - **Section openers vary.** Homepage sections using the identical eyebrow, heading, lede block
-  went from 5 of 7 to 3 of 7 via `.sec-head.bare`.
+  went from 5 of 7 to 3 of 7 via `.sec-head.bare`. Since release 8 the homepage has two section
+  headings, "Our Clients" (`.sec-head.bare`) and "What We Do" (`.sec-head`, 46px at 1440).
 - **A sticky action bar on phones**, contact and start-a-project, hidden from 760px up.
   **It overlapped the hero headline until 2026-09-03.** `.hero-media` is `min-height:100dvh` with
   `justify-content:flex-end`, so its text block anchors to the bottom of the viewport, which is

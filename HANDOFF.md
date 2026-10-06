@@ -30,7 +30,8 @@ not worth sending.
 without a 74 MB `vid/` folder. That stopped being true on 2026-08-26, when all 17
 clips moved to YouTube, and it is still true: since release 4 (2026-10-06) the build does
 emit mp4 files again, the 15 All Heart and Handyman Dan spots for hover play, but it reads
-them from the committed `spots/` folder (about 54 MB), never from `vid/`. `vid/` stays in
+them from the committed `spots/` folder (about 75 MB with the release-8 brand film), never
+from `vid/`. `vid/` stays in
 `.gitignore` only so old local copies do not get committed.
 
 ## One file was renamed for email
@@ -50,7 +51,8 @@ build or the contact form will not be wired up.
     fonts/               woff2 faces, inlined as base64 at build time
     post/                case study stills and photography
     post_yt/             YouTube thumbnails, webp (also the posters of the spots below)
-    spots/               the 15 self-hosted commercial spots, 720p mp4 (release 4)
+    spots/               self-hosted films, 720p mp4: the 15 spots (release 4) and the
+                         Quality brand film (release 8)
     logos/, logos_webp/  client logos
     og/                  per page Open Graph images
     vid/                 NOT INCLUDED, see above
