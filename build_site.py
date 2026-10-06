@@ -3226,7 +3226,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views on 7 reels</span></a>
     <a class="stat" href="{case_url("beerightthere")}"><span class="case">Bee Right There</span><span class="n">983K</span><span class="k">Views on one reel</span></a>
     <a class="stat" href="{case_url("icomfort")}"><span class="case">iComfort</span><span class="n">+1,680</span><span class="k">Organic followers, under a year</span></a>
-    <a class="stat" href="#roster"><span class="case">Roster</span><span class="n">{ROSTER_COUNT}</span><span class="k">Home service brands</span></a>
+    <a class="stat" href="#roster"><span class="case">Our Brands</span><span class="n">{ROSTER_COUNT}</span><span class="k">Home service companies</span></a>
   </div>
   <div class="ctarow">
     <a class="cta" href="/packages/">See the packages</a>
