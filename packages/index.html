@@ -58,6 +58,12 @@
        component library. --r-pill keeps its name so call sites need not change. */
     --r-sm:2px; --r-md:3px; --r-lg:4px; --r-pill:2px;
 
+    /* How far an ambient YouTube iframe is oversized past its visible 16:9 box,
+       top and bottom, so YouTube's own title/uploader strip and bottom chrome
+       are drawn outside the clip (see .herobg-clip and iframe.banner). A floor,
+       not the value: both call sites scale it up with the player. */
+    --yt-chrome:120px;
+
     /* Tracking: display tightens, small caps open up. Nothing in between. */
     /* R6. Tracking never past .06em. Letterspacing blown out to .14em is a screen
        era tic; typographers open small caps a little and stop there. */
@@ -222,11 +228,9 @@
   .hero .stat:nth-child(1){animation-delay:.04s;}
   .hero .stat:nth-child(2){animation-delay:.10s;}
   .hero .stat:nth-child(3){animation-delay:.16s;}
-  .hero .stat:nth-child(4){animation-delay:.22s;}
-  .hero .stat:nth-child(5){animation-delay:.28s;}
 
   /* (b) count-up needs digits that do not jump width as they change */
-  .stat .n,.op .n,.reel .vnum,.sh .v,.cc-metric b{font-variant-numeric:tabular-nums;}
+  .stat .n,.op .n,.reel .vnum,.cc-metric b{font-variant-numeric:tabular-nums;}
 
   /* (d) hero film: a slow push in, transform only, clipped by the wrapper so a
      1.04 scale on a 100vw element cannot create a horizontal scrollbar */
@@ -307,18 +311,31 @@
   .budgets{gap:var(--s3);}
   .budgetrow{display:grid;grid-template-columns:1fr;gap:var(--s2);}
   @media(min-width:560px){.budgetrow{grid-template-columns:repeat(auto-fit,minmax(172px,1fr));}}
-  .budgetrow .budget{display:flex;flex-direction:column;gap:2px;cursor:pointer;position:relative;
-    background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-sm);
-    padding:13px 13px 14px 38px;min-height:60px;justify-content:center;
-    transition:border-color var(--ease),background var(--ease);}
+  /* 2026-10-06: the radio used to be absolutely positioned at top:50%, which
+     put it about 17px below the first line of a two-line option and left its
+     circle (plus the UA's 5px left margin) touching the label text. Each option
+     is now a two-column grid: the real radio in column one, centred on the
+     first text row, a --s3 (12px) gap, then the price and tier lines. The whole
+     <label> is the hit area, so a tap anywhere on the card selects it. */
+  .budgetrow .budget{display:grid;grid-template-columns:auto minmax(0,1fr);
+    column-gap:var(--s3);row-gap:2px;align-items:center;align-content:center;
+    cursor:pointer;background:var(--ground-2);border:1px solid var(--line);
+    border-radius:var(--r-sm);padding:var(--s3) var(--s4);min-height:60px;
+    transition:border-color var(--ease),background var(--ease),box-shadow var(--ease);}
   .budget:hover{border-color:var(--ink-3);}
-  .budget input{position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  .budget input{grid-column:1;grid-row:1;margin:0;
     width:18px;height:18px;min-height:0;padding:0;accent-color:var(--orange-text);cursor:pointer;}
-  .budget:has(input:checked){border-color:var(--orange-text);background:var(--panel);}
+  /* checked: border and an inset ring read as a 2px frame without moving the
+     layout, plus the darker panel fill */
+  .budget:has(input:checked){border-color:var(--orange-text);background:var(--panel);
+    box-shadow:inset 0 0 0 1px var(--orange-text);}
   .budget:has(input:focus-visible){outline:2px solid var(--orange);outline-offset:2px;}
-  .budget .bv{font-size:var(--f-body);font-weight:650;color:var(--ink);white-space:nowrap;}
-  .budget .bt{font-family:var(--mono);font-size:var(--f-micro);color:var(--cyan-text);
-    letter-spacing:.08em;text-transform:uppercase;}
+  /* the card carries the focus ring, so the radio's own would only double it */
+  @supports selector(:has(*)){.budget input:focus-visible{outline:none;}}
+  .budget .bv{grid-column:2;grid-row:1;font-size:var(--f-body);font-weight:650;color:var(--ink);
+    line-height:1.4;white-space:nowrap;}
+  .budget .bt{grid-column:2;grid-row:2;font-family:var(--mono);font-size:var(--f-micro);
+    color:var(--cyan-text);letter-spacing:.06em;text-transform:uppercase;line-height:1.35;}
 
   /* errors appear next to the field they belong to, on blur, never as a summary */
   .ferr{font-size:var(--f-sm);color:#C0392B;min-height:0;display:none;}
@@ -336,11 +353,6 @@
   .fdone h3{margin:0 0 var(--s2);font-size:var(--f-h3);font-weight:700;
     letter-spacing:var(--t-head);}
   .fdone p{margin:0;color:var(--ink-2);line-height:1.55;max-width:60ch;}
-
-  /* The 128M figure briefly hung -92px into the margin. In a two column grid that
-     margin is the image column, so the leading digit sat behind the thumbnail.
-     Removed: a device that only works in a single column layout does not belong
-     next to an image. */
 
   /* Sticky action bar, phones only. Trades buyers call, and on a long case page the
      header scrolls away. Sits above the safe area on notched devices. */
@@ -372,7 +384,7 @@
 
   /* case study carousel on /our-work/. Cards are buttons (see case_card):
      clicking one reveals its full write-up in .case-panels below instead of
-     navigating to its own page, which is what these five used to be. */
+     navigating to its own page, which is what each case used to be. */
   .carousel{position:relative;display:flex;align-items:center;gap:var(--s3);}
   .car-viewport{flex:1 1 auto;min-width:0;overflow:hidden;}
   .ccards{display:flex;gap:var(--s4);overflow-x:auto;scroll-snap-type:x mandatory;
@@ -439,6 +451,14 @@
     border-radius:50%;border:0;background-color:var(--line);
     background-clip:content-box;cursor:pointer;}
   .car-dot.is-active{background-color:var(--orange-text);}
+  /* Arrows and dots only mean something when there is more to scroll to. The
+     build marks the carousel .fits-3 / .fits-2 from len(CASES) (see
+     CAROUSEL_FIT), so at widths where every card is already on screen they
+     are not drawn at all rather than sitting there inert. Decided at build
+     time, not measured in JS, so nothing shifts after load. Narrower screens
+     keep the full carousel. */
+  @media(min-width:960px){.carousel.fits-3 .car-arrow,.car-dots.fits-3{display:none;}}
+  @media(min-width:620px){.carousel.fits-2 .car-arrow,.car-dots.fits-2{display:none;}}
 
   /* Each is the exact same section markup a standalone case page used to
      render on its own; only one shows at a time, toggled by CAROUSEL_JS. */
@@ -452,12 +472,6 @@
   .schedwrap{background:var(--ground-2);border:1px solid var(--line);
     border-radius:var(--r-md);overflow:hidden;}
   .schedwrap iframe{display:block;width:100%;}
-
-  /* footer contact row */
-  .fcontact{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);align-items:center;
-    margin-top:var(--s3);}
-  .fcontact a{display:inline-flex;align-items:center;gap:7px;min-height:44px;
-    font-size:var(--f-body);}
 
   .navcta{background:var(--orange);color:#14171A !important;border-radius:var(--r-pill);
     padding:0 16px;font-weight:700;transition:filter var(--ease);
@@ -523,27 +537,36 @@
     min-height:100vh;min-height:100dvh;
     display:flex;flex-direction:column;justify-content:flex-end;}
   /* object-fit is not reliably honoured on an <iframe> (notably Firefox),
-     so cover-cropping is done with the classic oversized/centered iframe
-     recipe instead, sized off vw/vh rather than the box itself: accurate
-     because .hero-media is pinned to viewport size right above. */
-  .hero-media .herobg{position:absolute;top:50%;left:50%;
-    width:100vw;height:56.25vw;min-height:100%;min-width:177.78vh;
-    transform:translate(-50%,-50%);pointer-events:none;}
+     so cover-cropping is done with a centered 16:9 box instead.
+     2026-10-06: YouTube draws its title/uploader strip ("HSS Website Banner
+     v02 / Sergy Olkowski") across the top of the player a few seconds into
+     playback, and no player param suppresses it; the poster only covers the
+     cueing phase. So the visible picture is now .herobg-clip, an exact 16:9
+     box that covers the hero (height is the larger of the hero's own height
+     and 56.25vw, width follows from aspect-ratio, so it covers at any aspect
+     and with dvh/lvh differences), with overflow:hidden. The iframe inside is
+     taller than the box by --yt-chrome (or 12% of the box, whichever is
+     larger) top and bottom. A player taller than 16:9 letterboxes its video
+     to full width and centres it, so the video lands exactly on the clip box
+     and YouTube's own chrome, which hugs the player's edges, lands in the
+     clipped margin. No delay, nothing to time. */
+  .hero-media .herobg-clip{position:absolute;top:50%;left:50%;z-index:0;
+    height:max(100%, 56.25vw);aspect-ratio:16/9;transform:translate(-50%,-50%);
+    overflow:hidden;pointer-events:none;}
+  .hero-media .herobg{position:absolute;left:0;top:calc(-1 * max(var(--yt-chrome), 12%));
+    width:100%;height:calc(100% + 2 * max(var(--yt-chrome), 12%));
+    border:0;pointer-events:none;}
   @media(max-width:600px){
-    /* less crop on narrow phones: 177.78vh (paired with min-height:100%)
-       guarantees full-height cover on any aspect ratio, which on a tall
-       narrow screen meant zooming the 16:9 video in hard enough that only
-       a thin vertical slice of its width ever showed. Replacing all four
-       of width/height/min-width/min-height together, not just min-width
-       alone: min-height:100% is still active from the base rule above, so
-       touching only min-width would leave the two fighting and stretch
-       the video out of its actual 16:9 shape rather than just cropping it
-       less. A fixed 133vh/74.8vh box (still exactly 16:9) trades a
-       modest, deliberate letterbox gap top and bottom (filled by the same
-       dark background already behind everything, so it is not jarring)
-       for meaningfully more of the actual footage, about the ~33% more
-       width visible that was asked for. */
-    .hero-media .herobg{width:133vh;height:74.8vh;min-width:133vh;min-height:74.8vh;}
+    /* less crop on narrow phones: full-height cover on a tall narrow screen
+       zooms the 16:9 video in hard enough that only a thin vertical slice
+       of its width ever shows. A fixed 74.8vh-tall box (aspect-ratio keeps
+       it exactly 16:9, so 133vh wide) trades a modest, deliberate letterbox
+       gap top and bottom (filled by the same dark background already behind
+       everything, so it is not jarring) for meaningfully more of the actual
+       footage, about the ~33% more width visible that was asked for. The
+       clip box still hides YouTube's chrome here, because the oversized
+       iframe is clipped by the box itself, not by the hero's edges. */
+    .hero-media .herobg-clip{height:74.8vh;}
     /* smaller title, same reasoning: less of the frame covered by
        text/scrim, more of the video underneath actually reads. Desktop's
        clamp is untouched. */
@@ -600,21 +623,46 @@
     padding-top:var(--s6);padding-bottom:var(--s8);}
 
   /* hairline gaps rather than per-cell borders: an adjacent-sibling rule left a
-     stray line on the first item of every wrapped row on a phone */
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));
+     stray line on the first item of every wrapped row on a phone.
+     2026-10-06: both ledgers (homepage hero, /our-work) hold three figures. On a
+     phone they are a single-column ledger, one figure per row with the number
+     on the left, because three columns at 390px left about 89px for text and
+     "Conditioning" alone does not fit in that. From 560px up every figure sits
+     in one row: grid-auto-flow:column makes one equal column per item, so any
+     count lays out as a single row and there is never an orphan or an empty
+     filler cell. */
+  .stats{display:grid;grid-template-columns:minmax(0,1fr);
     gap:1px;background:var(--line);margin-top:var(--s7);}
-  .stat{background:var(--ground);padding:var(--s4) var(--s5) var(--s5);
-    display:flex;flex-direction:column;gap:var(--s1);text-decoration:none;color:inherit;
-    transition:background var(--ease);}
+  .stat{background:var(--ground);padding:var(--s3) var(--s4);
+    display:grid;grid-template-columns:4.4em minmax(0,1fr);
+    grid-template-areas:"n case" "n k";column-gap:var(--s4);row-gap:2px;align-items:center;
+    text-decoration:none;color:inherit;transition:background var(--ease);}
   .stat:hover{background:var(--ground-2);}
-  /* reserve two lines so a wrapped client name does not push its number out of
-     line with the rest of the row */
-  .stat .case{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.05em;
-    font-size:var(--f-sm);color:var(--cyan-text);line-height:1.3;min-height:2.6em;}
-  .stat .n{font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;color:var(--orange-text);
-    font-family:var(--display);line-height:1.1;}
-  .stat .k{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
-    font-family:var(--mono);line-height:1.35;min-height:2.7em;}
+  .stat .case{grid-area:case;font-family:var(--display);font-variant-caps:all-small-caps;
+    letter-spacing:.05em;font-size:var(--f-sm);color:var(--cyan-text);line-height:1.3;}
+  .stat .n{grid-area:n;font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;
+    color:var(--orange-text);font-family:var(--display);line-height:1.1;}
+  .stat .k{grid-area:k;font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;
+    color:var(--ink-3);font-family:var(--mono);line-height:1.35;}
+  @media(min-width:560px){
+    .stats{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);}
+    /* Subgrid lines the three rows (client, number, label) up across every
+       cell, so a client name that wraps at tablet widths cannot push its
+       number out of line with its neighbours. This replaces the old fixed
+       two-line reservation on .case, which left an empty line under every
+       name once three columns gave them room to sit on one line. */
+    .stat{grid-template-columns:none;grid-template-areas:none;
+      grid-row:span 3;grid-template-rows:subgrid;row-gap:var(--s1);align-items:start;
+      padding:var(--s4) var(--s5) var(--s5);}
+    .stat .case,.stat .n,.stat .k{grid-area:auto;}
+  }
+  /* No subgrid: fall back to the reservation, so numbers still line up. */
+  @supports not (grid-template-rows:subgrid){
+    @media(min-width:560px){
+      .stat{display:flex;flex-direction:column;gap:var(--s1);}
+      .stat .case{min-height:2.6em;}
+    }
+  }
 
   section{padding:var(--s-sec) 0;position:relative;scroll-margin-top:76px;}
   /* section breaks get a heavier rule than anything inside a section, so the page
@@ -699,37 +747,6 @@
   .op .k{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
     font-family:var(--mono);}
 
-  /* hero feature card */
-  .feature{display:grid;grid-template-columns:1fr;gap:var(--s6);align-items:center;}
-  /* A 9:16 still at .85fr ran 642px tall against a 324px text block, twice its
-     height, which read as an image with a caption rather than a figure with an
-     argument. Capped so the two columns are close to level. */
-  @media(min-width:820px){
-    .feature{grid-template-columns:minmax(170px,215px) 1fr;align-items:center;}
-    .feature .fstack{max-width:60ch;}
-  }
-  .feature .shot{position:relative;display:block;border-radius:var(--r-lg);overflow:hidden;
-    border:1px solid var(--line);background:#000;}
-  /* The source is a YouTube Shorts still: a vertical video pillarboxed into a 16:9
-     file with blurred filler either side. Cropping back to 9:16 throws the filler
-     away and keeps the actual frame. height:auto is load bearing: without it the
-     img's height attribute wins and pins the frame at 640px whatever the column
-     does, which is what put the leading digit of 128M behind the image. */
-  .feature .shot img{width:100%;height:auto;display:block;aspect-ratio:9/16;object-fit:cover;}
-  /* Single column: a 9:16 frame at full width is 600px tall and swallows the
-     viewport before the number is reached. Cap it so both land on one screen. */
-  .feature .shot{max-width:230px;}
-  .feature .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    background:rgba(10,12,14,.28);transition:background var(--ease);}
-  .feature .shot:hover .play{background:rgba(10,12,14,.06);}
-  .feature .play span{width:62px;height:62px;border-radius:var(--r-pill);background:rgba(242,239,233,.94);
-    display:flex;align-items:center;justify-content:center;color:#14171A;font-size:21px;padding-left:5px;}
-  .bignum{font-size:var(--f-mega);font-weight:700;letter-spacing:-.045em;color:var(--orange-text);
-    line-height:.88;font-family:var(--display);}
-  .feature p{margin:0;color:var(--ink-2);font-size:var(--f-body);line-height:1.6;}
-  .feature p strong{color:var(--ink);font-weight:600;}
-  .fstack{display:flex;flex-direction:column;gap:var(--s4);}
-
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:var(--s5);}
   .spot{background:var(--panel);border-radius:var(--r-md);
     overflow:hidden;display:flex;flex-direction:column;}
@@ -749,34 +766,37 @@
   .spot .sc{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
     font-size:var(--f-sm);color:var(--orange-text);}
   .spot .nm{font-size:var(--f-h4);font-weight:600;letter-spacing:var(--t-head);}
-  .spot .du{font-family:var(--mono);font-size:var(--f-sm);color:var(--ink-3);}
+  /* --ink-2, not --ink-3: the card is --panel, and --ink-3 on it is 4.09:1 */
+  .spot .du{font-family:var(--mono);font-size:var(--f-sm);color:var(--ink-2);}
 
-  /* Ruled ledger, same technique as .stats/.ops: each cell was previously its
-     own bordered, radiused, backgrounded box with a gap around it, seven
-     times in a row, which is the exact repeated-box clutter the rest of the
-     sheet avoids. gap:1px on a --line fill reads as one strip of proof.
-     flex-wrap, not CSS grid: grid stretches every cell in a row to match the
-     tallest one (align-items:stretch is the grid default too, not just
-     flex's), which combined with the thumbnail's aspect-ratio sizing meant
-     one taller card inflated every thumbnail's width right along with it.
-     flex-wrap plus justify-content:center also centers the leftover row of
-     3 under 4 columns for free, which CSS grid does not do on its own. */
-  .reels{display:flex;flex-wrap:wrap;justify-content:center;gap:1px;background:var(--line);
-    margin-top:var(--s6);}
-  /* row layout, not column: the thumbnail sits beside the text block, fixed
-     size (see .rthumb) rather than stretched to match it, which is what
-     inflated it before. flex:0 0 ...% is the 2-per-row/4-per-row sizing;
-     it lives on the same rule as the internal row layout since both are
-     .reel's own box, not worth splitting into two rule blocks. */
-  .reel{display:flex;flex-direction:row;flex:0 0 calc(50% - 1px);gap:10px;
+  /* Ruled ledger, same technique as .stats/.ops: gap:1px on a --line fill
+     reads as one strip of proof rather than seven boxes.
+     2026-10-06: a grid with minmax(0,1fr) columns, not flex-wrap. The 7-across
+     flex row had about 2px of slack at 1440 (each cell's min-content was 150px
+     against a 152px basis), so a slightly wider face (font-display:optional
+     can leave the Arial Black fallback in place) pushed the seventh reel onto
+     its own row inside a grey box, and on phones 2-per-row left the seventh
+     centred between grey filler. minmax(0,1fr) columns can never wrap. Below
+     1100px the top reel (.is-top, the breakout) takes a full-width row and the
+     other six fill an even 2x3 (phones) or 3x2 (tablets), so no row is ever
+     short. The old worry about grid stretching rows does not apply now that
+     .rthumb is a fixed 44x74: stretched cells just keep the ledger even. */
+  .reels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;
+    background:var(--line);margin-top:var(--s6);}
+  .reel{display:flex;flex-direction:row;gap:10px;min-width:0;
     text-decoration:none;background:var(--ground);
     padding:var(--s4);transition:background var(--ease),box-shadow var(--ease);}
-  @media(min-width:560px){.reel{flex:0 0 calc(25% - 1px);}}
-  /* the 7-across step was missing: only 2/4 existed, so all 7 reels never
-     had anywhere to land but a 4-and-3 wrap on any screen, no matter how
-     wide. 860px keeps each card legible (thumbnail plus a short label) at
-     the .wrap max-width of 1120px. */
-  @media(min-width:860px){.reel{flex:0 0 calc(100%/7 - 1px);}}
+  .reel.is-top{grid-column:1/-1;}
+  @media(min-width:560px){.reels{grid-template-columns:repeat(3,minmax(0,1fr));}}
+  /* seven across from 1100px (cells about 150px); a little less side padding
+     buys the text column the room the old flex row did not have. Narrower
+     than that, seven cells drop under the content's own width, so the 1+3x2
+     layout above holds until then. */
+  @media(min-width:1100px){
+    .reels{grid-template-columns:repeat(7,minmax(0,1fr));}
+    .reel.is-top{grid-column:auto;}
+    .reel{padding:var(--s4) var(--s3);}
+  }
   /* inset, not a real border, so the highlight cannot shift the tight 1px
      ledger grid it sits in. Covers hover, keyboard focus and the moment of
      a click, not just mouseover. */
@@ -785,7 +805,8 @@
   .reel .rmeta{display:flex;flex-direction:column;justify-content:space-between;
     gap:var(--s1);min-width:0;}
   .reel .vnum{font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;color:var(--ink);
-    font-family:var(--display);line-height:1.1;}
+    font-family:var(--display);line-height:1.1;
+    white-space:nowrap;}
   .reel.is-top .vnum{color:var(--orange-text);}
   /* a taste of the actual reel, not a real preview: fixed size, not a
      stretched one. Stretching it to match the text column's height
@@ -799,57 +820,15 @@
   .reel .l{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
     font-family:var(--mono);}
 
-  /* six shorts from the same body of work, most viewed first */
+  /* label row above a grid of clips (the homepage "Commercial spots") */
   .shorts-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s4);
     flex-wrap:wrap;margin:var(--s7) 0 var(--s4);}
-  .shorts{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s3);}
-  @media(min-width:560px){.shorts{grid-template-columns:repeat(3,1fr);}}
-  @media(min-width:900px){.shorts{grid-template-columns:repeat(6,1fr);}}
-  .sh{display:block;text-decoration:none;background:var(--ground-2);border:1px solid var(--line);
-    border-radius:var(--r-sm);overflow:hidden;
-    transition:border-color var(--ease),background var(--ease),transform var(--ease);}
-  .sh:hover{border-color:var(--cyan-text);background:var(--panel);transform:translateY(-2px);}
-  .sh .th{position:relative;display:block;}
-  .sh .th img{width:100%;display:block;aspect-ratio:9/16;object-fit:cover;}
-  .sh .cap{padding:var(--s3);display:flex;flex-direction:column;gap:var(--s1);}
-  .sh .v{font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;color:var(--ink);
-    font-family:var(--display);line-height:1.15;}
-  .sh .l{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
-    font-family:var(--mono);}
-
-  /* the funnel is a real sequence, so the numbering carries meaning */
-  .funnel{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3);
-    margin-bottom:var(--s6);}
-  .step{background:var(--ground-2);border-radius:var(--r-sm);
-    padding:var(--s5);display:flex;flex-direction:column;gap:var(--s2);position:relative;}
-  .step .sn{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
-    color:var(--cyan-text);}
-  .step h3{margin:0;font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);}
-  .step p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
-
-  .titles{display:grid;grid-template-columns:repeat(auto-fill,minmax(266px,1fr));gap:var(--s3);}
-  .tcard{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-sm);
-    display:flex;flex-direction:column;text-decoration:none;overflow:hidden;
-    color:inherit;transition:border-color var(--ease),background var(--ease),transform var(--ease);}
-  .tcard:hover{border-color:var(--cyan-text);background:var(--panel);transform:translateY(-2px);}
-  .tcard .tag{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
-    text-transform:uppercase;align-self:flex-start;}
-  .tcard .tag.tour{color:var(--cyan-text);}
-  .tcard .tag.exp{color:var(--orange-text);}
-  .tcard .tag.lead{color:var(--orange-text);border:1px solid rgba(var(--orange-rgb),.4);
-    background:rgba(var(--orange-rgb),.10);border-radius:var(--r-pill);padding:3px 10px;}
-  .tcard .tt{font-size:var(--f-body);font-weight:550;line-height:1.4;letter-spacing:var(--t-head);}
-  /* real YouTube thumbnails, pulled from the same video ids these cards link to */
-  .titles{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
-  .tthumb{position:relative;display:block;aspect-ratio:16/9;background:#000;}
-  .tthumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  /* Written for the old title cards and kept because it is what gives the
+     click-to-play spot button its 46x32 shape: it overrides the circle above. */
   .ytplay{position:absolute;left:50%;top:50%;width:46px;height:32px;margin:-16px 0 0 -23px;
     border-radius:8px;background:rgba(15,18,20,.72);transition:background var(--ease);}
   .ytplay::after{content:"";position:absolute;left:18px;top:9px;border-style:solid;
     border-width:7px 0 7px 12px;border-color:transparent transparent transparent #F2EFE9;}
-  .tcard:hover .ytplay{background:var(--orange);}
-  .tcard:hover .ytplay::after{border-left-color:#14171A;}
-  .tbody{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s4);}
 
   /* client wall: every mark is pre-rendered onto an identical canvas with equal
      optical ink area, so the grid spaces itself without per logo tuning. */
@@ -888,8 +867,13 @@
     font-weight:900;letter-spacing:-.01em;font-size:var(--f-h3);padding:var(--s3) var(--s6) var(--s3) var(--s5);
     clip-path:polygon(0 0,calc(100% - 22px) 0,100% 100%,0 100%);margin-bottom:calc(var(--s4) * -1);
     position:relative;z-index:1;box-shadow:0 10px 18px -10px rgba(0,0,0,.4);}
-  .band-tab.t-orange{background:var(--orange);}
-  .band-tab.t-cyan{background:var(--cyan);}
+  /* 2026-10-06: the two bright tabs carry ink, not white. White on the cyan
+     was 2.61:1 (axe color-contrast, fails AA even as large text) and white on
+     the orange only 3.71:1. Ink is 6.89:1 on cyan and 4.84:1 on orange, so
+     both pass AA at any size, they stay a matched pair, and it is the same
+     ink-on-orange the site's CTAs already use. The ink tab keeps white. */
+  .band-tab.t-orange{background:var(--orange);color:#14171A;}
+  .band-tab.t-cyan{background:var(--cyan);color:#14171A;}
   .band-tab.t-ink{background:var(--ink);}
   .band-body{background:var(--ground-2);border-radius:0 var(--r-lg) var(--r-lg) var(--r-lg);
     padding:var(--s6) var(--s5) var(--s5);}
@@ -945,7 +929,7 @@
      text needs (heading is bold and large enough that 3.5:1 is fine there).
      The shadow is legibility insurance against the mottled, uneven texture,
      not decoration: some patches of the photo run darker than the average. */
-  .always h3{margin:0 0 var(--s2);font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);
+  .always h2{margin:0 0 var(--s2);font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);
     color:#FFFFFF;text-shadow:0 2px 6px rgba(0,0,0,.55);}
   .always .sub2{margin:0 0 var(--s5);font-size:var(--f-body);color:#FFFFFF;max-width:68ch;
     line-height:1.58;text-shadow:0 2px 6px rgba(0,0,0,.55);}
@@ -958,7 +942,7 @@
   .benefit .bn{font-family:var(--mono);font-size:var(--f-h2);font-weight:700;line-height:1;
     color:var(--cyan-text);letter-spacing:var(--t-display);align-self:flex-start;
     border-bottom:2px solid var(--cyan);padding-bottom:var(--s2);margin-bottom:var(--s1);}
-  .benefit h4{margin:0;font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);}
+  .benefit h3{margin:0;font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);}
   .benefit p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
 
   /* the two engines, side by side, each with a diagram of how it actually works.
@@ -971,11 +955,12 @@
   .engine .etag{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
     text-transform:uppercase;color:var(--cyan-text);}
   .engine.is-two .etag{color:var(--orange-text);}
-  .engine h4{margin:0;font-size:var(--f-h3);font-weight:700;letter-spacing:var(--t-head);}
+  .engine h3{margin:0;font-size:var(--f-h3);font-weight:700;letter-spacing:var(--t-head);}
   .edia{width:100%;height:auto;display:block;margin:var(--s1) 0;}
   .engine p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
+  /* --ink-2, not --ink-3: the panel is --ground-2, and --ink-3 on it is 4.32:1 */
   .engine .ewhere{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:.06em;
-    text-transform:uppercase;color:var(--ink-3);border-top:1px solid var(--line);
+    text-transform:uppercase;color:var(--ink-2);border-top:1px solid var(--line);
     padding-top:var(--s3);margin-top:auto;}
   .engine.is-two .ewhere{color:var(--orange-text);}
 
@@ -984,7 +969,7 @@
     padding:var(--s5);}
   .step2 span{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
     text-transform:uppercase;color:var(--cyan-text);}
-  .step2 h4{margin:var(--s2) 0 var(--s1);font-size:var(--f-h4);font-weight:650;
+  .step2 h3{margin:var(--s2) 0 var(--s1);font-size:var(--f-h4);font-weight:650;
     letter-spacing:var(--t-head);}
   .step2 p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
 
@@ -1005,7 +990,16 @@
      paused, a channel/share/watch-later overlay that leaves the site, and no
      URL param (controls=0 included) suppresses that. pointer-events:none
      means no click or tap can ever reach the iframe's own UI at all. */
-  iframe.banner{pointer-events:none;}
+  iframe.banner{pointer-events:none;border:0;
+    /* Same fix as .herobg-clip, 2026-10-06: the iframe is oversized by the
+       chrome margin top and bottom and pulled back with equal negative
+       margins, so its flow height is still exactly 56.25vw (no shift when it
+       replaces the placeholder) and .bannerwrap's overflow:hidden clips
+       YouTube's title strip and bottom chrome. 6.75vw is 12% of the
+       picture height, matching the hero. */
+    aspect-ratio:auto;height:calc(56.25vw + 2 * max(var(--yt-chrome), 6.75vw));
+    margin-top:calc(-1 * max(var(--yt-chrome), 6.75vw));
+    margin-bottom:calc(-1 * max(var(--yt-chrome), 6.75vw));}
   .banner img{width:100%;height:100%;display:block;object-fit:cover;}
   /* #yt-poster is a SIBLING of #yt-banner, not a child: the IFrame API
      replaces #yt-banner outright once it creates the player (see SOLO_JS),
@@ -1126,7 +1120,7 @@
     background-repeat:no-repeat;background-size:100% 100%;background-position:center;
     opacity:.92;}
   /* direct pixel nudges against the real render: the heading's ascenders
-     (the "F" in "Five") were poking out above the stroke while a visible
+     (the capital opening the line) were poking out above the stroke while a visible
      gap of orange sat unused below the descenders, so the stroke itself
      shifts up to close both gaps at once; the eyebrow needed the opposite,
      smaller move. */
@@ -1182,7 +1176,7 @@
   .roster{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s5) var(--s4);}
   @media(min-width:560px){.roster{grid-template-columns:repeat(3,1fr);}}
   .member .portrait{aspect-ratio:1/1;margin-bottom:var(--s3);}
-  .member h4{margin:0;font-size:var(--f-body);font-family:var(--display);font-weight:600;
+  .member h3{margin:0;font-size:var(--f-body);font-family:var(--display);font-weight:600;
     letter-spacing:var(--t-head);}
   .member .rtitle{display:block;margin-top:1px;font-family:var(--mono);font-size:var(--f-micro);
     letter-spacing:var(--t-caps);text-transform:uppercase;color:var(--ink-3);}
@@ -1195,19 +1189,33 @@
     padding:var(--s3) var(--s4);border-radius:0 0 var(--r-sm) 0;z-index:99;font-weight:600;}
   .skip:focus{left:0;}
 
-  footer{padding:var(--s8) 0 var(--s9);position:relative;overflow:hidden;}
+  footer{padding:var(--s8) 0 var(--s6);position:relative;overflow:hidden;}
   footer::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;z-index:2;
     background:linear-gradient(90deg,rgba(var(--orange-rgb),.55) 0%,rgba(var(--cyan-rgb),.42) 42%,
       rgba(226,224,218,.55) 78%,rgba(226,224,218,0) 100%);}
   footer > .wrap{position:relative;z-index:1;}
-  footer .display{font-size:var(--f-h2);margin-bottom:var(--s4);}
-  a.display{display:block;color:var(--ink);text-decoration:none;}
-  a.display:hover{color:var(--orange-text);}
   footer p{margin:0;color:var(--ink-2);font-size:var(--f-body);}
+  /* site_footer(): the line and its two actions on the left, the four
+     destinations on the right from 760px, credentials and copyright on a
+     ruled row underneath. Every link is at least 44px tall. */
+  .foot{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s6);}
+  @media(min-width:760px){.foot{grid-template-columns:minmax(0,1fr) auto;align-items:end;}}
+  footer .foot-line{font-size:var(--f-h2);color:var(--ink);margin:0 0 var(--s5);max-width:20ch;}
+  .foot-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3) var(--s5);}
+  .foot-mail{display:inline-flex;align-items:center;min-height:44px;font-size:var(--f-body);}
+  .foot-nav{display:flex;flex-wrap:wrap;gap:0 var(--s5);}
+  .foot-nav a{display:inline-flex;align-items:center;min-height:44px;font-family:var(--display);
+    font-variant-caps:all-small-caps;letter-spacing:.06em;font-size:var(--f-lede);
+    color:var(--ink);text-decoration:none;transition:color var(--ease);}
+  .foot-nav a:hover{color:var(--orange-text);}
+  .foot-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--s2) var(--s5);
+    margin-top:var(--s7);padding-top:var(--s4);border-top:1px solid var(--line);}
+  footer .foot-meta p{font-size:var(--f-sm);color:var(--ink-3);}
 </style>
 <a class="skip" href="#main">Skip to content</a>
-<nav class="nav" id="nav"><div class="wrap navin"><a class="brand" href="/"><img class="brandmark" src="/our-work/a/nav_mark_hss.webp" alt="" width="174" height="84">Home Service Studios</a><div class="navright"><button type="button" class="navtoggle" id="navtoggle" aria-expanded="false" aria-controls="navlinks" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="navlinks" id="navlinks"><a href="/our-work/">Work</a><a href="/packages/" class="is-on">Packages</a><a href="/team/">Team</a><a href="/contact/" class="navsecondary">Contact</a></div><a class="navcta" href="/contact/#start"><span class="ctalong">Start a project</span><span class="ctashort">Contact</span></a></div></div></nav><div class="navspacer"></div>
+<nav class="nav" id="nav" aria-label="Primary"><div class="wrap navin"><a class="brand" href="/"><img class="brandmark" src="/our-work/a/nav_mark_hss.webp" alt="" width="174" height="84">Home Service Studios</a><div class="navright"><button type="button" class="navtoggle" id="navtoggle" aria-expanded="false" aria-controls="navlinks" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="navlinks" id="navlinks"><a href="/our-work/">Work</a><a href="/packages/" class="is-on">Packages</a><a href="/team/">Team</a><a href="/contact/" class="navsecondary">Contact</a></div><a class="navcta" href="/contact/#start"><span class="ctalong">Start a project</span><span class="ctashort">Contact</span></a></div></div></nav><div class="navspacer"></div>
 
+<main id="main">
 <div class="hero"><svg class="splat" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M-600,170 C-510,142 -390,142 -300,170 C-210,198 -90,198 0,170 C90,142 210,142 300,170 C390,198 510,198 600,170 C690,142 810,142 900,170 C990,198 1110,198 1200,170 C1290,142 1410,142 1500,170 C1590,198 1710,198 1800,170" stroke="rgba(240,72,32,.16)" stroke-width="1.5" fill="none"><animateTransform attributeName="transform" type="translate" from="0,0" to="-600,0" dur="26s" repeatCount="indefinite"/></path><path d="M-800,262 C-680,246 -520,246 -400,262 C-280,278 -120,278 0,262 C120,246 280,246 400,262 C520,278 680,278 800,262 C920,246 1080,246 1200,262 C1320,278 1480,278 1600,262 C1720,246 1880,246 2000,262" stroke="rgba(0,176,200,.11)" stroke-width="1" fill="none"><animateTransform attributeName="transform" type="translate" from="0,0" to="-800,0" dur="34s" repeatCount="indefinite"/></path><g><path d="M-400,222 C-340,208 -260,208 -200,222 C-140,236 -60,236 0,222 C60,208 140,208 200,222 C260,236 340,236 400,222 C460,208 540,208 600,222 C660,236 740,236 800,222 C860,208 940,208 1000,222 C1060,236 1140,236 1200,222 C1260,208 1340,208 1400,222 C1460,236 1540,236 1600,222" stroke="rgba(240,72,32,.13)" stroke-width=".8" fill="none"/><circle cx="-400" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="0" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="400" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="800" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="1200" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="1600" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><animateTransform attributeName="transform" type="translate" from="0,0" to="-400,0" dur="18s" repeatCount="indefinite"/></g></svg><div class="wrap">
   <p class="eyebrow">Monthly packages &middot; Home Service Studios</p>
   <h1 class="display">Known and trusted before they need you.</h1>
@@ -1222,26 +1230,25 @@
   <p class="reassure">Under a minute to fill in. You get a real answer within one business day, about your city and your trade, not a brochure.</p>
 </div></div>
 
-<main id="main">
 <section><div class="wrap">
 
   <div class="always">
-    <h3>What you are actually buying</h3>
+    <h2>What you are actually buying</h2>
     <p class="sub2">Not leads. Anyone selling you leads from organic short form is guessing.
     Consistent short form reliably does four things, and all four compound.</p>
     <div class="benefits">
-      <div class="benefit"><span class="bn">01</span><h4>Recognition</h4>
+      <div class="benefit"><span class="bn">01</span><h3>Recognition</h3>
         <p>Whatever finally puts someone in the market, a breakdown, a move, a remodel they have
         been putting off, they reach for the name they already know. Being that name takes months
         of showing up in the same feeds.</p></div>
-      <div class="benefit"><span class="bn">02</span><h4>Recruiting</h4>
+      <div class="benefit"><span class="bn">02</span><h3>Recruiting</h3>
         <p>Good people are harder to find than customers. They apply to the company that looks
         like somewhere worth working, and they decide that from your feed long before they ever
         send a resume.</p></div>
-      <div class="benefit"><span class="bn">03</span><h4>Trust at the door</h4>
+      <div class="benefit"><span class="bn">03</span><h3>Trust at the door</h3>
         <p>Someone who has already watched your team work is a different conversation from someone
         meeting you for the first time. You start past the part where they size you up.</p></div>
-      <div class="benefit"><span class="bn">04</span><h4>Proof you are still around</h4>
+      <div class="benefit"><span class="bn">04</span><h3>Proof you are still around</h3>
         <p>Everyone looks you up before they call. A feed with two years behind it reads as a
         company that is busy and still here. A feed that stopped in 2023 reads as the opposite,
         and they will notice which one you are.</p></div>
@@ -1257,7 +1264,7 @@
     <div class="engines">
       <div class="engine">
         <span class="etag">Engine 01 &middot; Short form</span>
-        <h4>Attention</h4>
+        <h3>Attention</h3>
         <svg class="edia" viewBox="0 0 300 92" role="img" aria-label="Many small posts over time, with familiarity rising slowly across them"><line x1="6" y1="82.5" x2="294" y2="82.5" stroke="#E2E0DA" stroke-width="1"/><rect x="8.0" y="72" width="6" height="10" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="20.5" y="66" width="6" height="16" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="33.0" y="73" width="6" height="9" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="45.5" y="61" width="6" height="21" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="58.0" y="69" width="6" height="13" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="70.5" y="75" width="6" height="7" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="83.0" y="64" width="6" height="18" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="95.5" y="70" width="6" height="12" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="108.0" y="58" width="6" height="24" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="120.5" y="72" width="6" height="10" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="133.0" y="67" width="6" height="15" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="145.5" y="63" width="6" height="19" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="158.0" y="73" width="6" height="9" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="170.5" y="60" width="6" height="22" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="183.0" y="69" width="6" height="13" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="195.5" y="66" width="6" height="16" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="208.0" y="72" width="6" height="10" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="220.5" y="61" width="6" height="21" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="233.0" y="67" width="6" height="15" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="245.5" y="73" width="6" height="9" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="258.0" y="64" width="6" height="18" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="270.5" y="70" width="6" height="12" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="283.0" y="63" width="6" height="19" rx="1.5" fill="#00B0C8" opacity=".42"/><path d="M8,76 C90,72 156,56 292,14" fill="none" stroke="#F04820" stroke-width="2.5" stroke-linecap="round"/></svg>
         <p>Aimed at someone scrolling past who was not looking for you. Each post does little on
         its own. Together, across months, they build the four things above. Genuinely not
@@ -1266,28 +1273,28 @@
       </div>
       <div class="engine is-two">
         <span class="etag">Engine 02 &middot; Long form</span>
-        <h4>Intent</h4>
+        <h3>Intent</h3>
         <svg class="edia" viewBox="0 0 300 92" role="img" aria-label="A narrowing funnel, from people searching down to a booked job"><rect x="28" y="8" width="244" height="14" rx="3" fill="#00B0C8" opacity=".26"/><rect x="62" y="30" width="176" height="14" rx="3" fill="#00B0C8" opacity=".40"/><rect x="96" y="52" width="108" height="14" rx="3" fill="#00B0C8" opacity=".58"/><rect x="124" y="74" width="52" height="14" rx="3" fill="#F04820" opacity="1"/></svg>
         <p>Made for intent rather than attention, aimed at someone already searching for what you
         sell. Fewer people, each one further along. Slower to start, it does produce trackable
-        inbound, and <strong>unlike short form it does not expire</strong>: one client&#39;s channel
-        is six years deep and still booking work from videos posted at the beginning.</p>
+        inbound, and <strong>unlike short form it does not expire</strong>: a video made for
+        search keeps getting found years after it is posted.</p>
         <span class="ewhere">Studio and Studio Max only</span>
       </div>
     </div>
   </div>
 
   <div class="always">
-    <h3>The same three things happen at every tier</h3>
+    <h2>The same three things happen at every tier</h2>
     <p class="sub2">The only real difference between the packages is who holds the camera and how
     much goes out. Everything here is included whether you spend $2,000 or $15,000.</p>
     <div class="steps">
-      <div class="step2"><span>Step 01</span><h4>Planned</h4>
+      <div class="step2"><span>Step 01</span><h3>Planned</h3>
         <p>Our team works out what your content needs to do, then sends you a shot list before
         anyone films anything.</p></div>
-      <div class="step2"><span>Step 02</span><h4>Captured</h4>
+      <div class="step2"><span>Step 02</span><h3>Captured</h3>
         <p>Either your team shoots to that list, or our crew comes out and shoots it for you.</p></div>
-      <div class="step2"><span>Step 03</span><h4>Cut and posted</h4>
+      <div class="step2"><span>Step 03</span><h3>Cut and posted</h3>
         <p>Edited, captioned and published to your channels. Not handed back to you as files.</p></div>
     </div>
   </div>
@@ -1312,17 +1319,6 @@
 <a class="reel" href="https://www.facebook.com/reel/1665126741451677" target="_blank" rel="noopener noreferrer"><div class="rmeta"><span class="vnum">162K</span><span class="l">Reel 06</span></div><img class="rthumb" src="/our-work/a/a1r6.webp" alt="" loading="lazy"></a>
 <a class="reel" href="https://www.facebook.com/reel/1718428669171616" target="_blank" rel="noopener noreferrer"><div class="rmeta"><span class="vnum">134K</span><span class="l">Reel 07</span></div><img class="rthumb" src="/our-work/a/a1r7.webp" alt="" loading="lazy"></a>
     </div>
-    <div class="ops" style="margin-top:22px;">
-      <div class="op"><span class="n">50%</span><span class="k">Of one client&#39;s annual projects</span></div>
-      <div class="op"><span class="n">6 yrs</span><span class="k">That account has run</span></div>
-      <div class="op"><span class="n">258</span><span class="k">Videos in their library</span></div>
-      <div class="op"><span class="n">$100K+</span><span class="k">Value of one job it sources</span></div>
-    </div>
-    <p class="ctanote" style="margin-top:14px;">A Los Angeles ADU builder, six years in on what is
-    now the Studio Max shape: weekly long form built around what people actually search, plus regular
-    posting everywhere else. About half of the company&#39;s annual projects now start on that
-    channel, in a category where a single build runs from roughly $100,000 to over $500,000.
-    <a href="/our-work/#peretz">Read that case</a>.</p>
   </div>
 
   <div class="band"><span class="band-tab t-orange">Our crew shoots it</span><div class="band-body"><p>Nobody on your team has to remember to film anything. Having to remember is the reason most content programs quietly die in month three, and removing it is what you are actually paying us to solve.</p><div class="pkgs"><div class="pkg"><span class="tier">Gold</span><span class="pname">Ten reels a month</span><div class="priceline"><span class="price">$4,000</span><span class="per">per month</span></div><div class="perasset">$400 per finished reel</div><ul><li>Ten short-form reels every month</li><li>One vetted, trained shooter comes to you</li><li>Our team plans the shoot and runs it on the day</li><li>Nobody on your team films anything</li><li>Edited, captioned and posted for you</li><li>Professional photos from every shoot, edited and delivered for your Google Business Profile or carousel posts</li><li>Six months in: a banner film, team photos and professionally lit interviews with your key people</li><li>Twelve months in: your twelfth month is on us</li></ul><div class="shoot">One shooter, ours</div></div><div class="pkg"><span class="best">What most home service companies choose</span><span class="tier">Platinum</span><span class="pname">Every weekday</span><div class="priceline"><span class="price">$5,000</span><span class="per">per month</span></div><div class="perasset">About $227 per finished reel</div><ul><li>Something goes out Monday through Friday</li><li>Two vetted, trained shooters come to you</li><li>Our team plans the shoot and runs it on the day</li><li>Nobody on your team films anything</li><li>Edited, captioned and posted for you</li><li>Professional photos from every shoot, edited and delivered for your Google Business Profile or carousel posts</li><li>Six months in: a banner film, team photos and professionally lit interviews with your key people</li><li>Twelve months in: your twelfth month is on us</li></ul><div class="shoot">Two shooters, ours</div></div></div></div></div>
@@ -1364,13 +1360,8 @@
 </div></section>
 </main>
 
-<footer><svg class="splat" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M-600,170 C-510,142 -390,142 -300,170 C-210,198 -90,198 0,170 C90,142 210,142 300,170 C390,198 510,198 600,170 C690,142 810,142 900,170 C990,198 1110,198 1200,170 C1290,142 1410,142 1500,170 C1590,198 1710,198 1800,170" stroke="rgba(240,72,32,.16)" stroke-width="1.5" fill="none"><animateTransform attributeName="transform" type="translate" from="0,0" to="-600,0" dur="26s" repeatCount="indefinite"/></path><path d="M-800,262 C-680,246 -520,246 -400,262 C-280,278 -120,278 0,262 C120,246 280,246 400,262 C520,278 680,278 800,262 C920,246 1080,246 1200,262 C1320,278 1480,278 1600,262 C1720,246 1880,246 2000,262" stroke="rgba(0,176,200,.11)" stroke-width="1" fill="none"><animateTransform attributeName="transform" type="translate" from="0,0" to="-800,0" dur="34s" repeatCount="indefinite"/></path><g><path d="M-400,222 C-340,208 -260,208 -200,222 C-140,236 -60,236 0,222 C60,208 140,208 200,222 C260,236 340,236 400,222 C460,208 540,208 600,222 C660,236 740,236 800,222 C860,208 940,208 1000,222 C1060,236 1140,236 1200,222 C1260,208 1340,208 1400,222 C1460,236 1540,236 1600,222" stroke="rgba(240,72,32,.13)" stroke-width=".8" fill="none"/><circle cx="-400" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="0" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="400" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="800" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="1200" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="1600" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><animateTransform attributeName="transform" type="translate" from="0,0" to="-400,0" dur="18s" repeatCount="indefinite"/></g></svg><div class="wrap">
-  <p class="eyebrow">Contact</p>
-  <a class="display" href="/contact/#start">Let&#39;s make something that travels.</a>
-  <div class="fcontact"><a href="/contact/#start">Contact</a></div><p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019
-  &nbsp;&middot;&nbsp; <a href="/our-work/">See the work</a>&nbsp;&middot;&nbsp; <a href="/contact/">Contact</a></p>
-</div></footer>
-<div class="actionbar"><a href="/contact/">Contact</a><a class="primary" href="/contact/#start">Start a project</a></div>
+<footer><svg class="splat" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M-600,170 C-510,142 -390,142 -300,170 C-210,198 -90,198 0,170 C90,142 210,142 300,170 C390,198 510,198 600,170 C690,142 810,142 900,170 C990,198 1110,198 1200,170 C1290,142 1410,142 1500,170 C1590,198 1710,198 1800,170" stroke="rgba(240,72,32,.16)" stroke-width="1.5" fill="none"><animateTransform attributeName="transform" type="translate" from="0,0" to="-600,0" dur="26s" repeatCount="indefinite"/></path><path d="M-800,262 C-680,246 -520,246 -400,262 C-280,278 -120,278 0,262 C120,246 280,246 400,262 C520,278 680,278 800,262 C920,246 1080,246 1200,262 C1320,278 1480,278 1600,262 C1720,246 1880,246 2000,262" stroke="rgba(0,176,200,.11)" stroke-width="1" fill="none"><animateTransform attributeName="transform" type="translate" from="0,0" to="-800,0" dur="34s" repeatCount="indefinite"/></path><g><path d="M-400,222 C-340,208 -260,208 -200,222 C-140,236 -60,236 0,222 C60,208 140,208 200,222 C260,236 340,236 400,222 C460,208 540,208 600,222 C660,236 740,236 800,222 C860,208 940,208 1000,222 C1060,236 1140,236 1200,222 C1260,208 1340,208 1400,222 C1460,236 1540,236 1600,222" stroke="rgba(240,72,32,.13)" stroke-width=".8" fill="none"/><circle cx="-400" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="0" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="400" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="800" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="1200" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="1600" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><animateTransform attributeName="transform" type="translate" from="0,0" to="-400,0" dur="18s" repeatCount="indefinite"/></g></svg><div class="wrap"><div class="foot"><div class="foot-main"><p class="display foot-line">Let&#39;s make something that travels.</p><div class="foot-actions"><a class="cta" href="/contact/#start">Start a project</a><a class="foot-mail" href="mailto:info@homeservicestudios.com">info@homeservicestudios.com</a></div></div><nav class="foot-nav" aria-label="Footer"><a href="/our-work/">Work</a><a href="/team/">Team</a><a href="/contact/">Contact</a></nav></div><div class="foot-meta"><p>Los Angeles, CA &middot; Insured &middot; Working since 2019</p><p>&copy; 2026 Home Service Studios</p></div></div></footer>
+<nav class="actionbar" aria-label="Quick actions"><a href="/contact/">Contact</a><a class="primary" href="/contact/#start">Start a project</a></nav>
 <script>
 (function(){
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
@@ -1423,8 +1414,8 @@
 
   /* (a) scroll reveals ---------------------------------------------------- */
   if(!reduce && 'IntersectionObserver' in window){
-    var SEL = '.sec-head,.ccard,.benefit,.engine,.pkg,.csi > div,.op,.spot,.reel,.sh,' +
-              '.step,.step2,.tcard,.door,.feature,.always,.incl,.pn,.band-head,.lead,.member';
+    var SEL = '.sec-head,.ccard,.benefit,.engine,.pkg,.csi > div,.op,.spot,.reel,' +
+              '.step2,.door,.always,.incl,.pn,.band-head,.lead,.member';
     var vh = window.innerHeight || 800;
     var targets = [].slice.call(document.querySelectorAll(SEL)).filter(function(e){
       /* nothing above the fold gets a reveal: that space belongs to the hero
