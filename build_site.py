@@ -96,14 +96,6 @@ SCROLL_ICON = ('<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stro
                'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
                '<path d="M6 9l6 6 6-6"/></svg>')
 
-# Left/right chevrons for the case study carousel on /our-work/.
-ARROW_LEFT = ('<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" '
-              'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-              '<path d="M15 6l-6 6 6 6"/></svg>')
-ARROW_RIGHT = ('<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" '
-               'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-               '<path d="M9 6l6 6-6 6"/></svg>')
-
 def cta_href():
     """Where every conversion CTA on the site points. One rule, no exceptions, so a
     button cannot quietly keep pointing somewhere stale."""
@@ -482,7 +474,7 @@ CSS = """<style>
   .hero .stat:nth-child(4){animation-delay:.22s;}
 
   /* (b) count-up needs digits that do not jump width as they change */
-  .stat .n,.op .n,.reel .vnum,.cc-metric b{font-variant-numeric:tabular-nums;}
+  .stat .n,.op .n,.reel .vnum{font-variant-numeric:tabular-nums;}
 
   /* (d) hero film: a slow push in, transform only, clipped by the wrapper so a
      1.04 scale on a 100vw element cannot create a horizontal scrollbar */
@@ -653,86 +645,47 @@ CSS = """<style>
   .sec-head.bare h2{font-size:clamp(34px,5.6vw,58px);max-width:18ch;}
   .sec-head.bare{gap:var(--s4);}
 
-  /* case study carousel on /our-work/. Cards are buttons (see case_card):
-     clicking one reveals its full write-up in .case-panels below instead of
-     navigating to its own page, which is what each case used to be. */
-  .carousel{position:relative;display:flex;align-items:center;gap:var(--s3);}
-  .car-viewport{flex:1 1 auto;min-width:0;overflow:hidden;}
-  .ccards{display:flex;gap:var(--s4);overflow-x:auto;scroll-snap-type:x mandatory;
-    scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;
-    padding:2px 2px 4px;margin:-2px -2px -4px;}
-  .ccards::-webkit-scrollbar{display:none;}
-  .ccard{scroll-snap-align:start;flex:0 0 78%;display:flex;flex-direction:column;
-    text-align:left;font:inherit;color:inherit;background:var(--panel);
-    border:2px solid var(--line);border-radius:var(--r-md);overflow:hidden;
-    padding:0;cursor:pointer;scroll-margin-top:76px;
-    transition:border-color var(--ease),transform var(--ease),background var(--ease);}
-  @media(min-width:620px){.ccard{flex:0 0 calc(50% - var(--s4)/2);}}
-  @media(min-width:960px){.ccard{flex:0 0 calc(33.333% - var(--s4)*2/3);}}
-  /* mobile only: was scroll-snap-align:start with no side padding, so the
-     active card sat flush against the left edge with the next one bleeding
-     in awkwardly on the right and nothing on the left, reading as cut off
-     rather than as a deliberate peek. Centered instead, with matching
-     padding on the track so the first/last cards can actually reach
-     center too, and a bit wider (78% -> 88%) so less of the neighbor
-     shows either side. */
-  @media(max-width:619px){
-    .ccards{padding-left:6%;padding-right:6%;scroll-padding-inline:6%;}
-    .ccard{flex:0 0 88%;scroll-snap-align:center;}
+  /* /our-work case grid (D5, 2026-10-06), replacing the blueprint carousel:
+     flat cards, one large plus two stacked from 900px, stacked on phones. A
+     real still with the big metric over it under a dark scrim; A1 has no still
+     (its reels are on Facebook), so its lead card shows the real numbers on ink
+     instead of invented art. No arrows, no dots. */
+  .cgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s4);}
+  @media(min-width:900px){
+    .cgrid{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);}
+    .cgcard.is-lead{grid-row:span 2;}
   }
-  /* the bonus ask: an outline on hover, distinct from the persistent one on
-     the card whose write-up is currently open below. */
-  .ccard:hover,.ccard:focus-visible{border-color:rgba(var(--orange-rgb),.5);
-    transform:translateY(-2px);}
-  .ccard.is-active{border-color:var(--orange-text);background:var(--ground-2);}
-  .cc-art{display:block;position:relative;aspect-ratio:16/9;background:var(--ground-2);
-    overflow:hidden;display:flex;align-items:center;justify-content:center;}
-  .cc-art img{width:100%;height:100%;object-fit:cover;display:block;}
-  /* no still for this client yet, so the mark or the number carries the card */
-  .cc-logo{display:flex;align-items:center;justify-content:center;width:62%;}
-  .cc-logo img{width:100%;height:auto;object-fit:contain;opacity:.85;}
-  .cc-num{font-family:var(--mono);font-size:var(--f-hero);font-weight:700;color:var(--orange-text);
-    letter-spacing:var(--t-display);line-height:1;}
-  .cc-body{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s5);}
-  .cc-vert{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
+  .cgcard{display:flex;flex-direction:column;background:var(--ground-2);border-radius:var(--r-md);
+    overflow:hidden;text-decoration:none;color:inherit;transition:transform var(--ease);}
+  .cgcard:hover{transform:translateY(-2px);}
+  .cgcard.is-active{outline:2px solid var(--orange-text);outline-offset:-2px;}
+  .cg-art{position:relative;display:block;aspect-ratio:16/9;background:#14171A;overflow:hidden;}
+  .cg-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+  .cg-art.has-still::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(20,23,26,0) 35%,rgba(20,23,26,.9) 100%);}
+  .cg-metric{position:absolute;left:var(--s5);right:var(--s5);bottom:var(--s4);z-index:1;
+    display:flex;flex-direction:column;gap:2px;}
+  .cg-metric b{font-family:var(--display);font-weight:900;font-size:var(--f-h1);line-height:1;
+    letter-spacing:-.02em;color:var(--orange);font-variant-numeric:tabular-nums;}
+  .cg-metric span{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;
+    font-family:var(--mono);color:#D8D3C9;}
+  .cg-data{display:flex;flex-direction:column;justify-content:space-between;gap:var(--s6);
+    padding:var(--s6) var(--s5) var(--s5);aspect-ratio:auto;flex:1;}
+  .cg-data .cg-metric{position:static;}
+  .cg-top{display:flex;flex-direction:column;gap:var(--s4);}
+  .cg-line{font-size:var(--f-lead);line-height:1.45;color:#D8D3C9;max-width:30ch;}
+  .cg-data .cg-metric b{font-size:var(--f-mega);}
+  .cg-data .a1chart{width:100%;height:auto;display:block;}
+  .cg-body{display:flex;flex-direction:column;gap:var(--s1);padding:var(--s4) var(--s5) var(--s5);}
+  .cg-vert{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
     font-size:var(--f-sm);color:var(--cyan-text);}
-  .cc-name{font-size:var(--f-h3);font-weight:700;letter-spacing:var(--t-head);line-height:1.15;}
-  .cc-blurb{font-size:var(--f-body);color:var(--ink-2);line-height:1.5;}
-  .cc-metric{font-size:var(--f-sm);color:var(--ink-2);border-top:1px solid var(--line);
-    padding-top:var(--s3);margin-top:var(--s1);}
-  .cc-metric b{font-family:var(--display);font-size:var(--f-h4);color:var(--orange-text);
-    font-weight:700;margin-right:8px;}
-  .cc-go{font-size:var(--f-sm);font-weight:650;color:var(--orange-text);}
-
-  .car-arrow{flex:none;display:flex;align-items:center;justify-content:center;
-    width:40px;height:40px;padding:0;border-radius:var(--r-pill);border:1px solid var(--line);
-    background:var(--ground);color:var(--ink);cursor:pointer;
-    transition:border-color var(--ease),color var(--ease);}
-  .car-arrow:hover{border-color:var(--orange-text);color:var(--orange-text);}
-  .car-arrow svg{display:block;}
-  /* The dot stays 8px to the eye; the button around it is 24x24 so it passes
-     Lighthouse's target-size audit, which the old 8x8 button failed (that alone
-     is why /our-work scores below the other pages on accessibility). The trick
-     is padding plus background-clip:content-box: the background paints only the
-     8px content box, while the touchable button is the full 24px. gap drops from
-     10px to 0 because each dot now carries 8px of its own padding either side,
-     which keeps the row from spreading out as the targets grow. */
-  .car-dots{display:flex;justify-content:center;gap:0;margin-top:var(--s5);}
-  .car-dot{width:24px;height:24px;padding:8px;box-sizing:border-box;
-    border-radius:50%;border:0;background-color:var(--line);
-    background-clip:content-box;cursor:pointer;}
-  .car-dot.is-active{background-color:var(--orange-text);}
-  /* Arrows and dots only mean something when there is more to scroll to. The
-     build marks the carousel .fits-3 / .fits-2 from len(CASES) (see
-     CAROUSEL_FIT), so at widths where every card is already on screen they
-     are not drawn at all rather than sitting there inert. Decided at build
-     time, not measured in JS, so nothing shifts after load. Narrower screens
-     keep the full carousel. */
-  @media(min-width:960px){.carousel.fits-3 .car-arrow,.car-dots.fits-3{display:none;}}
-  @media(min-width:620px){.carousel.fits-2 .car-arrow,.car-dots.fits-2{display:none;}}
+  .cg-name{font-family:var(--display);font-size:var(--f-h3);font-weight:700;
+    letter-spacing:var(--t-head);line-height:1.15;}
+  .cg-go{margin-top:var(--s2);font-size:var(--f-sm);font-weight:650;color:var(--orange-text);}
 
   /* Each is the exact same section markup a standalone case page used to
-     render on its own; only one shows at a time, toggled by CAROUSEL_JS. */
+     render on its own; only one shows at a time, opened by CASES_JS from the
+     URL hash the case cards link to. */
   .case-panels > section{display:none;}
   .case-panels > section.is-active{display:block;}
 
@@ -1672,88 +1625,31 @@ NAV_JS = """<script>
 </script>"""
 
 
-# /our-work/ only: the case cards are buttons, not links (see case_card).
-# Clicking one reveals that case's full write-up (still the exact same markup
-# case_page() used to build a whole page from, just living in .case-panels
-# instead) below the carousel, and clicking the same card again collapses it.
-# A matching #id in the URL (the homepage stat links now point at
-# /our-work/#a1 etc.) opens and scrolls to that case on load, so the old
-# per-case URLs still resolve to something sensible even though the pages
-# themselves are gone.
-CAROUSEL_JS = """<script>
+# /our-work/ only. The case cards are plain links to #a1, #handyman and #allheart.
+# This opens the matching write-up in .case-panels (each is the markup a case page
+# used to be) and scrolls to it, on load and on every hash change, so the
+# homepage's /our-work/#a1-style links land on the right case too.
+CASES_JS = """<script>
 (function(){
-  var carousel = document.querySelector('.carousel');
   var panels = document.getElementById('case-panels');
-  if(!carousel || !panels) return;
-  var track = carousel.querySelector('.ccards');
-  var cards = [].slice.call(carousel.querySelectorAll('.ccard'));
-  var dots = [].slice.call(document.querySelectorAll('.car-dot'));
+  if(!panels) return;
   var sections = [].slice.call(panels.children);
-  var prevBtn = carousel.querySelector('.car-prev');
-  var nextBtn = carousel.querySelector('.car-next');
-  var current = null;
-
-  function paint(id){
-    current = id;
-    cards.forEach(function(c){
-      var on = c.dataset.case === id;
-      c.classList.toggle('is-active', on);
-      c.setAttribute('aria-expanded', on ? 'true' : 'false');
-    });
-    dots.forEach(function(d){ d.classList.toggle('is-active', d.dataset.case === id); });
-    sections.forEach(function(s){ s.classList.toggle('is-active', s.id === id); });
-  }
-
-  function reveal(id, scroll){
-    paint(id);
-    if(scroll){
-      var target = document.getElementById(id);
-      /* one tick so display:none -> block lands before measuring position */
-      if(target) setTimeout(function(){
-        target.scrollIntoView({behavior: 'smooth', block: 'start'});
-      }, 60);
-    }
-  }
-
-  /* card/dot clicks toggle: clicking the one already open closes it again.
-     Hash-driven opens (below) never should, or clicking a link to a case
-     that happens to already be open would close it instead of scrolling
-     to it. */
-  function toggle(id, scroll){
-    if(current === id){ paint(null); return; }
-    reveal(id, scroll);
-  }
-
-  cards.forEach(function(c){
-    c.addEventListener('click', function(){ toggle(c.dataset.case, true); });
-  });
-  dots.forEach(function(d){
-    d.addEventListener('click', function(){ toggle(d.dataset.case, true); });
-  });
-
-  function step(dir){
-    if(!track) return;
-    var card = track.querySelector('.ccard');
-    if(!card) return;
-    var gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 0;
-    var w = card.getBoundingClientRect().width + gap;
-    track.scrollBy({left: dir * w, behavior: 'smooth'});
-  }
-  if(prevBtn) prevBtn.addEventListener('click', function(){ step(-1); });
-  if(nextBtn) nextBtn.addEventListener('click', function(){ step(1); });
-
-  /* This page's own hero stats (and the homepage's, and packages') link to
-     #a1-style anchors, not through the click handlers above, so a native
-     click changes the hash without ever calling toggle(). Without this,
-     that native jump would land on a section still sitting at
-     display:none. Handling hashchange, not just the initial load, catches
-     a same-page anchor click too, not only a fresh arrival. */
-  function openFromHash(){
+  var cards = [].slice.call(document.querySelectorAll('.cgcard'));
+  function open(){
     var id = (location.hash || '').slice(1);
-    if(id && cards.some(function(c){ return c.dataset.case === id; })) reveal(id, true);
+    if(!id || !sections.some(function(s){ return s.id === id; })) return;
+    sections.forEach(function(s){ s.classList.toggle('is-active', s.id === id); });
+    cards.forEach(function(c){ c.classList.toggle('is-active', c.getAttribute('href') === '#' + id); });
+    var t = document.getElementById(id);
+    /* one tick so display:none -> block lands before measuring position */
+    setTimeout(function(){ t.scrollIntoView({behavior: 'smooth', block: 'start'}); }, 60);
   }
-  openFromHash();
-  window.addEventListener('hashchange', openFromHash);
+  /* a click on the card that is already open does not change the hash */
+  cards.forEach(function(c){
+    c.addEventListener('click', function(){ if(c.getAttribute('href') === location.hash) open(); });
+  });
+  open();
+  window.addEventListener('hashchange', open);
 })();
 </script>"""
 
@@ -1764,7 +1660,7 @@ MOTION_JS = """<script>
 
   /* (a) scroll reveals ---------------------------------------------------- */
   if(!reduce && 'IntersectionObserver' in window){
-    var SEL = '.sec-head,.ccard,.benefit,.engine,.pkg,.csi > div,.way,.op,.spot,.reel,' +
+    var SEL = '.sec-head,.cgcard,.benefit,.engine,.pkg,.csi > div,.way,.op,.spot,.reel,' +
               '.step2,.door,.always,.incl,.pn,.band-head,.lead,.member';
     var vh = window.innerHeight || 800;
     var targets = [].slice.call(document.querySelectorAll(SEL)).filter(function(e){
@@ -2185,7 +2081,17 @@ ROSTER_COUNT = len(CLIENT_LOGOS)
 # A1's reels live on Facebook, which serves no public thumbnail, so the page gets a
 # chart of the real view counts instead of invented artwork. The shape is the story:
 # one breakout and a tail that still clears 100k.
-def a1_chart():
+def a1_chart(dark=False, decorative=False):
+    """dark: light labels for an ink ground (the /our-work lead card).
+    decorative: aria-hidden and no <text> at all, for places where the numbers are
+    already real text beside it. The no-text part matters: an inline SVG whose
+    <text> is laid out on first paint requested Archivo 700 early enough that it
+    missed font-display:optional's window, and Chrome then rendered every
+    Archivo 700 heading on the page in the Arial Black fallback (measured on
+    /our-work, 2026-10-06). The labelled chart inside the case write-up is
+    display:none until opened, so it never races."""
+    ink, sub, base, tlab = (("#F2EFE9", "#A8A29A", "#33383D", "#F04820") if dark
+                            else ("#14171A", "#6B747C", "#E2E0DA", "#B93412"))
     data = [("623K", 623, 1), ("428K", 428, 0), ("410K", 410, 0), ("312K", 312, 0),
             ("195K", 195, 0), ("162K", 162, 0), ("134K", 134, 0)]
     W, H, PAD, BASE = 700, 224, 18, 176
@@ -2199,10 +2105,10 @@ def a1_chart():
         op = "1" if top else ".55"
         bars += (f'<rect x="{x}" y="{y}" width="{bw}" height="{h}" rx="3" fill="{col}" '
                  f'opacity="{op}"/>')
-        labels += (f'<text x="{x + bw/2:.0f}" y="{y - 8}" text-anchor="middle" fill="#14171A" '
+        labels += (f'<text x="{x + bw/2:.0f}" y="{y - 8}" text-anchor="middle" fill="{ink}" '
                    f'font-size="15" font-family="Archivo,sans-serif" '
                    f'font-weight="700">{lab}</text>')
-        labels += (f'<text x="{x + bw/2:.0f}" y="{BASE + 20}" text-anchor="middle" fill="#6B747C" '
+        labels += (f'<text x="{x + bw/2:.0f}" y="{BASE + 20}" text-anchor="middle" fill="{sub}" '
                    f'font-size="11" font-family="Archivo,sans-serif" font-weight="700" '
                    f'letter-spacing="1">{"0" + str(i+1)}</text>')
     # the 100k line the whole tail clears
@@ -2210,11 +2116,16 @@ def a1_chart():
     lx = PAD + 7 * (bw + gap) - gap + 10          # just past the last bar
     thresh = (f'<line x1="{PAD}" y1="{ty}" x2="{lx - 6}" y2="{ty}" stroke="#F04820" '
               f'stroke-width="1" stroke-dasharray="4 4" opacity=".5"/>'
-              f'<text x="{lx}" y="{ty + 4}" fill="#B93412" font-size="11" '
+              f'<text x="{lx}" y="{ty + 4}" fill="{tlab}" font-size="11" '
               f'font-family="Archivo,sans-serif" font-weight="700" letter-spacing="1">100K</text>')
-    return (f'<svg class="a1chart" viewBox="0 0 {W} {H}" role="img" aria-label="Seven A1 reels by '
-            f'view count, from 623,000 down to 134,000, every one of them above 100,000">'
-            f'<line x1="{PAD}" y1="{BASE}.5" x2="{lx - 6}" y2="{BASE}.5" stroke="#E2E0DA" '
+    a11y = ('aria-hidden="true"' if decorative else
+            'role="img" aria-label="Seven A1 reels by view count, from 623,000 down to 134,000, '
+            'every one of them above 100,000"')
+    if decorative:
+        labels = ""
+        thresh = thresh[:thresh.index("<text")]
+    return (f'<svg class="a1chart" viewBox="0 0 {W} {H}" {a11y}>'
+            f'<line x1="{PAD}" y1="{BASE}.5" x2="{lx - 6}" y2="{BASE}.5" stroke="{base}" '
             f'stroke-width="1"/>{thresh}{bars}{labels}</svg>')
 
 
@@ -2249,41 +2160,30 @@ CASES = [
 CASE_BY_ID = {c["id"]: c for c in CASES}
 
 
-def case_card(c):
-    """One slide in the /our-work/ carousel. A button, not a link: clicking one
-    reveals that case's full write-up inline below the carousel (see
-    CAROUSEL_JS) instead of navigating to a page, so there is no href/id
-    collision with the matching CASE_BODY section's own id."""
-    name = c["name"]
-    if c["still"]:
-        src = asset(os.path.join(P, c["still"]), "image/jpeg")
-        art = (f'<img src="{src}" alt="{name}" width="640" height="360" '
-               f'loading="lazy" decoding="async">')
-    elif c["logo"]:
-        src = asset(os.path.join(S, "logos", c["logo"]), "image/png")
-        art = (f'<span class="cc-logo"><img src="{src}" alt="{name}" width="500" height="200" '
-               f'loading="lazy" decoding="async"></span>')
-    else:
-        art = '<span class="cc-num">' + c["metric"] + '</span>'
-    return (f'<button type="button" class="ccard" data-case="{c["id"]}" '
-            f'aria-controls="{c["id"]}">'
-            f'<span class="cc-art">{art}</span>'
-            f'<span class="cc-body">'
-            f'<span class="cc-vert">{c["vertical"]}</span>'
-            f'<span class="cc-name">{c["name"]}</span>'
-            f'<span class="cc-blurb">{c["blurb"]}</span>'
-            f'<span class="cc-metric"><b>{c["metric"]}</b> {c["mlabel"]}</span>'
-            f'<span class="cc-go">See the case &darr;</span>'
-            f'</span></button>')
+# The still each case card leads with. Handyman Dan uses its 1200px OG frame, which
+# holds up at the card's 2x size; A1 has no still, so it gets the data panel.
+CASE_TILE_STILL = {"handyman": f"{S}/og/og-handyman.jpg", "allheart": f"{P}/ah1.jpg"}
 
-CASE_INDEX = "\n".join(case_card(c) for c in CASES)
-# How many cards are on screen at once: three from 960px, two from 620px (see
-# .ccard). If every case fits at one of those widths the arrows and dots are
-# hidden there, since there is nothing left to scroll to.
-CAROUSEL_FIT = " ".join(c for c, n in (("fits-3", 3), ("fits-2", 2)) if len(CASES) <= n)
-CAROUSEL_FIT = (" " + CAROUSEL_FIT) if CAROUSEL_FIT else ""
-CASE_DOTS = "\n".join(f'<button type="button" class="car-dot" data-case="{c["id"]}" '
-                       f'aria-label="{c["name"]}"></button>' for c in CASES)
+
+def case_tile(c, lead=False):
+    """One card in the /our-work case grid (D5)."""
+    metric = f'<span class="cg-metric"><b>{c["metric"]}</b><span>{c["mlabel"]}</span></span>'
+    still = CASE_TILE_STILL.get(c["id"])
+    if still:
+        src = asset(still, "image/jpeg")
+        art = (f'<span class="cg-art has-still"><img src="{src}"{dims(still)} alt="" '
+               f'loading="lazy" decoding="async">{metric}</span>')
+    else:
+        art = (f'<span class="cg-art cg-data"><span class="cg-top">{metric}'
+               f'<span class="cg-line">Seven reels past 100,000 views for a Tucson HVAC company '
+               f'with 9,200 followers.</span></span>{a1_chart(dark=True, decorative=True)}</span>')
+    return (f'<a class="cgcard{" is-lead" if lead else ""}" href="#{c["id"]}">{art}'
+            f'<span class="cg-body"><span class="cg-vert">{c["vertical"]}</span>'
+            f'<span class="cg-name">{c["name"]}</span>'
+            f'<span class="cg-go">See the case &darr;</span></span></a>')
+
+
+CASE_GRID = "\n".join(case_tile(c, lead=(i == 0)) for i, c in enumerate(CASES))
 
 
 
@@ -2527,15 +2427,8 @@ html = f"""<title>Selected work, Home Service Studios</title>
     <p class="eyebrow">Case studies</p>
     <h2 class="display">Three clients, three kinds of proof</h2>
   </div>
-  <div class="carousel{CAROUSEL_FIT}">
-    <button type="button" class="car-arrow car-prev" aria-label="Previous client">{ARROW_LEFT}</button>
-    <div class="car-viewport"><div class="ccards">
-{CASE_INDEX}
-    </div></div>
-    <button type="button" class="car-arrow car-next" aria-label="Next client">{ARROW_RIGHT}</button>
-  </div>
-  <div class="car-dots{CAROUSEL_FIT}">
-{CASE_DOTS}
+  <div class="cgrid">
+{CASE_GRID}
   </div>
 </div></section>
 
@@ -2553,7 +2446,7 @@ html = f"""<title>Selected work, Home Service Studios</title>
 {SOLO_JS}
 {NAV_JS}
 {MOTION_JS}
-{CAROUSEL_JS}
+{CASES_JS}
 """
 
 # ---- packages page --------------------------------------------------------
