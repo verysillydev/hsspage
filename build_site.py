@@ -3349,8 +3349,12 @@ HOME_SPOTS = [(_SPOT_BY_YT[yt][0], who, _SPOT_BY_YT[yt][2], _SPOT_BY_YT[yt][3], 
               for who, yt in (("All Heart", "zaCFfVetfFI"), ("All Heart", "TPDZ-OvRNgc"),
                               ("Handyman Dan", "AfkePSa8XLU"))]
 
-DOORS_STILL = (f'<img class="doors-bg" src="{asset(f"{P}/quality1.jpg", "image/jpeg")}"'
-               f'{dims(f"{P}/quality1.jpg")} alt="" loading="lazy" decoding="async">')
+# The doors band's background (homepage and /team): a frame of All Heart's "The Quote"
+# (spots/ah10.mp4 at 4.5s, 1280x720 WebP), a technician and a homeowner beside the condenser.
+# It was the Tulsa aerial (post/quality1.jpg) until release 8, which repeated the brand
+# film's poster a screen above; that still now appears only as the film's poster.
+DOORS_STILL = (f'<img class="doors-bg" src="{asset(f"{P}/doors-allheart.webp", "image/webp")}"'
+               f'{dims(f"{P}/doors-allheart.webp")} alt="" loading="lazy" decoding="async">')
 
 HOME_HTML = f"""<title>Home Service Studios</title>
 {FONT_CSS}
