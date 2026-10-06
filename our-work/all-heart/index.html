@@ -264,15 +264,20 @@
   @keyframes marq{from{transform:translateX(0);}to{transform:translateX(-50%);}}
   .marquee .logomark{width:150px;flex:none;}
   @media(min-width:700px){.marquee .logomark{width:190px;}}
+  /* The static wall (phones, reduced motion) wraps and centres its last row, so
+     any number of marks works: CLIENT_LOGOS changes as clients come and go
+     (13 after R10, more on the way), and a fixed 3- or 5-column grid left an
+     orphan in the corner whenever the count did not divide evenly. */
   @media(max-width:759px),(prefers-reduced-motion:reduce){
     .marquee{-webkit-mask-image:none;mask-image:none;}
-    .marquee-track{animation:none;transform:none;width:auto;display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5);}
-    .marquee .logomark{width:auto;}
+    .marquee-track{animation:none;transform:none;width:auto;display:flex;flex-wrap:wrap;
+      justify-content:center;gap:var(--s5);}
+    .marquee .logomark{width:calc((100% - 2 * var(--s5)) / 3);}
     .marquee .dupe{display:none;}
   }
   @media(min-width:760px) and (prefers-reduced-motion:reduce){
-    .marquee-track{grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--s6) var(--s7);}
+    .marquee-track{gap:var(--s6) var(--s7);}
+    .marquee .logomark{width:calc((100% - 4 * var(--s7)) / 5);}
   }
   /* the marks are single-colour --ink silhouettes, so on the ink band they
      are simply inverted to a light grey rather than regenerated */
@@ -303,8 +308,29 @@
   .a1chart{width:100%;height:auto;display:block;}
   /* The A1 chart on its case page is HTML, not SVG: its numbers and labels are
      real text in the page's own faces. An inline SVG with <text> made Archivo
-     700 miss font-display:optional's window (see a1_chart). --plot is the
+     700 miss font-display:optional's window (see a1_bars). --plot is the
      tallest bar; every bar is a fraction of it. */
+  /* before/after comparison on the Bee Right There and iComfort pages (R4) */
+  .ba{display:flex;flex-direction:column;gap:var(--s5);}
+  .ba-k{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s3);
+    margin:0 0 var(--s2);font-weight:650;font-size:var(--f-body);color:var(--ink);}
+  .ba-chg{font-family:var(--display);font-weight:700;font-size:var(--f-h4);color:var(--orange-text);
+    font-variant-numeric:tabular-nums;}
+  .ba-line{display:grid;grid-template-columns:7.5em minmax(0,1fr);align-items:center;
+    column-gap:var(--s3);margin:3px 0;font-size:var(--f-sm);}
+  /* phones: the date sits above its bar, so the bar gets the full width */
+  @media(max-width:559px){.ba-line{grid-template-columns:minmax(0,1fr);margin:var(--s1) 0;}}
+  .ba-when{font-size:var(--f-micro);color:var(--ink-2);line-height:1.3;}
+  .ba-track{display:flex;align-items:center;gap:var(--s2);min-width:0;}
+  .ba-bar{flex:none;height:16px;width:calc(var(--w) * (100% - 4.5em));min-width:3px;
+    background:rgba(var(--cyan-rgb),.55);border-radius:0 var(--r-sm) var(--r-sm) 0;}
+  .ba-line.is-after .ba-bar{background:var(--orange);}
+  .ba-v{font-family:var(--display);font-weight:700;font-size:var(--f-sm);color:var(--ink);
+    white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .case-why{margin-top:var(--s7);padding-top:var(--s5);border-top:1px solid var(--line);
+    max-width:68ch;}
+  .case-close{margin:var(--s2) 0 0;font-size:var(--f-lead);line-height:1.5;color:var(--ink);}
+  .case-src{margin:var(--s4) 0 0;font-size:var(--f-sm);color:var(--ink-2);}
   .a1bars{--plot:150px;}
   .a1plot{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
     gap:var(--s1);align-items:end;height:calc(var(--plot) + 2em);padding-right:3em;
@@ -440,38 +466,30 @@
      real still with the big metric over it under a dark scrim; A1 has no still
      (its reels are on Facebook), so its lead card shows the real numbers on ink
      instead of invented art. No arrows, no dots. */
-  .cgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s4);}
-  @media(min-width:900px){
-    .cgrid{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);}
-    .cgcard.is-lead{grid-row:span 2;}
-  }
-  .cgcard{display:flex;flex-direction:column;background:var(--ground-2);border-radius:var(--r-md);
-    overflow:hidden;text-decoration:none;color:inherit;transition:transform var(--ease);}
-  .cgcard:hover{transform:translateY(-2px);}
-  .cgcard.is-active{outline:2px solid var(--orange-text);outline-offset:-2px;}
-  .cg-art{position:relative;display:block;aspect-ratio:16/9;background:#14171A;overflow:hidden;}
-  .cg-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
-  .cg-art.has-still::after{content:"";position:absolute;inset:0;
-    background:linear-gradient(180deg,rgba(20,23,26,0) 35%,rgba(20,23,26,.9) 100%);}
-  .cg-metric{position:absolute;left:var(--s5);right:var(--s5);bottom:var(--s4);z-index:1;
-    display:flex;flex-direction:column;gap:2px;}
-  .cg-metric b{font-family:var(--display);font-weight:900;font-size:var(--f-h1);line-height:1;
-    letter-spacing:-.02em;color:var(--orange);font-variant-numeric:tabular-nums;}
-  .cg-metric span{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;
-    font-family:var(--mono);color:#D8D3C9;}
-  .cg-data{display:flex;flex-direction:column;justify-content:space-between;gap:var(--s6);
-    padding:var(--s6) var(--s5) var(--s5);aspect-ratio:auto;flex:1;}
-  .cg-data .cg-metric{position:static;}
-  .cg-top{display:flex;flex-direction:column;gap:var(--s4);}
-  .cg-line{font-size:var(--f-lead);line-height:1.45;color:#D8D3C9;max-width:30ch;}
-  .cg-data .cg-metric b{font-size:var(--f-mega);}
-  .cg-data .a1chart{width:100%;height:auto;display:block;}
-  .cg-body{display:flex;flex-direction:column;gap:var(--s1);padding:var(--s4) var(--s5) var(--s5);}
-  .cg-vert{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
+  .pgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s4);}
+  @media(min-width:760px){.pgrid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  .pcard{position:relative;display:flex;flex-direction:column;gap:var(--s3);
+    padding:var(--s6) var(--s5) var(--s5);border-radius:var(--r-md);transition:transform var(--ease);}
+  .pcard:hover{transform:translateY(-2px);}
+  .pcard:focus-within{outline:2px solid var(--orange);outline-offset:3px;}
+  .pcard p{margin:0;}
+  .pc-tag{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
     font-size:var(--f-sm);color:var(--cyan-text);}
-  .cg-name{font-family:var(--display);font-size:var(--f-h3);font-weight:700;
-    letter-spacing:var(--t-head);line-height:1.15;}
-  .cg-go{margin-top:var(--s2);font-size:var(--f-sm);font-weight:650;color:var(--orange-text);}
+  .pcard h3{margin:0;font-family:var(--display);font-weight:700;font-size:var(--f-h3);
+    line-height:1.2;letter-spacing:var(--t-head);color:var(--ink);max-width:24ch;}
+  .pc-metric{display:flex;flex-direction:column;gap:var(--s1);margin-top:var(--s3) !important;}
+  .pc-metric b{font-family:var(--display);font-weight:900;font-size:var(--f-mega);line-height:1;
+    letter-spacing:-.02em;color:var(--orange);font-variant-numeric:tabular-nums;}
+  .pc-metric span{font-size:var(--f-body);color:var(--ink-2);line-height:1.45;max-width:34ch;}
+  .pc-who{margin-top:auto !important;padding-top:var(--s4);border-top:1px solid var(--line);
+    font-size:var(--f-sm);color:var(--ink-3);}
+  .pc-go{align-self:flex-start;display:inline-flex;align-items:center;min-height:24px;
+    font-size:var(--f-sm);font-weight:650;color:var(--orange-text);text-decoration:none;}
+  .pc-go::after{content:"";position:absolute;inset:0;}
+  .pc-go:focus-visible{outline:none;}
+  /* visually hidden text, still read by screen readers */
+  .vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+    clip:rect(0 0 0 0);white-space:nowrap;border:0;}
 
   /* case pages (N1): breadcrumbs in the dark hero, a prev/next chain at the foot */
   .crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:0 var(--s2);margin:0 0 var(--s4);
@@ -759,6 +777,8 @@
   /* the outcome column carries the secondary hue so results read apart from setup */
   .csi div:nth-child(3) h3{color:var(--cyan-text);}
   .csi p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
+  .csi p.csi-lead{margin:0 0 var(--s2);font-family:var(--display);font-weight:700;
+    font-size:var(--f-h4);line-height:1.3;color:var(--ink);}
 
   /* Ruled ledger, not bordered cards: same technique as the hero .stats row
      (gap:1px on a --line background, each cell its own --ground fill), so a
@@ -789,17 +809,56 @@
     letter-spacing:var(--t-head);line-height:1.2;}
   .proof .who{margin:0;font-size:var(--f-sm);color:var(--ink-3);}
   .proof .pm{margin:var(--s2) 0 0;display:flex;flex-direction:column;gap:2px;}
-  .proof .pn{font-family:var(--display);font-size:var(--f-h2);font-weight:700;
+  /* .pfig, not .pn: .pn is the case pages' prev/next link, whose padding and
+     background were leaking onto this figure (and its scroll reveal) */
+  .proof .pfig{font-family:var(--display);font-size:var(--f-h2);font-weight:700;
     color:var(--orange-text);letter-spacing:-.012em;line-height:1.05;
     font-variant-numeric:tabular-nums;}
   .proof .pl{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;
     color:var(--ink-3);font-family:var(--mono);}
   .proof p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
-  .proof .when{margin-top:auto;padding-top:var(--s3);border-top:1px solid var(--line);
-    font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.05em;
-    font-size:var(--f-sm);color:var(--cyan-text);}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:var(--s5);}
+  /* subheads inside a section (More work, the homepage spots row) */
+  .subhead{margin:var(--s7) 0 var(--s4);font-family:var(--display);font-size:var(--f-h3);
+    font-weight:700;letter-spacing:var(--t-head);line-height:1.15;}
+  .sec-head + .subhead{margin-top:0;}
+  /* More work: the Handyman Dan campaign block (R14) */
+  .mw-eyebrow + .subhead{margin-top:var(--s2);}
+  .mw-body{margin:0;max-width:62ch;font-size:var(--f-lede);line-height:1.55;color:var(--ink-2);}
+  .mw-stat{margin:var(--s5) 0 0;display:flex;flex-direction:column;gap:var(--s1);max-width:40ch;}
+  .mw-stat b{font-family:var(--display);font-weight:900;font-size:var(--f-mega);line-height:1;
+    letter-spacing:-.02em;color:var(--orange-text);}
+  .mw-stat span{font-size:var(--f-body);line-height:1.45;color:var(--ink);}
+  .mw-note{margin:var(--s2) 0 var(--s5);font-size:var(--f-sm);color:var(--ink-2);max-width:62ch;}
+  /* a row of spots: three across from 760px (six make two even rows), and a
+     horizontal swipe strip on phones so six cards do not stack 1,700px tall */
+  /* any count: one row from 1100px when there are five, otherwise rows of three
+     with the last row centred, so a short row never sits in a corner */
+  .strip{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--s4);}
+  .strip > .spot{flex:0 0 calc((100% - 2 * var(--s4)) / 3);}
+  @media(min-width:1100px){.strip.five > .spot{flex-basis:calc((100% - 4 * var(--s4)) / 5);}}
+  @media(max-width:759px){
+    .strip{display:flex;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;
+      scroll-snap-type:x mandatory;gap:var(--s3);padding-bottom:var(--s2);scrollbar-width:thin;}
+    .strip > .spot{flex:0 0 80%;scroll-snap-align:start;}
+  }
+  .proofs-one{background:none;}
+  .proofs-one .proof{background:var(--ground-2);border-radius:var(--r-md);}
+  /* --ink-3 on --ground-2 is 4.32:1; the small labels need --ink-2 here */
+  .proofs-one .proof .who,.proofs-one .proof .pl{color:var(--ink-2);}
+  @media(min-width:900px){.proofs-one{grid-template-columns:minmax(0,2fr) minmax(0,1fr);}}
+  .fp{width:100%;border-collapse:collapse;margin:var(--s2) 0;font-size:var(--f-sm);}
+  .fp th,.fp td{text-align:left;padding:var(--s2) var(--s2) var(--s2) 0;
+    border-bottom:1px solid var(--line);vertical-align:top;}
+  .fp thead th{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.05em;
+    font-weight:700;color:var(--ink-2);}
+  .fp tbody th{font-weight:650;color:var(--ink);}
+  .fp td{color:var(--ink-2);font-variant-numeric:tabular-nums;}
+  .fp td:last-child{color:var(--ink);font-weight:650;}
+  .proof .fp-note{font-size:var(--f-sm);color:var(--ink-2);}
+  .proof h4{margin:0;font-family:var(--display);font-size:var(--f-h4);font-weight:700;
+    letter-spacing:var(--t-head);line-height:1.2;}
   .spot{background:var(--panel);border-radius:var(--r-md);
     overflow:hidden;display:flex;flex-direction:column;}
   .spot video{width:100%;display:block;background:#000;aspect-ratio:16/9;object-fit:cover;}
@@ -872,9 +931,6 @@
   .reel .l{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
     font-family:var(--mono);}
 
-  /* label row above a grid of clips (the homepage "Commercial spots") */
-  .shorts-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s4);
-    flex-wrap:wrap;margin:var(--s7) 0 var(--s4);}
   /* Written for the old title cards and kept because it is what gives the
      click-to-play spot button its 46x32 shape: it overrides the circle above. */
   .ytplay{position:absolute;left:50%;top:50%;width:46px;height:32px;margin:-16px 0 0 -23px;
@@ -897,11 +953,6 @@
   .band-head{display:flex;flex-direction:column;gap:var(--s2);margin-bottom:0;}
   .band-head h2{font-size:var(--f-h2);}
   .band-head p{margin:0;color:var(--ink-2);font-size:var(--f-body);max-width:62ch;line-height:1.58;}
-  /* this one lede only: the reels row right below it now runs the full
-     .wrap width (7-across fix), and a 62ch paragraph above a full-width
-     row read as narrow/awkward next to it. Every other .band-head keeps
-     the 62ch measure. */
-  .band-head.full-lede p{max-width:none;}
 
   /* 2026-08-24: bold pass. Each program group reads as a filed folder, a colored
      tab above a lighter body, rather than a plain heading. The cut top-right
@@ -1027,7 +1078,7 @@
   .ob-n{font-family:var(--display);font-weight:700;color:var(--orange-text);font-size:var(--f-sm);
     font-variant-numeric:tabular-nums;}
   .ob-t{font-weight:650;font-size:var(--f-body);color:var(--ink);line-height:1.3;}
-  .ob-d{grid-column:2;font-size:var(--f-sm);color:var(--ink-2);line-height:1.45;}
+  .ob-note{margin:var(--s3) 0 0;font-size:var(--f-sm);color:var(--ink-2);max-width:62ch;}
 
   .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3);}
   .step2{background:var(--panel);border-radius:var(--r-sm);
@@ -1072,7 +1123,6 @@
     .edia{max-width:220px;}
     .ob{grid-template-columns:repeat(2,minmax(0,1fr));}
     .ob li{display:flex;flex-direction:column;gap:2px;padding:var(--s3);}
-    .reel{padding:var(--s3);}
   }
 
   .incl{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
@@ -1245,7 +1295,7 @@
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span>
     <a href="/our-work/">Work</a><span aria-hidden="true">/</span>
     <span aria-current="page">All Heart</span></nav>
-  <p class="eyebrow">Case 03 &middot; Home services &middot; Campaign</p>
+  <p class="eyebrow">Case 04 &middot; Home services &middot; Campaign</p>
   <h1 class="display">All Heart.<br><span class="hl">Ten spots, one shoot.</span></h1>
   <p class="sub">We wrote and produced a <strong>ten-spot campaign in a single production block</strong>. One premise carries the whole package: the contractor you want versus the contractor you got.</p>
   <div class="role"><span class="lbl">Our role</span><span class="pill">Writer</span><span class="pill">Producer</span></div>
@@ -1253,8 +1303,8 @@
 
 <section><div class="wrap">
   <div class="sec-head"><h2 class="display">How it worked</h2></div>
-  <div class="csi"><div><h3>The challenge</h3><p>Fill a year of paid and organic inventory for a brand with no library and no appetite for repeat shoot days.</p></div><div><h3>The solution</h3><p>Write one comic premise strong enough to sustain ten spots, then shoot the entire campaign in one block so the cost lands once.</p></div><div><h3>The impact</h3><p>Ten finished spots from a single production, delivered complete and in scope.</p></div></div>
-  <div class="ops"><div class="op"><span class="n">10</span><span class="k">Spots delivered</span></div><div class="op"><span class="n">1</span><span class="k">Production block</span></div><div class="op"><span class="n">11</span><span class="k">Shot list sheets</span></div><div class="op"><span class="n">100%</span><span class="k">Scope delivered</span></div></div>
+  <div class="csi"><div><h3>The problem</h3><p class="csi-lead">No video library, and no appetite for repeat shoot days.</p><p>Fill a year of paid and organic inventory for a brand with no library and no appetite for repeat shoot days.</p></div><div><h3>What we changed</h3><p>Write one comic premise strong enough to sustain ten spots, then shoot the entire campaign in one block so the cost lands once.</p></div><div><h3>What happened</h3><p>Ten finished spots from a single production, delivered complete and in scope.</p></div></div>
+  <div class="ops"><div class="op"><span class="n">10</span><span class="k">Spots</span></div><div class="op"><span class="n">1</span><span class="k">Production block</span></div><div class="op"><span class="n">3</span><span class="k">Cut lengths: 15, 30 and 42 seconds</span></div></div>
 </div></section>
 
 <section><div class="wrap">
@@ -1271,13 +1321,14 @@
 <article class="spot"><div class="ytspot" data-yt="COEbLTt42FI" data-title="Universe is Talking"><img src="/our-work/a/COEbLTt42FI.webp" width="700" height="394" alt="" loading="lazy"><button type="button" class="ytplay" aria-label="Play Universe is Talking"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div><div class="meta"><span class="sc">09</span><span class="nm">Universe is Talking</span><span class="du">0:30</span></div></article>
 <article class="spot"><div class="ytspot" data-yt="unFCPL3Cw5o" data-title="The Quote"><img src="/our-work/a/unFCPL3Cw5o.webp" width="700" height="394" alt="" loading="lazy"><button type="button" class="ytplay" aria-label="Play The Quote"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button></div><div class="meta"><span class="sc">10</span><span class="nm">The Quote</span><span class="du">0:42</span></div></article>
   </div>
+  
 </div></section>
 
 <section><div class="wrap">
-  <div class="pnrow"><a class="pn prev" href="/our-work/handyman-dan/"><span class="pn-l">Previous case</span><span class="pn-n">Handyman Dan</span></a></div>
+  <div class="pnrow"><a class="pn prev" href="/our-work/icomfort/"><span class="pn-l">Previous case</span><span class="pn-n">iComfort</span></a></div>
   <div class="ctarow">
     <a class="cta" href="/contact/#start">Start a project</a>
-    <a class="cta ghost" href="/our-work/">All three case studies</a>
+    <a class="cta ghost" href="/our-work/">All case studies</a>
   </div>
   <p class="reassure">Under a minute and six questions. A real person answers within one business day, about your market rather than with a template.</p>
 </div></section>
@@ -1337,7 +1388,7 @@
 
   /* (a) scroll reveals ---------------------------------------------------- */
   if(!reduce && 'IntersectionObserver' in window){
-    var SEL = '.sec-head,.cgcard,.benefit,.engine,.pkg,.csi > div,.op,.spot,.reel,' +
+    var SEL = '.sec-head,.pcard,.benefit,.engine,.pkg,.csi > div,.op,.spot,.reel,' +
               '.step2,.door,.always,.incl,.pn,.band-head,.lead,.member';
     var vh = window.innerHeight || 800;
     var targets = [].slice.call(document.querySelectorAll(SEL)).filter(function(e){
@@ -1380,7 +1431,8 @@
   }
 
   /* (b) count up ---------------------------------------------------------- */
-  var nums = [].slice.call(document.querySelectorAll('.stat .n, .op .n, .reel .vnum'));
+  var nums = [].slice.call(document.querySelectorAll('.stat .n, .op .n, .reel .vnum'))
+    .filter(function(e){ return !e.hasAttribute('data-static'); });
   if(nums.length && !reduce && 'IntersectionObserver' in window){
     /* thousands separators count too: a figure like +1,680 (or any price on
        the ladder) used to parse as 1 followed by ",680", so it counted 0 to 1
