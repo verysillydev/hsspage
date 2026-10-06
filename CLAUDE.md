@@ -192,7 +192,8 @@ timed poster hold (load delay, previously rejected) or self-hosting the loop.
 
 Top to bottom: the hero (headline, lede, the four-cell ledger: A1, Bee Right There, iComfort, and
 "Our Brands" with `ROSTER_COUNT`, sub-label "Clients across the country"), **Our Clients** (the logo marquee, `#roster`), **What We Do**
-(`#what-we-do`, warm white `--ground-2`), the two doors (portfolio, packages) and the footer. The
+(`#what-we-do`, warm white `--ground-2`), **From a client** (`#from-a-client`, the testimonial,
+see below), the two doors (portfolio, packages) and the footer. The
 old "Proven results with real data" section (A1 lede, A1 reel strip, the commercial spots row, the
 "All case studies" link and case note) and the "Known and trusted before they need you." packages
 section (lede, six-price strip, its button row) were removed in release 8; the homepage carries no
@@ -223,6 +224,26 @@ title, short-sentence copy, a link or button, then media, with a hairline betwee
   close-up, so play cuts from the wide shot). `None` renders the block without media, with the
   caption under the link. **Never swap in another Service MVP episode pulled from YouTube without
   the owner**: the latest one was rejected.
+
+## Testimonials (release 8, 2026-10-06)
+
+**Testimonial quotes are verbatim and are never edited**: not tidied, shortened, re-punctuated or
+"improved". The only one so far is Mike, owner of Bee Right There Heating & Air (no surname; we
+do not have it), from the Service MVP podcast (YouTube `WoQBaTu2K28`, **32:56 to 34:29**, the
+clip `spots/mike-testimonial.mp4`, 1:33). The pull quote is the text the owner supplied, in
+`TESTIMONIAL_QUOTE`; the audio and captions say "We would we would get to...", and the supplied
+quote leaves out the repeated words. Its captions, `spots/mike-testimonial.vtt`, were built from
+YouTube's auto-captions and time-aligned to the clip. `testimonial()` renders the video with the
+quote beside it from 900px and below it on phones; it appears on the homepage ("From a client",
+after What We Do, with "Read the Bee Right There case") and on the Bee Right There case page ("In
+Mike's words", between How it worked and the chart).
+
+Captions: `vspot_media(..., captions=...)` adds a `<track kind="captions" srclang="en"
+label="English">`, and the build checks that the .vtt exists, is WebVTT and ends within the film.
+**The track is deliberately not `default`:** Chrome fetches a default track at page load even
+under `preload="none"` (measured: one .vtt per page), so it ships disabled and `SOLO_JS` turns it
+on when the film first plays. Captions then show while it plays muted. They use the site font on
+a solid scrim (`::cue`), and on a captioned film the sound hint moves to the top corner.
 
 ## Client logo wall
 

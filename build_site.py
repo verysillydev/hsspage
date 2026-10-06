@@ -1198,6 +1198,23 @@ CSS = """<style>
     .igrow > .ig{flex:0 0 78%;scroll-snap-align:start;}
   }
   .wwd-film .vspot{border-radius:var(--r-md);}
+  /* testimonial (release 8): video with the pull quote beside it from 900px,
+     below it on phones */
+  .tmn{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s6);align-items:center;}
+  @media(min-width:900px){.tmn{grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:var(--s7);}}
+  .tmn-media .vspot{border-radius:var(--r-md);}
+  .tmn-quote{margin:0;}
+  .tmn-quote blockquote{margin:0;padding-left:var(--s5);border-left:3px solid var(--orange);}
+  .tmn-quote p{margin:0;font-family:var(--display);font-weight:600;font-size:var(--f-h3);
+    line-height:1.3;letter-spacing:var(--t-head);color:var(--ink);}
+  .tmn-quote figcaption{margin-top:var(--s4);padding-left:var(--s5);font-size:var(--f-sm);
+    color:var(--ink-2);}
+  .tmn-link{margin-top:var(--s5);}
+  /* captions: the site face on a solid scrim, and the sound hint moves to the top
+     corner so it never sits on a caption line */
+  .vspot video::cue{font-family:'Onest',-apple-system,sans-serif;color:#fff;
+    background:rgba(15,18,20,.82);line-height:1.35;}
+  .vspot.has-cc .vsnd{top:var(--s2);bottom:auto;}
   .wwd-cap{margin:var(--s3) 0 0;display:flex;justify-content:space-between;align-items:baseline;
     gap:var(--s3);font-size:var(--f-sm);color:var(--ink-2);}
   .wwd-cap .du{font-family:var(--mono);flex:none;}
@@ -1846,6 +1863,11 @@ SOLO_JS = """<script>
         state('idle');
       }
       function play(withSound, fromStart){
+        /* captions: the track ships disabled so nothing loads with the page;
+           showing it here fetches it, and it stays on for every later play */
+        if(v.textTracks && v.textTracks.length && v.textTracks[0].mode !== 'showing'){
+          v.textTracks[0].mode = 'showing';
+        }
         if(fromStart){ try { v.currentTime = 0; } catch(err){} }
         v.muted = !withSound;
         state(withSound ? 'sound' : 'muted');
@@ -2384,11 +2406,27 @@ assert "__FORM_TO__" not in FORM_JS, "form failover address was not substituted"
 SPOT_DIR = f"{S}/spots"
 
 
-def vspot_media(fn, du, poster_path, title):
-    """The hover-play picture shared by the spot cards and the homepage brand film:
-    <video preload="none" playsinline> from spots/ under a lazy poster <img>, the
-    whole picture one <button>. Behaviour lives in SOLO_JS. The duration label is
-    checked against the file, and mp4_info() refuses a file that is not faststart."""
+def vtt_end(path):
+    """End time in seconds of the last cue in a WebVTT file (stdlib only)."""
+    t = pathlib.Path(path).read_text(encoding="utf-8")
+    assert t.startswith("WEBVTT"), f"{path}: not a WebVTT file"
+    ends = re.findall(r"--> (\d+):(\d\d):(\d\d)\.(\d{3})", t)
+    assert ends, f"{path}: no cues"
+    hh, mm, ss, ms = (int(x) for x in ends[-1])
+    return hh * 3600 + mm * 60 + ss + ms / 1000
+
+
+def vspot_media(fn, du, poster_path, title, captions=None):
+    """The hover-play picture shared by the spot cards, the homepage brand and podcast
+    films and the testimonial: <video preload="none" playsinline> from spots/ under a
+    lazy poster <img>, the whole picture one <button>. Behaviour lives in SOLO_JS. The
+    duration label is checked against the file, and mp4_info() refuses a file that is
+    not faststart. captions: a WebVTT file in spots/; the build checks it exists, is
+    WebVTT and ends within the film. The <track> is deliberately not `default`:
+    Chrome fetches a default track at page load even under preload="none" (measured,
+    release 8), so it starts disabled and SOLO_JS shows it when the film first
+    plays, which is when the browser fetches it; captions then show while it plays
+    muted."""
     path = os.path.join(SPOT_DIR, fn)
     w, h, secs = mp4_info(path)
     assert f"{int(secs) // 60}:{int(secs) % 60:02d}" == du, \
@@ -2396,9 +2434,17 @@ def vspot_media(fn, du, poster_path, title):
     src = asset(path, "video/mp4")
     poster = asset(poster_path, "image/webp" if poster_path.endswith(".webp") else "image/jpeg")
     t = html_lib.escape(title, quote=True)
-    return (f'<div class="vspot" data-state="idle">'
+    track, cc = "", ""
+    if captions:
+        vtt = os.path.join(SPOT_DIR, captions)
+        assert os.path.exists(vtt), f"{fn} declares captions but {captions} is missing"
+        assert vtt_end(vtt) <= secs + 0.5, f"{captions} runs past the end of {fn}"
+        track = (f'<track kind="captions" srclang="en" label="English" '
+                 f'src="{asset(vtt, "text/vtt")}">')
+        cc = " has-cc"
+    return (f'<div class="vspot{cc}" data-state="idle">'
             f'<video src="{src}" preload="none" playsinline width="{w}" height="{h}" '
-            f'aria-hidden="true"></video>'
+            f'aria-hidden="true">{track}</video>'
             f'<img src="{poster}"{dims(poster_path)} alt="" loading="lazy" decoding="async">'
             f'<button type="button" class="vplay" aria-label="Play {t}" data-title="{t}">'
             f'<span class="vglyph">{PLAY_ICON}</span>'
@@ -2820,6 +2866,7 @@ CASE_PAGE = {
                  ("7.9x", "Likes, comments, shares and saves"),
                  ("3.7x", "New followers"),
                  (BRT_REEL_SHORT, "Views on one reel", BRT_REEL_URL, BRT_REEL_LABEL)]),
+        testimonial=True,
         proof_head="Same schedule, different ideas",
         proof=before_after(
             "24% more posts. 3.8 times the views.",
@@ -3369,6 +3416,34 @@ def podcast_media():
             f'<span class="du">{du}</span></p></div>')
 
 
+# ---- Testimonial (release 8, F) ----------------------------------------------
+# Mike, owner of Bee Right There Heating & Air, on the Service MVP podcast (YouTube
+# WoQBaTu2K28, 32:56 to 34:29). Captions are built from YouTube's auto-captions and
+# time-aligned to the clip. The pull quote is his words verbatim and is NEVER edited;
+# no surname (we do not have it).
+TESTIMONIAL_VIDEO = ("mike-testimonial.mp4", f"{P}/mike-testimonial.webp", "1:33",
+                     "mike-testimonial.vtt")
+TESTIMONIAL_QUOTE = ("We would get to the customer&#39;s home and it was like they already made "
+                     "their mind up that they were going to purchase from us.")
+TESTIMONIAL_BY = "Mike, owner, Bee Right There Heating &amp; Air, Atascadero, CA"
+
+
+def testimonial():
+    """The video with the pull quote beside it (desktop) or below it (phones)."""
+    fn, poster_path, du, vtt = TESTIMONIAL_VIDEO
+    if MODE == "web":
+        media = vspot_media(fn, du, poster_path, "Mike from Bee Right There on working with us",
+                            captions=vtt)
+    else:
+        media = (f'<div class="vspot"><img src="{asset(poster_path, "image/webp")}"'
+                 f'{dims(poster_path)} alt="" loading="lazy"></div>')
+    return (f'<div class="tmn"><div class="tmn-media">{media}'
+            f'<p class="wwd-cap"><span>On the Service MVP podcast.</span>'
+            f'<span class="du">{du}</span></p></div>'
+            f'<figure class="tmn-quote"><blockquote><p>&ldquo;{TESTIMONIAL_QUOTE}&rdquo;</p>'
+            f'</blockquote><figcaption>{TESTIMONIAL_BY}</figcaption></figure></div>')
+
+
 # three spots that carry the range: two premises from All Heart, one from Handyman Dan.
 # Looked up by YouTube id, so the file, title and duration always match the lists.
 _SPOT_BY_YT = {x[4]: x for x in allheart + handyman}
@@ -3483,6 +3558,14 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <a class="wwd-link" href="{PODCAST_EPISODE_URL}">Watch the full episode&nbsp;&rarr;</a>
     {podcast_media()}
   </div>
+</div></section>
+
+<section id="from-a-client" class="tmn-section"><div class="wrap">
+  <div class="sec-head">
+    <h2 class="display">From a client</h2>
+  </div>
+  {testimonial()}
+  <a class="wwd-link tmn-link" href="{case_url("beerightthere")}">Read the Bee Right There case&nbsp;&rarr;</a>
 </div></section>
 
 <section class="doors-section">{DOORS_STILL}<div class="wrap">
@@ -3873,7 +3956,12 @@ def case_page(i):
                f'<p class="case-close">{d["close"]}</p>'
                + (f'<p class="case-src">{d["source"]}</p>' if d.get("source") else "")
                + '</div>')
-    spot_js = SOLO_JS if 'class="vspot"' in d["proof"] else ""
+    tmn = ""
+    if d.get("testimonial"):
+        tmn = ('<section class="tmn-section"><div class="wrap">\n'
+               '  <div class="sec-head"><h2 class="display">In Mike&#39;s words</h2></div>\n'
+               f'  {testimonial()}\n</div></section>\n')
+    spot_js = SOLO_JS if ('class="vspot' in d["proof"] or tmn) else ""
     page = f"""<title>{c["name"]}</title>
 {FONT_CSS}
 {CSS}
@@ -3897,7 +3985,7 @@ def case_page(i):
   {d["ops"]}
 </div></section>
 
-<section><div class="wrap">
+{tmn}<section><div class="wrap">
   <div class="sec-head"><h2 class="display">{d["proof_head"]}</h2></div>
   {d["proof"]}
   {why}
@@ -4006,7 +4094,7 @@ def validate(page, label):
         r'<a \1 target="_blank" rel="noopener noreferrer">',
         page,
     )
-    if 'class="vspot"' in page:
+    if 'class="vspot' in page:
         assert "spotstop" in page, f"{label}: hover-play spots but no SOLO_JS to run them"
     if MODE == "web":
         assert 'class="ytspot"' not in page, f"{label}: a YouTube spot card left in the web build"
