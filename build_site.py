@@ -2213,7 +2213,7 @@ A1_REELS = "\n".join(
 # sits beside or directly above another and they spread across all three columns
 # rather than stacking in one. Alt text uses "and", not &.
 CLIENT_LOGOS = [
-    ("logo_allheart.png",      "All Heart Heating and Cooling"),
+    ("logo_allheart.png",      "All Heart Heating, Cooling and Plumbing"),
     ("logo_quality.png",       "Quality Heating Cooling Plumbing and Electric"),
     ("logo_beerightthere.png", "Bee Right There Heating and Air"),
     ("logo_a1.png",            "A1 Air Conditioning and Heating"),
