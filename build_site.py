@@ -1121,7 +1121,7 @@ CSS = """<style>
      text needs (heading is bold and large enough that 3.5:1 is fine there).
      The shadow is legibility insurance against the mottled, uneven texture,
      not decoration: some patches of the photo run darker than the average. */
-  .always h3{margin:0 0 var(--s2);font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);
+  .always h2{margin:0 0 var(--s2);font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);
     color:#FFFFFF;text-shadow:0 2px 6px rgba(0,0,0,.55);}
   .always .sub2{margin:0 0 var(--s5);font-size:var(--f-body);color:#FFFFFF;max-width:68ch;
     line-height:1.58;text-shadow:0 2px 6px rgba(0,0,0,.55);}
@@ -1134,7 +1134,7 @@ CSS = """<style>
   .benefit .bn{font-family:var(--mono);font-size:var(--f-h2);font-weight:700;line-height:1;
     color:var(--cyan-text);letter-spacing:var(--t-display);align-self:flex-start;
     border-bottom:2px solid var(--cyan);padding-bottom:var(--s2);margin-bottom:var(--s1);}
-  .benefit h4{margin:0;font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);}
+  .benefit h3{margin:0;font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);}
   .benefit p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
 
   /* the two engines, side by side, each with a diagram of how it actually works.
@@ -1147,7 +1147,7 @@ CSS = """<style>
   .engine .etag{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
     text-transform:uppercase;color:var(--cyan-text);}
   .engine.is-two .etag{color:var(--orange-text);}
-  .engine h4{margin:0;font-size:var(--f-h3);font-weight:700;letter-spacing:var(--t-head);}
+  .engine h3{margin:0;font-size:var(--f-h3);font-weight:700;letter-spacing:var(--t-head);}
   .edia{width:100%;height:auto;display:block;margin:var(--s1) 0;}
   .engine p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
   .engine .ewhere{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:.06em;
@@ -1160,7 +1160,7 @@ CSS = """<style>
     padding:var(--s5);}
   .step2 span{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
     text-transform:uppercase;color:var(--cyan-text);}
-  .step2 h4{margin:var(--s2) 0 var(--s1);font-size:var(--f-h4);font-weight:650;
+  .step2 h3{margin:var(--s2) 0 var(--s1);font-size:var(--f-h4);font-weight:650;
     letter-spacing:var(--t-head);}
   .step2 p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
 
@@ -1367,7 +1367,7 @@ CSS = """<style>
   .roster{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s5) var(--s4);}
   @media(min-width:560px){.roster{grid-template-columns:repeat(3,1fr);}}
   .member .portrait{aspect-ratio:1/1;margin-bottom:var(--s3);}
-  .member h4{margin:0;font-size:var(--f-body);font-family:var(--display);font-weight:600;
+  .member h3{margin:0;font-size:var(--f-body);font-family:var(--display);font-weight:600;
     letter-spacing:var(--t-head);}
   .member .rtitle{display:block;margin-top:1px;font-family:var(--mono);font-size:var(--f-micro);
     letter-spacing:var(--t-caps);text-transform:uppercase;color:var(--ink-3);}
@@ -2560,22 +2560,22 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 <section><div class="wrap">
 
   <div class="always">
-    <h3>What you are actually buying</h3>
+    <h2>What you are actually buying</h2>
     <p class="sub2">Not leads. Anyone selling you leads from organic short form is guessing.
     Consistent short form reliably does four things, and all four compound.</p>
     <div class="benefits">
-      <div class="benefit"><span class="bn">01</span><h4>Recognition</h4>
+      <div class="benefit"><span class="bn">01</span><h3>Recognition</h3>
         <p>Whatever finally puts someone in the market, a breakdown, a move, a remodel they have
         been putting off, they reach for the name they already know. Being that name takes months
         of showing up in the same feeds.</p></div>
-      <div class="benefit"><span class="bn">02</span><h4>Recruiting</h4>
+      <div class="benefit"><span class="bn">02</span><h3>Recruiting</h3>
         <p>Good people are harder to find than customers. They apply to the company that looks
         like somewhere worth working, and they decide that from your feed long before they ever
         send a resume.</p></div>
-      <div class="benefit"><span class="bn">03</span><h4>Trust at the door</h4>
+      <div class="benefit"><span class="bn">03</span><h3>Trust at the door</h3>
         <p>Someone who has already watched your team work is a different conversation from someone
         meeting you for the first time. You start past the part where they size you up.</p></div>
-      <div class="benefit"><span class="bn">04</span><h4>Proof you are still around</h4>
+      <div class="benefit"><span class="bn">04</span><h3>Proof you are still around</h3>
         <p>Everyone looks you up before they call. A feed with two years behind it reads as a
         company that is busy and still here. A feed that stopped in 2023 reads as the opposite,
         and they will notice which one you are.</p></div>
@@ -2591,7 +2591,7 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
     <div class="engines">
       <div class="engine">
         <span class="etag">Engine 01 &middot; Short form</span>
-        <h4>Attention</h4>
+        <h3>Attention</h3>
         {ENGINE_SHORT}
         <p>Aimed at someone scrolling past who was not looking for you. Each post does little on
         its own. Together, across months, they build the four things above. Genuinely not
@@ -2600,7 +2600,7 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
       </div>
       <div class="engine is-two">
         <span class="etag">Engine 02 &middot; Long form</span>
-        <h4>Intent</h4>
+        <h3>Intent</h3>
         {ENGINE_LONG}
         <p>Made for intent rather than attention, aimed at someone already searching for what you
         sell. Fewer people, each one further along. Slower to start, it does produce trackable
@@ -2612,16 +2612,16 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
   </div>
 
   <div class="always">
-    <h3>The same three things happen at every tier</h3>
+    <h2>The same three things happen at every tier</h2>
     <p class="sub2">The only real difference between the packages is who holds the camera and how
     much goes out. Everything here is included whether you spend $2,000 or $15,000.</p>
     <div class="steps">
-      <div class="step2"><span>Step 01</span><h4>Planned</h4>
+      <div class="step2"><span>Step 01</span><h3>Planned</h3>
         <p>Our team works out what your content needs to do, then sends you a shot list before
         anyone films anything.</p></div>
-      <div class="step2"><span>Step 02</span><h4>Captured</h4>
+      <div class="step2"><span>Step 02</span><h3>Captured</h3>
         <p>Either your team shoots to that list, or our crew comes out and shoots it for you.</p></div>
-      <div class="step2"><span>Step 03</span><h4>Cut and posted</h4>
+      <div class="step2"><span>Step 03</span><h3>Cut and posted</h3>
         <p>Edited, captioned and published to your channels. Not handed back to you as files.</p></div>
     </div>
   </div>
@@ -3111,7 +3111,7 @@ def member_card(p):
     # time as they send something rather than all at once.
     bio = f'<p class="mbio">{p["bio"]}</p>' if p.get("bio") else ""
     return (f'<div class="member"><div class="portrait">{art}</div>'
-            f'<h4>{p["name"]}</h4><span class="rtitle">{p["title"]}</span>'
+            f'<h3>{p["name"]}</h3><span class="rtitle">{p["title"]}</span>'
             f'{bio}</div>')
 
 
