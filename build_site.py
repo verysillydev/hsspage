@@ -560,7 +560,7 @@ CSS = """<style>
   .a1chart{width:100%;height:auto;display:block;}
   /* The A1 chart on its case page is HTML, not SVG: its numbers and labels are
      real text in the page's own faces. An inline SVG with <text> made Archivo
-     700 miss font-display:optional's window (see a1_chart). --plot is the
+     700 miss font-display:optional's window (see a1_bars). --plot is the
      tallest bar; every bar is a fraction of it. */
   /* before/after comparison on the Bee Right There and iComfort pages (R4) */
   .ba{display:flex;flex-direction:column;gap:var(--s5);}
@@ -718,36 +718,30 @@ CSS = """<style>
      real still with the big metric over it under a dark scrim; A1 has no still
      (its reels are on Facebook), so its lead card shows the real numbers on ink
      instead of invented art. No arrows, no dots. */
-  .cgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s4);}
-  /* four cases since R4: two even columns from 900px, so there is no orphan */
-  @media(min-width:900px){.cgrid{grid-template-columns:repeat(2,minmax(0,1fr));}}
-  .cgcard{display:flex;flex-direction:column;background:var(--ground-2);border-radius:var(--r-md);
-    overflow:hidden;text-decoration:none;color:inherit;transition:transform var(--ease);}
-  .cgcard:hover{transform:translateY(-2px);}
-  .cgcard.is-active{outline:2px solid var(--orange-text);outline-offset:-2px;}
-  .cg-art{position:relative;display:block;aspect-ratio:16/9;background:#14171A;overflow:hidden;}
-  .cg-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
-  .cg-art.has-still::after{content:"";position:absolute;inset:0;
-    background:linear-gradient(180deg,rgba(20,23,26,0) 35%,rgba(20,23,26,.9) 100%);}
-  .cg-metric{position:absolute;left:var(--s5);right:var(--s5);bottom:var(--s4);z-index:1;
-    display:flex;flex-direction:column;gap:2px;}
-  .cg-metric b{font-family:var(--display);font-weight:900;font-size:var(--f-h1);line-height:1;
-    letter-spacing:-.02em;color:var(--orange);font-variant-numeric:tabular-nums;}
-  .cg-metric span{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;
-    font-family:var(--mono);color:#D8D3C9;}
-  .cg-data{display:flex;flex-direction:column;justify-content:space-between;gap:var(--s6);
-    padding:var(--s6) var(--s5) var(--s5);aspect-ratio:auto;flex:1;}
-  .cg-data .cg-metric{position:static;}
-  .cg-top{display:flex;flex-direction:column;gap:var(--s4);}
-  .cg-line{font-size:var(--f-lead);line-height:1.45;color:#D8D3C9;max-width:30ch;}
-  .cg-data .cg-metric b{font-size:var(--f-mega);}
-  .cg-data .a1chart{width:100%;height:auto;display:block;}
-  .cg-body{display:flex;flex-direction:column;gap:var(--s1);padding:var(--s4) var(--s5) var(--s5);}
-  .cg-vert{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
+  .pgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s4);}
+  @media(min-width:760px){.pgrid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  .pcard{position:relative;display:flex;flex-direction:column;gap:var(--s3);
+    padding:var(--s6) var(--s5) var(--s5);border-radius:var(--r-md);transition:transform var(--ease);}
+  .pcard:hover{transform:translateY(-2px);}
+  .pcard:focus-within{outline:2px solid var(--orange);outline-offset:3px;}
+  .pcard p{margin:0;}
+  .pc-tag{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
     font-size:var(--f-sm);color:var(--cyan-text);}
-  .cg-name{font-family:var(--display);font-size:var(--f-h3);font-weight:700;
-    letter-spacing:var(--t-head);line-height:1.15;}
-  .cg-go{margin-top:var(--s2);font-size:var(--f-sm);font-weight:650;color:var(--orange-text);}
+  .pcard h3{margin:0;font-family:var(--display);font-weight:700;font-size:var(--f-h3);
+    line-height:1.2;letter-spacing:var(--t-head);color:var(--ink);max-width:24ch;}
+  .pc-metric{display:flex;flex-direction:column;gap:var(--s1);margin-top:var(--s3) !important;}
+  .pc-metric b{font-family:var(--display);font-weight:900;font-size:var(--f-mega);line-height:1;
+    letter-spacing:-.02em;color:var(--orange);font-variant-numeric:tabular-nums;}
+  .pc-metric span{font-size:var(--f-body);color:var(--ink-2);line-height:1.45;max-width:34ch;}
+  .pc-who{margin-top:auto !important;padding-top:var(--s4);border-top:1px solid var(--line);
+    font-size:var(--f-sm);color:var(--ink-3);}
+  .pc-go{align-self:flex-start;display:inline-flex;align-items:center;min-height:24px;
+    font-size:var(--f-sm);font-weight:650;color:var(--orange-text);text-decoration:none;}
+  .pc-go::after{content:"";position:absolute;inset:0;}
+  .pc-go:focus-visible{outline:none;}
+  /* visually hidden text, still read by screen readers */
+  .vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+    clip:rect(0 0 0 0);white-space:nowrap;border:0;}
 
   /* case pages (N1): breadcrumbs in the dark hero, a prev/next chain at the foot */
   .crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:0 var(--s2);margin:0 0 var(--s4);
@@ -1035,6 +1029,8 @@ CSS = """<style>
   /* the outcome column carries the secondary hue so results read apart from setup */
   .csi div:nth-child(3) h3{color:var(--cyan-text);}
   .csi p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
+  .csi p.csi-lead{margin:0 0 var(--s2);font-family:var(--display);font-weight:700;
+    font-size:var(--f-h4);line-height:1.3;color:var(--ink);}
 
   /* Ruled ledger, not bordered cards: same technique as the hero .stats row
      (gap:1px on a --line background, each cell its own --ground fill), so a
@@ -1812,7 +1808,7 @@ MOTION_JS = """<script>
 
   /* (a) scroll reveals ---------------------------------------------------- */
   if(!reduce && 'IntersectionObserver' in window){
-    var SEL = '.sec-head,.cgcard,.benefit,.engine,.pkg,.csi > div,.op,.spot,.reel,' +
+    var SEL = '.sec-head,.pcard,.benefit,.engine,.pkg,.csi > div,.op,.spot,.reel,' +
               '.step2,.door,.always,.incl,.pn,.band-head,.lead,.member';
     var vh = window.innerHeight || 800;
     var targets = [].slice.call(document.querySelectorAll(SEL)).filter(function(e){
@@ -2231,59 +2227,14 @@ def logomark(fn, name):
 ROSTER_COUNT = len(CLIENT_LOGOS)
 
 
-# A1's reels live on Facebook, which serves no public thumbnail, so the page gets a
-# chart of the real view counts instead of invented artwork. The shape is the story:
-# one breakout and a tail that still clears 100k.
-def a1_chart(dark=False, decorative=False):
-    """dark: light labels for an ink ground (the /our-work lead card).
-    decorative: aria-hidden and no <text> at all, for places where the numbers are
-    already real text beside it. The no-text part matters: an inline SVG whose
-    <text> is laid out on first paint requested Archivo 700 early enough that it
-    missed font-display:optional's window, and Chrome then rendered every
-    Archivo 700 heading on the page in the Arial Black fallback (measured on
-    /our-work, 2026-10-06). The labelled chart inside the case write-up is
-    display:none until opened, so it never races."""
-    ink, sub, base, tlab = (("#F2EFE9", "#A8A29A", "#33383D", "#F04820") if dark
-                            else ("#14171A", "#6B747C", "#E2E0DA", "#B93412"))
-    data = [("623K", 623, 1), ("428K", 428, 0), ("410K", 410, 0), ("312K", 312, 0),
-            ("195K", 195, 0), ("162K", 162, 0), ("134K", 134, 0)]
-    W, H, PAD, BASE = 700, 224, 18, 176
-    bw, gap = 66, 22
-    bars, labels = "", ""
-    for i, (lab, v, top) in enumerate(data):
-        h = round(v / 623 * 132)
-        x = PAD + i * (bw + gap)
-        y = BASE - h
-        col = "#F04820" if top else "#00B0C8"
-        op = "1" if top else ".55"
-        bars += (f'<rect x="{x}" y="{y}" width="{bw}" height="{h}" rx="3" fill="{col}" '
-                 f'opacity="{op}"/>')
-        labels += (f'<text x="{x + bw/2:.0f}" y="{y - 8}" text-anchor="middle" fill="{ink}" '
-                   f'font-size="15" font-family="Archivo,sans-serif" '
-                   f'font-weight="700">{lab}</text>')
-        labels += (f'<text x="{x + bw/2:.0f}" y="{BASE + 20}" text-anchor="middle" fill="{sub}" '
-                   f'font-size="11" font-family="Archivo,sans-serif" font-weight="700" '
-                   f'letter-spacing=".6">{"0" + str(i+1)}</text>')
-    # the 100k line the whole tail clears
-    ty = BASE - round(100 / 623 * 132)
-    lx = PAD + 7 * (bw + gap) - gap + 10          # just past the last bar
-    thresh = (f'<line x1="{PAD}" y1="{ty}" x2="{lx - 6}" y2="{ty}" stroke="#F04820" '
-              f'stroke-width="1" stroke-dasharray="4 4" opacity=".5"/>'
-              f'<text x="{lx}" y="{ty + 4}" fill="{tlab}" font-size="11" '
-              f'font-family="Archivo,sans-serif" font-weight="700" letter-spacing=".6">100K</text>')
-    a11y = ('aria-hidden="true"' if decorative else
-            'role="img" aria-label="Seven A1 reels by view count, from 623,000 down to 134,000, '
-            'every one of them above 100,000"')
-    if decorative:
-        labels = ""
-        thresh = thresh[:thresh.index("<text")]
-    return (f'<svg class="a1chart" viewBox="0 0 {W} {H}" {a11y}>'
-            f'<line x1="{PAD}" y1="{BASE}.5" x2="{lx - 6}" y2="{BASE}.5" stroke="{base}" '
-            f'stroke-width="1"/>{thresh}{bars}{labels}</svg>')
+# A1's reels live on Facebook, which serves no public thumbnail, so its case page
+# carries a chart of the real view counts (a1_bars) instead of invented artwork.
 
 
 def a1_bars():
-    """The same seven real view counts as a1_chart(), as HTML bars (see .a1bars)."""
+    """The seven real A1 view counts as HTML bars (see .a1bars). It used to be an inline
+    SVG (a1_chart); its <text> made Archivo 700 miss font-display:optional's window, so
+    every heading on the page fell back to Arial Black. Keep charts as HTML text."""
     data = [("623K", 623, 1), ("428K", 428, 0), ("410K", 410, 0), ("312K", 312, 0),
             ("195K", 195, 0), ("162K", 162, 0), ("134K", 134, 0)]
     bars = "".join(
@@ -2306,34 +2257,36 @@ def a1_bars():
 # the same day and lives in More work. tile_line is the one factual sentence on the
 # case's /our-work card. desc may carry &amp; (it lands in a meta attribute).
 CASES = [
-    dict(id="a1",       slug="a1-air-conditioning", name="A1 Air Conditioning", og="og-a1.jpg",
-         vertical="Home services", metric="2.26M", mlabel="Views in a market of one million",
-         still=None, logo="logo_a1.png",
-         blurb="An ongoing monthly engagement across their entire video distribution: organic "
-               "social, paid and brand video.",
-         tile_line="Seven reels past 100,000 views for a Tucson HVAC company with 9,200 followers.",
+    dict(id="a1", slug="a1-air-conditioning", name="A1 Air Conditioning", og="og-a1.jpg",
+         vertical="Home services", tag="Monthly program",
+         problem="A crowded market where every company looks the same.",
+         card_metric="2.26M", card_line="views on seven reels, in a market of one million people",
+         where="A1 Air Conditioning &middot; Tucson, AZ",
          desc="How a Tucson HVAC company with 9,200 followers built seven reels past 100,000 "
               "views, roughly 2.26 million views in a market of one million people."),
     dict(id="beerightthere", slug="bee-right-there", name="Bee Right There",
          full="Bee Right There Heating &amp; Air", og="og-bee-right-there.jpg",
-         vertical="Home services", metric="3.8x", mlabel="Views in three weeks",
-         still=None, logo=None,
-         tile_line="The views in three weeks, on 24% more posts.",
+         vertical="Home services", tag="Monthly program",
+         problem="Posting every day and reaching almost no one.",
+         card_metric="3.8x", card_line="the views in three weeks, on 24% more posts",
+         where="Bee Right There Heating &amp; Air &middot; Atascadero, CA",
          desc="Bee Right There Heating &amp; Air, an HVAC company in Atascadero, CA: posts seen "
               "3.8 times as often within three weeks, on 24% more posts, and a reel at "
               "982,880 views."),
     dict(id="icomfort", slug="icomfort", name="iComfort",
          full="iComfort Heating and Air Conditioning", og="og-icomfort.jpg",
-         vertical="Home services", metric="6.8x", mlabel="Followers in under a year",
-         still=None, logo="logo_icomfort.png",
-         tile_line="The followers in under a year, all organic.",
+         vertical="Home services", tag="Monthly program",
+         problem="Twenty years in business and a feed that looked quiet.",
+         card_metric="6.8x", card_line="the followers in under a year, all organic",
+         where="iComfort Heating and Air Conditioning &middot; San Fernando, CA",
          desc="iComfort Heating and Air Conditioning, a family-owned HVAC company in San "
               "Fernando, CA: Instagram from 290 to 1,970 followers in under a year, all organic."),
-    dict(id="allheart", og="og-allheart.jpg", slug="all-heart", name="All Heart",
-         vertical="Home services", metric="10", mlabel="Spots from one production block",
-         still="ah1.jpg", logo="logo_allheart.png",
-         blurb="A ten-spot comic campaign built on a single premise and shot in one block, so "
-               "the cost lands once.",
+    dict(id="allheart", slug="all-heart", name="All Heart", og="og-allheart.jpg",
+         full="All Heart Heating, Cooling &amp; Plumbing",
+         vertical="Home services", tag="Campaign",
+         problem="No video library, and no appetite for repeat shoot days.",
+         card_metric="10 spots", card_line="from a single production block",
+         where="All Heart Heating, Cooling &amp; Plumbing",
          desc="Ten commercial spots written and produced in a single production block on one "
               "premise: the contractor you want versus the contractor you got."),
 ]
@@ -2351,29 +2304,25 @@ def case_url(cid):
     return f"/our-work/{CASE_BY_ID[cid]['slug']}/"
 
 
-# The still each case card leads with; A1 has no still, so it gets the data panel.
-CASE_TILE_STILL = {"allheart": f"{P}/ah1.jpg"}
+# /our-work case cards (R8, 2026-10-06): problem first, then what changed, then who.
+# The grid reads in problem order, which differs from the case numbering on purpose:
+# a visitor scans for the problem that sounds like theirs. Each card is an article
+# whose "Read the case" link is stretched over the whole card, so the card is one
+# click target while the link keeps a short, specific accessible name.
+CARD_ORDER = ["beerightthere", "icomfort", "a1", "allheart"]
+assert sorted(CARD_ORDER) == sorted(CASE_BY_ID), "CARD_ORDER must list every case once"
 
 
-def case_tile(c, lead=False):
-    """One card in the /our-work case grid (D5)."""
-    metric = f'<span class="cg-metric"><b>{c["metric"]}</b><span>{c["mlabel"]}</span></span>'
-    still = CASE_TILE_STILL.get(c["id"])
-    if still:
-        src = asset(still, "image/jpeg")
-        art = (f'<span class="cg-art has-still"><img src="{src}"{dims(still)} alt="" '
-               f'loading="lazy" decoding="async">{metric}</span>')
-    else:
-        viz = a1_chart(dark=True, decorative=True) if c["id"] == "a1" else ""
-        art = (f'<span class="cg-art cg-data"><span class="cg-top">{metric}'
-               f'<span class="cg-line">{c["tile_line"]}</span></span>{viz}</span>')
-    return (f'<a class="cgcard{" is-lead" if lead else ""}" href="{case_url(c["id"])}">{art}'
-            f'<span class="cg-body"><span class="cg-vert">{c["vertical"]}</span>'
-            f'<span class="cg-name">{c["name"]}</span>'
-            f'<span class="cg-go">See the case &rarr;</span></span></a>')
+def case_card(c):
+    return (f'<article class="pcard on-ink"><p class="pc-tag">{c["tag"]}</p>'
+            f'<h3>{c["problem"]}</h3>'
+            f'<p class="pc-metric"><b>{c["card_metric"]}</b><span>{c["card_line"]}</span></p>'
+            f'<p class="pc-who">{c["where"]}</p>'
+            f'<a class="pc-go" href="{case_url(c["id"])}">Read the case'
+            f'<span class="vh"> on {c["name"]}</span>&nbsp;&rarr;</a></article>')
 
 
-CASE_GRID = "\n".join(case_tile(c, lead=(i == 0)) for i, c in enumerate(CASES))
+CASE_GRID = "\n".join(case_card(CASE_BY_ID[k]) for k in CARD_ORDER)
 CASE_NAMES = ", ".join(c["name"] for c in CASES)   # the homepage case note, never typed
 
 
@@ -2417,8 +2366,11 @@ CSI = {
 
 
 def csi_block(cid):
+    """The problem block opens with the same line as the case's /our-work card (R8),
+    so the card and the page agree."""
     a, b, c = CSI[cid]
-    return (f'<div class="csi"><div><h3>The problem</h3><p>{a}</p></div>'
+    lead = CASE_BY_ID[cid]["problem"]
+    return (f'<div class="csi"><div><h3>The problem</h3><p class="csi-lead">{lead}</p><p>{a}</p></div>'
             f'<div><h3>What we changed</h3><p>{b}</p></div>'
             f'<div><h3>What happened</h3><p>{c}</p></div></div>')
 
@@ -2434,7 +2386,7 @@ def ops(rows):
 
 def before_after(title, periods, rows):
     """A flat before/after comparison as HTML bars and real text (an inline SVG with
-    <text> made Archivo miss font-display:optional's window, see a1_chart). rows:
+    <text> made Archivo miss font-display:optional's window, see a1_bars). rows:
     (label, before, after, change). Bars scale within each row, so a small rise
     and a large one read differently at a glance. The change label is checked
     against the numbers so the copy cannot drift from the data."""
@@ -2693,9 +2645,11 @@ html = f"""<title>Selected work, Home Service Studios</title>
 <section><div class="wrap">
   <div class="sec-head">
     <p class="eyebrow">Case studies</p>
-    <h2 class="display">Three clients, three kinds of proof</h2>
+    <h2 class="display">Find the one that sounds like you.</h2>
+    <p class="lede">Each started with a problem most home service companies have. Here is what
+    changed.</p>
   </div>
-  <div class="cgrid">
+  <div class="pgrid">
 {CASE_GRID}
   </div>
 </div></section>
