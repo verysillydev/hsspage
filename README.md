@@ -83,9 +83,12 @@ ffmpeg -i MASTER.mov -i wm720.png \
 ```
 
 For the 360p set use `wm.png`, `scale=-2:360`, `-crf 36`, `-b:a 48k`. Poster frames in `post/`
-are cut from the 720p set at 35 percent through each spot, 640px wide. Watch out: the `sam*.jpg`
-thumbnails in `post/` are YouTube stills for the Sam Halaby grid, not poster frames, so a poster
-regeneration loop must not overwrite them.
+are cut from the 720p set at 35 percent through each spot, 640px wide. Watch out: `post/` also
+holds stills that are not poster frames (the A1 reel crops `a1r*.webp`, headshots, textures), so a
+poster regeneration loop must only write the `ah*`/`hd*` files it owns.
+
+Joseph Peretz and Sam Halaby are Yoniverse Productions clients and must never appear on this site
+(rule dated 2026-10-06, see `CLAUDE.md`).
 
 **Test the contact form against the live site, not the build.** It posts to a third party
 receiver because GitHub Pages cannot run a serverless function. Between 2026-08-28 and

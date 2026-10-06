@@ -5,6 +5,15 @@ framework, no template files and no component tree. Editing that script is how t
 
 **The brand is Home Service Studios (HSS), rebranded 2026-08-23 from Yoniverse Productions.**
 
+**Rule, 2026-10-06: Joseph Peretz and Sam Halaby are Yoniverse Productions clients and must never
+appear on this site.** Not as a case, a stat, a logo, a name in a list, alt text, a meta or OG
+description, JSON-LD, a link anchor (`#peretz`, `#sam`) or evidence for a claim ("six years deep",
+"605M", "128M", "258 videos"). Their cases, assets (`post/sam*.jpg`, `post/_yt*.jpg`, the Sam logo,
+`og-peretz`/`og-sam`, the nine Peretz YouTube thumbnails) and copy were removed on 2026-10-06 and
+the site reads as if they were never there. The ADU Insider logo stays: it is not confirmed to be
+Peretz's. Older notes below that mentioned them have been rewritten, not just deleted, so do not
+restore them from git history.
+
 **`SITE` moved to `https://homeservicestudios.com` on 2026-09-03** and now lives at the top of
 `build_site.py` beside `EMAIL`, not inside the `if MODE == "web"` block where it used to sit.
 That position mattered: `JSON_LD` is built before that block runs, so it could not read `SITE`
@@ -100,7 +109,7 @@ are exempt from that rule.
 
 ## Client logo wall
 
-16 marks in `logos/` (used full size on case pages via `c["logo"]`) plus matching WebP copies in
+15 marks in `logos/` (used full size on case pages via `c["logo"]`) plus matching WebP copies in
 `logos_webp/` (used in the scaled-down marquee/wall via `logomark()`). Each is a flat silhouette,
 alpha-only shape data on a transparent background, one uniform fill colour, scaled to equal
 optical ink area on an identical 500x200 canvas, which is what makes the grid space evenly
@@ -115,7 +124,8 @@ machine writes WebP: not `sips`, not ImageMagick, not cwebp). If a logo ever loo
 almost certainly why. The old "do not try full colour, it was attempted and rejected" rule was
 about full colour clashing on a *dark* ground; the ground is white now, so that specific
 reasoning no longer applies, but nobody has revisited whether full colour is worth doing this
-time and it's still one uniform fill for all 16 marks.
+time and it's still one uniform fill for all 15 marks. The homepage roster stat reads its number
+from `ROSTER_COUNT = len(CLIENT_LOGOS)`, so adding or removing a mark updates it; never type it.
 
 ## Image formats
 
@@ -181,17 +191,19 @@ three things at every tier" block.
 what accumulates is familiarity, and familiarity fades too once you stop. That decay is the
 argument *for* the retainer, not something to hide: if posts lasted, a client would buy one batch
 and leave. Only engine 2 genuinely does not expire, because someone searching finds a three year
-old video, so **"does not expire" and the six-years-deep evidence live in the Engine 02 panel and
-nowhere else**. Benefit 04 used to be "A library that keeps working" inside the block about what
-*short form* does, propped up by Peretz, who is engine 2. That was the two engines collapsing back
-into one. It is now "Proof you are still around", which is a real short form benefit: the volume
-is what someone sees when they look you up before calling.
+old video, so **"does not expire" lives in the Engine 02 panel and nowhere else**. As of
+2026-10-06 that panel states the mechanism only ("a video made for search keeps getting found years
+after it is posted"); none of the three remaining cases is a long form case, so there is no client
+result behind engine 2 on the site right now. Do not invent one. If a real long form result arrives,
+it belongs in that panel as evidence, not in the short form benefits. Benefit 04 used to be "A
+library that keeps working" inside the block about what *short form* does, which was the two
+engines collapsing back into one. It is now "Proof you are still around", which is a real short
+form benefit: the volume is what someone sees when they look you up before calling.
 
-The Peretz case (50% of annual projects) is engine 2, on what is now the Studio Max shape. Before
-this was written down, `/packages` claimed "not leads" in a way broad enough to contradict its own
-best case study. **"Intent rather than attention" is the shared phrase**; it appears once on each
-of the three pages on purpose, so the pages describe the same mechanism in the same words. Engine
-2 is also the only real justification for the $10,000 and $15,000 price jump, so do not cut it.
+**"Intent rather than attention" is the shared phrase**; it appears on `/packages` (Engine 02) and
+in the homepage's monthly packages lede, so the pages describe the same mechanism in the same
+words. Engine 2 is also the only real justification for the jump to the two Studio tiers, so do not
+cut it.
 
 Never pin the pitch to one buying trigger. An earlier draft said recognition matters "when the
 unit dies", which pigeonholed the whole site as HVAC and technician facing. Name several triggers
@@ -248,7 +260,7 @@ is no separate Home link.
 It is `position:sticky`, not fixed, so it occupies flow and cannot overlap the hero. Two things
 depend on its 60px height and will break if you change it:
 
-- `section{scroll-margin-top:76px}`, which keeps anchor jumps like `/our-work/#peretz` from
+- `section{scroll-margin-top:76px}`, which keeps anchor jumps like `/our-work/#handyman` from
   landing under the bar.
 - **As of 2026-08-24 the bar is solid `#14171A`, the same ink `.hero-bold` uses, at every scroll
   position on every page**, not just transparent-then-white on scroll. It used to be transparent
@@ -298,17 +310,25 @@ subtly incoherent even though each piece looked fine on its own.
 uppercase mono caption. It is `display:flex`, so it is not safe to nest inline in a sentence.
 
 Grids with a fixed, awkward item count use **explicit breakpoint columns, not `auto-fill`**:
-`.reels` is always 7 and `auto-fill` orphaned the seventh onto its own row (2 / 4 / 7 now). The
-hero `.stats` is a grid for the same reason, and `.stat .case` reserves two lines so a wrapped
-client name cannot push its number out of line with the rest of the row.
+`.reels` is always 7 and `auto-fill` orphaned the seventh onto its own row. Both stat ledgers
+(homepage hero and `/our-work`) hold three figures since 2026-10-06: a single-column ledger on
+phones (number left, client and label right) and one row of equal columns from 560px
+(`grid-auto-flow:column`, so any count stays one row with no orphan or filler cell). From 560px
+each `.stat` is a `subgrid` spanning three rows, which lines up client, number and label across
+cells even when a name wraps; the old two-line `min-height` reservation on `.stat .case` survives
+only as the `@supports not (subgrid)` fallback.
 
 ## Ordering and audience
 
-Cases run **A1, Peretz, Handyman Dan, All Heart, Sam Halaby**, and the hero stat bar matches. This
-is deliberate: the retainer buyer is a home services owner, so the commercially convincing cases
-come first and Sam's 605M is the closing flex rather than the opening one. Each case eyebrow
-carries its audience (`Home services` or `Creator`) so neither visitor has to guess which cases
-are theirs.
+Three cases run **A1 Air Conditioning, Handyman Dan, All Heart** (Case 01 to 03), and the
+`/our-work` stat ledger matches. The homepage ledger is A1, Handyman Dan and the roster count. All
+three are home services; the retainer buyer is a home services owner, so A1, the one with numbers
+that owner can picture in their own market, opens. Each case eyebrow still carries its audience
+(`Home services`) so a future creator case can be told apart. The carousel hides its arrows and dots
+at widths where every card already fits (`CAROUSEL_FIT`, from `len(CASES)`), so adding a fourth case
+brings them back on desktop automatically. There is no creator case on the site; the "Creator work"
+service card and the word "creators" in the homepage hero stay pending a positioning decision with
+the owners, but nothing may cite a creator result that is not on the site.
 
 `A1_REELS` is built once above the pages and reused on all three, so the pricing page has real
 proof sitting next to a price. Pricing pages convert on that adjacency; do not strip it back out.
@@ -329,8 +349,8 @@ to make, so this collapses back to the single `REASSURE` line on purpose.
 ## Copy conventions
 
 Compound modifiers take a hyphen before a noun (`short-form reels`, `four-person crew`,
-`twelve-month agreements`) but not as a plain noun (`plus creator work in art, live streaming and
-social commerce`). Hyphens are fine, it is only em and en dashes the build rejects. Lede
+`twelve-month agreements`) but not as a plain noun (`seven years across the creator economy, live
+streaming and social commerce`). Hyphens are fine, it is only em and en dashes the build rejects. Lede
 paragraphs are full sentences, not verbless fragments; the fragments in `.csi` cards and eyebrows
 are deliberate and stay.
 
@@ -369,12 +389,11 @@ before trusting these numbers again.
 
 ## Case study visuals
 
-Both of these cases had zero images and zero video, which is a credibility problem on a portfolio
-for a video company. Neither was fixed by changing which videos the cases feature.
+A1 had zero images and zero video, which is a credibility problem on a portfolio for a video
+company. It was not fixed by changing which videos the case features.
 
-**Joseph Peretz** now leads each of the nine title cards with the real YouTube thumbnail, pulled
-from the same video ids the cards already link to. They live in `post_yt/` as 700x394 WebP, about
-384KB for all nine. Re-fetch with `https://i.ytimg.com/vi/<id>/maxresdefault.jpg` if a thumbnail
+`post_yt/` holds the real YouTube thumbnails for the All Heart and Handyman Dan spots as WebP,
+keyed by video id. Re-fetch with `https://i.ytimg.com/vi/<id>/maxresdefault.jpg` if a thumbnail
 ever changes on the channel.
 
 **A1** has no fetchable stills: the reels are on Facebook, which serves no public `og:image`
@@ -383,9 +402,9 @@ carries `a1_chart()`, an inline SVG of the seven real view counts with the 100K 
 shape is the argument: one orange breakout and a tail that still clears the threshold. **If real
 reel stills ever arrive, they belong above that chart, not instead of it.**
 
-`.tcard` is now a thumbnail card with `padding:0`; the padding moved to `.tbody`. The thumbnail
-rules must stay **after** the base `.tcard` rule in the sheet. They were briefly inserted above it
-and lost the cascade, which is what left the thumbnails inset by 16px.
+The second `.ytplay` rule in the sheet (46x32, radius 8px, CSS triangle) was written for the old
+title cards, which are gone, but it is what gives the click-to-play spot button its shape: it
+overrides the 52px circle declared earlier. Delete it only if you mean to change that button.
 
 The sticky case header from the motion phase was **removed, not merely disabled**. It was specced
 to orient a reader in a long page, but the case split left these pages at 180 to 380 words, so a
@@ -456,7 +475,7 @@ It is grouped rather than one flat list because the earlier version offered both
 theirs. The single trades are now mutually exclusive and **"More than one of these"** is the
 explicit escape hatch, which is the only honest way to do single select over overlapping
 categories. Order inside "Home services" follows the real client mix, HVAC first, because twelve
-of the sixteen logos on the wall are HVAC, plumbing or electrical. Realtors live under "Property
+of the fifteen logos on the wall are HVAC, plumbing or electrical. Realtors live under "Property
 and building" alongside remodel and ADU work, since that is the same buyer conversation.
 
 ## Credentials and link previews
@@ -471,8 +490,8 @@ to send paperwork before a crew is on site, which is what a commercial client ac
 `build_site.py` copies into the deploy. Before this, all nine pages shared one cover, so every
 case link shared in a text looked identical. `a1` has no still of its own and falls back to
 `og-cover.jpg`; give it a real one if reel stills ever arrive. Sources: `og-home` and
-`og-handyman` are frames from the 720p masters, `og-sam` is the 128M video's own thumbnail, and
-`og-peretz` is re-fetched from YouTube at maxres rather than upscaled from the 700px webp.
+`og-handyman` are frames from the 720p masters. The `og` field on each `CASES` entry is a leftover
+from the per-case pages and is not read by the build; `og/` is copied whole into the deploy.
 
 Case pages carry breadcrumbs plus `BreadcrumbList` schema, because they are landable straight
 from search and previously gave no route back up.
@@ -494,9 +513,9 @@ into its own system and the fingerprint returns.
 - **Rules carry weight.** Section breaks are a 3px orange-led rule; dividers inside a section stay
   1px. Previously every line on the site was the same weight, which is a texture of sameness.
 - **One surface has tooth.** Two radial gradients over the ground, about four lines of CSS.
-- **The column breaks once**, and only above 1180px: the 128M `.bignum` hangs 92px into the
-  margin. It is the best number on the site, so it is the one element allowed outside the measure.
-  **Do not add a second.**
+- **The column used to break once**, for a figure that hung into the margin. That figure was
+  removed on 2026-10-06 and nothing sits outside the measure now. If one element ever earns it
+  again, allow exactly one.
 - **Section openers vary.** Homepage sections using the identical eyebrow, heading, lede block
   went from 5 of 7 to 3 of 7 via `.sec-head.bare`.
 - **A sticky action bar on phones**, contact and start-a-project, hidden from 760px up.
@@ -551,8 +570,8 @@ What is still open:
   scored 95 on accessibility while every other page scored 100. Do not shrink the button back to
   the size of the dot.
 - **The nav CTA carries no `aria-label`.** See Navigation above.
-- **Alt text coverage is 100% and should stay there.** 139 images across five pages, 139 with an
-  `alt`, 48 of them correctly empty for decorative art.
+- **Alt text coverage is 100% and should stay there.** As of 2026-10-06: 117 images across five
+  pages, 117 with an `alt`, 48 of them correctly empty for decorative art.
 
 ## Structured data
 
