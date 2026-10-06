@@ -562,6 +562,27 @@ CSS = """<style>
      real text in the page's own faces. An inline SVG with <text> made Archivo
      700 miss font-display:optional's window (see a1_chart). --plot is the
      tallest bar; every bar is a fraction of it. */
+  /* before/after comparison on the Bee Right There and iComfort pages (R4) */
+  .ba{display:flex;flex-direction:column;gap:var(--s5);}
+  .ba-k{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s3);
+    margin:0 0 var(--s2);font-weight:650;font-size:var(--f-body);color:var(--ink);}
+  .ba-chg{font-family:var(--display);font-weight:700;font-size:var(--f-h4);color:var(--orange-text);
+    font-variant-numeric:tabular-nums;}
+  .ba-line{display:grid;grid-template-columns:7.5em minmax(0,1fr);align-items:center;
+    column-gap:var(--s3);margin:3px 0;font-size:var(--f-sm);}
+  /* phones: the date sits above its bar, so the bar gets the full width */
+  @media(max-width:559px){.ba-line{grid-template-columns:minmax(0,1fr);margin:var(--s1) 0;}}
+  .ba-when{font-size:var(--f-micro);color:var(--ink-2);line-height:1.3;}
+  .ba-track{display:flex;align-items:center;gap:var(--s2);min-width:0;}
+  .ba-bar{flex:none;height:16px;width:calc(var(--w) * (100% - 4.5em));min-width:3px;
+    background:rgba(var(--cyan-rgb),.55);border-radius:0 var(--r-sm) var(--r-sm) 0;}
+  .ba-line.is-after .ba-bar{background:var(--orange);}
+  .ba-v{font-family:var(--display);font-weight:700;font-size:var(--f-sm);color:var(--ink);
+    white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .case-why{margin-top:var(--s7);padding-top:var(--s5);border-top:1px solid var(--line);
+    max-width:68ch;}
+  .case-close{margin:var(--s2) 0 0;font-size:var(--f-lead);line-height:1.5;color:var(--ink);}
+  .case-src{margin:var(--s4) 0 0;font-size:var(--f-sm);color:var(--ink-2);}
   .a1bars{--plot:150px;}
   .a1plot{position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
     gap:var(--s1);align-items:end;height:calc(var(--plot) + 2em);padding-right:3em;
@@ -698,10 +719,8 @@ CSS = """<style>
      (its reels are on Facebook), so its lead card shows the real numbers on ink
      instead of invented art. No arrows, no dots. */
   .cgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s4);}
-  @media(min-width:900px){
-    .cgrid{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);}
-    .cgcard.is-lead{grid-row:span 2;}
-  }
+  /* four cases since R4: two even columns from 900px, so there is no orphan */
+  @media(min-width:900px){.cgrid{grid-template-columns:repeat(2,minmax(0,1fr));}}
   .cgcard{display:flex;flex-direction:column;background:var(--ground-2);border-radius:var(--r-md);
     overflow:hidden;text-decoration:none;color:inherit;transition:transform var(--ease);}
   .cgcard:hover{transform:translateY(-2px);}
@@ -1833,7 +1852,8 @@ MOTION_JS = """<script>
   }
 
   /* (b) count up ---------------------------------------------------------- */
-  var nums = [].slice.call(document.querySelectorAll('.stat .n, .op .n, .reel .vnum'));
+  var nums = [].slice.call(document.querySelectorAll('.stat .n, .op .n, .reel .vnum'))
+    .filter(function(e){ return !e.hasAttribute('data-static'); });
   if(nums.length && !reduce && 'IntersectionObserver' in window){
     /* thousands separators count too: a figure like +1,680 (or any price on
        the ladder) used to parse as 1 followed by ",680", so it counted 0 to 1
@@ -2275,19 +2295,36 @@ def a1_bars():
             f'<div class="a1idx" aria-hidden="true">{idx}</div></div>')
 
 
-# ---- the three case studies, shown inline on /our-work/ --------------------
+# ---- case studies ------------------------------------------------------------
 
-# Order here is the reading order everywhere: the carousel, its dots and the case
-# panels below it. A1 leads because it is the one with numbers a home service
-# owner can picture in their own market.
+# Order here is the case numbering (Case 01 to 04), the prev/next chain on the case
+# pages, the sitemap and the homepage case note. Bee Right There and iComfort were
+# added 2026-10-06 (R4) from the owners' figures; Handyman Dan stopped being a case
+# the same day and lives in More work. tile_line is the one factual sentence on the
+# case's /our-work card. desc may carry &amp; (it lands in a meta attribute).
 CASES = [
     dict(id="a1",       slug="a1-air-conditioning", name="A1 Air Conditioning", og="og-a1.jpg",
          vertical="Home services", metric="2.26M", mlabel="Views in a market of one million",
          still=None, logo="logo_a1.png",
          blurb="An ongoing monthly engagement across their entire video distribution: organic "
                "social, paid and brand video.",
+         tile_line="Seven reels past 100,000 views for a Tucson HVAC company with 9,200 followers.",
          desc="How a Tucson HVAC company with 9,200 followers built seven reels past 100,000 "
               "views, roughly 2.26 million views in a market of one million people."),
+    dict(id="beerightthere", slug="bee-right-there", name="Bee Right There",
+         full="Bee Right There Heating &amp; Air", og="og-bee-right-there.jpg",
+         vertical="Home services", metric="+282%", mlabel="Impressions in 23 days",
+         still=None, logo=None,
+         tile_line="46 posts drew 27,851 impressions in 23 days. The next 57 drew 106,439.",
+         desc="Bee Right There Heating &amp; Air, an HVAC company in Atascadero, CA: impressions "
+              "up 282% in 23 days on 24% more posts, and reels that reached 982,880 views."),
+    dict(id="icomfort", slug="icomfort", name="iComfort",
+         full="iComfort Heating and Air Conditioning", og="og-icomfort.jpg",
+         vertical="Home services", metric="6.8x", mlabel="Followers in under a year",
+         still=None, logo="logo_icomfort.png",
+         tile_line="290 Instagram followers in March 2024, 1,970 by March 2025, all organic.",
+         desc="iComfort Heating and Air Conditioning, a family-owned HVAC company in San "
+              "Fernando, CA: Instagram from 290 to 1,970 followers in under a year, all organic."),
     dict(id="allheart", og="og-allheart.jpg", slug="all-heart", name="All Heart",
          vertical="Home services", metric="10", mlabel="Spots from one production block",
          still="ah1.jpg", logo="logo_allheart.png",
@@ -2297,6 +2334,9 @@ CASES = [
               "premise: the contractor you want versus the contractor you got."),
 ]
 CASE_BY_ID = {c["id"]: c for c in CASES}
+# the stated multiples and rises must match the raw figures they come from
+assert round(106439 / 27851, 1) == 3.8 and round(57 / 46 - 1, 2) == 0.24
+assert round(1970 / 290, 1) == 6.8 and 1970 - 290 == 1680 and 508 - 154 == 354
 
 
 def case_url(cid):
@@ -2317,9 +2357,9 @@ def case_tile(c, lead=False):
         art = (f'<span class="cg-art has-still"><img src="{src}"{dims(still)} alt="" '
                f'loading="lazy" decoding="async">{metric}</span>')
     else:
+        viz = a1_chart(dark=True, decorative=True) if c["id"] == "a1" else ""
         art = (f'<span class="cg-art cg-data"><span class="cg-top">{metric}'
-               f'<span class="cg-line">Seven reels past 100,000 views for a Tucson HVAC company '
-               f'with 9,200 followers.</span></span>{a1_chart(dark=True, decorative=True)}</span>')
+               f'<span class="cg-line">{c["tile_line"]}</span></span>{viz}</span>')
     return (f'<a class="cgcard{" is-lead" if lead else ""}" href="{case_url(c["id"])}">{art}'
             f'<span class="cg-body"><span class="cg-vert">{c["vertical"]}</span>'
             f'<span class="cg-name">{c["name"]}</span>'
@@ -2341,6 +2381,26 @@ CSI = {
            "alone in a dark attic like the cold open of a horror film.",
            "1,100 shares on the lead reel. Audiences passed it along themselves, which is the "
            "premise working rather than the media budget."),
+    "beerightthere": (
+        "Volume was not the problem. The account published 46 posts in the 23 days before we "
+        "started (9 to 31 Aug 2024), and together they drew 27,851 impressions. The posts were "
+        "there; nothing in them gave anyone a reason to stop scrolling.",
+        "Keep the cadence, change what goes out: reels built on moments every HVAC tech and "
+        "homeowner recognizes, from skipping the manual to ladder safety, written to be watched "
+        "to the end and passed along.",
+        "Over the next 23 days (1 to 23 Sep 2024), 57 posts drew 106,439 impressions, organic "
+        "engagements went from 843 to 6,634, and engagement per impression doubled from 3% to "
+        "6.2%. Followers went from 393 to 471. In early 2025 three reels passed 300,000 views."),
+    "icomfort": (
+        "In March 2024 the account had 154 posts and 290 followers. A homeowner checking the "
+        "company out before a call found a feed that looked quiet, the opposite of what twenty "
+        "years in the Valley should look like.",
+        "Post every day and put their own people in front of the camera: technicians explaining "
+        "real equipment in plain terms, the moments every tech knows, and the trends their "
+        "customers were already watching. The account went from 154 posts to 508 in under a year.",
+        "1,680 new followers in under a year, all organic, or 6.8 times the audience they started "
+        "with. A heat pump explainer from one of their technicians reached 150,282 views on "
+        "TikTok."),
     "allheart": ("Fill a year of paid and organic inventory for a brand with no library and no "
                  "appetite for repeat shoot days.",
                  "Write one comic premise strong enough to sustain ten spots, then shoot the entire "
@@ -2357,9 +2417,37 @@ def csi_block(cid):
 
 
 def ops(rows):
+    """A ruled row of figures. A range ("290 to 1,970") is marked data-static so the
+    count-up leaves it alone instead of counting only its first number."""
     return ('<div class="ops">' + "".join(
-        f'<div class="op"><span class="n">{n}</span><span class="k">{k}</span></div>'
+        f'<div class="op"><span class="n"{" data-static" if " to " in n else ""}>{n}</span>'
+        f'<span class="k">{k}</span></div>'
         for n, k in rows) + '</div>')
+
+
+def before_after(title, periods, rows):
+    """A flat before/after comparison as HTML bars and real text (an inline SVG with
+    <text> made Archivo miss font-display:optional's window, see a1_chart). rows:
+    (label, before, after, change). Bars scale within each row, so a small rise
+    and a large one read differently at a glance. The change label is checked
+    against the numbers so the copy cannot drift from the data."""
+    a, b = periods
+    out = []
+    for label, x, y, chg in rows:
+        if chg.endswith("%"):
+            assert chg == f"+{round((y - x) / x * 100)}%", (label, chg)
+        elif chg.startswith("+"):
+            assert chg == f"+{y - x:,}", (label, chg)
+        m = max(x, y)
+        line = lambda when, v, cls: (
+            f'<p class="ba-line{cls}"><span class="ba-when">{when}</span><span class="ba-track">'
+            f'<span class="ba-bar" style="--w:{v / m:.2f}"></span>'
+            f'<span class="ba-v">{v:,}</span></span></p>')
+        out.append(f'<div class="ba-row"><p class="ba-k"><span>{label}</span>'
+                   f'<span class="ba-chg">{chg}</span></p>'
+                   + line(a, x, "") + line(b, y, " is-after") + '</div>')
+    return (f'<div class="chartwrap"><p class="charttitle">{title}</p>'
+            f'<div class="ba">{"".join(out)}</div></div>')
 
 
 # What each case page carries: the hero's eyebrow, roles, the highlighted phrase
@@ -2367,7 +2455,7 @@ def ops(rows):
 # that used to live in the /our-work panels, unchanged.
 CASE_PAGE = {
     "a1": dict(
-        eyebrow="Case 01 &middot; Home services &middot; Reach",
+        kind="Reach",
         roles=["Video Distribution", "Monthly Package"], tag="2.26M views.",
         lede="An ongoing monthly engagement covering their entire video distribution: organic "
              "social, paid advertising and brand video. A Tucson HVAC company with 9,200 "
@@ -2384,8 +2472,51 @@ CASE_PAGE = {
   <div class="reels">
 {A1_REELS}
   </div>""", ops=""),
+    "beerightthere": dict(
+        kind="Reach", roles=["Monthly program", "Short form"], tag="3.8 times the reach.",
+        lede="Bee Right There Heating &amp; Air is an HVAC company in Atascadero, on "
+             "California&#39;s Central Coast, in business since 2018. They were already posting "
+             "often. In the first 23 days after we took over, <strong>impressions rose 282% on "
+             "24% more posts</strong>, and later reels reached 982,880 views.",
+        ops=ops([("+282%", "Impressions"), ("+687%", "Organic engagements"),
+                 ("6.2%", "Engagement rate, up from 3%"), ("983K", "Views on one reel")]),
+        proof_head="Same cadence, different posts",
+        proof=before_after(
+            "Posts rose 24%. Impressions rose 282%.",
+            ("9 to 31 Aug 2024", "1 to 23 Sep 2024"),
+            [("Posts", 46, 57, "+24%"), ("Impressions", 27851, 106439, "+282%"),
+             ("Organic engagements", 843, 6634, "+687%")])
+            + '\n  <h3 class="subhead">Three reels past 300,000 views</h3>\n  '
+            + ops([("982,880", "Views, 12 Feb 2025"), ("316,814", "Views, 27 Jan 2025"),
+                   ("316,402", "Views, 15 Jan 2025")]),
+        close="Posting more is the easy part. Bee Right There posted 24% more and reached nearly "
+              "four times as many people, because the posts were worth watching. The premise is "
+              "the part we are hired for.",
+        source="Figures from the account&#39;s own analytics for each period."),
+    "icomfort": dict(
+        kind="Audience", roles=["Monthly program", "Short form"], tag="290 to 1,970 followers.",
+        lede="iComfort Heating and Air Conditioning is a family-owned HVAC company in San "
+             "Fernando, California, serving the San Fernando Valley since 2004. Twenty years of "
+             "good work, and an Instagram account with 290 followers. In under a year of daily "
+             "posting <strong>it grew to 1,970, all of it organic</strong>.",
+        ops=ops([("290 to 1,970", "Instagram followers"), ("+1,680", "Organic, under a year"),
+                 ("354", "Posts in 50 weeks"), ("150K", "Views on the top TikTok")]),
+        proof_head="Under a year of daily posting",
+        proof=before_after(
+            "354 more posts, and 6.8 times the followers.",
+            ("27 Mar 2024", "11 Mar 2025"),
+            [("Posts", 154, 508, "+354"), ("Instagram followers", 290, 1970, "+1,680")])
+            + '\n  <h3 class="subhead">Five TikToks, Jul 2024 to Jan 2025</h3>\n  '
+            + ops([("150,282", "TikTok views"), ("49,380", "TikTok views"),
+                   ("28,327", "TikTok views"), ("20,431", "TikTok views"),
+                   ("16,518", "TikTok views")]),
+        close="Followers are the people who chose to keep seeing a company&#39;s trucks, techs and "
+              "jobs in their feed. When their system fails, the name they reach for is one they "
+              "have watched for months. That recognition is what every package is built on.",
+        source="Figures from the account&#39;s own Instagram and TikTok, 27 Mar 2024 to "
+               "11 Mar 2025."),
     "allheart": dict(
-        eyebrow="Case 03 &middot; Home services &middot; Campaign",
+        kind="Campaign",
         roles=["Writer", "Producer"], tag="Ten spots, one shoot.",
         lede="We wrote and produced a <strong>ten-spot campaign in a single production "
              "block</strong>. One premise carries the whole package: the contractor you want "
@@ -2397,28 +2528,11 @@ CASE_PAGE = {
 }
 
 
-# ---- more results, from the owners' pitch deck -----------------------------
-# Owner approved 2026-10-06. Every figure is copied from the deck and written in
-# English formats (the deck's screenshots used Portuguese ones: "509 mil" is 509K,
-# "6.096" is 6,096). Rules that came with it: Bee Right There's impressions are not
-# called organic (that report was filtered organic and paid; its engagements were
-# organic); the two unnamed clients and any reel from an account not named here
-# are excluded; there are no logos for Bee Right There or 4 Points, so none are
-# drawn. The dates are real and double as the site's first recency signal; 4 Points
-# came without dates, so it shows none rather than a guessed one.
-PROOF = [
-    dict(client="Bee Right There Heating &amp; Air", who="@beerightthereheatingair on Instagram",
-         metric="982,880", mlabel="Views on one reel",
-         line="Two more reels passed 316,000 views. From 1 to 23 Sep 2024, impressions rose "
-              "282% and organic engagements 687% on the 23 days before.",
-         when="Sep 2024 to Feb 2025"),
-    dict(client="iComfort Heating and Air Conditioning", who="@icomfort.hvac on Instagram",
-         metric="+1,680", mlabel="Followers in under a year, all organic",
-         line="From 290 followers on 27 Mar 2024 to 1,970 on 11 Mar 2025. Five TikTok posts "
-              "from the same stretch drew between 16,518 and 150,282 views.",
-         when="Mar 2024 to Mar 2025"),
-]
-
+# ---- 4 Points ------------------------------------------------------------------
+# From the owners' pitch deck, in English formats (the deck's screenshots used
+# Portuguese ones: "509 mil" is 509K, "6.096" is 6,096). The deck gives no dates for
+# it, so the card shows none. Bee Right There and iComfort, which used to sit beside
+# it in a "More results" block, are full case studies since R4.
 # 4 Points is a single short-form result, shown in More work rather than as a case.
 FOUR_POINTS = dict(client="4 Points", who="Home services",
                    metric="509K", mlabel="Views on one post",
@@ -2433,19 +2547,6 @@ def proof_card(x, h="h3"):
             f'<p class="pm"><span class="pfig">{x["metric"]}</span>'
             f'<span class="pl">{x["mlabel"]}</span></p>'
             f'<p>{x["line"]}</p>{when}</article>')
-
-
-MORE_RESULTS = f"""<section id="more-results"><div class="wrap">
-  <div class="sec-head">
-    <p class="eyebrow">More results</p>
-    <h2 class="display">{num_word(len(PROOF)).capitalize()} more accounts, with the dates attached</h2>
-    <p class="lede">Short form for {num_word(len(PROOF))} more home service companies, measured on
-    their own accounts.</p>
-  </div>
-  <div class="proofs">
-{chr(10).join(proof_card(x) for x in PROOF)}
-  </div>
-</div></section>"""
 
 
 # More work (R3, 2026-10-06): Handyman Dan is no longer a case study, by the
@@ -2574,8 +2675,6 @@ html = f"""<title>Selected work, Home Service Studios</title>
 {CASE_GRID}
   </div>
 </div></section>
-
-{MORE_RESULTS}
 
 {MORE_WORK}
 
@@ -2887,8 +2986,8 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   is yours</strong>.</p>
   <div class="stats quad">
     <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views on 7 reels</span></a>
-    <a class="stat" href="/our-work/#more-results"><span class="case">Bee Right There</span><span class="n">983K</span><span class="k">Views on one reel</span></a>
-    <a class="stat" href="/our-work/#more-results"><span class="case">iComfort</span><span class="n">+1,680</span><span class="k">Organic followers, under a year</span></a>
+    <a class="stat" href="{case_url("beerightthere")}"><span class="case">Bee Right There</span><span class="n">983K</span><span class="k">Views on one reel</span></a>
+    <a class="stat" href="{case_url("icomfort")}"><span class="case">iComfort</span><span class="n">+1,680</span><span class="k">Organic followers, under a year</span></a>
     <a class="stat" href="#roster"><span class="case">Roster</span><span class="n">{ROSTER_COUNT}</span><span class="k">Home service brands</span></a>
   </div>
   <div class="ctarow">
@@ -3325,6 +3424,12 @@ def case_page(i):
                 '{"@type":"ListItem","position":3,"name":' + json.dumps(c["name"])
                 + ',"item":"' + SITE + case_url(c["id"]) + '"}]}</script>')
     pills = "".join(f'<span class="pill">{r}</span>' for r in d["roles"])
+    why = ""
+    if d.get("close"):
+        why = (f'<div class="case-why"><p class="eyebrow">Why it matters</p>'
+               f'<p class="case-close">{d["close"]}</p>'
+               + (f'<p class="case-src">{d["source"]}</p>' if d.get("source") else "")
+               + '</div>')
     page = f"""<title>{c["name"]}</title>
 {FONT_CSS}
 {CSS}
@@ -3336,7 +3441,7 @@ def case_page(i):
   <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">/</span>
     <a href="/our-work/">Work</a><span aria-hidden="true">/</span>
     <span aria-current="page">{c["name"]}</span></nav>
-  <p class="eyebrow">{d["eyebrow"]}</p>
+  <p class="eyebrow">Case {i + 1:02d} &middot; {c["vertical"]} &middot; {d["kind"]}</p>
   <h1 class="display">{c["name"]}.<br><span class="hl">{d["tag"]}</span></h1>
   <p class="sub">{d["lede"]}</p>
   <div class="role"><span class="lbl">Our role</span>{pills}</div>
@@ -3351,6 +3456,7 @@ def case_page(i):
 <section><div class="wrap">
   <div class="sec-head"><h2 class="display">{d["proof_head"]}</h2></div>
   {d["proof"]}
+  {why}
 </div></section>
 
 <section><div class="wrap">

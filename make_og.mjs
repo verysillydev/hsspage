@@ -44,6 +44,7 @@ h1.wide{max-width:22ch;font-size:76px}
 .bars{position:absolute;right:72px;top:150px;width:430px;height:220px;display:flex;align-items:flex-end;gap:12px;border-bottom:2px solid #33383D}
 .bars span{flex:1;background:rgba(0,176,200,.6);border-radius:3px 3px 0 0}
 .bars span.lead{background:#F04820}
+.bars.pair{width:260px;right:120px;gap:28px}
 `;
 const lines = `<svg class="lines" viewBox="0 0 1200 260" preserveAspectRatio="none" aria-hidden="true">
 <path d="M-60,150 C90,118 210,118 300,150 C390,182 510,182 600,150 C690,118 810,118 900,150 C990,182 1110,182 1260,150" stroke="rgba(240,72,32,.35)" stroke-width="2" fill="none"/>
@@ -66,6 +67,16 @@ const cards = {
     <div class="body"><p class="eyebrow">Case study &middot; A1 Air Conditioning</p>
     <h1><span class="hl">2.26M views.</span></h1>
     <p class="sub">Seven reels past 100,000 views for a Tucson HVAC company with 9,200 followers.</p></div>`,
+  'og-bee-right-there': `${top}<div class="bars pair">${[27851, 106439]
+      .map((v, i) => `<span class="${i ? 'lead' : ''}" style="height:${(v / 106439 * 100).toFixed(1)}%"></span>`).join('')}</div>${lines}
+    <div class="body"><p class="eyebrow">Case study &middot; Bee Right There Heating &amp; Air</p>
+    <h1><span class="hl">+282% impressions.</span></h1>
+    <p class="sub">46 posts drew 27,851 impressions in 23 days. The next 57 drew 106,439.</p></div>`,
+  'og-icomfort': `${top}<div class="bars pair">${[290, 1970]
+      .map((v, i) => `<span class="${i ? 'lead' : ''}" style="height:${(v / 1970 * 100).toFixed(1)}%"></span>`).join('')}</div>${lines}
+    <div class="body"><p class="eyebrow">Case study &middot; iComfort Heating and Air Conditioning</p>
+    <h1><span class="hl">290 to 1,970 followers.</span></h1>
+    <p class="sub">A family-owned HVAC company in the San Fernando Valley, in under a year, all organic.</p></div>`,
 };
 
 const work = mkdtempSync(join(tmpdir(), 'hss-og-'));
