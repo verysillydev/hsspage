@@ -200,7 +200,14 @@ was the site's biggest problem before 2026-08-16: a buyer reading `/our-work` th
 one session could not tell whether it was one person or a company.
 
 Never promise leads, calls or booked jobs from short form; the honest pitch is the long
-compounding play. The "Not leads. Anyone selling you leads from organic **short form** is
+compounding play. **One reported call result exists, and it is not short form (R14, 2026-10-06):**
+Handyman Dan is shown on `/our-work` under More work as a white-label commercial campaign (six
+spots a home service company runs under its own name, in its own market), with the owner-supplied
+result that inbound calls for one company running the spots went from about one a week to about
+ten a day. It is a past result for paid commercial placement, always shown with its note ("One
+company's results; yours depend on where and how often the spots run."). Never name who ran the
+spots or how many companies did, and no market counts, account counts, licensing terms or other
+deployment details. The "Not leads. Anyone selling you leads from organic **short form** is
 guessing" paragraph on `/packages` is deliberate and must not be softened, it disqualifies the
 wrong buyer on purpose. The words "short form" in it are load bearing, see below.
 

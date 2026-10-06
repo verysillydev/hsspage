@@ -1080,6 +1080,14 @@ CSS = """<style>
   .subhead{margin:var(--s7) 0 var(--s4);font-family:var(--display);font-size:var(--f-h3);
     font-weight:700;letter-spacing:var(--t-head);line-height:1.15;}
   .sec-head + .subhead{margin-top:0;}
+  /* More work: the Handyman Dan campaign block (R14) */
+  .mw-eyebrow + .subhead{margin-top:var(--s2);}
+  .mw-body{margin:0;max-width:62ch;font-size:var(--f-lede);line-height:1.55;color:var(--ink-2);}
+  .mw-stat{margin:var(--s5) 0 0;display:flex;flex-direction:column;gap:var(--s1);max-width:40ch;}
+  .mw-stat b{font-family:var(--display);font-weight:900;font-size:var(--f-mega);line-height:1;
+    letter-spacing:-.02em;color:var(--orange-text);}
+  .mw-stat span{font-size:var(--f-body);line-height:1.45;color:var(--ink);}
+  .mw-note{margin:var(--s2) 0 var(--s5);font-size:var(--f-sm);color:var(--ink-2);max-width:62ch;}
   /* a row of spots: three across from 760px (six make two even rows), and a
      horizontal swipe strip on phones so six cards do not stack 1,700px tall */
   .strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s4);}
@@ -2525,15 +2533,26 @@ def four_points_card(x, h="h4"):
 
 
 # More work (R3, 2026-10-06): Handyman Dan is no longer a case study, by the
-# owners' request. Its six spots stay as an example of the work, labelled only as
-# Handyman Dan's spots, with no claims about where they ran or how they were sold.
+# owners' request. R14 gives its six spots a selling frame: a white-label commercial
+# campaign a home service company runs under its own name. The one result is the
+# owner's: inbound calls for one company running the spots went from about one a
+# week to about ten a day. It is a reported past result for paid commercial
+# placement, never a promise, so the note under it stays. Never name who ran the
+# spots or how many did, and no market counts, account counts or licensing terms.
 # The 4 Points result sits here too, as a small card rather than a case.
 MORE_WORK = f"""<section id="more-work"><div class="wrap">
   <div class="sec-head">
     <p class="eyebrow">More work</p>
     <h2 class="display">More of the work</h2>
   </div>
-  <h3 class="subhead">Handyman Dan&#39;s spots</h3>
+  <p class="eyebrow mw-eyebrow">Handyman Dan &middot; Commercial campaign</p>
+  <h3 class="subhead">Six spots built to run in any market.</h3>
+  <p class="mw-body">A white-label commercial campaign: six spots a home service company runs
+  under its own name, in its own market.</p>
+  <p class="mw-stat"><b>10 a day</b><span>Inbound calls for one company running the spots, up
+  from about one a week.</span></p>
+  <p class="mw-note">One company&#39;s results; yours depend on where and how often the spots
+  run.</p>
   <div class="strip">
 {chr(10).join(spot(*x) for x in handyman)}
   </div>
@@ -3636,11 +3655,12 @@ if MODE == "web":
     # addresses now forward to its spots in More work on /our-work.
     for old in ("/our-work/handyman-dan/", "/work/handyman-dan/"):
         stub = ('<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
-                '<title>Handyman Dan spots | Home Service Studios</title>'
+                '<title>Handyman Dan commercial campaign | Home Service Studios</title>'
                 '<meta name="robots" content="noindex">'
                 f'<link rel="canonical" href="{SITE}/our-work/">'
                 '<meta http-equiv="refresh" content="0; url=/our-work/#more-work"></head>'
-                '<body><a href="/our-work/#more-work">Handyman Dan&#39;s spots</a></body></html>\n')
+                '<body><a href="/our-work/#more-work">Handyman Dan commercial campaign</a>'
+                '</body></html>\n')
         validate(stub, "stub " + old)
         sp = pathlib.Path(f"{S}/deploy{old}index.html")
         sp.parent.mkdir(parents=True, exist_ok=True)
