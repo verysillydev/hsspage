@@ -3673,6 +3673,7 @@ if MODE == "web":
         # the pre-2026-08 address of the same case, kept alive as a redirect
         legacy = (f'<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
                   f'<title>{c["name"]} case study</title><meta name="robots" content="noindex">'
+                  '<link rel="icon" href="data:,">'
                   f'<link rel="canonical" href="{SITE}{case_url(c["id"])}">'
                   f'<meta http-equiv="refresh" content="0; url={case_url(c["id"])}"></head>'
                   f'<body><a href="{case_url(c["id"])}">{c["name"]} case study</a></body></html>\n')
@@ -3687,6 +3688,8 @@ if MODE == "web":
         stub = ('<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
                 '<title>Handyman Dan commercial campaign | Home Service Studios</title>'
                 '<meta name="robots" content="noindex">'
+                # an empty icon, so the browser does not ask for /favicon.ico (a 404 on Pages)
+                '<link rel="icon" href="data:,">'
                 f'<link rel="canonical" href="{SITE}/our-work/">'
                 '<meta http-equiv="refresh" content="0; url=/our-work/#more-work"></head>'
                 '<body><a href="/our-work/#more-work">Handyman Dan commercial campaign</a>'
