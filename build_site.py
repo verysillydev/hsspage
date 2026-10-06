@@ -4,7 +4,7 @@
   python3 build_site.py          -> single self-contained file (Claude artifact)
   python3 build_site.py web      -> deploy/our-work/ with external assets (Vercel)
 """
-import base64, json, os, pathlib, re, shutil, sys
+import base64, datetime, json, os, pathlib, re, shutil, sys
 
 S = os.path.dirname(os.path.abspath(__file__))
 MODE = "web" if len(sys.argv) > 1 and sys.argv[1] == "web" else "inline"
@@ -116,9 +116,9 @@ def book(subject, label="", cls="cta"):
     Set BOOK_URL and the same buttons become the calendar instead. `subject` is kept
     so the fallback can still address an email if it is ever needed."""
     if BOOKED:
-        return (f'<a class="{cls}" href="{BOOK_URL}" target="_blank" '
+        return (f'<a class="{cls}" href="{cta_href()}" target="_blank" '
                 f'rel="noopener noreferrer">{label or "Book a call"}</a>')
-    return f'<a class="{cls}" href="/contact/#start">{label or "Start a project"}</a>'
+    return f'<a class="{cls}" href="{cta_href()}">{label or "Start a project"}</a>'
 
 def reassure(page="home"):
     """Sits under the CTA and describes what actually happens next. The promise has
@@ -677,12 +677,6 @@ CSS = """<style>
   .schedwrap{background:var(--ground-2);border:1px solid var(--line);
     border-radius:var(--r-md);overflow:hidden;}
   .schedwrap iframe{display:block;width:100%;}
-
-  /* footer contact row */
-  .fcontact{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);align-items:center;
-    margin-top:var(--s3);}
-  .fcontact a{display:inline-flex;align-items:center;gap:7px;min-height:44px;
-    font-size:var(--f-body);}
 
   .navcta{background:var(--orange);color:#14171A !important;border-radius:var(--r-pill);
     padding:0 16px;font-weight:700;transition:filter var(--ease);
@@ -1400,15 +1394,28 @@ CSS = """<style>
     padding:var(--s3) var(--s4);border-radius:0 0 var(--r-sm) 0;z-index:99;font-weight:600;}
   .skip:focus{left:0;}
 
-  footer{padding:var(--s8) 0 var(--s9);position:relative;overflow:hidden;}
+  footer{padding:var(--s8) 0 var(--s6);position:relative;overflow:hidden;}
   footer::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;z-index:2;
     background:linear-gradient(90deg,rgba(var(--orange-rgb),.55) 0%,rgba(var(--cyan-rgb),.42) 42%,
       rgba(226,224,218,.55) 78%,rgba(226,224,218,0) 100%);}
   footer > .wrap{position:relative;z-index:1;}
-  footer .display{font-size:var(--f-h2);margin-bottom:var(--s4);}
-  a.display{display:block;color:var(--ink);text-decoration:none;}
-  a.display:hover{color:var(--orange-text);}
   footer p{margin:0;color:var(--ink-2);font-size:var(--f-body);}
+  /* site_footer(): the line and its two actions on the left, the four
+     destinations on the right from 760px, credentials and copyright on a
+     ruled row underneath. Every link is at least 44px tall. */
+  .foot{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s6);}
+  @media(min-width:760px){.foot{grid-template-columns:minmax(0,1fr) auto;align-items:end;}}
+  footer .foot-line{font-size:var(--f-h2);color:var(--ink);margin:0 0 var(--s5);max-width:20ch;}
+  .foot-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3) var(--s5);}
+  .foot-mail{display:inline-flex;align-items:center;min-height:44px;font-size:var(--f-body);}
+  .foot-nav{display:flex;flex-wrap:wrap;gap:0 var(--s5);}
+  .foot-nav a{display:inline-flex;align-items:center;min-height:44px;font-family:var(--display);
+    font-variant-caps:all-small-caps;letter-spacing:.06em;font-size:var(--f-lede);
+    color:var(--ink);text-decoration:none;transition:color var(--ease);}
+  .foot-nav a:hover{color:var(--orange-text);}
+  .foot-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--s2) var(--s5);
+    margin-top:var(--s7);padding-top:var(--s4);border-top:1px solid var(--line);}
+  footer .foot-meta p{font-size:var(--f-sm);color:var(--ink-3);}
 </style>"""
 
 # CSS above is a plain string, not an f-string (it holds far too many literal
@@ -2384,6 +2391,40 @@ CASE_BODY["allheart"] = f"""<section id="allheart"><div class="wrap">
 </div></section>"""
 
 
+# The footer every page shares. It used to be hand copied five times and had
+# shrunk to one sentence, a tiny "Contact" link and the meta line. Now it carries
+# the primary CTA (through book(), so it follows cta_href() like every other
+# conversion button), the email as a plain mailto text link (the one secondary
+# path CLAUDE.md allows), the site's four destinations with 44px targets, the
+# credentials line and a copyright. A page never links to itself here: the
+# current page is left out of the nav, and on /contact the CTA is dropped too
+# while it would only point back at the form on the same page.
+FOOTER_LINKS = [("/our-work/", "Work", "work"), ("/packages/", "Packages", "packages"),
+                ("/team/", "Team", "team"), ("/contact/", "Contact", "contact")]
+YEAR = datetime.date.today().year
+
+
+def site_footer(page=""):
+    links = "".join(f'<a href="{h}">{label}</a>' for h, label, key in FOOTER_LINKS
+                    if key != page)
+    cta_is_here = page == "contact" and cta_href().startswith("/contact/")
+    cta = "" if cta_is_here else book("Footer", "", "cta")
+    return (f'<footer>{SPLAT_SVG}<div class="wrap">'
+            f'<div class="foot">'
+            f'<div class="foot-main">'
+            f'<p class="display foot-line">Let&#39;s make something that travels.</p>'
+            f'<div class="foot-actions">{cta}'
+            f'<a class="foot-mail" href="mailto:{EMAIL}">{EMAIL}</a></div>'
+            f'</div>'
+            f'<nav class="foot-nav" aria-label="Footer">{links}</nav>'
+            f'</div>'
+            f'<div class="foot-meta">'
+            f'<p>Los Angeles, CA &middot; Insured &middot; Working since 2019</p>'
+            f'<p>&copy; {YEAR} Home Service Studios</p>'
+            f'</div>'
+            f'</div></footer>')
+
+
 def logo_marquee():
     """The client wall as a continuous marquee. The track is duplicated because a
     translateX of -50% only loops seamlessly if the second half repeats the first."""
@@ -2460,11 +2501,7 @@ html = f"""<title>Selected work, Home Service Studios</title>
 
 </main>
 
-<footer>{SPLAT_SVG}<div class="wrap">
-  <p class="eyebrow">Contact</p>
-  <a class="display" href="/contact/#start">Let's make something that travels.</a>
-  <div class="fcontact"><a href="/contact/#start">Contact</a></div><p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019&nbsp;&middot;&nbsp; <a href="/contact/">Contact</a></p>
-</div></footer>
+{site_footer("work")}
 {actionbar()}
 {SPLAT_JS}
 {SOLO_JS}
@@ -2701,12 +2738,7 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 </div></section>
 </main>
 
-<footer>{SPLAT_SVG}<div class="wrap">
-  <p class="eyebrow">Contact</p>
-  <a class="display" href="/contact/#start">Let&#39;s make something that travels.</a>
-  <div class="fcontact"><a href="/contact/#start">Contact</a></div><p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019
-  &nbsp;&middot;&nbsp; <a href="/our-work/">See the work</a>&nbsp;&middot;&nbsp; <a href="/contact/">Contact</a></p>
-</div></footer>
+{site_footer("packages")}
 {actionbar()}
 {SPLAT_JS}
 {NAV_JS}
@@ -2870,12 +2902,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 
 </main>
 
-<footer>{SPLAT_SVG}<div class="wrap">
-  <p class="eyebrow">Contact</p>
-  <a class="display" href="/contact/#start">Let&#39;s make something that travels.</a>
-  <div class="fcontact"><a href="/contact/#start">Contact</a></div><p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019
-  &nbsp;&middot;&nbsp; <a href="/our-work/">See the work</a> &nbsp;&middot;&nbsp; <a href="/packages/">Packages</a>&nbsp;&middot;&nbsp; <a href="/contact/">Contact</a></p>
-</div></footer>
+{site_footer("home")}
 {actionbar()}
 {SPLAT_JS}
 {SOLO_JS}
@@ -3058,14 +3085,7 @@ CONTACT_HTML = f"""<title>Contact</title>
 </div></section>
 </main>
 
-<footer>{SPLAT_SVG}<div class="wrap">
-  <p class="eyebrow">Contact</p>
-  <a class="display" href="/contact/#start">Let&#39;s make something that travels.</a>
-  <div class="fcontact"><a href="/contact/#start">Contact</a></div>
-  <p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019
-  &nbsp;&middot;&nbsp; <a href="/our-work/">See the work</a>
-  &nbsp;&middot;&nbsp; <a href="/packages/">Packages</a>&nbsp;&middot;&nbsp; <a href="/contact/">Contact</a></p>
-</div></footer>
+{site_footer("contact")}
 {actionbar()}
 {SPLAT_JS}
 {NAV_JS}
@@ -3194,14 +3214,7 @@ TEAM_HTML = f"""<title>Meet the team</title>
 </div></section>
 </main>
 
-<footer>{SPLAT_SVG}<div class="wrap">
-  <p class="eyebrow">Contact</p>
-  <a class="display" href="/contact/#start">Let&#39;s make something that travels.</a>
-  <div class="fcontact"><a href="/contact/#start">Contact</a></div>
-  <p style="margin-top:var(--s3);">Los Angeles, CA &nbsp;&middot;&nbsp; Insured &nbsp;&middot;&nbsp; Working since 2019
-  &nbsp;&middot;&nbsp; <a href="/our-work/">See the work</a>
-  &nbsp;&middot;&nbsp; <a href="/packages/">Packages</a>&nbsp;&middot;&nbsp; <a href="/contact/">Contact</a></p>
-</div></footer>
+{site_footer("team")}
 {actionbar()}
 {SPLAT_JS}
 {NAV_JS}

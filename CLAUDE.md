@@ -241,6 +241,12 @@ a CTA href again.**
 There are zero `mailto:` links on buttons anywhere on the site. Footer contact addresses stay as
 email on purpose, as the secondary path.
 
+**The footer is one function, `site_footer(page)`** (2026-10-06; it used to be hand copied five
+times). It renders the tagline, the primary CTA via `book()`, the email as a mailto text link, a
+labelled footer nav (Work, Packages, Team, Contact, 44px targets), the credentials line and
+`&copy; YEAR`. It never links a page to itself: the current page drops out of the nav, and on
+`/contact` the CTA is dropped while `cta_href()` points at that same page.
+
 The nav pill is the tightest thing on the site at 390px. It shows "Start a project" from 560px up
 and "Contact" below that, and the short label may not be a generic word: "Start" on its own fails
 Lighthouse's `link-text` audit and cost 8 SEO points. The pill also uses sentence case Onest
