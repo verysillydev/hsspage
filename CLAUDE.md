@@ -205,13 +205,15 @@ title, short-sentence copy, a link or button, then media, with a hairline betwee
 - **03 Brand videos.** "Watch the full film" (YouTube, new tab), then the Quality brand film at full
   width (`brand_film()`, see Video), captioned "Brand film for Quality Heating Cooling Plumbing
   Electrical, Tulsa." with 1:44.
-- **04 Podcast production.** "Watch Service MVP" (the channel, new tab), the small line "Set build,
-  production and post." and the example caption "Service MVP Sales Training Podcast with Joe
-  Crisara." **The media is one constant, `PODCAST_VIDEO`:** `None` until the owner supplies the
-  file, so the block renders without media and the caption sits under the link. Set it to
-  (file in `spots/`, poster path, "m:ss") after encoding faststart, and the block shows a
-  hover-play video with the caption and duration under it (tested with a stand-in). **Never use a
-  Service MVP episode pulled from YouTube**: the owner rejected the latest one.
+- **04 Podcast production.** "Watch the full episode" (YouTube `WoQBaTu2K28`, new tab), the
+  small line "Set build, production and post.", then the podcast film, hover-play at full width,
+  captioned "Service MVP Sales Training Podcast with Joe Crisara." with 3:24. **The media is one
+  constant, `PODCAST_VIDEO`** (file in `spots/`, poster path, "m:ss"): `spots/servicemvp-podcast.mp4`
+  (13.4 MB) is the owner's chosen cut of the episode from 32:19 to the end, and its poster
+  `post/servicemvp-podcast.webp` is the owner's wide two-shot of the set (the film opens on a
+  close-up, so play cuts from the wide shot). `None` renders the block without media, with the
+  caption under the link. **Never swap in another Service MVP episode pulled from YouTube without
+  the owner**: the latest one was rejected.
 
 ## Client logo wall
 

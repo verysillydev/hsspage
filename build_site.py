@@ -3291,12 +3291,16 @@ def brand_film():
                        "the Quality Heating Cooling Plumbing Electrical brand film")
 
 
-# Block 04, podcast production. The owner is supplying the example video (never a
-# Service MVP episode pulled from YouTube: the owner rejected the latest one). Set
-# PODCAST_VIDEO to (file in spots/, poster path, duration label "m:ss") once it is
-# encoded faststart; until then the block renders without media and its example
-# caption sits under the link. The duration is checked against the file like the spots.
-PODCAST_VIDEO = None
+# Block 04, podcast production. PODCAST_VIDEO is (file in spots/, poster path,
+# duration label "m:ss"); None renders the block without media, with the caption
+# under the link. The film is the owner's chosen cut of the Service MVP episode
+# "How This HVAC Owner Scaled From 1 Truck to 13..." (YouTube WoQBaTu2K28), from
+# 32:19 to the end; the poster is the owner's wide two-shot of the set, the best view
+# of the set build. Never swap in another episode pulled from YouTube without the
+# owner (the latest one was rejected). Its duration and faststart are checked like
+# every other film in vspot_media().
+PODCAST_VIDEO = ("servicemvp-podcast.mp4", f"{P}/servicemvp-podcast.webp", "3:24")
+PODCAST_EPISODE_URL = "https://www.youtube.com/watch?v=WoQBaTu2K28"
 PODCAST_CAPTION = "Service MVP Sales Training Podcast with Joe Crisara."
 
 
@@ -3305,8 +3309,9 @@ def podcast_media():
     if not PODCAST_VIDEO:
         return f'<p class="wwd-cap"><span>{PODCAST_CAPTION}</span></p>'
     fn, poster_path, du = PODCAST_VIDEO
+    mime = "image/webp" if poster_path.endswith(".webp") else "image/jpeg"
     media = (vspot_media(fn, du, poster_path, "the Service MVP podcast") if MODE == "web" else
-             f'<div class="vspot"><img src="{asset(poster_path, "image/jpeg")}"'
+             f'<div class="vspot"><img src="{asset(poster_path, mime)}"'
              f'{dims(poster_path)} alt="" loading="lazy"></div>')
     return (f'<div class="wwd-film">{media}<p class="wwd-cap"><span>{PODCAST_CAPTION}</span>'
             f'<span class="du">{du}</span></p></div>')
@@ -3419,7 +3424,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <p class="wwd-copy">We build the set, run the shoot and handle the edit. You show up and
     talk.</p>
     <p class="wwd-small">Set build, production and post.</p>
-    <a class="wwd-link" href="https://www.youtube.com/channel/UC-0DMx1NEizXp3aRWcVv4ag">Watch Service MVP&nbsp;&rarr;</a>
+    <a class="wwd-link" href="{PODCAST_EPISODE_URL}">Watch the full episode&nbsp;&rarr;</a>
     {podcast_media()}
   </div>
 </div></section>
