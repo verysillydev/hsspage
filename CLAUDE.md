@@ -102,10 +102,43 @@ Two assertions run before anything is written to disk, so a bad build fails inst
 
 ## Video
 
-Two sets, selected by build mode. `vid/720` for the live site, `vid/360` for the artifact, which
-inlines base64 under a hard 16MB page cap. **No watermarks**, removed 2026-08-15 by Yoni's call.
-Masters live in `~/Downloads/Final Deliverables - {All Heart Commercials, Handyman Dan}` and the
-Quality banner is `~/Downloads/Website_Banner_Edit_v02_music.mp4`.
+**The commercial spots are self-hosted for hover play; YouTube stays for the hero and the banner
+(release 4, 2026-10-06, owner request).** The All Heart case page's ten spots, the Handyman Dan
+strip under More work on `/our-work` and the homepage "The work itself: commercial spots" row play
+the whole film, not a preview:
+- Real hover (`(hover: hover) and (pointer: fine)`), no reduced motion: entering a card plays from
+  0:00 muted (browsers refuse sound without a click), leaving pauses, rewinds to 0:00 and brings
+  the poster back. A click turns sound on and it keeps playing (another click mutes); a small
+  "Click for sound" / "Sound on" hint shows while it plays. Once sound has been turned on, later
+  hovers try with sound and fall back to muted when `play()` is refused. A 120ms hover-intent
+  delay keeps a pointer crossing the grid from starting (and downloading) anything.
+- Touch: tap plays inline with sound, tap again pauses. Reduced motion: no hover play, click or
+  tap to play. Keyboard: the picture is one `<button>` ("Play <title>", "Pause <title>"); focus
+  alone never plays; Enter/Space play and pause with sound.
+- The end of a film, or another video starting, puts a card back to its poster.
+
+All of it is in `SOLO_JS` (which case pages with spots now carry too). Markup comes from `spot()`:
+`<video preload="none" playsinline>` with width/height read from the file by `mp4_info()`, under
+the lazy `post_yt/<id>.webp` poster `<img>` (not the poster attribute, which loads eagerly and
+cannot come back after playback). **A page load fetches no video at all** (verified per release);
+keep it that way.
+
+The files are `spots/` (committed, about 54 MB): `ah01`-`ah10` in the order of the `allheart`
+list, and `hd01 hd02 hd03 hd05 hd06`, which keep the original six-spot numbering (there is no
+`hd04`: Father Vs AC was removed in R17 and must not return). 720p H.264, AAC 96k, encoded from
+the owner's own YouTube uploads; the YouTube ids stay in the lists as the reference copy and the
+poster key. The web build copies a file to `/our-work/a/` only when a card uses it. The build
+refuses a spot whose duration does not match its card label, one that is not faststart (moov must
+come before mdat: re-encode with `-movflags +faststart`), two cards sharing a file, a page with
+spot cards but no `SOLO_JS`, and any YouTube spot card left in the web build. To add a spot:
+encode the same way, put it in `spots/`, name it in the list with its YouTube id. Every full play
+costs the visitor (and the host) 1.4 to 7.2 MB.
+
+The inline artifact build (`python3 build_site.py`) cannot carry the films under its 16MB cap, so
+it keeps the YouTube click-to-play cards (`YT_SPOT_JS`, the old MOTION_JS section (h)).
+**No watermarks**, removed 2026-08-15 by Yoni's call. Masters live in `~/Downloads/Final
+Deliverables - {All Heart Commercials, Handyman Dan}` and the Quality banner is
+`~/Downloads/Website_Banner_Edit_v02_music.mp4`.
 
 The Quality banner **opens at 1:14 and loops back to 1:14, never to zero**, because the film's
 first minute is a slow establishing shot. That is `data-start="74"` on the element, and it needs
@@ -115,8 +148,9 @@ starting playback first makes the seek arrive late and look ignored; and `post/q
 cut from the 1:14 frame so the poster matches what the video opens on.
 
 **Seeking cannot be tested against `python -m http.server`.** It answers Range requests with a
-200 and the whole file, so the video always plays from zero locally. Vercel answers 206. Test the
-start mark on a deploy, not on localhost.
+200 and the whole file, so the video always plays from zero locally. Vercel and GitHub Pages
+answer 206. Test the start mark on a deploy, not on localhost; the spot cards' rewind to 0:00
+was tested against a small Range-capable local server instead.
 
 It autoplays muted on scroll via IntersectionObserver with `preload="none"`, so its 23MB is not
 paid for on first paint. It pauses when it scrolls out of view and **resumes from the same
@@ -125,8 +159,9 @@ would reset it is `load()`, which is why that fires once on the very first sight
 again. If autoplay is refused (usually iOS low power mode) controls appear so it stays playable,
 but it retries on the next scroll back rather than degrading permanently.
 
-Only one video plays at a time; starting one rewinds every other. Videos marked `data-ambient`
-are exempt from that rule.
+Only one video plays at a time; starting one rewinds every other, and a spot card it stops goes
+back to its poster (`SOLO_JS` sends it a `spotstop` event). Videos marked `data-ambient` are
+exempt from that rule.
 
 **YouTube's title strip is clipped, not timed (2026-10-06).** The ambient embeds (homepage hero,
 `/our-work` banner) show YouTube's own "HSS Website Banner v02 / Sergy Olkowski" strip a few seconds
@@ -551,7 +586,9 @@ chart title is scoped "First year: ...".
 
 The second `.ytplay` rule in the sheet (46x32, radius 8px, CSS triangle) was written for the old
 title cards, which are gone, but it is what gives the click-to-play spot button its shape: it
-overrides the 52px circle declared earlier. Delete it only if you mean to change that button.
+overrides the 52px circle declared earlier. Delete it only if you mean to change that button. Since
+release 4 that button only appears in the inline artifact build; the web build's self-hosted spots
+draw the same 46x32 shape with `.vglyph`, which animates opacity and transform only.
 
 The sticky case header from the motion phase was **removed, not merely disabled**. It was specced
 to orient a reader in a long page, but the case split left these pages at 180 to 380 words, so a
