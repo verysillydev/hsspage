@@ -2661,22 +2661,20 @@ html = f"""<title>Selected work, Home Service Studios</title>
 <main id="main">
 <div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Selected work &middot; Home Service Studios</p>
-  <h1 class="display">Three clients.<br><span class="hl">Three kinds of proof.</span></h1>
-  <p class="sub">From a Tucson HVAC company&#39;s breakout reels to a ten-spot comedy campaign shot
-  in one block. <strong>The approach does not change.</strong></p>
-  <div class="stats">
-    <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">One client, 7 reels</span></a>
-    <a class="stat" href="{case_url("allheart")}"><span class="case">All Heart</span><span class="n">10</span><span class="k">Spots delivered</span></a>
+  <h1 class="display">Real accounts.<br><span class="hl">Real numbers.</span></h1>
+  <p class="sub">{num_word(len(CASES)).capitalize()} home service companies, the problem each one
+  started with, and what changed, <strong>measured on their own accounts</strong>.</p>
+  <div class="stats quad">
+    <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views on 7 reels</span></a>
+    <a class="stat" href="{case_url("beerightthere")}"><span class="case">Bee Right There</span><span class="n">3.8x</span><span class="k">Views in three weeks</span></a>
+    <a class="stat" href="{case_url("icomfort")}"><span class="case">iComfort</span><span class="n">6.8x</span><span class="k">Followers in under a year</span></a>
+    <a class="stat" href="{case_url("allheart")}"><span class="case">All Heart</span><span class="n">10</span><span class="k">Spots from one shoot</span></a>
   </div>
   <div class="ctarow">
     {book("Project%20enquiry", "Start a project")}
     <a class="cta ghost" href="/packages/">Monthly packages</a>
   </div>
   {reassure("work")}
-  <p class="ctanote" style="margin-top:16px;max-width:60ch;">Home Service Studios is run by its
-  cofounders, filmmaker Craig Balog and film and television crew veteran Seth Yeager, out of a
-  Marina del Rey office. Creative direction comes from Yoni Paz, who spent seven years across the
-  creator economy, live streaming and social commerce before turning to commercial work.</p>
 </div></div>
 
 <section id="quality" class="flush">
@@ -3647,12 +3645,21 @@ if MODE == "web":
     # SITE now lives at the top of the file beside EMAIL, so JSON_LD can reach it
     # too. The old domain should 301 here rather than keep serving its stale
     # pre-rebrand build, which is the one part of this that is not a code change.
-    D1 = ("Case studies from Home Service Studios, a Los Angeles video company: 2.26M views "
-          "for one HVAC client, 983K on one reel for another, ten spots from one shoot.")
+    D1 = (f"{num_word(len(CASES)).capitalize()} home service companies and what changed: "
+          "2.26M views for A1 in Tucson, 3.8x the views for Bee Right There, 6.8x the "
+          "followers for iComfort, ten spots from one shoot for All Heart.")
+    # The portfolio as structured data: a CollectionPage listing every case page.
+    WORK_LD = ('<script type="application/ld+json">' + json.dumps({
+        "@context": "https://schema.org", "@type": "CollectionPage",
+        "name": "Case studies", "url": f"{SITE}/our-work/", "description": D1,
+        "mainEntity": {"@type": "ItemList", "itemListElement": [
+            {"@type": "ListItem", "position": n + 1, "url": f"{SITE}{case_url(c['id'])}",
+             "name": f"{c.get('full', c['name'])} case study".replace("&amp;", "&")}
+            for n, c in enumerate(CASES)]}}, separators=(",", ":")) + '</script>')
     n1 = write_web(html, f"{OUT}/index.html",
                    title="Case Studies | Home Services Video Production | Home Service Studios",
                    desc=D1, og_image=f"{SITE}/our-work/a/og-cover.jpg",
-                   url=f"{SITE}/our-work/")
+                   url=f"{SITE}/our-work/", extra_head=WORK_LD)
 
     packages = validate(PACKAGES_HTML, "packages")
     D2 = ("Monthly short-form video packages from Home Service Studios: a reel every "
