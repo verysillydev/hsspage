@@ -1,151 +1,143 @@
 {
   "currency": "USD",
   "billing": "month",
-  "annualBenefit": "Commit to twelve months and the twelfth is free.",
-  "_note": "Single source of truth. build_site.py renders every price from here and asserts no price string appears in a template. Platinum carries the recommended badge: Yoni confirmed 18 Aug 2026 that it is the tier most home service providers actually select. Studio scope reflects what is published today, one long-form video a month; a proposal to raise that to two is pending confirmation.",
+  "_note": "Single source of truth. build_site.py renders every price from here (tier cards, the homepage ladder, the /contact budget bands, the /packages meta description, JSON-LD offers) and asserts no price string appears in a template. Price book: the owners' pitch deck 'Portfolio 2025' (filed as Social Media Travel Pricing), confirmed by the owners on 2026-10-06. Silver carries the only recommended badge: the owner confirmed on 2026-10-06 that most home service companies choose Silver (replaces the 2026-08-18 note that named the old Platinum). adSpend is the dedicated monthly ad budget the tier includes, which our team manages; the build writes its feature line from this number. budgetBands pairs tiers for the /contact radios; api_contact.js BUDGETS must hold the same strings (the build asserts it).",
   "groups": [
     {
-      "id": "you-shoot",
-      "heading": "You shoot it",
-      "subhead": "Everyone on your team already has a phone in their pocket. Our team sends a shot list telling them exactly what to capture, and takes it from there.",
+      "id": "you-supply",
+      "heading": "You supply the footage",
+      "subhead": "Your team provides the footage and sends it over. We turn it into a reel every weekday, graphics for the weekend and stories across your platforms, on a content calendar we build for you.",
       "tiers": [
-        "bronze",
-        "silver"
+        "baby-steps"
       ]
     },
     {
-      "id": "we-shoot",
-      "heading": "Our crew shoots it",
-      "subhead": "Nobody on your team has to remember to film anything. Having to remember is the reason most content programs quietly die in month three, and removing it is what you are actually paying us to solve.",
+      "id": "two-days",
+      "heading": "Two production days a year",
+      "subhead": "Our crew comes out for two production days a year, and your team supplies footage in between. Starter and Bronze differ only in the monthly ad budget we manage for you.",
       "tiers": [
+        "starter",
+        "bronze"
+      ]
+    },
+    {
+      "id": "four-days",
+      "heading": "Four production days a year",
+      "subhead": "Our crew comes out for four production days a year, with local production days added as needed. Gold doubles the daily reels and adds a dedicated engager; Platinum adds a long-form YouTube video every month.",
+      "tiers": [
+        "silver",
         "gold",
         "platinum"
       ]
-    },
-    {
-      "id": "studio",
-      "heading": "Studio",
-      "subhead": "Real production days with a four-person crew, plus long-form video on YouTube. That is a serious amount of capacity, so we only take a few of these at a time. This is closer to having a media department than hiring a vendor. The difference between the two is how much long form you want: one considered YouTube video a month, or one every week.",
-      "tiers": [
-        "studio",
-        "studio-max"
-      ]
     }
+  ],
+  "budgetBands": [
+    [
+      "baby-steps",
+      "starter"
+    ],
+    [
+      "bronze",
+      "silver"
+    ],
+    [
+      "gold",
+      "platinum"
+    ]
   ],
   "tiers": [
     {
+      "id": "baby-steps",
+      "name": "Baby Steps",
+      "tagline": "Your footage, posted every day",
+      "price": 1997,
+      "camera": "Your team provides the content",
+      "adSpend": 0,
+      "features": [
+        "One reel every weekday, Monday to Friday",
+        "Graphics posts on Saturday and Sunday",
+        "Story posting across all your platforms",
+        "Stories produced for you",
+        "A content calendar built for you"
+      ],
+      "recommended": false
+    },
+    {
+      "id": "starter",
+      "name": "Starter",
+      "tagline": "Two production days a year",
+      "price": 3847,
+      "camera": "Our crew twice a year, your footage in between",
+      "adSpend": 150,
+      "features": [
+        "One reel every weekday, Monday to Friday",
+        "Graphics posts on Saturday and Sunday",
+        "Story posting across all your platforms",
+        "Two production days a year with our crew"
+      ],
+      "recommended": false
+    },
+    {
       "id": "bronze",
       "name": "Bronze",
-      "tagline": "Ten reels a month",
-      "price": 2000,
-      "camera": "You hold the camera",
-      "perAsset": "$200 per finished reel",
-      "recommended": false,
-      "byApplication": false,
+      "tagline": "Starter with a bigger ad budget",
+      "price": 5847,
+      "camera": "Our crew twice a year, your footage in between",
+      "adSpend": 300,
       "features": [
-        "Ten short-form reels every month",
-        "Your team captures on a phone",
-        "Our team plans the content and sends you the shot list",
-        "Edited, captioned and posted for you"
-      ]
+        "One reel every weekday, Monday to Friday",
+        "Graphics posts on Saturday and Sunday",
+        "Story posting across all your platforms",
+        "Two production days a year with our crew"
+      ],
+      "recommended": false
     },
     {
       "id": "silver",
       "name": "Silver",
-      "tagline": "Every weekday",
-      "price": 3000,
-      "camera": "You hold the camera",
-      "perAsset": "About $136 per finished reel",
-      "recommended": false,
-      "byApplication": false,
+      "tagline": "Four production days a year",
+      "price": 7847,
+      "camera": "Our crew four times a year, plus local days as needed",
+      "adSpend": 450,
       "features": [
-        "Something goes out Monday through Friday",
-        "Your team captures on a phone",
-        "Our team plans the content and sends you the shot list",
-        "Edited, captioned and posted for you"
-      ]
+        "One reel every weekday, Monday to Friday",
+        "Graphics posts on Saturday and Sunday",
+        "Story posting across your platforms",
+        "Four production days a year with our crew",
+        "Local production days as needed"
+      ],
+      "recommended": true,
+      "recommendedLabel": "What most home service companies choose"
     },
     {
       "id": "gold",
       "name": "Gold",
-      "tagline": "Ten reels a month",
-      "price": 4000,
-      "camera": "One shooter, ours",
-      "perAsset": "$400 per finished reel",
-      "recommended": false,
-      "byApplication": false,
+      "tagline": "Two reels every weekday",
+      "price": 10847,
+      "camera": "Our crew four times a year, plus local days as needed",
+      "adSpend": 600,
       "features": [
-        "Ten short-form reels every month",
-        "One vetted, trained shooter comes to you",
-        "Our team plans the shoot and runs it on the day",
-        "Nobody on your team films anything",
-        "Edited, captioned and posted for you",
-        "Professional photos from every shoot, edited and delivered for your Google Business Profile or carousel posts",
-        "Six months in: a banner film, team photos and professionally lit interviews with your key people",
-        "Twelve months in: your twelfth month is on us"
-      ]
+        "Two reels every weekday, Monday to Friday",
+        "Graphics posts on Saturday and Sunday",
+        "Story posting across all your platforms",
+        "A dedicated engager answering your comments and messages",
+        "Four production days a year with our crew",
+        "Local production days as needed"
+      ],
+      "recommended": false
     },
     {
       "id": "platinum",
       "name": "Platinum",
-      "tagline": "Every weekday",
-      "price": 5000,
-      "camera": "Two shooters, ours",
-      "perAsset": "About $227 per finished reel",
-      "recommended": true,
-      "byApplication": false,
+      "tagline": "Gold plus a YouTube video a month",
+      "price": 13847,
+      "camera": "Our crew four times a year, plus local days as needed",
+      "adSpend": 750,
       "features": [
-        "Something goes out Monday through Friday",
-        "Two vetted, trained shooters come to you",
-        "Our team plans the shoot and runs it on the day",
-        "Nobody on your team films anything",
-        "Edited, captioned and posted for you",
-        "Professional photos from every shoot, edited and delivered for your Google Business Profile or carousel posts",
-        "Six months in: a banner film, team photos and professionally lit interviews with your key people",
-        "Twelve months in: your twelfth month is on us"
+        "Everything in Gold",
+        "One long-form YouTube anchor video every month"
       ],
-      "recommendedLabel": "What most home service companies choose"
-    },
-    {
-      "id": "studio",
-      "name": "Studio",
-      "tagline": "One production day a month",
-      "price": 10000,
-      "camera": "Full crew, on set",
-      "perAsset": null,
-      "recommended": false,
-      "byApplication": false,
-      "features": [
-        "One full production day every month",
-        "Four vetted, trained shooters on set",
-        "Something goes out Monday through Friday",
-        "One long-form YouTube video a month",
-        "Edited, captioned and posted for you",
-        "Professional photos from every shoot, edited and delivered for your Google Business Profile or carousel posts",
-        "Six months in: a banner film, team photos and professionally lit interviews with your key people",
-        "Twelve months in: your twelfth month is on us"
-      ]
-    },
-    {
-      "id": "studio-max",
-      "name": "Studio Max",
-      "tagline": "Two production days a month",
-      "price": 15000,
-      "camera": "Full crew, on set",
-      "perAsset": null,
-      "recommended": false,
-      "byApplication": true,
-      "featured": true,
-      "features": [
-        "Two full production days every month",
-        "Four vetted, trained shooters on set",
-        "Something goes out Monday through Friday",
-        "Long-form YouTube every week, four to five a month",
-        "Edited, captioned and posted for you",
-        "Professional photos from every shoot, edited and delivered for your Google Business Profile or carousel posts",
-        "Six months in: a banner film, team photos and professionally lit interviews with your key people",
-        "Twelve months in: your twelfth month is on us"
-      ]
+      "recommended": false
     }
   ]
 }

@@ -512,7 +512,7 @@ CSS = """<style>
     background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:40px;}
 
   /* Budget as visible radios rather than a dropdown: a buyer who never opens a menu
-     never learns the floor is $2,000, and self-selection out is wanted here. */
+     never learns where the floor is, and self-selection out is wanted here. */
   .budgets{gap:var(--s3);}
   .budgetrow{display:grid;grid-template-columns:1fr;gap:var(--s2);}
   @media(min-width:560px){.budgetrow{grid-template-columns:repeat(auto-fit,minmax(172px,1fr));}}
@@ -1071,6 +1071,7 @@ CSS = """<style>
   .band-tab{display:inline-flex;align-items:center;color:#fff;font-family:var(--display);
     font-weight:900;letter-spacing:-.01em;font-size:var(--f-h3);padding:var(--s3) var(--s6) var(--s3) var(--s5);
     clip-path:polygon(0 0,calc(100% - 22px) 0,100% 100%,0 100%);margin-bottom:calc(var(--s4) * -1);
+    line-height:1.15;
     position:relative;z-index:1;box-shadow:0 10px 18px -10px rgba(0,0,0,.4);}
   /* 2026-10-06: the two bright tabs carry ink, not white. White on the cyan
      was 2.61:1 (axe color-contrast, fails AA even as large text) and white on
@@ -1087,14 +1088,17 @@ CSS = """<style>
   .band-tab.t-orange ~ .band-body{border-top:3px solid var(--orange);}
   .band-tab.t-cyan ~ .band-body{border-top:3px solid var(--cyan);}
   .band-tab.t-ink ~ .band-body{border-top:3px solid var(--ink);}
-  .pkgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--s4);}
+  /* auto-fill, not auto-fit: since 2026-10-06 the groups hold one, two and
+     three tiers, and with auto-fit a lone card stretched across the whole band
+     and read as a banner, not a price. auto-fill keeps the empty tracks, so a
+     card is the same width in every group (three tracks at desktop). min()
+     keeps a narrow phone from overflowing the 280px floor. */
+  .pkgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));
+    gap:var(--s4);}
   .pkg{background:var(--ground);border:1px solid var(--line);border-radius:var(--r-md);
     padding:var(--s6) var(--s5);display:flex;flex-direction:column;gap:var(--s4);position:relative;}
-  .pkg.feat{border-color:rgba(var(--orange-rgb),.4);
-    background:linear-gradient(180deg,rgba(var(--orange-rgb),.07) 0%,var(--ground) 46%);}
   .pkg .tier{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
     font-size:var(--f-lede);color:var(--cyan-text);}
-  .pkg.feat .tier{color:var(--orange-text);}
   .pkg .pname{font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);line-height:1.25;}
   .priceline{display:flex;align-items:baseline;gap:var(--s2);}
   .pkg .price{font-size:var(--f-price);font-weight:700;letter-spacing:-.035em;
@@ -1105,25 +1109,20 @@ CSS = """<style>
     line-height:1.5;}
   .pkg li::before{content:"+";position:absolute;left:0;top:0;color:var(--cyan-text);
     font-family:var(--mono);font-size:var(--f-sm);}
-  .pkg.feat li::before{color:var(--orange-text);}
   .pkg .shoot{font-size:var(--f-sm);color:var(--ink);font-weight:600;
     border-top:1px solid var(--line);padding-top:var(--s3);}
-  .pkg .unit{font-size:var(--f-sm);color:var(--cyan-text);font-family:var(--mono);margin-top:calc(var(--s2) * -1);}
-  .pkg.feat .unit{color:var(--orange-text);}
-  .pkg .apply{align-self:flex-start;background:var(--orange);color:#14171A;border-radius:var(--r-pill);
-    padding:12px var(--s5);font-size:var(--f-body);font-weight:650;text-decoration:none;
-    transition:filter var(--ease);}
-  .pkg .apply:hover{filter:brightness(1.08);}
-
-  .pkg .perasset{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:.06em;
-    text-transform:uppercase;color:var(--ink-3);margin-top:calc(var(--s2) * -1);}
   /* a full width header strip, not a corner tag: the label is a sentence and at
-     62% width it wrapped to two lines and collided with the tier name */
-  .pkg .best{position:absolute;top:0;left:0;right:0;background:var(--orange);color:#14171A;
-    font-size:var(--f-micro);font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-    padding:8px var(--s4);border-radius:var(--r-md) var(--r-md) 0 0;text-align:center;
+     62% width it wrapped to two lines and collided with the tier name. It is in
+     normal flow, pulled out to the card edges with negative margins equal to the
+     card padding, rather than absolutely positioned over a padding guess: at
+     1440 in a 360px card the label runs to two lines, which the old fixed
+     20px allowance could not hold. */
+  .pkg .best{display:block;margin:calc(var(--s6) * -1) calc(var(--s5) * -1) 0;
+    background:var(--orange);color:#14171A;
+    font-size:var(--f-micro);font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:var(--s2) var(--s4);border-radius:var(--r-sm) var(--r-sm) 0 0;text-align:center;
     line-height:1.35;}
-  .pkg:has(.best){border-color:rgba(var(--orange-rgb),.4);padding-top:calc(var(--s6) + 20px);}
+  .pkg:has(.best){border-color:rgba(var(--orange-rgb),.4);}
 
   /* the constant, stated before the tiers so the tiers are easier to read */
   .always{background:var(--ground-2) url(__TEXTURE_PLASTER__) center/cover no-repeat;
@@ -2512,18 +2511,6 @@ html = f"""<title>Selected work, Home Service Studios</title>
 
 # ---- packages page --------------------------------------------------------
 
-# earned at six and twelve months, on both crew packages
-MILESTONE = [
-    "Six months in: a banner film, team photos and professionally lit interviews with your key people",
-    "Twelve months in: your twelfth month is on us",
-]
-
-# only the crew tiers get this: it needs a professional on site, which the two
-# phone tiers by definition do not have
-PHOTOS = ("Professional photos from every shoot, edited and delivered for your "
-          "Google Business Profile or carousel posts")
-
-
 # ---- packages, rendered from data/packages.json --------------------------
 # Every price on the site comes from that file. A build assertion below fails if a
 # price string ever reappears in a template, which is how the home page and this
@@ -2532,28 +2519,39 @@ PKG = json.loads(pathlib.Path(f"{S}/data/packages.json").read_text())
 TIER = {x["id"]: x for x in PKG["tiers"]}
 money = lambda n: "$" + format(n, ",")
 
+# Every price-bearing phrase in the copy is derived from these, never typed: the
+# cheapest and dearest tier, and how many programs there are, in words.
+PRICE_MIN = min(t["price"] for t in PKG["tiers"])
+PRICE_MAX = max(t["price"] for t in PKG["tiers"])
+_NUM_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+              "nine", "ten", "eleven", "twelve"]
+PROGRAMS_WORD = _NUM_WORDS[len(PKG["tiers"])]
+
 
 def pkg_card(tid):
+    """One tier card. The ad budget line is written from the tier's adSpend number,
+    so the dollar figure lives in packages.json once. Since the 2026-10-06 price
+    book there is no per-asset price, no application-only tier and no free month;
+    the recommended strip is driven by the json (Silver, owner confirmed)."""
     c = TIER[tid]
-    lis = "".join(f"<li>{b}</li>" for b in c["features"])
+    feats = list(c["features"])
+    if c.get("adSpend"):
+        feats.append(f"A {money(c['adSpend'])} monthly ad budget, managed by our team")
+    lis = "".join(f"<li>{b}</li>" for b in feats)
     badge = (f'<span class="best">{c["recommendedLabel"]}</span>'
              if c.get("recommended") else "")
-    unit = '<div class="unit">By application</div>' if c.get("byApplication") else ""
-    apply_btn = (f'<a class="apply" href="{cta_href()}">Ask how to apply</a>'
-                 if c.get("byApplication") else "")
-    per = (f'<div class="perasset">{c["perAsset"]}</div>' if c.get("perAsset") else "")
-    return (f'<div class="pkg{" feat" if c.get("featured") else ""}">'
+    return (f'<div class="pkg">'
             f'{badge}<span class="tier">{c["name"]}</span>'
             f'<span class="pname">{c["tagline"]}</span>'
             f'<div class="priceline"><span class="price">{money(c["price"])}</span>'
             f'<span class="per">per month</span></div>'
-            + unit + per + f'<ul>{lis}</ul>' + apply_btn
-            + f'<div class="shoot">{c["camera"]}</div></div>')
+            f'<ul>{lis}</ul>'
+            f'<div class="shoot">{c["camera"]}</div></div>')
 
 
 # One tab color per group, in ascending commitment order. Only three tones exist
 # site wide, so this is the whole rotation, not a sample of a larger palette.
-BAND_TONE = {"you-shoot": "t-cyan", "we-shoot": "t-orange", "studio": "t-ink"}
+BAND_TONE = {"you-supply": "t-cyan", "two-days": "t-orange", "four-days": "t-ink"}
 
 
 def pkg_group(gid):
@@ -2572,19 +2570,6 @@ def price_ladder():
         f'<span class="k">{c["name"]} &middot; {c["tagline"]}</span></div>'
         for c in PKG["tiers"])
 
-
-def pkg(tier, name, price, unit, bullets, shooter, feat=False,
-        apply_href="", apply_label=""):
-    lis = "".join(f"<li>{b}</li>" for b in bullets)
-    return (f'<div class="pkg{" feat" if feat else ""}">'
-            + f'<span class="tier">{tier}</span>'
-            f'<span class="pname">{name}</span>'
-            f'<div class="priceline"><span class="price">{price}</span>'
-            f'<span class="per">per month</span></div>'
-            + (f'<div class="unit">{unit}</div>' if unit else "")
-            + f'<ul>{lis}</ul>'
-            + (f'<a class="apply" href="{apply_href}">{apply_label}</a>' if apply_href else "")
-            + f'<div class="shoot">{shooter}</div></div>')
 
 # Two small diagrams for the packages page. The first is breadth: a lot of posts,
 # familiarity rising slowly across all of them. The second is depth: fewer people,
@@ -2643,7 +2628,7 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
     <div class="band-head">
       <h2 class="display">Two different ways this works</h2>
       <p>Every package below is built on the first one. The second works the other way around,
-      and it is the only real difference between the mid tiers and the Studio tiers.</p>
+      and it is what Platinum adds on top of Gold.</p>
     </div>
     <div class="engines">
       <div class="engine">
@@ -2663,27 +2648,30 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
         sell. Fewer people, each one further along. Slower to start, it does produce trackable
         inbound, and <strong>unlike short form it does not expire</strong>: a video made for
         search keeps getting found years after it is posted.</p>
-        <span class="ewhere">Studio and Studio Max only</span>
+        <span class="ewhere">Platinum only</span>
       </div>
     </div>
   </div>
 
   <div class="always">
     <h2>The same three things happen at every tier</h2>
-    <p class="sub2">The only real difference between the packages is who holds the camera and how
-    much goes out. Everything here is included whether you spend $2,000 or $15,000.</p>
+    <p class="sub2">The packages differ in how often our crew is on site, how much goes out and
+    the ad budget we manage. Everything here is included whether you spend {money(PRICE_MIN)} or
+    {money(PRICE_MAX)}.</p>
     <div class="steps">
       <div class="step2"><span>Step 01</span><h3>Planned</h3>
-        <p>Our team works out what your content needs to do, then sends you a shot list before
-        anyone films anything.</p></div>
+        <p>Our team decides what goes out and when, so the schedule never depends on someone at
+        your company remembering.</p></div>
       <div class="step2"><span>Step 02</span><h3>Captured</h3>
-        <p>Either your team shoots to that list, or our crew comes out and shoots it for you.</p></div>
-      <div class="step2"><span>Step 03</span><h3>Cut and posted</h3>
-        <p>Edited, captioned and published to your channels. Not handed back to you as files.</p></div>
+        <p>Your team supplies footage, and from Starter up our crew adds production days on
+        site.</p></div>
+      <div class="step2"><span>Step 03</span><h3>Posted for you</h3>
+        <p>Reels every weekday, graphics on the weekend and stories across your platforms,
+        published to your channels rather than handed back as files.</p></div>
     </div>
   </div>
 
-  {pkg_group("you-shoot")}
+  {pkg_group("you-supply")}
 
   <div class="band">
     <div class="band-head full-lede">
@@ -2699,9 +2687,9 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
     </div>
   </div>
 
-  {pkg_group("we-shoot")}
+  {pkg_group("two-days")}
 
-  {pkg_group("studio")}
+  {pkg_group("four-days")}
 
   <div class="incl">
     <h3>Terms</h3>
@@ -2709,18 +2697,20 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
       <div><span>Starting and stopping</span><p>There is no setup fee. When you want out, we ask
         for 30 days notice and one final payment, so the shortest a package runs is two months.
         You keep every frame we shot and everything we posted, permanently.</p></div>
-      <div><span>Commitment</span><p>Every package runs month to month. Commit to twelve months
-        and the twelfth is free, so you pay for eleven. Studio Max is the one you apply for, because
-        capacity is limited.</p></div>
+      <div><span>Commitment</span><p>Every package runs month to month, on the notice terms
+        above.</p></div>
+      <div><span>Ad budget</span><p>From Starter up, each package includes the monthly ad budget
+        shown on its card, which our team manages for you. It goes behind your own content; it is
+        not a promise of leads.</p></div>
       <div><span>Insurance</span><p>We are insured. If your office needs paperwork on file
         before a crew is on your property or a job site, ask and we will send it over.</p></div>
       <div><span>Who owns it</span><p>You do. Every frame we shoot for you is yours to keep and
         use however you like, permanently.</p></div>
       <div><span>Where it goes</span><p>YouTube, Instagram, TikTok, Facebook and LinkedIn. Anywhere else
         you want to be, just say so.</p></div>
-      <div><span>When it starts</span><p>On current scheduling your first production day lands
-        three to four weeks after your initial payment clears. Posting begins once that footage is
-        cut, so the first month is a build month by design.</p></div>
+      <div><span>When it starts</span><p>On the packages with production days, the first one
+        lands three to four weeks after your initial payment clears on current scheduling. Posting
+        begins once that footage is cut, so the first month is a build month by design.</p></div>
       <div><span>Revisions</span><p>One round on anything you want changed. Everything is cut to
         make you look good on camera in the first place.</p></div>
       <div><span>Billing</span><p>The first month holds your start date. Nothing else is due until
@@ -2819,9 +2809,9 @@ HOME_HTML = f"""<title>Home Service Studios</title>
       shot in a single production block so the cost lands once and the inventory lasts a
       year.</p></div></div>
     <div><img class="csi-bg" src="{CSI_ICON_MONTHLY}" alt="" loading="lazy">
-      <div class="csi-body"><h3>Monthly programs</h3><p>Planned, filmed, edited and published every
-      month, on a schedule that does not depend on anyone at your company remembering to
-      film.</p></div></div>
+      <div class="csi-body"><h3>Monthly programs</h3><p>A reel every weekday and graphics every
+      weekend, planned and posted on a schedule that does not depend on anyone at your company
+      remembering to post.</p></div></div>
     <div><img class="csi-bg" src="{CSI_ICON_CREATOR}" alt="" loading="lazy">
       <div class="csi-body"><h3>Creator work</h3><p>Short form built for reach, for creators and
       channels where the audience is the business. We write the premise so it travels far past the
@@ -2871,14 +2861,14 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <h2 class="display">Known and trusted before they need you.</h2>
     <p class="lede">Nobody calls a home service company because they saw one good video. They call
     the company they already recognize, and <strong>that recognition is built over months, not in a
-    month</strong>. There are six monthly programs, from your team holding the phone to a
-    four-person crew on set twice a month. Planning, editing and posting are included at every
-    tier, and the top two add long form built for intent rather than attention.</p>
+    month</strong>. There are {PROGRAMS_WORD} monthly programs, from footage your own team
+    supplies to our crew on site four times a year, and every one of them posts a reel every
+    weekday. The top one adds long form built for intent rather than attention.</p>
   </div>
   <div class="ops">{price_ladder()}</div>
   <div class="ctarow">
     <a class="cta" href="/packages/">Compare the packages</a>
-    <span class="ctanote">Month to month. Commit to twelve and the twelfth is free.</span>
+    <span class="ctanote">Month to month, with no setup fee.</span>
   </div>
 </div></section>
 
@@ -2893,8 +2883,8 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <a class="door" href="/packages/">
       <span class="tier">Retainers</span>
       <h3>Hire us monthly</h3>
-      <p>Six programs, plain terms, and an honest account of what consistent content does and
-      does not do.</p>
+      <p>{PROGRAMS_WORD.capitalize()} programs, plain terms, and an honest account of what
+      consistent content does and does not do.</p>
       <span class="go">See the packages &rarr;</span>
     </a>
   </div>
@@ -2935,10 +2925,18 @@ TRADE_GROUPS = [
 TRADES = [x for _, opts in TRADE_GROUPS for x in opts]
 
 # Shown as visible radios, not a dropdown, on purpose. A buyer who never opens the
-# menu never learns the floor is $2,000, and self-selection out is a feature here.
-BUDGETS = [("$2,000 to $3,000", "Bronze and Silver"),
-           ("$4,000 to $5,000", "Gold and Platinum"),
-           ("$10,000 to $15,000", "Studio and Studio Max"), ("Not sure yet", "")]
+# menu never learns where the floor is, and self-selection out is a feature here.
+# Built from PKG's budgetBands (pairs of tier ids), so the ranges cannot drift
+# from the price book. api_contact.js validates against its own BUDGETS list and
+# bounces anything else with a 400, so the build checks the two are identical.
+BUDGETS = ([(f"{money(TIER[a]['price'])} to {money(TIER[b]['price'])}",
+             f"{TIER[a]['name']} and {TIER[b]['name']}") for a, b in PKG["budgetBands"]]
+           + [("Not sure yet", "")])
+_api_budgets = re.findall(r'"([^"]*)"', re.search(
+    r"const BUDGETS = \[(.*?)\];", pathlib.Path(f"{S}/api_contact.js").read_text(), re.S).group(1))
+assert _api_budgets == [v for v, _ in BUDGETS], (
+    "api_contact.js BUDGETS must match the bands built from data/packages.json: "
+    + repr([v for v, _ in BUDGETS]))
 
 
 def field(name, label, kind="text", req=True, hint="", ac="", im=""):
@@ -3206,8 +3204,8 @@ TEAM_HTML = f"""<title>Meet the team</title>
     <a class="door" href="/packages/">
       <span class="tier">Retainers</span>
       <h3>Put them on your account</h3>
-      <p>Six monthly programs, plain terms, and an honest account of what consistent
-      content does and does not do.</p>
+      <p>{PROGRAMS_WORD.capitalize()} monthly programs, plain terms, and an honest account of
+      what consistent content does and does not do.</p>
       <span class="go">See the packages &rarr;</span>
     </a>
   </div>
@@ -3329,8 +3327,9 @@ if MODE == "web":
                    url=f"{SITE}/our-work/")
 
     packages = validate(PACKAGES_HTML, "packages")
-    D2 = ("Monthly short-form content packages from Home Service Studios. Planning, "
-          "direction, editing and posting included, from 2,000 dollars per month.")
+    D2 = ("Monthly short-form video packages from Home Service Studios: a reel every "
+          "weekday, graphics every weekend and stories across your platforms, from "
+          f"{money(PRICE_MIN)} a month.")
     n2 = write_web(packages, f"{S}/deploy/packages/index.html",
                    title="Monthly Video Packages for Home Services | Home Service Studios",
                    desc=D2, og_image=f"{SITE}/our-work/a/og-cover.jpg",

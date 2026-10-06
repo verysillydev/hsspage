@@ -191,7 +191,8 @@ The site sells two mechanisms and must never collapse them into one:
    leads. Compounds slowly. This is what every tier is built on.
 2. **Long form made for intent rather than attention**, aimed at people already searching, with
    a capture offer. Slower to start, does produce trackable inbound, keeps working for years.
-   This only exists at the Studio and Studio Max tiers.
+   Since the 2026-10-06 price book this only exists at Platinum (one long-form YouTube anchor
+   video a month); the Engine 02 panel is labelled "Platinum only".
 
 On `/packages` the two engines are a **visual block**, not prose: `.engines` holds two panels,
 each with an inline SVG in `ENGINE_SHORT` and `ENGINE_LONG`. The first is breadth (many small
@@ -216,8 +217,7 @@ form benefit: the volume is what someone sees when they look you up before calli
 
 **"Intent rather than attention" is the shared phrase**; it appears on `/packages` (Engine 02) and
 in the homepage's monthly packages lede, so the pages describe the same mechanism in the same
-words. Engine 2 is also the only real justification for the jump to the two Studio tiers, so do not
-cut it.
+words. Engine 2 is also what Platinum adds on top of Gold, so do not cut it.
 
 Never pin the pitch to one buying trigger. An earlier draft said recognition matters "when the
 unit dies", which pigeonholed the whole site as HVAC and technician facing. Name several triggers
@@ -234,9 +234,9 @@ Only ever one SPF and one DMARC record on the domain in use.
 **`cta_href()` is the single source of truth for where every conversion CTA points.** While
 `BOOK_URL` is empty they all go to the enquiry form at `/contact/#start`; set it and the same
 buttons become the calendar, and `reassure()` swaps its promise to match the destination. `nav()`
-and the Studio Max apply button used to build their own hrefs, which is how they kept pointing at
-`mailto:` after everything else had moved. They go through `cta_href()` now. **Do not hand write
-a CTA href again.**
+and the old Studio Max apply button (gone with that tier) used to build their own hrefs, which is
+how they kept pointing at `mailto:` after everything else had moved. `nav()` and `book()` go
+through `cta_href()` now. **Do not hand write a CTA href again.**
 
 There are zero `mailto:` links on buttons anywhere on the site. Footer contact addresses stay as
 email on purpose, as the secondary path.
@@ -259,16 +259,28 @@ The `/packages` terms grid is the most trusted thing on the site, so nothing in 
 aspirational. As of 2026-08-16: **no setup fee, cancellation takes 30 days notice plus one final
 payment, so the shortest a package runs is two months.** An earlier draft claimed "no notice
 period and nothing to cancel", which was simply untrue. Do not write risk reversal copy that the
-contract does not back.
+contract does not back. The twelfth-month-free offer was withdrawn on 2026-10-06 and must not
+come back anywhere (terms, cards, homepage notes). The "Ad budget" cell describes the tiers'
+included ad spend as a set monthly budget our team manages, and says outright it is not a promise
+of leads.
 
 ## Tiers
 
-Six, ascending: Bronze $2,000, Silver $3,000, Gold $4,000, Platinum $5,000, Studio $10,000,
-Studio Max $15,000. Bronze and Silver are "you shoot it", Gold and Platinum are "our crew shoots
-it", and the two Studio tiers differ only in how much long form you get: one YouTube video a
-month versus one a week. **Studio Max is the only tier by application.** The homepage price
-ladder and the "six monthly programs" counts on the homepage must be updated whenever a tier is
-added or removed.
+**The price book is the owners' pitch deck "Portfolio 2025" (filed as Social Media Travel
+Pricing), confirmed by the owners on 2026-10-06.** Six tiers, ascending, monthly: Baby Steps
+$1,997, Starter $3,847, Bronze $5,847, Silver $7,847, Gold $10,847, Platinum $13,847. Every tier
+posts reels every weekday (two a day from Gold), graphics on Saturday and Sunday and stories
+across the client's platforms. They are grouped by production model: "You supply the footage"
+(Baby Steps), "Two production days a year" (Starter, Bronze, which differ only in ad budget) and
+"Four production days a year" (Silver, Gold, Platinum, plus local production days as needed).
+Gold adds a dedicated engager; Platinum adds one long-form YouTube anchor video a month. From
+Starter up each tier includes a dedicated monthly ad budget ($150 to $750, `adSpend` in the json).
+
+Gone with the old book and not to be re-added without the owners: the Studio and Studio Max
+tiers, application-only tiers, per-reel prices (`perAsset`), the six- and twelve-month milestones
+and the free twelfth month. Counts and price phrases are derived, not typed: `PROGRAMS_WORD`,
+`PRICE_MIN`/`PRICE_MAX`, the /packages meta description and the /contact budget bands (from
+`budgetBands`) all read the json, so adding or removing a tier updates them.
 
 ## Navigation
 
@@ -471,8 +483,8 @@ sortable without opening anything.
 - **Six required fields, two optional.** Every required field changes how Yoni answers. Nothing is
   collected for its own sake. This is a qualification gate, not a checkout: some friction is
   wanted, because his scarce resource is his own time, not lead volume.
-- **Budget is visible radios, never a dropdown.** A buyer who never opens a menu never learns the
-  floor is $2,000. The options anchor the price ladder and let the wrong buyer leave on their own.
+- **Budget is visible radios, never a dropdown.** A buyer who never opens a menu never learns
+  where the floor is. The options anchor the price ladder and let the wrong buyer leave on their own.
   "Not sure yet" exists so an unsure buyer does not abandon instead.
 - **Labels sit above inputs, never inside them.** Placeholder-as-label disappears the moment
   someone types and fails screen readers outright.
@@ -579,8 +591,8 @@ What is still open:
   a name and a title reads as a template waiting for data, which is the thing this whole section
   is about. One or two sentences each closes it.
 - **Faces on one page out of five.** A visitor going homepage to packages to contact, the most
-  likely path, still never sees a person. A crew photo beside "our crew shoots it" on `/packages`
-  would be the literal proof of what that tier sells.
+  likely path, still never sees a person. A crew photo beside the production-day tiers on
+  `/packages` would be the literal proof of what those tiers sell.
 - **Nothing on the site is dated.** No recency signal of any kind. A machine-made site has no
   history; a real one leaks one constantly. One dated recent-work line would do more here than
   any further design restraint.
@@ -620,16 +632,15 @@ pages **cannot** disagree. They did once, which is why this exists.
 **A build assertion fails the build if any price string appears in `build_site.py`.** Tested: it
 does fail. If you need a price in copy, pull it from `PKG` rather than typing it.
 
-**Platinum** carries the only `recommended` badge: Yoni confirmed on 2026-08-18 that it is the
-tier most home service providers actually select. A brief had proposed Gold on reasoning; his
-observation of real buying behaviour beats the inference. It renders as a full-width strip across
-the top of the card, because as a 62% corner tag the label wrapped to two lines and collided with
-the tier name.
+**Silver** carries the only `recommended` badge ("What most home service companies choose"): the
+owner confirmed on 2026-10-06 that most home service companies choose Silver. That replaces the
+2026-08-18 note that named the old $5,000 Platinum, which no longer exists. The badge is a
+full-width strip across the top of the card, in normal flow with negative margins (it wraps to two
+lines in a 330px card, which the old absolutely positioned version could not hold).
 
-`perAsset` shows inside a group only, and is null on both Studio tiers. Across groups the number
-inverts the argument (Silver looks cheaper per reel than Gold, which buries the fact that Gold is
-where nobody on the client's team has to film anything), and the Studio tiers are not bought per
-asset at all.
+The /contact budget radios are built from `budgetBands` (Baby Steps and Starter, Bronze and
+Silver, Gold and Platinum, plus "Not sure yet"). `api_contact.js` `BUDGETS` must hold the identical
+strings; **the build asserts it**, because a mismatch bounces real enquiries with a 400.
 
 ## Six rules against the default look
 
