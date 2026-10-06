@@ -4,7 +4,7 @@
   python3 build_site.py          -> single self-contained file (Claude artifact)
   python3 build_site.py web      -> deploy/our-work/ with external assets (Vercel)
 """
-import base64, datetime, json, os, pathlib, re, shutil, sys
+import base64, datetime, html as html_lib, json, os, pathlib, re, shutil, sys
 
 S = os.path.dirname(os.path.abspath(__file__))
 MODE = "web" if len(sys.argv) > 1 and sys.argv[1] == "web" else "inline"
@@ -86,11 +86,20 @@ PERSON_ICON = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strok
                '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>'
                '<circle cx="12" cy="7" r="4"/></svg>')
 
-# Filled triangle, marks a YouTube spot as click-to-play so it never looks like a
+# Filled triangle, marks a spot card as playable so it never looks like a
 # plain photo. Optically off-center by design: a symmetric triangle reads as
 # slightly left-heavy, so the play glyph nudges right via margin in .ytplay.
 PLAY_ICON = ('<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">'
              '<path d="M8 5v14l11-7z"/></svg>')
+
+# Speaker glyphs for the hover-play spots' sound hint ("Click for sound" / "Sound on"),
+# same 24px grid and stroke weight as the other line icons.
+MUTED_ICON = ('<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" '
+              'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+              '<path d="M11 5L6 9H2v6h4l5 4z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>')
+SOUND_ICON = ('<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" '
+              'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+              '<path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>')
 
 # Down chevron, hints at scroll on the homepage hero only. Plain stroke, no fill,
 # so it reads as a cue rather than another button competing with the CTAs below it.
@@ -239,6 +248,61 @@ def dims(path):
     """width/height attributes for an <img>, from the file itself."""
     w, h = img_size(path)
     return f' width="{w}" height="{h}"'
+
+def _mp4_boxes(f, start, end):
+    """Yield (type, payload offset, payload end) for the MP4 boxes in [start, end)."""
+    pos = start
+    while pos + 8 <= end:
+        f.seek(pos)
+        head = f.read(16)
+        size, kind = int.from_bytes(head[:4], "big"), head[4:8].decode("latin-1")
+        hdr = 8
+        if size == 1:
+            size, hdr = int.from_bytes(head[8:16], "big"), 16
+        elif size == 0:
+            size = end - pos
+        if size < hdr:
+            raise ValueError(f"bad MP4 box {kind!r} at {pos}")
+        yield kind, pos + hdr, pos + size
+        pos += size
+
+
+def mp4_info(path):
+    """(width, height, seconds) of an MP4, read from its moov box with the standard
+    library only, for the same reason as img_size(): the <video> width/height
+    attributes and the duration check come from the file, never typed by hand.
+    Also refuses a file whose moov sits after its mdat (not "faststart"): a browser
+    would have to fetch the end of the file before it could show a single frame,
+    which is exactly the wait hover play cannot afford."""
+    end = os.path.getsize(path)
+    with open(path, "rb") as f:
+        top = {k: (a, b) for k, a, b in _mp4_boxes(f, 0, end)}
+        assert "moov" in top and "mdat" in top, f"{path}: not an MP4 with moov and mdat"
+        assert top["moov"][0] < top["mdat"][0], f"{path}: moov after mdat, re-encode with +faststart"
+        seconds = w = h = None
+        for kind, a, b in _mp4_boxes(f, *top["moov"]):
+            if kind == "mvhd":
+                f.seek(a)
+                d = f.read(32)
+                if d[0] == 1:   # 64-bit times: timescale at 20, duration at 24
+                    scale, dur = int.from_bytes(d[20:24], "big"), int.from_bytes(d[24:32], "big")
+                else:           # 32-bit times: timescale at 12, duration at 16
+                    scale, dur = int.from_bytes(d[12:16], "big"), int.from_bytes(d[16:20], "big")
+                seconds = dur / scale if scale else None
+            elif kind == "trak":
+                for k2, a2, _ in _mp4_boxes(f, a, b):
+                    if k2 != "tkhd":
+                        continue
+                    f.seek(a2)
+                    d = f.read(92)
+                    o = 88 if d[0] == 1 else 76
+                    tw, th = int.from_bytes(d[o:o + 4], "big") >> 16, int.from_bytes(d[o + 4:o + 8], "big") >> 16
+                    if tw and th and w is None:
+                        w, h = tw, th
+    if not (seconds and w and h):
+        raise ValueError(f"cannot read MP4 size/duration: {path}")
+    return w, h, seconds
+
 
 def asset(path, mime):
     """Inline as a data URI for the artifact, or copy out and link for the web build."""
@@ -1120,7 +1184,8 @@ CSS = """<style>
     overflow:hidden;display:flex;flex-direction:column;}
   .spot video{width:100%;display:block;background:#000;aspect-ratio:16/9;object-fit:cover;}
   /* Click-to-play YouTube spots. Poster and button only until clicked, see
-     MOTION_JS (h): the iframe is swapped in on click, never loaded before. */
+     YT_SPOT_JS: the iframe is swapped in on click, never loaded before. Inline
+     artifact build only since release 4; the web build self-hosts (.vspot). */
   .ytspot{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer;overflow:hidden;}
   .ytspot img{width:100%;height:100%;display:block;object-fit:cover;}
   .ytspot iframe{width:100%;height:100%;display:block;border:0;}
@@ -1130,6 +1195,39 @@ CSS = """<style>
     transition:background var(--ease),transform var(--ease);}
   .ytplay svg{margin-left:2px;}
   .ytspot:hover .ytplay{background:var(--orange);transform:translate(-50%,-50%) scale(1.06);}
+  /* Self-hosted hover-play spots (All Heart, Handyman Dan; release 4), behaviour in
+     SOLO_JS. Same 16:9 cover framing as the YouTube cards. The lazy poster <img>
+     sits over the <video> until a frame is actually playing (.is-live), then fades;
+     stopping brings it back. The whole picture is one button, the accessible
+     control; the card around it also takes clicks and hover. */
+  .is-vcard{cursor:pointer;}
+  .vspot{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;}
+  .vspot video,.vspot img{position:absolute;inset:0;width:100%;height:100%;display:block;
+    object-fit:cover;}
+  /* 1px past every edge, clipped by the box: the composited video layer snaps to
+     whole device pixels and left a 1px black sliver along a fractional bottom edge */
+  .vspot video{inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);}
+  .vspot img{transition:opacity var(--ease);}
+  .vspot.is-live img{opacity:0;}
+  .vplay{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;
+    background:none;color:#fff;cursor:pointer;font:inherit;}
+  /* orange ring with a dark inner ring: visible on any frame, light or dark */
+  .vplay:focus-visible{outline:3px solid var(--orange);outline-offset:-3px;
+    box-shadow:inset 0 0 0 6px rgba(15,18,20,.85);}
+  .vglyph{position:absolute;left:50%;top:50%;width:46px;height:32px;margin:-16px 0 0 -23px;
+    border-radius:var(--r-lg);background:rgba(15,18,20,.72);display:flex;align-items:center;
+    justify-content:center;transition:opacity var(--ease),transform var(--ease);}
+  .vglyph svg{margin-left:2px;}
+  .is-vcard:hover .vglyph,.vplay:focus-visible .vglyph{background:var(--orange);transform:scale(1.06);}
+  .vspot[data-state="muted"] .vglyph,.vspot[data-state="sound"] .vglyph{opacity:0;}
+  /* the sound hint, pointer devices only (.hover-ui), while the spot plays */
+  .vsnd{position:absolute;right:var(--s2);bottom:var(--s2);padding:var(--s1) var(--s2);
+    border-radius:var(--r-sm);background:rgba(15,18,20,.8);font-size:var(--f-micro);
+    font-weight:600;line-height:1.2;opacity:0;transition:opacity var(--ease);pointer-events:none;}
+  .vsnd span{display:inline-flex;align-items:center;gap:var(--s1);}
+  .vspot .vsnd-on,.vspot[data-state="sound"] .vsnd-off{display:none;}
+  .vspot[data-state="sound"] .vsnd-on{display:inline-flex;}
+  .vspot.hover-ui[data-state="muted"] .vsnd,.vspot.hover-ui[data-state="sound"] .vsnd{opacity:1;}
   .spot .meta{padding:var(--s4);display:flex;flex-direction:column;gap:var(--s1);}
   .spot .sc{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.06em;
     font-size:var(--f-sm);color:var(--orange-text);}
@@ -1626,12 +1724,110 @@ SOLO_JS = """<script>
     for(var i = 0; i < all.length; i++){
       var v = all[i];
       if(v === started || v.hasAttribute('data-ambient')) continue;
+      /* a hover-play spot card resets itself (pause, 0:00, poster back on) */
+      if(v.parentNode && v.parentNode.classList && v.parentNode.classList.contains('vspot')){
+        v.dispatchEvent(new Event('spotstop'));
+        continue;
+      }
       if(!v.paused) v.pause();
       if(v.currentTime !== 0){
         try { v.currentTime = 0; } catch(err) { /* not seekable yet */ }
       }
     }
   }, true);
+
+  /* Hover-play spots (.vspot: the All Heart and Handyman Dan films, self-hosted
+     since release 4). The whole film plays, not a preview.
+     - Real hover (hover:hover and pointer:fine), no reduced motion: entering the
+       card plays from 0:00, muted (browsers refuse sound without a click);
+       leaving pauses, rewinds to 0:00 and puts the poster back. A click turns
+       sound on (a click is a user gesture, so unmuted play is allowed) and the
+       film keeps playing; another click mutes it again. Once sound has been
+       turned on, later hovers try with sound and fall back to muted if the
+       browser refuses (NotAllowedError).
+     - Touch, reduced motion, and the keyboard everywhere (Enter/Space on the
+       button; a keyboard-activated click has e.detail 0): play and pause with
+       sound, nothing starts by itself, focus alone never plays.
+     - The end of a film puts the card back to its poster.
+     One at a time is the rule above: starting any video sends 'spotstop' to
+     every other card. Only the films' first frames load before anything plays:
+     preload="none", so a page load fetches no video at all. */
+  var vspots = [].slice.call(document.querySelectorAll('.vspot'));
+  if(vspots.length){
+    var mm = function(q){ return !!(window.matchMedia && window.matchMedia(q).matches); };
+    var hoverUI = mm('(hover: hover) and (pointer: fine)') && !mm('(prefers-reduced-motion: reduce)');
+    var soundOn = false;
+    vspots.forEach(function(el){
+      var v = el.querySelector('video');
+      var btn = el.querySelector('.vplay');
+      if(!v || !btn) return;
+      var card = el.closest('.spot') || el;
+      var title = btn.getAttribute('data-title') || '';
+      var over = false, wait = 0;
+      card.classList.add('is-vcard');
+      if(hoverUI) el.classList.add('hover-ui');
+
+      function state(st){
+        el.setAttribute('data-state', st);
+        btn.setAttribute('aria-label', (st === 'sound' ? 'Pause ' : 'Play ') + title);
+      }
+      function stop(){
+        clearTimeout(wait);
+        if(!v.paused) v.pause();
+        try { if(v.currentTime) v.currentTime = 0; } catch(err){ /* not seekable yet */ }
+        el.classList.remove('is-live');
+        state('idle');
+      }
+      function play(withSound, fromStart){
+        if(fromStart){ try { v.currentTime = 0; } catch(err){} }
+        v.muted = !withSound;
+        state(withSound ? 'sound' : 'muted');
+        var pr = v.play();
+        if(pr && pr.catch) pr.catch(function(err){
+          /* AbortError means it was stopped before it started: nothing to do */
+          if(!err || err.name !== 'NotAllowedError') return;
+          if(!v.muted && hoverUI && over){
+            v.muted = true;
+            state('muted');
+            var again = v.play();
+            if(again && again.catch) again.catch(function(){ stop(); });
+          } else {
+            stop();
+          }
+        });
+      }
+      v.addEventListener('playing', function(){ el.classList.add('is-live'); });
+      v.addEventListener('ended', stop);
+      v.addEventListener('spotstop', stop);
+
+      if(hoverUI){
+        card.addEventListener('mouseenter', function(){
+          over = true;
+          clearTimeout(wait);
+          /* a short intent delay: a pointer crossing the grid on its way
+             somewhere else starts, and downloads, nothing */
+          wait = setTimeout(function(){ if(over) play(soundOn, true); }, 120);
+        });
+        card.addEventListener('mouseleave', function(){ over = false; stop(); });
+      }
+
+      card.addEventListener('click', function(e){
+        var st = el.getAttribute('data-state');
+        clearTimeout(wait);
+        if(hoverUI && e.detail !== 0){
+          if(st === 'sound'){ v.muted = true; state('muted'); return; }
+          soundOn = true;
+          if(st === 'muted' && !v.paused){ v.muted = false; state('sound'); }
+          else play(true, st === 'idle');
+          return;
+        }
+        if(st === 'sound'){ v.pause(); state('paused'); return; }
+        soundOn = true;
+        if(st === 'muted' && !v.paused){ v.muted = false; state('sound'); }
+        else play(true, st === 'idle');
+      });
+    });
+  }
 
   /* Ambient YouTube backgrounds: autoplay muted, only once actually on
      screen (nothing loads up front, not even the IFrame API script), pause
@@ -1905,30 +2101,21 @@ MOTION_JS = """<script>
     nums.forEach(function(e){ nio.observe(e); });
   }
 
-  /* (c) hover to preview, pointer devices only ---------------------------- */
-  var fine = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  if(fine && !reduce){
-    [].slice.call(document.querySelectorAll('.spot video')).forEach(function(v){
-      var card = v.closest('.spot') || v.parentNode;
-      card.addEventListener('mouseenter', function(){
-        if(v.hasAttribute('controls') && !v.paused) return;
-        v.muted = true; v.playsInline = true;
-        var pr = v.play(); if(pr && pr.catch) pr.catch(function(){});
-      });
-      card.addEventListener('mouseleave', function(){
-        if(v.paused) return;
-        v.pause();
-        try { v.currentTime = 0; } catch(err){}
-      });
-    });
-  }
-
   /* (d) hero film push in: as of 2026-08-26 the banner is a YouTube embed, so
      "started playing" is a YT.Player onStateChange event, not a <video>
      'playing' event; that's handled in SOLO_JS, next to the rest of the
      banner's ambient-play logic, not here. */
 
-  /* (h) YouTube spots, click to play. Plain iframe swap, not the IFrame Player
+})();
+</script>"""
+
+
+# The YouTube click-to-play spot cards, used only by the inline artifact build now
+# (it cannot carry the self-hosted films under its 16MB cap; see spot()). The web
+# build has no .ytspot left and does not ship this. Was MOTION_JS section (h).
+YT_SPOT_JS = """<script>
+(function(){
+  /* YouTube spots, click to play. Plain iframe swap, not the IFrame Player
      API: nothing about this needs programmatic control, so there is nothing to
      load until someone actually clicks. youtube-nocookie.com sets no tracking
      cookie until playback starts. Only one plays at a time; starting a second
@@ -2118,46 +2305,70 @@ assert "__FORM_ENDPOINT__" not in FORM_JS, "form endpoint placeholder was not su
 assert "__FORM_TO__" not in FORM_JS, "form failover address was not substituted"
 
 
+SPOT_DIR = f"{S}/spots"
+
+
 def spot(fn, sc, nm, du, yt=None):
-    """Renders a case-study clip two ways. With `yt` set it's a click-to-play
-    YouTube spot: a poster and a play button, nothing else, until someone
-    actually clicks (see the (h) section of MOTION_JS for the iframe swap) so
-    it costs nothing on the page until then and never leaves the site to
-    play. Without `yt` it's the original self-hosted video, kept as a
-    fallback for clips not yet uploaded to YouTube."""
-    if yt:
-        poster_path = os.path.join(S, "post_yt", yt + ".webp")
-        poster = asset(poster_path, "image/webp")
-        return (f'<article class="spot">'
-                f'<div class="ytspot" data-yt="{yt}" data-title="{nm}">'
-                f'<img src="{poster}"{dims(poster_path)} alt="" loading="lazy">'
-                f'<button type="button" class="ytplay" aria-label="Play {nm}">{PLAY_ICON}</button>'
-                f'</div>'
-                f'<div class="meta"><span class="sc">{sc}</span><span class="nm">{nm}</span>'
-                f'<span class="du">{du}</span></div></article>')
-    poster = asset(os.path.join(P, fn.replace(".mp4", ".jpg")), "image/jpeg")
-    src = asset(os.path.join(V, fn), "video/mp4")
-    return (f'<article class="spot">'
-            f'<video controls playsinline preload="none" poster="{poster}" '
-            f'src="{src}"></video>'
-            f'<div class="meta"><span class="sc">{sc}</span><span class="nm">{nm}</span>'
+    """One commercial spot card. Two renderings:
+
+    fn set, web build: the self-hosted film from spots/ (release 4, owner request).
+    Hover plays the WHOLE spot muted from 0:00 and leaving resets it to the poster;
+    a click turns sound on; touch taps play/pause with sound; keyboard Enter/Space
+    plays/pauses with sound; reduced motion gets click/tap only. Nothing downloads
+    until then: preload="none", and the poster is a lazy <img> layered over the
+    <video> (not its poster attribute, which is fetched eagerly and cannot be shown
+    again after playback without load()). All behaviour lives in SOLO_JS, with the
+    one-at-a-time rule.
+
+    Otherwise (the inline artifact build, which has a 16MB cap and cannot carry
+    the films): the YouTube click-to-play card, poster and button only until
+    clicked (YT_SPOT_JS swaps the iframe in). yt is kept on every entry either way
+    as the reference copy and the poster key (post_yt/<id>.webp)."""
+    assert yt, f"spot {nm!r} needs its YouTube id: it keys the poster in post_yt/"
+    poster_path = os.path.join(S, "post_yt", yt + ".webp")
+    poster = asset(poster_path, "image/webp")
+    t = html_lib.escape(nm, quote=True)
+    meta = (f'<div class="meta"><span class="sc">{sc}</span><span class="nm">{t}</span>'
             f'<span class="du">{du}</span></div></article>')
+    if fn and MODE == "web":
+        path = os.path.join(SPOT_DIR, fn)
+        w, h, secs = mp4_info(path)
+        assert f"{int(secs) // 60}:{int(secs) % 60:02d}" == du, \
+            f"{fn} runs {secs:.1f}s but its card says {du}"
+        src = asset(path, "video/mp4")
+        return (f'<article class="spot">'
+                f'<div class="vspot" data-state="idle">'
+                f'<video src="{src}" preload="none" playsinline width="{w}" height="{h}" '
+                f'aria-hidden="true"></video>'
+                f'<img src="{poster}"{dims(poster_path)} alt="" loading="lazy" decoding="async">'
+                f'<button type="button" class="vplay" aria-label="Play {t}" data-title="{t}">'
+                f'<span class="vglyph">{PLAY_ICON}</span>'
+                f'<span class="vsnd"><span class="vsnd-off">{MUTED_ICON}Click for sound</span>'
+                f'<span class="vsnd-on">{SOUND_ICON}Sound on</span></span>'
+                f'</button></div>' + meta)
+    return (f'<article class="spot">'
+            f'<div class="ytspot" data-yt="{yt}" data-title="{t}">'
+            f'<img src="{poster}"{dims(poster_path)} alt="" loading="lazy">'
+            f'<button type="button" class="ytplay" aria-label="Play {t}">{PLAY_ICON}</button>'
+            f'</div>' + meta)
 
-# All 17 clips are on YouTube as of 2026-08-26 (last batch: ah3 "The Quote"
-# plus all six handyman). The fn/yt pairing (fn set, yt None) still works as a
-# fallback to the original self-hosted video if a future clip needs pulling
-# from YouTube and re-hosting locally instead.
-allheart = [(None,"01","Breaking Furniture 101","0:30","zaCFfVetfFI"),
-    (None,"02","The Upsell","0:15","METoxqCqkn8"),
-    (None,"03","The Snake","0:30","TPDZ-OvRNgc"),(None,"04","Obsessed","0:30","Nz5hbi-0x94"),
-    (None,"05","Meet The Carlas","0:30","A6gc-YCl94E"),(None,"06","The Influencer","0:30","YLK9ftd4Dx4"),
-    (None,"07","The Auctioneer","0:30","aEtwPZAdKPo"),(None,"08","Ghosted","0:30","npKJfYqjljs"),
-    (None,"09","Universe is Talking","0:30","COEbLTt42FI"),(None,"10","The Quote","0:42","unFCPL3Cw5o")]
+# (fn, number, title, duration, YouTube id). Release 4: every All Heart and Handyman
+# Dan spot is self-hosted from spots/ for hover play (fn), encoded from the owner's
+# own YouTube uploads; the YouTube id stays as the reference copy and the poster key.
+# The duration label is checked against the file at build time. Handyman Dan files
+# keep the original six-spot numbering, so there is no hd04 (Father Vs AC, R17).
+allheart = [("ah01.mp4","01","Breaking Furniture 101","0:30","zaCFfVetfFI"),
+    ("ah02.mp4","02","The Upsell","0:15","METoxqCqkn8"),
+    ("ah03.mp4","03","The Snake","0:30","TPDZ-OvRNgc"),("ah04.mp4","04","Obsessed","0:30","Nz5hbi-0x94"),
+    ("ah05.mp4","05","Meet The Carlas","0:30","A6gc-YCl94E"),("ah06.mp4","06","The Influencer","0:30","YLK9ftd4Dx4"),
+    ("ah07.mp4","07","The Auctioneer","0:30","aEtwPZAdKPo"),("ah08.mp4","08","Ghosted","0:30","npKJfYqjljs"),
+    ("ah09.mp4","09","Universe is Talking","0:30","COEbLTt42FI"),("ah10.mp4","10","The Quote","0:42","unFCPL3Cw5o")]
 
-handyman = [(None,"01","It's Way Hotter","0:30","E5qZHk03snY"),
-    (None,"02","Don't Worry, You'll Get Used To It","0:30","4fUdKqK9cPM"),
-    (None,"03","Sleeping On The Job","0:30","S3Hkreuykvs"),
-    (None,"05","A Space Odyssey","0:56","AfkePSa8XLU"),(None,"06","Where's That Coming From","0:30","Fodjt_xKovE")]
+handyman = [("hd01.mp4","01","It's Way Hotter","0:30","E5qZHk03snY"),
+    ("hd02.mp4","02","Don't Worry, You'll Get Used To It","0:30","4fUdKqK9cPM"),
+    ("hd03.mp4","03","Sleeping On The Job","0:30","S3Hkreuykvs"),
+    ("hd05.mp4","05","A Space Odyssey","0:56","AfkePSa8XLU"),("hd06.mp4","06","Where's That Coming From","0:30","Fodjt_xKovE")]
+assert len({x[0] for x in allheart + handyman}) == len(allheart + handyman), "two spots share a file"
 
 # The banner is a three minute film, on YouTube as of 2026-08-26 (see SOLO_JS
 # for the ambient autoplay/loop-to-1:14 handling, which replaces #yt-banner
@@ -2711,7 +2922,7 @@ html = f"""<title>Selected work, Home Service Studios</title>
 {SOLO_JS}
 {NAV_JS}
 {MOTION_JS}
-
+{YT_SPOT_JS if MODE != "web" else ""}
 """
 
 # ---- packages page --------------------------------------------------------
@@ -2963,10 +3174,12 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 # repeating either. Every asset here is one the other pages already copied out,
 # so the homepage adds markup and no new weight.
 
-# three spots that carry the range: two premises from All Heart, one from Handyman Dan
-HOME_SPOTS = [(None, "All Heart", "Breaking Furniture 101", "0:30", "zaCFfVetfFI"),
-              (None, "All Heart", "The Snake", "0:30", "TPDZ-OvRNgc"),
-              (None, "Handyman Dan", "A Space Odyssey", "0:56", "AfkePSa8XLU")]
+# three spots that carry the range: two premises from All Heart, one from Handyman Dan.
+# Looked up by YouTube id, so the file, title and duration always match the lists.
+_SPOT_BY_YT = {x[4]: x for x in allheart + handyman}
+HOME_SPOTS = [(_SPOT_BY_YT[yt][0], who, _SPOT_BY_YT[yt][2], _SPOT_BY_YT[yt][3], yt)
+              for who, yt in (("All Heart", "zaCFfVetfFI"), ("All Heart", "TPDZ-OvRNgc"),
+                              ("Handyman Dan", "AfkePSa8XLU"))]
 
 DOORS_STILL = (f'<img class="doors-bg" src="{asset(f"{P}/quality1.jpg", "image/jpeg")}"'
                f'{dims(f"{P}/quality1.jpg")} alt="" loading="lazy" decoding="async">')
@@ -3445,6 +3658,7 @@ def case_page(i):
                f'<p class="case-close">{d["close"]}</p>'
                + (f'<p class="case-src">{d["source"]}</p>' if d.get("source") else "")
                + '</div>')
+    spot_js = SOLO_JS if 'class="vspot"' in d["proof"] else ""
     page = f"""<title>{c["name"]}</title>
 {FONT_CSS}
 {CSS}
@@ -3487,6 +3701,7 @@ def case_page(i):
 {site_footer("case")}
 {actionbar()}
 {SPLAT_JS}
+{spot_js}
 {NAV_JS}
 {MOTION_JS}
 """
@@ -3576,6 +3791,10 @@ def validate(page, label):
         r'<a \1 target="_blank" rel="noopener noreferrer">',
         page,
     )
+    if 'class="vspot"' in page:
+        assert "spotstop" in page, f"{label}: hover-play spots but no SOLO_JS to run them"
+    if MODE == "web":
+        assert 'class="ytspot"' not in page, f"{label}: a YouTube spot card left in the web build"
     assert "—" not in page and "–" not in page, f"DASH FOUND IN {label}"
     bad = sorted({c for c in page if ord(c) > 127})
     assert not bad, f"NON-ASCII IN {label} (use HTML entities): {bad}"
