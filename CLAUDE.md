@@ -449,8 +449,16 @@ stays in flow, so compacting its height on scroll shifted the whole page. Fixed 
 the bar shrink from 60px to 52px for free. If you make the bar sticky again, the compaction has to
 go with it.
 
-**`font-display` is `optional`, not `swap`.** The fonts are inlined base64, so there is no fetch to
-wait for, but `swap` still repainted and reflowed the hero stat grid. That single reflow was the
+**Fonts are cached files in the web build (N5, 2026-10-06).** Each face ships once under
+`/fonts/` (six woff2, about 86KB) and is preloaded from `<head>` (`FONT_FILES`, `FONT_PRELOAD`);
+every page's HTML dropped by 111.8KB (homepage 238.7KB to 126.8KB). All six faces are preloaded
+because a face is requested at first layout, for text anywhere on the page. The artifact build
+(`python3 build_site.py`) still inlines base64. Measured: headings render in Archivo on cold
+throttled (150ms RTT, 1.6Mbps, 4x CPU) and warm loads; one CPU-throttled run out of several fell
+back for that view, which `optional` allows and which never shifts layout.
+
+**`font-display` is `optional`, not `swap`.** When the fonts were inlined base64 there was no fetch
+to wait for, but `swap` still repainted and reflowed the hero stat grid. That single reflow was the
 site's entire CLS: 0.18. With `optional` it is 0. Do not change this back.
 
 **The cost of `optional`: a face that misses its ~100ms window is never used for that page view.**

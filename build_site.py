@@ -256,14 +256,35 @@ def asset(path, mime):
 # depending on how the query is shaped, and that ambiguity isn't worth the risk on
 # a font used for every heading on the site. Individual single-weight requests are
 # unambiguous, so that's what's embedded, same as Onest already does.
-def _face(family, weight, path):
-    return (f"@font-face{{font-family:'{family}';font-style:normal;font-weight:{weight};"
-            f"font-display:optional;src:url(data:font/woff2;base64,{b64(path)}) format('woff2');}}")
+#
+# N5, 2026-10-06: the web build ships each face once as a cached file under
+# /fonts/ (about 86KB for all six) instead of inlining the same base64 into every
+# page, and preloads every face from <head>. All six count as first-layout
+# weights: a face is requested as soon as any text using it is laid out, which is
+# at first layout for the whole page, not when it scrolls into view. The artifact
+# build keeps inlining (it has no server). font-display stays optional, so a cold
+# first visit on a slow link can still show the fallback for that one view; it
+# never shifts layout either way.
+FONT_FILES = ([("Onest", w, f"{S}/fonts/onest-{w}.woff2") for w in (400, 600, 700)]
+              + [("Archivo", w, f"{S}/fonts/archivo-{w}.woff2") for w in (400, 700, 900)])
 
-FONT_CSS = ("<style>"
-    + "".join(_face("Onest", w, f"{S}/fonts/onest-{w}.woff2") for w in (400, 600, 700))
-    + "".join(_face("Archivo", w, f"{S}/fonts/archivo-{w}.woff2") for w in (400, 700, 900))
-    + "</style>")
+
+def _face(family, weight, path):
+    if MODE == "web":
+        name = os.path.basename(path)
+        os.makedirs(f"{S}/deploy/fonts", exist_ok=True)
+        shutil.copy(path, f"{S}/deploy/fonts/{name}")
+        src = f"url(/fonts/{name}) format('woff2')"
+    else:
+        src = f"url(data:font/woff2;base64,{b64(path)}) format('woff2')"
+    return (f"@font-face{{font-family:'{family}';font-style:normal;font-weight:{weight};"
+            f"font-display:optional;src:{src};}}")
+
+
+FONT_CSS = "<style>" + "".join(_face(*x) for x in FONT_FILES) + "</style>"
+FONT_PRELOAD = ("".join(f'<link rel="preload" href="/fonts/{os.path.basename(x[2])}" as="font" '
+                        f'type="font/woff2" crossorigin>\n' for x in FONT_FILES)
+                if MODE == "web" else "")
 
 CSS = """<style>
   :root{
@@ -3475,6 +3496,7 @@ def write_web(page, path, *, title, desc, og_image, url, noindex=False, extra_he
         '<!doctype html>\n<html lang="en">\n<head>\n'
         '<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+        + FONT_PRELOAD +
         f'<title>{title}</title>\n'
         + ('<meta name="robots" content="noindex">\n' if noindex else '')
         + f'<meta name="description" content="{desc}">\n'
