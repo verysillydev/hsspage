@@ -201,7 +201,7 @@ prices.
 
 What We Do is four numbered blocks, each a large orange number (`--f-mega`, `--orange-text`), a
 title, short-sentence copy, a link or button, then media, with a hairline between blocks:
-- **01 Social media monthly packages.** The primary button "Compare the packages" (`/packages/`)
+- **01 Social Media Packages.** The primary button "Compare the packages" (`/packages/`)
   with "Month to month, with no setup fee.", then three Instagram profile grabs (`IG_GRABS`):
   iComfort, Veterans AC PHX, AC Plus. **Source:** the owner's 390px phone captures at 3x, login
   wall and "Suggested for you" removed (`reports/hss-audit/iggrabs/`, outside the repo), resized to
@@ -224,6 +224,17 @@ title, short-sentence copy, a link or button, then media, with a hairline betwee
   close-up, so play cuts from the wide shot). `None` renders the block without media, with the
   caption under the link. **Never swap in another Service MVP episode pulled from YouTube without
   the owner**: the latest one was rejected.
+
+## Planned (not built)
+
+**Nav: "Packages" becomes a services dropdown, later (owner, 2026-10-06).** Once each of the four
+What We Do services (Social Media Packages, Commercial Shoots, Brand Videos, Podcast Production)
+has its own page, the nav's "Packages" item becomes a dropdown listing all four, each linking to
+its page. It is not built yet because only Social Media Packages has a page (`/packages`); the
+other three are not built out. Until then the nav label stays "Packages". When it is built, the
+dropdown must stay keyboard and screen-reader operable (a disclosure button with
+`aria-expanded`, Escape closes, focus stays in order), and `nav()` remains the single place the
+bar is built.
 
 ## Testimonials (release 8, 2026-10-06)
 
