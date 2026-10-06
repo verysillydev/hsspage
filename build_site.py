@@ -1328,7 +1328,7 @@ CSS = """<style>
   .ob-n{font-family:var(--display);font-weight:700;color:var(--orange-text);font-size:var(--f-sm);
     font-variant-numeric:tabular-nums;}
   .ob-t{font-weight:650;font-size:var(--f-body);color:var(--ink);line-height:1.3;}
-  .ob-d{grid-column:2;font-size:var(--f-sm);color:var(--ink-2);line-height:1.45;}
+  .ob-note{margin:var(--s3) 0 0;font-size:var(--f-sm);color:var(--ink-2);max-width:62ch;}
 
   .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3);}
   .step2{background:var(--panel);border-radius:var(--r-sm);
@@ -2768,17 +2768,17 @@ TERMS_JS = ("<script>if(window.matchMedia&&matchMedia('(max-width:759px)').match
 # Terms grid's "When it starts" cell, which said the first production day lands
 # three to four weeks after payment; the owners' figure is three to four weeks
 # from sign-up to the first post.
+# R11 (owner, 2026-10-06): three to four weeks is the real answer, depending on the
+# client roster at the time. The two step details that added up to five or six
+# weeks (15 business days notice to book a shoot; 10 to 15 business days after the
+# final production day) are gone; ONBOARDING_NOTE says timing is confirmed at kickoff.
 ONBOARDING = "\n".join(
-    f'      <li><span class="ob-n">{i:02d}</span><span class="ob-t">{t}</span>'
-    + (f'<span class="ob-d">{d}</span>' if d else '') + '</li>'
-    for i, (t, d) in enumerate([
-        ("Strategy kickoff", ""),
-        ("Agreement signed and first payment", ""),
-        ("Content collection and scheduling", "Shoots are booked with 15 business days notice."),
-        ("Production day", ""),
-        ("Post-production", ""),
-        ("First post live", "10 to 15 business days after the final production day."),
-    ], 1))
+    f'      <li><span class="ob-n">{i:02d}</span><span class="ob-t">{t}</span></li>'
+    for i, t in enumerate(["Strategy kickoff", "Agreement signed and first payment",
+                           "Content collection and scheduling", "Production day",
+                           "Post-production", "First post live"], 1))
+ONBOARDING_NOTE = ("Timing depends on our production calendar when you sign up; we confirm "
+                   "your dates on the kickoff call.")
 
 PACKAGES_HTML = f"""<title>Monthly content packages</title>
 {FONT_CSS}
@@ -2894,6 +2894,7 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
     <ol class="ob">
 {ONBOARDING}
     </ol>
+    <p class="ob-note">{ONBOARDING_NOTE}</p>
   </div>
 
   <div class="incl">
