@@ -1046,7 +1046,9 @@ CSS = """<style>
     letter-spacing:var(--t-head);line-height:1.2;}
   .proof .who{margin:0;font-size:var(--f-sm);color:var(--ink-3);}
   .proof .pm{margin:var(--s2) 0 0;display:flex;flex-direction:column;gap:2px;}
-  .proof .pn{font-family:var(--display);font-size:var(--f-h2);font-weight:700;
+  /* .pfig, not .pn: .pn is the case pages' prev/next link, whose padding and
+     background were leaking onto this figure (and its scroll reveal) */
+  .proof .pfig{font-family:var(--display);font-size:var(--f-h2);font-weight:700;
     color:var(--orange-text);letter-spacing:-.012em;line-height:1.05;
     font-variant-numeric:tabular-nums;}
   .proof .pl{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;
@@ -1057,6 +1059,25 @@ CSS = """<style>
     font-size:var(--f-sm);color:var(--cyan-text);}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:var(--s5);}
+  /* subheads inside a section (More work, the homepage spots row) */
+  .subhead{margin:var(--s7) 0 var(--s4);font-family:var(--display);font-size:var(--f-h3);
+    font-weight:700;letter-spacing:var(--t-head);line-height:1.15;}
+  .sec-head + .subhead{margin-top:0;}
+  /* a row of spots: three across from 760px (six make two even rows), and a
+     horizontal swipe strip on phones so six cards do not stack 1,700px tall */
+  .strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s4);}
+  @media(max-width:759px){
+    .strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:var(--s3);
+      padding-bottom:var(--s2);scrollbar-width:thin;}
+    .strip > .spot{flex:0 0 80%;scroll-snap-align:start;}
+  }
+  .proofs-one{background:none;}
+  @media(min-width:900px){.proofs-one{grid-template-columns:repeat(3,minmax(0,1fr));}}
+  .proofs-one .proof{background:var(--ground-2);border-radius:var(--r-md);}
+  /* --ink-3 on --ground-2 is 4.32:1; the small labels need --ink-2 here */
+  .proofs-one .proof .who,.proofs-one .proof .pl{color:var(--ink-2);}
+  .proof h4{margin:0;font-family:var(--display);font-size:var(--f-h4);font-weight:700;
+    letter-spacing:var(--t-head);line-height:1.2;}
   .spot{background:var(--panel);border-radius:var(--r-md);
     overflow:hidden;display:flex;flex-direction:column;}
   .spot video{width:100%;display:block;background:#000;aspect-ratio:16/9;object-fit:cover;}
@@ -2267,13 +2288,6 @@ CASES = [
                "social, paid and brand video.",
          desc="How a Tucson HVAC company with 9,200 followers built seven reels past 100,000 "
               "views, roughly 2.26 million views in a market of one million people."),
-    dict(id="handyman", og="og-handyman.jpg", slug="handyman-dan", name="Handyman Dan",
-         vertical="Home services", metric="12", mlabel="Markets deployed",
-         still="hd5.jpg", logo=None,
-         blurb="A six-spot package written and produced once, then licensed across twelve "
-               "markets on twelve-month agreements.",
-         desc="One production block, six spots, three cut lengths, deployed across twelve markets "
-              "nationwide and licensed to twelve accounts."),
     dict(id="allheart", og="og-allheart.jpg", slug="all-heart", name="All Heart",
          vertical="Home services", metric="10", mlabel="Spots from one production block",
          still="ah1.jpg", logo="logo_allheart.png",
@@ -2290,9 +2304,8 @@ def case_url(cid):
     return f"/our-work/{CASE_BY_ID[cid]['slug']}/"
 
 
-# The still each case card leads with. Handyman Dan uses its 1200px OG frame, which
-# holds up at the card's 2x size; A1 has no still, so it gets the data panel.
-CASE_TILE_STILL = {"handyman": f"{S}/og/og-handyman.jpg", "allheart": f"{P}/ah1.jpg"}
+# The still each case card leads with; A1 has no still, so it gets the data panel.
+CASE_TILE_STILL = {"allheart": f"{P}/ah1.jpg"}
 
 
 def case_tile(c, lead=False):
@@ -2314,6 +2327,7 @@ def case_tile(c, lead=False):
 
 
 CASE_GRID = "\n".join(case_tile(c, lead=(i == 0)) for i, c in enumerate(CASES))
+CASE_NAMES = ", ".join(c["name"] for c in CASES)   # the homepage case note, never typed
 
 
 
@@ -2327,12 +2341,6 @@ CSI = {
            "alone in a dark attic like the cold open of a horror film.",
            "1,100 shares on the lead reel. Audiences passed it along themselves, which is the "
            "premise working rather than the media budget."),
-    "handyman": ("Home service brands rarely commission real commercial work because they cannot "
-                 "picture what it looks like or what it returns.",
-                 "Build the package on spec across three cut lengths, so every placement is covered "
-                 "and the work can be evaluated as finished product rather than a pitch.",
-                 "One production, twelve markets, twelve accounts on annual agreements. The package "
-                 "earned back its cost many times over."),
     "allheart": ("Fill a year of paid and organic inventory for a brand with no library and no "
                  "appetite for repeat shoot days.",
                  "Write one comic premise strong enough to sustain ten spots, then shoot the entire "
@@ -2376,16 +2384,6 @@ CASE_PAGE = {
   <div class="reels">
 {A1_REELS}
   </div>""", ops=""),
-    "handyman": dict(
-        eyebrow="Case 02 &middot; Home services &middot; Scale",
-        roles=["Writer", "Producer"], tag="Twelve markets.",
-        lede="We wrote and produced a six-spot package once, then <strong>deployed it across "
-             "twelve markets nationwide</strong> and licensed it to twelve accounts on "
-             "twelve-month agreements.",
-        proof_head="The spots",
-        proof=f'<div class="grid">\n{chr(10).join(spot(*x) for x in handyman)}\n  </div>',
-        ops=ops([("12", "Markets deployed"), ("12", "Accounts licensed"),
-                 ("12mo", "Agreement length"), ("6", "Spots delivered"), ("3", "Cut lengths")])),
     "allheart": dict(
         eyebrow="Case 03 &middot; Home services &middot; Campaign",
         roles=["Writer", "Producer"], tag="Ten spots, one shoot.",
@@ -2419,18 +2417,20 @@ PROOF = [
          line="From 290 followers on 27 Mar 2024 to 1,970 on 11 Mar 2025. Five TikTok posts "
               "from the same stretch drew between 16,518 and 150,282 views.",
          when="Mar 2024 to Mar 2025"),
-    dict(client="4 Points", who="Home services",
-         metric="509K", mlabel="Views on one post",
-         line="Before us, eight posts drew 235 to 705 views each. In a sample of the same size "
-              "since, posts reached 509K, 89.4K, 24.6K and 6,096 views.",
-         when=""),
 ]
 
+# 4 Points is a single short-form result, shown in More work rather than as a case.
+FOUR_POINTS = dict(client="4 Points", who="Home services",
+                   metric="509K", mlabel="Views on one post",
+                   line="Before us, eight posts drew 235 to 705 views each. In a sample of the same "
+                        "size since, posts reached 509K, 89.4K, 24.6K and 6,096 views.",
+                   when="")
 
-def proof_card(x):
+
+def proof_card(x, h="h3"):
     when = f'<p class="when">{x["when"]}</p>' if x["when"] else ""
-    return (f'<article class="proof"><h3>{x["client"]}</h3><p class="who">{x["who"]}</p>'
-            f'<p class="pm"><span class="pn">{x["metric"]}</span>'
+    return (f'<article class="proof"><{h}>{x["client"]}</{h}><p class="who">{x["who"]}</p>'
+            f'<p class="pm"><span class="pfig">{x["metric"]}</span>'
             f'<span class="pl">{x["mlabel"]}</span></p>'
             f'<p>{x["line"]}</p>{when}</article>')
 
@@ -2438,12 +2438,32 @@ def proof_card(x):
 MORE_RESULTS = f"""<section id="more-results"><div class="wrap">
   <div class="sec-head">
     <p class="eyebrow">More results</p>
-    <h2 class="display">Three more accounts, with the dates attached</h2>
-    <p class="lede">Short form for three more home service companies, measured on their own
-    accounts.</p>
+    <h2 class="display">{num_word(len(PROOF)).capitalize()} more accounts, with the dates attached</h2>
+    <p class="lede">Short form for {num_word(len(PROOF))} more home service companies, measured on
+    their own accounts.</p>
   </div>
   <div class="proofs">
 {chr(10).join(proof_card(x) for x in PROOF)}
+  </div>
+</div></section>"""
+
+
+# More work (R3, 2026-10-06): Handyman Dan is no longer a case study, by the
+# owners' request. Its six spots stay as an example of the work, labelled only as
+# Handyman Dan's spots, with no claims about where they ran or how they were sold.
+# The 4 Points result sits here too, as a small card rather than a case.
+MORE_WORK = f"""<section id="more-work"><div class="wrap">
+  <div class="sec-head">
+    <p class="eyebrow">More work</p>
+    <h2 class="display">More of the work</h2>
+  </div>
+  <h3 class="subhead">Handyman Dan&#39;s spots</h3>
+  <div class="strip">
+{chr(10).join(spot(*x) for x in handyman)}
+  </div>
+  <h3 class="subhead">One more short-form result</h3>
+  <div class="proofs proofs-one">
+{proof_card(FOUR_POINTS, "h4")}
   </div>
 </div></section>"""
 
@@ -2497,8 +2517,9 @@ def logo_marquee():
 # The case write-ups used to open inline on /our-work from #a1, #handyman and
 # #allheart, and the homepage and outside links still use those. This forwards
 # them to the case pages before anything paints.
+# #handyman is the old in-page anchor of a case that is now part of More work.
 HASH_REDIRECT_JS = ("<script>(function(){var m={" + ",".join(
-    f'"{c["id"]}":"{case_url(c["id"])}"' for c in CASES)
+    [f'"{c["id"]}":"{case_url(c["id"])}"' for c in CASES] + ['"handyman":"#more-work"'])
     + "};var h=(location.hash||'').slice(1);if(m[h])location.replace(m[h]);})();</script>")
 
 html = f"""<title>Selected work, Home Service Studios</title>
@@ -2511,11 +2532,10 @@ html = f"""<title>Selected work, Home Service Studios</title>
 <div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Selected work &middot; Home Service Studios</p>
   <h1 class="display">Three clients.<br><span class="hl">Three kinds of proof.</span></h1>
-  <p class="sub">From one HVAC company&#39;s feed to a spot package licensed across twelve
-  markets. <strong>The approach does not change.</strong></p>
+  <p class="sub">From a Tucson HVAC company&#39;s breakout reels to a ten-spot comedy campaign shot
+  in one block. <strong>The approach does not change.</strong></p>
   <div class="stats">
     <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">One client, 7 reels</span></a>
-    <a class="stat" href="{case_url("handyman")}"><span class="case">Handyman Dan</span><span class="n">12</span><span class="k">Markets deployed</span></a>
     <a class="stat" href="{case_url("allheart")}"><span class="case">All Heart</span><span class="n">10</span><span class="k">Spots delivered</span></a>
   </div>
   <div class="ctarow">
@@ -2556,6 +2576,8 @@ html = f"""<title>Selected work, Home Service Studios</title>
 </div></section>
 
 {MORE_RESULTS}
+
+{MORE_WORK}
 
 </main>
 
@@ -2909,7 +2931,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 
   <div class="ctarow">
     <a class="cta ghost" href="/our-work/">All three case studies &rarr;</a>
-    <span class="ctanote">A1 Air Conditioning, Handyman Dan, All Heart.</span>
+    <span class="ctanote">{CASE_NAMES}.</span>
   </div>
 </div></section>
 
@@ -3491,7 +3513,7 @@ if MODE == "web":
     # too. The old domain should 301 here rather than keep serving its stale
     # pre-rebrand build, which is the one part of this that is not a code change.
     D1 = ("Case studies from Home Service Studios, a Los Angeles video company: 2.26M views "
-          "for one HVAC client, 983K on one reel for another, spots licensed in 12 markets.")
+          "for one HVAC client, 983K on one reel for another, ten spots from one shoot.")
     n1 = write_web(html, f"{OUT}/index.html",
                    title="Case Studies | Home Services Video Production | Home Service Studios",
                    desc=D1, og_image=f"{SITE}/our-work/a/og-cover.jpg",
@@ -3534,6 +3556,20 @@ if MODE == "web":
         lp = pathlib.Path(f"{S}/deploy/work/{c['slug']}/index.html")
         lp.parent.mkdir(parents=True, exist_ok=True)
         lp.write_text(legacy, encoding="utf-8")
+
+    # Handyman Dan stopped being a case study (R3, 2026-10-06); both of its old
+    # addresses now forward to its spots in More work on /our-work.
+    for old in ("/our-work/handyman-dan/", "/work/handyman-dan/"):
+        stub = ('<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
+                '<title>Handyman Dan spots | Home Service Studios</title>'
+                '<meta name="robots" content="noindex">'
+                f'<link rel="canonical" href="{SITE}/our-work/">'
+                '<meta http-equiv="refresh" content="0; url=/our-work/#more-work"></head>'
+                '<body><a href="/our-work/#more-work">Handyman Dan&#39;s spots</a></body></html>\n')
+        validate(stub, "stub " + old)
+        sp = pathlib.Path(f"{S}/deploy{old}index.html")
+        sp.parent.mkdir(parents=True, exist_ok=True)
+        sp.write_text(stub, encoding="utf-8")
 
     nf = validate(NOT_FOUND_HTML, "404")
     write_web(nf, f"{S}/deploy/404.html", title="Page not found | Home Service Studios",
