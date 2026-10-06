@@ -324,7 +324,11 @@ subtly incoherent even though each piece looked fine on its own.
 uppercase mono caption. It is `display:flex`, so it is not safe to nest inline in a sentence.
 
 Grids with a fixed, awkward item count use **explicit breakpoint columns, not `auto-fill`**:
-`.reels` is always 7 and `auto-fill` orphaned the seventh onto its own row. Both stat ledgers
+`.reels` is always 7. Since 2026-10-06 it is a grid of `minmax(0,1fr)` columns, which cannot wrap:
+seven across from 1100px, and below that the breakout reel (`.is-top`) takes a full-width row over
+an even 3x2 (tablet) or 2x3 (phone), so there is never an orphan or grey filler. The old flex row
+had about 2px of slack at 1440 and dropped the seventh onto its own row whenever a slightly wider
+face rendered. Count up still targets `.reel .vnum` only, see `A1_REELS`. Both stat ledgers
 (homepage hero and `/our-work`) hold three figures since 2026-10-06: a single-column ledger on
 phones (number left, client and label right) and one row of equal columns from 560px
 (`grid-auto-flow:column`, so any count stays one row with no orphan or filler cell). From 560px

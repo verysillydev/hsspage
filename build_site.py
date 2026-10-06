@@ -967,32 +967,34 @@ CSS = """<style>
   /* --ink-2, not --ink-3: the card is --panel, and --ink-3 on it is 4.09:1 */
   .spot .du{font-family:var(--mono);font-size:var(--f-sm);color:var(--ink-2);}
 
-  /* Ruled ledger, same technique as .stats/.ops: each cell was previously its
-     own bordered, radiused, backgrounded box with a gap around it, seven
-     times in a row, which is the exact repeated-box clutter the rest of the
-     sheet avoids. gap:1px on a --line fill reads as one strip of proof.
-     flex-wrap, not CSS grid: grid stretches every cell in a row to match the
-     tallest one (align-items:stretch is the grid default too, not just
-     flex's), which combined with the thumbnail's aspect-ratio sizing meant
-     one taller card inflated every thumbnail's width right along with it.
-     flex-wrap plus justify-content:center also centers the leftover row of
-     3 under 4 columns for free, which CSS grid does not do on its own. */
-  .reels{display:flex;flex-wrap:wrap;justify-content:center;gap:1px;background:var(--line);
-    margin-top:var(--s6);}
-  /* row layout, not column: the thumbnail sits beside the text block, fixed
-     size (see .rthumb) rather than stretched to match it, which is what
-     inflated it before. flex:0 0 ...% is the 2-per-row/4-per-row sizing;
-     it lives on the same rule as the internal row layout since both are
-     .reel's own box, not worth splitting into two rule blocks. */
-  .reel{display:flex;flex-direction:row;flex:0 0 calc(50% - 1px);gap:10px;
+  /* Ruled ledger, same technique as .stats/.ops: gap:1px on a --line fill
+     reads as one strip of proof rather than seven boxes.
+     2026-10-06: a grid with minmax(0,1fr) columns, not flex-wrap. The 7-across
+     flex row had about 2px of slack at 1440 (each cell's min-content was 150px
+     against a 152px basis), so a slightly wider face (font-display:optional
+     can leave the Arial Black fallback in place) pushed the seventh reel onto
+     its own row inside a grey box, and on phones 2-per-row left the seventh
+     centred between grey filler. minmax(0,1fr) columns can never wrap. Below
+     1100px the top reel (.is-top, the breakout) takes a full-width row and the
+     other six fill an even 2x3 (phones) or 3x2 (tablets), so no row is ever
+     short. The old worry about grid stretching rows does not apply now that
+     .rthumb is a fixed 44x74: stretched cells just keep the ledger even. */
+  .reels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;
+    background:var(--line);margin-top:var(--s6);}
+  .reel{display:flex;flex-direction:row;gap:10px;min-width:0;
     text-decoration:none;background:var(--ground);
     padding:var(--s4);transition:background var(--ease),box-shadow var(--ease);}
-  @media(min-width:560px){.reel{flex:0 0 calc(25% - 1px);}}
-  /* the 7-across step was missing: only 2/4 existed, so all 7 reels never
-     had anywhere to land but a 4-and-3 wrap on any screen, no matter how
-     wide. 860px keeps each card legible (thumbnail plus a short label) at
-     the .wrap max-width of 1120px. */
-  @media(min-width:860px){.reel{flex:0 0 calc(100%/7 - 1px);}}
+  .reel.is-top{grid-column:1/-1;}
+  @media(min-width:560px){.reels{grid-template-columns:repeat(3,minmax(0,1fr));}}
+  /* seven across from 1100px (cells about 150px); a little less side padding
+     buys the text column the room the old flex row did not have. Narrower
+     than that, seven cells drop under the content's own width, so the 1+3x2
+     layout above holds until then. */
+  @media(min-width:1100px){
+    .reels{grid-template-columns:repeat(7,minmax(0,1fr));}
+    .reel.is-top{grid-column:auto;}
+    .reel{padding:var(--s4) var(--s3);}
+  }
   /* inset, not a real border, so the highlight cannot shift the tight 1px
      ledger grid it sits in. Covers hover, keyboard focus and the moment of
      a click, not just mouseover. */
@@ -1001,7 +1003,8 @@ CSS = """<style>
   .reel .rmeta{display:flex;flex-direction:column;justify-content:space-between;
     gap:var(--s1);min-width:0;}
   .reel .vnum{font-size:var(--f-h3);font-weight:700;letter-spacing:-.012em;color:var(--ink);
-    font-family:var(--display);line-height:1.1;}
+    font-family:var(--display);line-height:1.1;
+    white-space:nowrap;}
   .reel.is-top .vnum{color:var(--orange-text);}
   /* a taste of the actual reel, not a real preview: fixed size, not a
      stretched one. Stretching it to match the text column's height
