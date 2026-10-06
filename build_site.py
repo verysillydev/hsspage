@@ -1211,6 +1211,19 @@ CSS = """<style>
     padding-top:var(--s3);margin-top:auto;}
   .engine.is-two .ewhere{color:var(--orange-text);}
 
+  /* onboarding strip (D8): one ruled row of six on desktop, a compact
+     numbered list on phones */
+  .ob{list-style:none;margin:var(--s5) 0 0;padding:0;display:grid;
+    grid-template-columns:minmax(0,1fr);gap:1px;background:var(--line);}
+  @media(min-width:900px){.ob{grid-template-columns:repeat(6,minmax(0,1fr));}}
+  .ob li{background:var(--ground);padding:var(--s3) var(--s4);display:grid;
+    grid-template-columns:2.4em minmax(0,1fr);column-gap:var(--s2);row-gap:2px;align-items:baseline;}
+  @media(min-width:900px){.ob li{display:flex;flex-direction:column;gap:var(--s1);padding:var(--s4);}}
+  .ob-n{font-family:var(--display);font-weight:700;color:var(--orange-text);font-size:var(--f-sm);
+    font-variant-numeric:tabular-nums;}
+  .ob-t{font-weight:650;font-size:var(--f-body);color:var(--ink);line-height:1.3;}
+  .ob-d{grid-column:2;font-size:var(--f-sm);color:var(--ink-2);line-height:1.45;}
+
   .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3);}
   .step2{background:var(--panel);border-radius:var(--r-sm);
     padding:var(--s5);}
@@ -2530,6 +2543,22 @@ ENGINE_SHORT = ('<svg class="edia" viewBox="0 0 300 92" role="img" aria-label="M
 
 ENGINE_LONG = ('<svg class="edia" viewBox="0 0 300 92" role="img" aria-label="A narrowing funnel, from people searching down to a booked job"><rect x="28" y="8" width="244" height="14" rx="3" fill="#00B0C8" opacity=".26"/><rect x="62" y="30" width="176" height="14" rx="3" fill="#00B0C8" opacity=".40"/><rect x="96" y="52" width="108" height="14" rx="3" fill="#00B0C8" opacity=".58"/><rect x="124" y="74" width="52" height="14" rx="3" fill="#F04820" opacity="1"/></svg>')
 
+# The owners' onboarding timeline (D8, 2026-10-06), facts only. It replaces the
+# Terms grid's "When it starts" cell, which said the first production day lands
+# three to four weeks after payment; the owners' figure is three to four weeks
+# from sign-up to the first post.
+ONBOARDING = "\n".join(
+    f'      <li><span class="ob-n">{i:02d}</span><span class="ob-t">{t}</span>'
+    + (f'<span class="ob-d">{d}</span>' if d else '') + '</li>'
+    for i, (t, d) in enumerate([
+        ("Strategy kickoff", ""),
+        ("Agreement signed and first payment", ""),
+        ("Content collection and scheduling", "Shoots are booked with 15 business days notice."),
+        ("Production day", ""),
+        ("Post-production", ""),
+        ("First post live", "10 to 15 business days after the final production day."),
+    ], 1))
+
 PACKAGES_HTML = f"""<title>Monthly content packages</title>
 {FONT_CSS}
 {CSS}
@@ -2643,6 +2672,15 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 
   {pkg_group("four-days")}
 
+  <div class="band">
+    <div class="band-head">
+      <h2 class="display">From sign-up to first post in three to four weeks</h2>
+    </div>
+    <ol class="ob">
+{ONBOARDING}
+    </ol>
+  </div>
+
   <div class="incl">
     <h3>Terms</h3>
     <div class="incl-grid">
@@ -2660,9 +2698,6 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
         use however you like, permanently.</p></div>
       <div><span>Where it goes</span><p>YouTube, Instagram, TikTok, Facebook and LinkedIn. Anywhere else
         you want to be, just say so.</p></div>
-      <div><span>When it starts</span><p>On the packages with production days, the first one
-        lands three to four weeks after your initial payment clears on current scheduling. Posting
-        begins once that footage is cut, so the first month is a build month by design.</p></div>
       <div><span>Revisions</span><p>One round on anything you want changed. Everything is cut to
         make you look good on camera in the first place.</p></div>
       <div><span>Billing</span><p>The first month holds your start date. Nothing else is due until
