@@ -761,10 +761,15 @@ CSS = """<style>
      --cyan-text swap to the bright hues in this scope because the AA-safe dark
      variants (tuned for white) go muddy on black; the bright hues clear AA here
      on their own, checked the same way the white-ground pairs were. */
-  .hero.hero-bold{background:#14171A;color:#FFFFFF;padding:0;
+  /* 2026-10-06 (D3): every inner page's hero shares this scope as .hero-dark,
+     so the brand's strongest look is not homepage-only. Contrast on #14171A,
+     checked with the WCAG formula: --ink-2 #D8D3C9 12.6:1, --ink-3 #A8A29A
+     7.4:1, --orange 4.8:1, --cyan 6.9:1. */
+  .hero.hero-bold,.hero.hero-dark{background:#14171A;color:#FFFFFF;
     --ground:#14171A; --ground-2:#1E2226; --panel:#262B30; --line:#33383D;
     --ink:#FFFFFF; --ink-2:#D8D3C9; --ink-3:#A8A29A;
     --orange-text:var(--orange); --cyan-text:var(--cyan);}
+  .hero.hero-bold{padding:0;}
   /* line-height:1.18, not the 1.06 inherited from .display: that's tight
      enough on its own that adjacent lines' ascenders/descenders nearly
      touch even with a plain transparent background, which a solid
@@ -773,8 +778,11 @@ CSS = """<style>
      every other heading on the site. */
   .hero-bold h1{font-size:clamp(36px, 12px + 5.4vw, 84px);font-weight:900;
     letter-spacing:-.025em;line-height:1.18;}
-  .hero-bold .hl{background:var(--orange);color:#14171A;padding:.02em .14em;
+  .hero-bold .hl,.hero-dark .hl{background:var(--orange);color:#14171A;padding:.02em .14em;
     box-decoration-break:clone;-webkit-box-decoration-break:clone;}
+  /* inner pages keep their own --f-hero size; weight, tracking and the 1.18
+     line-height (room for the highlight bar) match the homepage */
+  .hero-dark h1{font-weight:900;letter-spacing:-.025em;line-height:1.18;}
 
   /* 2026-08-26: hero video pass. The black bg + animated .splat lines move
      down to only the lower half now (.hero-lines, behind the sub copy,
@@ -2424,7 +2432,7 @@ def site_footer(page=""):
                     if key != page)
     cta_is_here = page == "contact" and cta_href().startswith("/contact/")
     cta = "" if cta_is_here else book("Footer", "", "cta")
-    return (f'<footer>{SPLAT_SVG}<div class="wrap">'
+    return (f'<footer><div class="wrap">'
             f'<div class="foot">'
             f'<div class="foot-main">'
             f'<p class="display foot-line">Let&#39;s make something that travels.</p>'
@@ -2455,9 +2463,9 @@ html = f"""<title>Selected work, Home Service Studios</title>
 <a class="skip" href="#main">Skip to content</a>
 {nav("work")}
 <main id="main">
-<div class="hero">{SPLAT_SVG}<div class="wrap">
+<div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Selected work &middot; Home Service Studios</p>
-  <h1 class="display">Three clients.<br>Three kinds of proof.</h1>
+  <h1 class="display">Three clients.<br><span class="hl">Three kinds of proof.</span></h1>
   <p class="sub">From one HVAC company&#39;s feed to a spot package licensed across twelve
   markets. <strong>The approach does not change.</strong></p>
   <div class="stats">
@@ -2600,9 +2608,9 @@ PACKAGES_HTML = f"""<title>Monthly content packages</title>
 {nav("packages")}
 
 <main id="main">
-<div class="hero">{SPLAT_SVG}<div class="wrap">
+<div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Monthly packages &middot; Home Service Studios</p>
-  <h1 class="display">Known and trusted before they need you.</h1>
+  <h1 class="display">Known and trusted <span class="hl">before they need you.</span></h1>
   <p class="sub">Nobody calls a home service company because they saw one good video. They call the
   company they already recognize, and that recognition is built over months, not in a month.
   <strong>This is a long play, and it only works if it actually runs.</strong> These packages exist
@@ -3073,9 +3081,9 @@ CONTACT_HTML = f"""<title>Contact</title>
 {nav("contact")}
 
 <main id="main">
-<div class="hero hero-contact">{SPLAT_SVG}<div class="wrap">
+<div class="hero hero-dark hero-contact">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Contact &middot; Home Service Studios</p>
-  <h1 class="display">Talk to us.</h1>
+  <h1 class="display">Talk <span class="hl">to us.</span></h1>
   <p class="sub">Tell us your city and your trade and we will come back with something specific
   to your market, not a brochure. If you would rather look first, the work is on the
   <a href="/our-work/">case studies</a> and the monthly programs are
@@ -3194,9 +3202,9 @@ TEAM_HTML = f"""<title>Meet the team</title>
 {nav("team")}
 
 <main id="main">
-<div class="hero">{SPLAT_SVG}<div class="wrap">
+<div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Meet the team &middot; Home Service Studios</p>
-  <h1 class="display">Meet the team.</h1>
+  <h1 class="display">Meet <span class="hl">the team.</span></h1>
   <p class="sub">Every video on this site was written, shot and cut by people you could actually
   meet, not a vendor network stitched together per project.</p>
 </div></div>
@@ -3265,9 +3273,9 @@ NOT_FOUND_HTML = f"""<title>Page not found</title>
 {nav("")}
 
 <main id="main">
-<div class="hero">{SPLAT_SVG}<div class="wrap">
+<div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">404 &middot; Page not found</p>
-  <h1 class="display">That page is not here.</h1>
+  <h1 class="display">That page is <span class="hl">not here.</span></h1>
   <p class="sub">The link may be out of date, or the address may have a typo in it. The work,
   the packages and a way to reach us are all one click away.</p>
   <div class="ctarow">
@@ -3364,7 +3372,7 @@ def write_web(page, path, *, title, desc, og_image, url, noindex=False):
         + ('' if noindex else f'<meta property="og:url" content="{url}">\n')
         + '<meta property="og:site_name" content="Home Service Studios">\n'
         + ('' if noindex else f'<link rel="canonical" href="{url}">\n')
-        + '<meta name="theme-color" content="#FFFFFF">\n'
+        + '<meta name="theme-color" content="#14171A">\n'
         '<meta name="twitter:card" content="summary_large_image">\n'
         f'<link rel="icon" href="{FAVICON}">\n'
         + ('' if noindex else JSON_LD + '\n')
