@@ -1284,8 +1284,17 @@ CSS = """<style>
     text-decoration:none;color:inherit;
     transition:border-color var(--ease),background var(--ease),transform var(--ease);}
   .door:hover{border-color:rgba(var(--orange-rgb),.4);background:var(--ground-2);transform:translateY(-2px);}
-  /* flat since 2026-10-06 (was a wood-siding photo) */
-  .doors-section{background:var(--ground-2);}
+  /* D7, 2026-10-06: the two doors sit on a full-bleed footage still (the
+     Quality fleet frame from the brand film) under a dark scrim, replacing
+     the old wood-siding photo. A real <img> (lazy, intrinsic size) rather
+     than a CSS background, so it costs nothing until it is near the
+     viewport and cannot shift layout. The cards keep their own light panel,
+     so legibility never depends on the footage. */
+  .doors-section{position:relative;overflow:hidden;background:#14171A;padding:var(--s9) 0;}
+  .doors-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+  .doors-section::after{content:"";position:absolute;inset:0;z-index:0;
+    background:rgba(20,23,26,.5);}
+  .doors-section > .wrap{position:relative;z-index:1;}
 
   .door .tier{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
     text-transform:uppercase;color:var(--cyan-text);}
@@ -2731,6 +2740,9 @@ def way_card(w):
 
 WAYS_CARDS = "\n".join(way_card(w) for w in WAYS)
 
+DOORS_STILL = (f'<img class="doors-bg" src="{asset(f"{P}/quality1.jpg", "image/jpeg")}"'
+               f'{dims(f"{P}/quality1.jpg")} alt="" loading="lazy" decoding="async">')
+
 HOME_HTML = f"""<title>Home Service Studios</title>
 {FONT_CSS}
 {CSS}
@@ -2834,7 +2846,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   </div>
 </div></section>
 
-<section class="doors-section"><div class="wrap">
+<section class="doors-section">{DOORS_STILL}<div class="wrap">
   <div class="doors">
     <a class="door" href="/our-work/">
       <span class="tier">Portfolio</span>
@@ -3154,7 +3166,7 @@ TEAM_HTML = f"""<title>Meet the team</title>
      where a visitor has just decided they like the people. Same .doors pair the
      homepage closes with, so it is an existing pattern rather than a new one, and
      the copy leads from the faces above into the work those faces made. -->
-<section class="doors-section"><div class="wrap">
+<section class="doors-section">{DOORS_STILL}<div class="wrap">
   <div class="doors">
     <a class="door" href="/our-work/">
       <span class="tier">Portfolio</span>
