@@ -2,7 +2,8 @@
 // Chrome over the DevTools protocol (no npm dependencies; Pillow is not available
 // to every Python on this machine). Run after changing a card or the price book:
 //
-//   node make_og.mjs            # writes og/og-packages.jpg, og-team.jpg, og-contact.jpg, og-a1.jpg
+//   node make_og.mjs            # writes every card below into og/
+//   node make_og.mjs og-team    # writes only the named card(s)
 //
 // Same look as the site since the 2026-10-06 redesign: flat ink, white Archivo
 // with the orange highlight bar, real material only (headshots, real numbers).
@@ -41,6 +42,9 @@ h1{font-family:Archivo;font-weight:900;font-size:84px;line-height:1.14;letter-sp
 h1.wide{max-width:22ch;font-size:76px}
 .faces{position:absolute;right:72px;top:56px;display:flex;gap:10px}
 .faces img{width:96px;height:96px;object-fit:cover;border-radius:3px}
+/* Yoni's photo is 4:5 (release 19); centred, the square tile cut his hair. 50% 20% starts the
+   crop 36px down his 900px frame: full hair, eye line about 30%, like the square crew tiles */
+.faces img.y{object-position:50% 20%}
 .bars{position:absolute;right:72px;top:150px;width:430px;height:220px;display:flex;align-items:flex-end;gap:12px;border-bottom:2px solid #33383D}
 .bars span{flex:1;background:rgba(0,176,200,.6);border-radius:3px 3px 0 0}
 .bars span.lead{background:#F04820}
@@ -56,7 +60,7 @@ const cards = {
     <h1 class="wide">Known and trusted<br><span class="hl">before they need you.</span></h1>
     <p class="sub">${programs[0].toUpperCase() + programs.slice(1)} Social Media Packages, from ${money(minPrice)} a month.</p></div>`,
   'og-team': `${top}<div class="faces">${['craig-balog', 'seth-yeager', 'paloma-barro', 'yoni-paz', 'sergy-olkowski']
-      .map(n => `<img src="${f('post/' + n + '.jpg')}" alt="">`).join('')}</div>${lines}
+      .map(n => `<img src="${f('post/' + n + '.jpg')}"${n === 'yoni-paz' ? ' class="y"' : ''} alt="">`).join('')}</div>${lines}
     <div class="body"><p class="eyebrow">Meet the team</p><h1>Meet <span class="hl">the team.</span></h1>
     <p class="sub">The people who write, shoot, edit and post the work.</p></div>`,
   'og-contact': `${top}${lines}<div class="body"><p class="eyebrow">Contact</p>
@@ -105,7 +109,10 @@ const once = method => new Promise(r => { const g = m => { if (m.method === meth
 await send('Page.enable'); await send('Runtime.enable');
 await send('Emulation.setDeviceMetricsOverride', { width: 1200, height: 630, deviceScaleFactor: 1, mobile: false });
 let failed = false;
+const only = process.argv.slice(2);
+for (const name of only) if (!cards[name]) { console.error(`no card named ${name}`); process.exit(1); }
 for (const [name, body] of Object.entries(cards)) {
+  if (only.length && !only.includes(name)) continue;
   const file = join(work, name + '.html');
   writeFileSync(file, `<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${body}</body></html>`);
   const loaded = once('Page.loadEventFired');

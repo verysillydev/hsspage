@@ -38,10 +38,10 @@ homeservicestudios.com was telling Google the authoritative copy lived at
 yoniverseproductions.com. A canonical tag is an instruction, not a hint, so the new brand's
 ranking signals were being handed to the old Vercel build for six days.
 
-**Still outstanding, and not a code change:** yoniverseproductions.com is still live on Vercel
-serving the stale pre-rebrand build (its `<title>` still reads "Yoniverse"). It should 301 to
-homeservicestudios.com so the equity follows, rather than two domains serving near-duplicate
-content.
+**Owner decision, 2026-10-07: yoniverseproductions.com is not a site task.** It still serves the
+old site, and the owner will rework that domain himself later. Do not flag it in audits or reports
+as something for this repo. (It used to be listed here as outstanding: a 301 to
+homeservicestudios.com.)
 
 **`EMAIL` is `collab@homeservicestudios.com` since 2026-10-07 (owner request),** the same address
 as `FORM_TO`. It switched 2026-08-25 to `info@homeservicestudios.com` (was
@@ -602,9 +602,11 @@ or a remodel, they call a name they already know. We make sure that name is your
 and the last sentence carry the paragraph's `<strong>`, the same white bold, not a new style. The
 /team meta description ("...post home service video every month.") is a different sentence and
 stays. The "Creator work" service card went with the
-whole "Three ways we work" section (R2, owner request, 2026-10-06); the creator option in the
-contact dropdown and "and creators" in the site-wide JSON-LD description stay until the owners
-decide on creator work.
+whole "Three ways we work" section (R2, owner request, 2026-10-06). "and creators" in the
+site-wide JSON-LD description stays.
+**Owner decision, 2026-10-07: the contact form's "What you do" options stay exactly as they are**,
+including "Creator, artist or channel", "Real estate agent or brokerage" and "Remodeling, ADU or
+new build". Do not flag them for removal.
 
 Contact address on every page is `collab@homeservicestudios.com` as of 2026-10-07 (owner
 request; it was `info@` from 2026-08-25, and `yoni@yoniverseproductions.com` before the domain
@@ -1140,10 +1142,12 @@ crop (1488x1860 from x=6, trimming only 6px a side and 1px at the bottom), scale
 q2, 93,791 bytes): full hair, the complete HSS logo and about 5% of shirt below it. Paloma's and
 Sergy's files are still 700x700 squares; in the 4:5 frame `object-fit:cover` trims only their sides
 (10% each), which keeps their faces and logos whole. The eye lines land at about 28%, 29% and 33%
-of the frame. No pixels are invented anywhere. Leadership portraits stay 3:4. **`og/og-team.jpg`
-was not re-rendered in release 19** (it still shows the release-8 square crop of Yoni); its face
-tiles are 96x96 `object-fit:cover`, centred, so before re-running `make_og.mjs` give the 4:5 photo
-an `object-position` near the top or his hair will be cropped. `PERSON_ICON` is still in the file as the fallback for anyone added
+of the frame. No pixels are invented anywhere. Leadership portraits stay 3:4. **`og/og-team.jpg` was
+re-rendered in release 34 (owner)** with Yoni's current 4:5 photo. Its face tiles are 96x96
+`object-fit:cover`. Centred, the 4:5 photo would lose his hair, so his tile carries
+`object-position:50% 20%`: the crop starts 36px down his 900px frame, keeps his full hair and puts
+his eye line at about 30%, like the square crew tiles. `node make_og.mjs og-team` renders that one
+card. With no argument it renders them all. The meta is unchanged (1200x630); the file is 48.6KB. `PERSON_ICON` is still in the file as the fallback for anyone added
 without a photo.
 
 **Crew row and bio teaser (release 24, owner).** `TEAM_ROSTER` is in reading order, and that is
