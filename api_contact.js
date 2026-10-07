@@ -7,10 +7,13 @@
 //
 // Needs one environment variable in Vercel: BREVO_API_KEY
 //
-// Switched 2026-08-25 from yoni@yoniverseproductions.com now that
-// homeservicestudios.com is live. If leads stop arriving or start bouncing,
-// check Brevo's sender authentication for this domain first.
-const TO = "info@homeservicestudios.com";
+// Switched 2026-08-25 from the old pre-rebrand mailbox now that
+// homeservicestudios.com is live, and on 2026-10-07 (owner) from info@ to collab@,
+// the site's one contact address. Brevo's sender authentication (DKIM/SPF) covers
+// the domain, not a single mailbox, so any address on homeservicestudios.com can
+// sign. If leads stop arriving or start bouncing, check that domain's sender
+// authentication in Brevo first. Dormant while the site is on GitHub Pages.
+const TO = "collab@homeservicestudios.com";
 const FROM_NAME = "Home Service Studios";
 
 // must stay identical to TRADE_GROUPS in build_site.py, or valid submissions bounce

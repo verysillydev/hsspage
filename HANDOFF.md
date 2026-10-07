@@ -72,7 +72,12 @@ hero stats. Changing it back will regress Cumulative Layout Shift from 0.
 
 **The contact form needs an env var.** `BREVO_API_KEY` is set in the Vercel project
 settings for Preview and Production. It is not in this archive. The form posts to
-Brevo's transactional API and mails info@homeservicestudios.com (switched 2026-08-25).
+Brevo's transactional API and mails collab@homeservicestudios.com (2026-10-07, owner request;
+it was info@ from 2026-08-25). That Brevo path is dormant on GitHub Pages: the live form posts
+to FormSubmit, which delivers to `FORM_TO` in `build_site.py`, also collab@ since 2026-10-07.
+`EMAIL` (the address shown on every page) and `FORM_TO` are now the same address. FormSubmit
+needs a one-time activation for a new destination: the first submission after the switch sends
+an activation email to collab@, and the owner must click it before enquiries deliver.
 
 **Trade and budget lists are duplicated.** The `TRADES` and `BUDGETS` arrays exist in
 both `build_site.py` and `api_contact.js` and must stay identical. If they drift, valid

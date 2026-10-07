@@ -23,9 +23,10 @@ if MODE == "web":
 # a phone and most people close it, so this is meant to hold a Google Calendar
 # appointment booking page URL instead. Set BOOK_URL and every CTA on every page
 # follows; leave it empty and they fall back to email.
-# Switched 2026-08-25: homeservicestudios.com is live and receiving mail. See
-# api_contact.js for the matching TO/sender switch on the form's send path.
-EMAIL = "info@homeservicestudios.com"
+# Switched 2026-08-25: homeservicestudios.com is live and receiving mail. Since
+# 2026-10-07 (owner) it is collab@, the same address as FORM_TO below. See
+# api_contact.js for the matching TO on the dormant Brevo path.
+EMAIL = "collab@homeservicestudios.com"
 
 # The live origin. Canonical tags, OG URLs, the sitemap, robots.txt and the JSON-LD
 # record all derive from this, so it is the one place the site's own address is
@@ -36,12 +37,15 @@ EMAIL = "info@homeservicestudios.com"
 # signals at the old Vercel copy. Moving it here is what stops that recurring.
 SITE = "https://homeservicestudios.com"
 
-# Where the enquiry form actually delivers. Kept separate from EMAIL, which is the
-# address shown on the page: the two are allowed to differ and currently do.
-# api_contact.js (Brevo, via a Vercel function) is unreachable on GitHub Pages,
-# which is static, so this is the receiver until the form is moved back to a real
-# backend. FORM_ACTION is the no-JS fallback; FORM_JS posts to the /ajax/ variant.
-FORM_TO = "yoni@homeservicestudios.com"
+# Where the enquiry form actually delivers. Kept as its own constant beside EMAIL, the
+# address shown on the page: the two are allowed to differ, but since 2026-10-07
+# (owner) both are collab@. api_contact.js (Brevo, via a Vercel function) is
+# unreachable on GitHub Pages, which is static, so FormSubmit is the receiver until the
+# form moves back to a real backend. FORM_ACTION is the no-JS fallback; FORM_JS posts
+# to the /ajax/ variant. FormSubmit needs a one-time activation for every new
+# destination: the first submission after a change makes it email an activation link
+# to that address, and nothing is delivered until the owner clicks it.
+FORM_TO = "collab@homeservicestudios.com"
 FORM_ACTION = f"https://formsubmit.co/{FORM_TO}"
 
 # Paste the Google Calendar appointment booking page here and every CTA on the site

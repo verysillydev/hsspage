@@ -43,8 +43,9 @@ serving the stale pre-rebrand build (its `<title>` still reads "Yoniverse"). It 
 homeservicestudios.com so the equity follows, rather than two domains serving near-duplicate
 content.
 
-**`EMAIL` switched 2026-08-25** to `info@homeservicestudios.com` (was
-`yoni@yoniverseproductions.com`) now that homeservicestudios.com is live and the client confirmed
+**`EMAIL` is `collab@homeservicestudios.com` since 2026-10-07 (owner request),** the same address
+as `FORM_TO`. It switched 2026-08-25 to `info@homeservicestudios.com` (was
+`yoni@yoniverseproductions.com`) when homeservicestudios.com went live and the client confirmed
 it; `api_contact.js`'s `TO` moved with it, since that value doubles as the Brevo sender identity
 Brevo has to have DKIM/SPF for. If leads stop arriving or start bouncing, check Brevo's sender
 authentication for homeservicestudios.com before assuming it's a code bug. Don't switch `SITE`
@@ -498,8 +499,9 @@ whole "Three ways we work" section (R2, owner request, 2026-10-06); the creator 
 contact dropdown and "and creators" in the site-wide JSON-LD description stay until the owners
 decide on creator work.
 
-Contact address on every page is `info@homeservicestudios.com` as of 2026-08-25 (was
-`yoni@yoniverseproductions.com`; homeservicestudios.com went live and the client confirmed it).
+Contact address on every page is `collab@homeservicestudios.com` as of 2026-10-07 (owner
+request; it was `info@` from 2026-08-25, and `yoni@yoniverseproductions.com` before the domain
+went live).
 Only ever one SPF and one DMARC record on the domain in use.
 
 ## Contact and CTAs
@@ -814,7 +816,8 @@ in the source looked wrong; only a live POST showed it. Test the real endpoint a
 or form change, never just the build.
 
 **As of 2026-09-03 the form posts to `FORM_ENDPOINT`**, a receiver that works on static hosting,
-delivering to `FORM_TO` (`yoni@homeservicestudios.com`). Both constants sit at the top of
+delivering to `FORM_TO` (`collab@homeservicestudios.com` since 2026-10-07, owner request; it was
+`yoni@homeservicestudios.com`). Both constants sit at the top of
 `build_site.py` next to `EMAIL`, and `FORM_TO` is substituted into `FORM_JS` at build time via
 the `__FORM_ENDPOINT__` placeholder, because `FORM_JS` is a plain string full of JS braces and
 cannot be an f-string. There is an assertion that the placeholder was substituted.
@@ -824,8 +827,15 @@ still built as `Company (City) - Trade - Budget` so the inbox stays sortable, `_
 the person who filled the form, and the honeypot is handed to the receiver's own trap so a bot
 still gets a 200 and never learns it was caught.
 
-**`FORM_TO` differs from `EMAIL` on purpose.** `EMAIL` (`info@homeservicestudios.com`) is the
-address shown on the page; `FORM_TO` is where the form delivers. They are allowed to diverge.
+**`EMAIL` and `FORM_TO` are the same address since 2026-10-07: `collab@homeservicestudios.com`.**
+`EMAIL` is the address shown on the page and `FORM_TO` is where the form delivers. They stay
+separate constants so they can diverge again.
+
+**FormSubmit needs a one-time activation for every new destination.** The first submission after
+`FORM_TO` changes makes FormSubmit send an activation email to the new address (collab@ since
+2026-10-07). Nothing is delivered until the owner clicks the link in it, so after a switch, send
+one test enquiry and activate it straight away. Never activate by submitting from an agent; the
+owner does it.
 
 **`api_contact.js` is now dormant, not deleted.** It is still copied into `deploy/api/contact.js`
 by the web build and still holds the Brevo path, which needs `BREVO_API_KEY` set in the host's
