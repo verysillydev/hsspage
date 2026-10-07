@@ -3847,11 +3847,12 @@ TEAM_LEADS = [
                "filming a contractor on a live job takes. He cofounded Home Service Studios out "
                "of its Marina del Rey office and is hands-on with every shoot."},
     {"name": "Seth Yeager", "title": "Cofounder", "photo": "seth-yeager.jpg",
-        "bio": "Seth came up on set, working camera and electrical crew, cinematography and "
-               "stunts across film and television. He has worked on <em>The Chosen</em> and on "
-               "many independent films, and served in second unit and as an assistant director "
-               "on <em>The Shop</em>. He cofounded Home Service Studios to bring that production "
-               "standard to contractors."},
+        # Release 18 (owner copy, exact, short sentences). The earlier unit credit was
+        # removed on the owner's instruction; do not restore it.
+        "bio": "Seth came up on set. He has worked camera, electrical, cinematography and stunts "
+               "across film and television. He has worked on <em>The Chosen</em> and on many "
+               "independent films. He was first assistant director on <em>The Shop</em>. He "
+               "cofounded Home Service Studios to bring that production standard to contractors."},
 ]
 TEAM_ROSTER = [
     {"name": "Paloma Barros", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
