@@ -676,8 +676,8 @@ to make, so this collapses back to the single `REASSURE` line on purpose.
 ## Copy conventions
 
 Compound modifiers take a hyphen before a noun (`short-form reels`, `ten-spot campaign`,
-`long-form video`) but not as a plain noun (`seven years across the creator economy, live
-streaming and social commerce`). Hyphens are fine, it is only em and en dashes the build rejects. Lede
+`long-form video`) but not as a plain noun (`Live streaming and social commerce taught him
+what holds an audience`). Hyphens are fine, it is only em and en dashes the build rejects. Lede
 paragraphs are full sentences, not verbless fragments; the fragments in `.csi` cards and eyebrows
 are deliberate and stay.
 
@@ -929,8 +929,10 @@ without a photo.
 What is still open:
 
 - **Two crew bios.** `member_card()` renders an optional `bio` field, added 2026-09-03. Yoni's is
-  filled, adapted from the paragraph already published on `/our-work` so the two pages describe
-  him in the same terms. Paloma and Sergy have a name and a title only. A card with nothing but
+  filled with the owner's copy (release 20): seven years in the creator economy, what live
+  streaming and social commerce taught him, content monetization and original ideas for big names
+  in the creator world, now brought to home service brands. Paloma and Sergy have a name and a
+  title only. A card with nothing but
   a name and a title reads as a template waiting for data, which is the thing this whole section
   is about. One or two sentences each closes it.
 - **Faces on one page out of five.** A visitor going homepage to packages to contact, the most

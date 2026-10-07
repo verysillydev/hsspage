@@ -3861,13 +3861,14 @@ TEAM_LEADS = [
 ]
 TEAM_ROSTER = [
     {"name": "Paloma Barros", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
-    # Describes him in the same terms as the /our-work paragraph. Craig Balog and
-    # Seth Yeager own the company (owner confirmed 2026-10-06); nothing here may
-    # read as Yoni having founded or built it.
+    # Release 20: the owner's exact copy. Craig Balog and Seth Yeager own the company
+    # (owner confirmed 2026-10-06); nothing here may read as Yoni having founded or
+    # built it.
     {"name": "Yoni Paz", "title": "Creative Director and Producer", "photo": "yoni-paz.jpg",
-        "bio": "Seven years across the creator economy, live streaming and social commerce, "
-               "running portfolios of more than ten thousand creators and one hundred and "
-               "twenty talent agencies, before turning to commercial work."},
+        "bio": "Yoni spent seven years in the creator economy. Live streaming and social commerce "
+               "taught him what holds an audience. His work there covered content monetization "
+               "and original ideas for some big names in the creator world. Today he brings that "
+               "same instinct to home service brands."},
     {"name": "Sergy Olkowski", "title": "Post Production Supervisor", "photo": "sergy-olkowski.jpg"},
 ]
 
