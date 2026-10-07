@@ -4031,12 +4031,11 @@ CONTACT_HTML = f"""<title>Contact</title>
 <div class="hero hero-dark hero-contact">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Contact &middot; Home Service Studios</p>
   <h1 class="display">Talk <span class="hl">to us.</span></h1>
-  <p class="sub">Tell us your city and your trade and we will come back with something specific
-  to your market, not a brochure. If you would rather look first, the work is on the
-  <a href="/our-work/">case studies</a> and our Social Media Packages are
-  <a href="/packages/">priced in public</a>. You can also
-  <a href="mailto:{EMAIL}">email us</a> directly, good for scope, budgets or anything with
-  attachments, but the form below gets you a faster, more specific reply.</p>
+  <p class="sub">Tell us your city and your trade. We will come back with something specific to
+  your market, not a brochure. Want to look first? The work is in the
+  <a href="/our-work/">case studies</a>, and our Social Media Packages are
+  <a href="/packages/">priced in public</a>. You can also <a href="mailto:{EMAIL}">email us</a>
+  directly for scope, budgets or attachments. The form gets you a faster, more specific reply.</p>
   <div class="ctarow">
     <a class="cta" href="#start">Send us a message</a>
   </div>
@@ -4050,9 +4049,8 @@ CONTACT_HTML = f"""<title>Contact</title>
   <div class="sec-head">
     <p class="eyebrow">Send a message</p>
     <h2 class="display">Tell us about your market</h2>
-    <p class="lede">Six questions. It takes under a minute, and it means the first
-    reply you get is about <strong>your city and your trade</strong> rather than a
-    generic hello.</p>
+    <p class="lede">Six questions, under a minute. Your first reply will be about
+    <strong>your city and your trade</strong>, not a generic hello.</p>
   </div>
   {enquiry_form()}
 </div></section>
