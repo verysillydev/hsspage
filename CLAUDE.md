@@ -913,13 +913,17 @@ into its own system and the fingerprint returns.
 
 **Faces: done, mostly.** This section used to say there was not one face on the site. That is no
 longer true. `/team/` carries five real headshots (two leadership portraits, three crew) and zero
-`PERSON_ICON` placeholders. Crew headshots are 700x700 JPEGs at 68 to 86KB with the eyes about a third of the
-way down. **Yoni's (release 8, 2026-10-06)** is the owner's photo, kept as the master
-`post/yoni-paz-master.jpg` (1500x1861, not shipped): a 1500x1500 crop from y=60, scaled to 700x700
-(`post/yoni-paz.jpg`, ffmpeg q2, 67,770 bytes), with his eye line level with Sergy's. The source is
-framed tighter than the other two, so his face reads larger and the top of the polo's HSS mark
-shows at the bottom edge; a looser original from the same shoot would fix both. `og/og-team.jpg`
-was re-rendered with it (`node make_og.mjs`). `PERSON_ICON` is still in the file as the fallback for anyone added
+`PERSON_ICON` placeholders. **The crew row uses 4:5 portrait frames (release 19, owner: the HSS
+logo on every crew shirt must be in frame).** Yoni's photo is the owner's tight portrait, kept as
+the master `post/yoni-paz-master.jpg` (1500x1861, not shipped); `post/yoni-paz.jpg` is its exact 4:5
+crop (1488x1860 from x=6, trimming only 6px a side and 1px at the bottom), scaled to 720x900 (ffmpeg
+q2, 93,791 bytes): full hair, the complete HSS logo and about 5% of shirt below it. Paloma's and
+Sergy's files are still 700x700 squares; in the 4:5 frame `object-fit:cover` trims only their sides
+(10% each), which keeps their faces and logos whole. The eye lines land at about 28%, 29% and 33%
+of the frame. No pixels are invented anywhere. Leadership portraits stay 3:4. **`og/og-team.jpg`
+was not re-rendered in release 19** (it still shows the release-8 square crop of Yoni); its face
+tiles are 96x96 `object-fit:cover`, centred, so before re-running `make_og.mjs` give the 4:5 photo
+an `object-position` near the top or his hair will be cropped. `PERSON_ICON` is still in the file as the fallback for anyone added
 without a photo.
 
 What is still open:
