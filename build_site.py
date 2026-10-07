@@ -534,10 +534,13 @@ CSS = """<style>
   .rv{opacity:0;transform:translateY(16px);}
   .rv-in{opacity:1;transform:none;
     transition:opacity .4s cubic-bezier(.16,1,.3,1),transform .4s cubic-bezier(.16,1,.3,1);}
-  /* mobile reduces rather than replicates: shorter travel, shorter duration */
+  /* mobile reduces rather than replicates: shorter travel, shorter duration. .rv-in
+     restates transform:none here (release 29): this .rv comes later than the generic
+     .rv-in with equal specificity, so without it every revealed element stayed 10px low
+     on phones (the same bug the .benefit note below describes for desktop). */
   @media(max-width:700px){
     .rv{transform:translateY(10px);}
-    .rv-in{transition-duration:.3s;}
+    .rv-in{transform:none;transition-duration:.3s;}
   }
   /* The four "what you are actually buying" cards get a longer, more visible
      travel than the generic reveal so they read as sliding into frame rather
@@ -553,7 +556,8 @@ CSS = """<style>
      itself at the same compound specificity to actually win. */
   .benefit.rv,.step2.rv{transform:translateY(48px);}
   .benefit.rv-in,.step2.rv-in{transform:none;transition-duration:.5s;}
-  @media(max-width:700px){.benefit.rv,.step2.rv{transform:translateY(30px);}}
+  @media(max-width:700px){.benefit.rv,.step2.rv{transform:translateY(30px);}
+    .benefit.rv-in,.step2.rv-in{transform:none;}}
 
   /* the one deliberate entrance above the fold. It runs on the stat cards only,
      never on the hero paragraph, which is the LCP element on most pages. */

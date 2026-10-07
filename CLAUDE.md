@@ -732,8 +732,9 @@ and the asserts beside `CASE_BY_ID` ("more than ten times" is checked as 3,127 /
   link. Never say "licensing", or who or how many run it.
 - The copy stays count-free.
 - On phones the spot row scrolls sideways only. It has `overflow-y:hidden`, and its cards fade
-  in without the reveal's slide: the phone `.rv` offset outranks `.rv-in` and used to leave
-  them 10px low, which made the row scroll vertically. "Father Vs AC" was removed on
+  in without the reveal's slide. The phone `.rv` offset used to outrank `.rv-in` and leave them
+  10px low, which made the row scroll vertically. That cascade bug was fixed site-wide in
+  release 29 (see Motion); the row's own rules stay as a guard. "Father Vs AC" was removed on
 2026-10-06 (R17): its picture carried one licensee's logo and phone number, which named who ran the
 campaign; its thumbnail was deleted. Never re-add a spot that shows a licensee's branding.
 Its old pages (`/our-work/handyman-dan/`, `/work/handyman-dan/`) are noindex stubs to
@@ -785,6 +786,13 @@ Rules that must survive any edit:
   the header compaction works the way it does, see below.
 - **The reveal hidden state is added by JS, never by CSS alone.** If the script fails the content
   is simply visible. Do not move `.rv` into the stylesheet as a default.
+- **Every reveal state re-declares `transform:none` in the phone block (release 29, owner).**
+  The phone rule `.rv{translateY(10px)}` sits after the generic `.rv-in{transform:none}` with
+  equal specificity, so on phones (700px and under) every revealed element stayed 10px low.
+  `.benefit`/`.step2` stayed 30px low, which on `/packages` hung card 04 out of the dark panel
+  and left a grey band above STEP 01. The phone block now restates `.rv-in{transform:none}`
+  and `.benefit.rv-in,.step2.rv-in{transform:none}`. Any new reveal travel added inside a
+  media query needs its own `-in` rule beside it, at the same specificity.
 - **Nothing above the fold is revealed on load.** `MOTION_JS` filters targets to those below 90%
   of viewport height. The one deliberate entrance is the hero stat cards, and it deliberately does
   **not** touch the hero paragraph, which is the LCP element on most pages.
