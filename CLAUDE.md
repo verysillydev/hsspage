@@ -928,11 +928,12 @@ without a photo.
 What is still open:
 
 - **Two crew bios.** `member_card()` renders an optional `bio` field, added 2026-09-03. Yoni's is
-  filled with the owner's copy (release 21, replacing a weaker release-20 version): he learned
-  video where attention is the only currency, seven years in the creator economy shaping original
-  ideas and monetization for some of its biggest names, the rule that if people stop watching the
-  money stops, brought to every video for home service brands. Paloma and Sergy have a name and a
-  title only. A card with nothing but
+  filled with the owner's copy (release 22): he learned video where attention is the only
+  currency, spent seven years shaping original ideas and monetization strategies for full-time
+  creators, and brings their rule (if people stop watching, the money stops) to every video for
+  home service brands. **No name-dropping in bios (owner, 2026-10-06)**: no "big names", famous
+  clients or celebrity credits, implied or named; the release-21 line about "some of its biggest
+  names" was cut for that reason. Paloma and Sergy have a name and a title only. A card with nothing but
   a name and a title reads as a template waiting for data, which is the thing this whole section
   is about. One or two sentences each closes it.
 - **Faces on one page out of five.** A visitor going homepage to packages to contact, the most
