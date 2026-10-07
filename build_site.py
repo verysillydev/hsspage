@@ -2729,8 +2729,9 @@ CSI = {
         "terms, the moments every tech knows, and creating trends that entertain their "
         "customers.",
         "In under a year the account grew from 290 followers to 1,970, all organic: nearly seven "
-        "times the audience. It went from 154 posts to 508. On TikTok, five of those posts alone "
-        "drew 264,938 views, led by a technician&#39;s heat pump explainer at 150,282."),
+        "times the audience. It went from 154 posts to 508. Every post was produced to a high "
+        "standard and went out on schedule, day after day. That consistency is what turned a "
+        "quiet feed into an audience."),
     "allheart": ("Fill a year of paid and organic inventory for a brand with no library and no "
                  "appetite for repeat shoot days.",
                  "Write one comic premise strong enough to sustain ten spots, then shoot the entire "
