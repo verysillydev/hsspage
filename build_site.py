@@ -1709,7 +1709,7 @@ CSS = """<style>
   .roster > .member{width:100%;max-width:420px;margin:0 auto;}
   @media(min-width:760px){
     .roster{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-flow:row dense;
-      gap:var(--s5) var(--s4);}
+      gap:var(--s5) var(--s4);align-items:start;}
     .roster > .member{max-width:none;}
     .roster > .member:first-child{grid-column:2;}
   }
@@ -1726,9 +1726,9 @@ CSS = """<style>
      down, so a filled card and an empty one still sit on the same grid. */
   .member .mbio{margin:var(--s2) 0 0;font-size:var(--f-sm);line-height:1.5;
     color:var(--ink-2);}
-  /* Optional bio teaser (release 24): see member_card() and BIO_JS. Without JS, and
-     from 760px, the whole bio shows and the ellipsis and the toggle stay hidden.
-     BIO_JS adds .js-cut; below 760px that shows the lead, "...", then "Read more".
+  /* Optional bio teaser (release 24): see member_card() and BIO_JS. Without JS the whole
+     bio shows and the ellipsis and the toggle stay hidden. BIO_JS adds .js-cut; at every
+     width (release 34; phones only before) that shows the lead, "...", then "Read more".
      .is-open shows the rest, with "Show less" at the end. The toggle reads as a
      link (--orange-text, underlined: 5.9:1 on white) and its ::after gives it a 44px
      tall hit area without touching the line box, so no text moves. */
@@ -1742,11 +1742,9 @@ CSS = """<style>
      the ring sits 1px out so it clears the full stop before "Show less" */
   @media(hover:hover){.bio-tog:hover{text-decoration-thickness:2px;}}
   .bio-tog:focus-visible{outline:2px solid var(--orange);outline-offset:1px;}
-  @media(max-width:759px){
-    .mbio.js-cut .bio-tog{display:inline-block;}
-    .mbio.js-cut:not(.is-open) .ell{display:inline;}
-    .mbio.js-cut:not(.is-open) .rest{display:none;}
-  }
+  .mbio.js-cut .bio-tog{display:inline-block;}
+  .mbio.js-cut:not(.is-open) .ell{display:inline;}
+  .mbio.js-cut:not(.is-open) .rest{display:none;}
 
   .skip{position:absolute;left:-9999px;top:0;background:var(--orange);color:#14171A;
     padding:var(--s3) var(--s4);border-radius:0 0 var(--r-sm) 0;z-index:99;font-weight:600;}
@@ -4425,11 +4423,12 @@ def member_card(p):
     # the card is unchanged when it does not, so people can be filled in one at a
     # time as they send something rather than all at once.
     bio = f'<p class="mbio">{p["bio"]}</p>' if p.get("bio") else ""
-    # Release 24: an optional "bio_teaser" (the exact start of the bio) adds a phone
-    # only Read more / Show less toggle. The markup always holds the whole bio, so
-    # no-JS readers and desktop get all of it; the CSS hides .ell and the button
-    # unless BIO_JS has run, and only collapses below 760px. One button, after the
-    # text, toggles both ways, so focus stays on it.
+    # Release 24: an optional "bio_teaser" (the exact start of the bio) adds a Read more /
+    # Show less toggle, at every width since release 34 (phones only before). The markup
+    # always holds the whole bio, so no-JS readers get all of it; the CSS hides .ell and
+    # the button unless BIO_JS has run. One button, after the text, toggles both ways, so
+    # focus stays on it. On desktop the roster grid is top aligned, so opening one card
+    # grows only that card; the others keep their tops and their own height.
     teaser = p.get("bio_teaser")
     if teaser:
         full = p["bio"]
@@ -4450,9 +4449,9 @@ def member_card(p):
 
 BIO_JS = """<script>
 (function(){
-  /* Crew bio teasers (release 24): see member_card(). Inline right after the roster
-     so the collapse lands before that part of the page paints. The CSS collapses
-     only below 760px; this script only adds .js-cut and flips .is-open. */
+  /* Crew bio teasers (release 24; every width since release 34): see member_card().
+     Inline right after the roster so the collapse lands before that part of the page
+     paints. This script only adds .js-cut and flips .is-open. */
   [].forEach.call(document.querySelectorAll('.mbio[data-cut]'), function(p){
     var b = p.querySelector('.bio-tog'), card = p.closest('.member') || p;
     p.classList.add('js-cut');

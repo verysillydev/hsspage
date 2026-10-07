@@ -1156,15 +1156,20 @@ focus and screen reader order always match the phone order. Do not reorder with 
 second DOM.
 
 The teaser is data-driven. A roster entry may carry `bio_teaser`, the exact start of its `bio`
-(the build asserts it is a strict prefix). With a teaser, phones show the lead, a plain "...",
-then a "Read more" button. Tapping it shows the whole bio, ending in "Show less". It is one
+(the build asserts it is a strict prefix). With a teaser, every width shows the lead, a plain
+"...", then a "Read more" button. **Release 34 (owner): the toggle works at all widths**, not
+just phones, so Paloma's long bio no longer makes the desktop row uneven. All three crew cards
+show their teaser and "... Read more" at 1440, 768 and 390. Tapping it shows the whole bio, ending in "Show less". It is one
 `<button>` after the text, so focus never moves. It flips `aria-expanded`, and its accessible
 name switches between "Read more about <first name>" and "Show less about <first name>". It is
 styled as a link: `--orange-text`, underlined, 5.9:1 on white. A `::after` gives it a 44px tall
 hit area without touching the line box, and it has the site's orange focus ring. After Show less,
 `BIO_JS` scrolls the card back under the fixed nav if its top went above it. After Read more, it
-scrolls just enough to keep the button above the action bar. From 760px, and without JS, the
-whole bio shows and there is no button. Without a teaser there is no button either. All three
+scrolls just enough to keep the button above the action bar (on desktop the bar is hidden, so
+that check does nothing). On desktop the roster grid is top aligned (`align-items:start`), so
+opening one card grows only that card. The other two keep their tops and heights (measured at
+1440: Paloma 567 to 785px, Yoni and Sergy unchanged). Without JS the whole bio shows and there
+is no button. The leadership cards (Seth, Craig) have no toggle. Without a teaser there is no button either. All three
 crew entries carry both fields since release 33. A new crew member gets the same by adding `bio`
 and `bio_teaser` to their entry; nothing else changes.
 `BIO_JS` is inlined right after the roster, so the collapse lands before that part of the page
@@ -1177,13 +1182,13 @@ What is still open:
   **Paloma's (release 33, owner copy, verbatim, his commas and wording; it replaces the release-27
   bio)** starts "Paloma's approach to social media is rooted in understanding people." and ends
   "...built stronger connections between brands and their audiences." The source uses plain ASCII
-  apostrophes. Her phone teaser ends "...What captures their attention".
+  apostrophes. Her teaser ends "...What captures their attention".
   **Sergy's (release 33, owner copy, verbatim, his first bio)** is "Sergy lives where raw
   footage becomes a finished story. With a background in editing, motion design, and 3D
   animation, Sergy builds the custom tools and workflows that keep production fast without
-  cutting corners." His phone teaser ends "...With a background in editing". All three toggles
-  work on their own. The bios differ in length; the desktop row stays aligned because names and
-  roles sit at the same height and only the bio text below them varies. Yoni's bio and teaser are below. His teaser on phones is "Yoni
+  cutting corners." His teaser ends "...With a background in editing". All three toggles
+  work on their own, at every width. Names and roles sit at the same height, and the collapsed
+  teasers keep the row even. Yoni's bio and teaser are below. His teaser is "Yoni
   learned video where attention is the only currency. He spent a decade". His bio is the
   owner's copy (release 23): he learned video where attention is the only
   currency. He spent a decade in the creator economy, shaping original ideas and monetization
