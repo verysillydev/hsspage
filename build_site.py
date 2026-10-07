@@ -2551,18 +2551,21 @@ A1_REELS = "\n".join(
 # Dropbox client folders and release 8 (2026-10-06) eight more, all owner approved,
 # each logo taken from the company's own website; originals and sources live outside
 # the repo in reports/hss-audit/logos-new/ (manifest.json, originals/). HCCI stays out.
-# HVAC, plumbing and electrical brands lead; roofing, generators, GatorWraps and
-# garage doors follow; the agencies, the business advisor and the sales trainer (Rocket
-# Group, Lokal Media House, Rivenway, Service MVP) come last. Busy mascot marks (All Heart, Bee Right There,
-# iComfort, Veterans AC PHX, Grasshopper, Good Guy, Warm Welcome, Doggone, Bellaire,
-# Gengatorz, The Generator Guys, GatorWraps) never sit next to each other: in the
-# marquee (including where it loops back to the first mark), in the phones'
-# three-column grid (beside or directly above) and in the five-column reduced-motion
-# grid (directly above), and they spread across all three phone columns. LOGO_MASCOTS
-# and the asserts below the list hold the order to that. Alt text uses "and", not &, and no person's name.
-# Release 25 (owner, 2026-10-07): Monarch Home Services is off the wall. Closing its slot
-# put Grasshopper three after iComfort, which the rules forbid, so a few HVAC marks swapped
-# places. The order is the smallest change that keeps every rule through all of release 25.
+# HVAC, plumbing and electrical brands lead; roofing, generators, GatorWraps and garage
+# doors follow; the agencies, the business advisor and the sales trainer (Rocket Group,
+# Lokal Media House, Rivenway, Service MVP) come last. Busy mascot marks (All Heart, Bee
+# Right There, iComfort, Veterans AC PHX, Grasshopper, Good Guy, Atticman, Warm Welcome,
+# Doggone, Bellaire, Gengatorz, The Generator Guys, GatorWraps) never sit next to each
+# other: in the marquee (including where it loops back to the first mark), in the
+# phones' three-column grid (beside or directly above) and in the five-column
+# reduced-motion grid (directly above), and they spread across all three phone
+# columns. LOGO_MASCOTS and the asserts below the list hold the order to that. Alt
+# text uses "and", not &, and no person's name.
+# Release 25 (owner, 2026-10-07): Monarch Home Services is off the wall, Veterans AC
+# PHX has its Instagram badge (a mascot mark), and Rivenway and Atticman are added.
+# Closing Monarch's slot put Grasshopper three after iComfort, which the rules forbid,
+# so a few HVAC marks swapped places; the order is the smallest change that keeps every
+# rule at each step of the release.
 CLIENT_LOGOS = [
     ("logo_allheart.png",      "All Heart Heating, Cooling and Plumbing"),
     ("logo_quality.png",       "Quality Heating Cooling Plumbing and Electric"),
@@ -2578,6 +2581,7 @@ CLIENT_LOGOS = [
     ("logo_premier.png",       "Premier Heating and Air"),
     ("logo_familyplumber.png", "The Family Plumber"),
     ("logo_acplus.png",        "AC Plus Heating and Cooling"),
+    ("logo_atticman.png",      "Atticman Heating and Air Conditioning, Insulation"),
     ("logo_martins.png",       "Martins A/C and Electric"),
     ("logo_airone.png",        "Air One"),
     ("logo_blanchards.png",    "Blanchards Refrigeration"),
@@ -2604,7 +2608,7 @@ LOGO_MASCOTS = {"logo_allheart.png", "logo_beerightthere.png", "logo_icomfort.pn
                 "logo_grasshopper.png", "logo_goodguy.png", "logo_warmwelcome.png",
                 "logo_doggone.png", "logo_bellaire.png", "logo_gengatorz.png",
                 "logo_generatorguys.png", "logo_gatorwraps.png",
-                "logo_veterans.png"}   # release 25: the soldier badge is a mascot mark
+                "logo_veterans.png", "logo_atticman.png"}   # both added in release 25
 _m = [i for i, (fn, _) in enumerate(CLIENT_LOGOS) if fn in LOGO_MASCOTS]
 assert len(_m) == len(LOGO_MASCOTS), "a mascot mark is missing from the wall"
 assert not any(b - a in (1, 3, 5) for a in _m for b in _m if b > a), \

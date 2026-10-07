@@ -301,7 +301,7 @@ a solid scrim (`::cue`), and on a captioned film the sound hint moves to the top
 
 The marks live in `logos/` (PNG masters) with matching WebP copies in `logos_webp/` (what the
 wall ships, via `logomark()`); `CLIENT_LOGOS` sets the order and alt text, and the count shown
-anywhere (the homepage roster stat, `ROSTER_COUNT`) is derived from it, never typed. **35 marks
+anywhere (the homepage roster stat, `ROSTER_COUNT`) is derived from it, never typed. **36 marks
 as of release 25 (2026-10-07).** Monarch Home Services was removed in release 25 (owner); its
 files are deleted from `logos/` and `logos_webp/`. **Veterans AC PHX's mark is the soldier badge
 from its Instagram profile picture (release 25, owner),** replacing the old star wordmark (the
@@ -311,7 +311,12 @@ cut-out work. It was upscaled 4x with Lanczos first and processed at gamma 0.8. 
 mark. **Rivenway** was added in release 25 (owner, alt "Rivenway"), from the header logo on
 rivenway.com (255x59 PNG, the largest there; no SVG), processed flat in alpha mode. It is a
 business finance advisory, so it sits with the agencies and the sales trainer, between Lokal Media
-House and Service MVP. Fourteen were added in R15 from the HSS Dropbox client folders and eight more
+House and Service MVP. **Atticman Heating and Air Conditioning, Insulation** (alt text exactly as
+its site names it) was added in release 25 (owner). The source is the site's horizontal logo
+lockup (`Component-5.png` on atticmanhvac.com). Inverse mode keys out its black banner. The larger
+stacked header PNG was tried first, but its thin outline figure hit the 176px height cap at half
+the wall's ink area and read clearly lighter. It sits in the HVAC group between AC Plus and
+Martins, and is treated as a mascot mark. Fourteen were added in R15 from the HSS Dropbox client folders and eight more
 in release 8 (owner reviewed and approved): Rocket Group, Lokal Media House, First Mate Heating and
 Cooling, Clog Busters Drain Cleaning and Repair, 4 Points A/C and Heating, All American Heating and
 Plumbing, Bellaire Air Conditioning and Heating and Service MVP. Each logo is taken from the
@@ -323,8 +328,8 @@ never a person's name (Rocket Group's mark is the company's alone).
 Order: HVAC, plumbing and electrical brands lead; roofing, generators, GatorWraps and garage doors
 follow; the agencies, the business advisor and the sales trainer (Rocket Group, Lokal Media
 House, Rivenway, Service MVP) come last. Busy mascot marks (`LOGO_MASCOTS`: All Heart, Bee
-Right There, iComfort, Veterans AC PHX, Grasshopper, Good Guy, Warm Welcome, Doggone, Bellaire,
-Gengatorz, The Generator Guys, GatorWraps) never sit next to
+Right There, iComfort, Veterans AC PHX, Grasshopper, Good Guy, Atticman, Warm Welcome, Doggone,
+Bellaire, Gengatorz, The Generator Guys, GatorWraps) never sit next to
 each other: not in the marquee (including where it loops), not beside or above one another in the
 phones' three-column grid, not stacked in the five-column reduced-motion grid; and they spread
 across all three phone columns. **The build asserts all of this**, plus no duplicates and no HCCI,
@@ -333,7 +338,7 @@ marquee runs only from 760px with motion allowed. **Its speed is set in px per s
 seconds (release 25, owner): `MARQUEE_PX_PER_S = 59`.** That is about 15% faster than the 51.3
 px/s it had, and the desktop gap is 15% smaller, `calc(var(--s7) * .85)`, 40.8px instead of
 48px. `logo_marquee()` turns the speed into the inline duration from the count: one lap is one
-set of marks plus one gap each (137s at 35). Build asserts tie `MARQUEE_MARK_PX` and
+set of marks plus one gap each (141s at 36). Build asserts tie `MARQUEE_MARK_PX` and
 `MARQUEE_GAP_PX` to the CSS. The track is padded at its end by one gap, so the -50% loop is
 exactly one lap. Before release 25 it landed 24px short and the wall jumped once a lap. Hover
 still pauses it. Phones and reduced motion keep their own static-grid gaps. The static wall (phones, reduced motion) wraps and centres its last row, so no
