@@ -696,6 +696,15 @@ and the asserts beside `CASE_BY_ID` ("more than ten times" is checked as 3,127 /
 - Then the result as one quiet line in body size under a small "The result" label: "One company
   running the spots saw calls from Google climb from about one a week to ten a day." There is no
   display stat and no "yours depend" note any more (owner, release 28).
+- Then an enquiry prompt (release 28, owner): "Want to run this campaign in your market?" and the
+  `.wwd-link` text link "Ask about the campaign" to `CAMPAIGN_ASK`
+  (`/contact/?campaign=handyman-dan#start`). It does not go through `cta_href()`, because it is a
+  specific enquiry and a calendar would lose the message.
+- On `/contact/`, `FORM_JS` prefills "Anything else" from `?campaign=`, only when the field is
+  empty. Only keys in its `PREFILL` map count ("handyman-dan" becomes "I'd like to run the
+  Handyman Dan campaign in my market."). Anything else is ignored, and the text goes in through
+  `.value`, so nothing from the URL reaches the page. Add a key there for any future campaign
+  link. Never say "licensing", or who or how many run it.
 - The copy stays count-free.
 - On phones the spot row scrolls sideways only. It has `overflow-y:hidden`, and its cards fade
   in without the reveal's slide: the phone `.rv` offset outranks `.rv-in` and used to leave

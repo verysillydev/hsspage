@@ -1110,6 +1110,8 @@ CSS = """<style>
     color:var(--ink-2);text-wrap:pretty;}
   .mw-result{margin:var(--s5) 0 0;max-width:62ch;font-size:var(--f-body);line-height:1.55;
     color:var(--ink);text-wrap:pretty;}
+  .mw-ask{margin:var(--s5) 0 0;font-size:var(--f-body);line-height:1.55;color:var(--ink);}
+  .mw-ask + .wwd-link{margin-top:var(--s1);}
   .mw-k{display:block;margin-bottom:var(--s1);font-family:var(--display);
     font-variant-caps:all-small-caps;letter-spacing:.06em;font-size:var(--f-sm);color:var(--ink-2);}
   /* What We Do (homepage, release 8): warm white ground, three numbered blocks with a
@@ -2232,6 +2234,18 @@ FORM_JS = """<script>
 (function(){
   var f = document.getElementById('cform');
   if(!f) return;
+  /* ?campaign= prefills "Anything else" (release 28: the Handyman Dan section on
+     /our-work links here). Only known values count, each mapped to a fixed sentence;
+     anything else in the address is ignored, and the text goes in through .value, so
+     nothing from the URL ever reaches the page. Only into an empty field. */
+  var PREFILL = {'handyman-dan': "I'd like to run the Handyman Dan campaign in my market."};
+  try {
+    var want = new URLSearchParams(location.search).get('campaign');
+    var note = document.getElementById('f-message');
+    if(note && want && Object.prototype.hasOwnProperty.call(PREFILL, want) && !note.value.trim()){
+      note.value = PREFILL[want];
+    }
+  } catch(err){}
   var btn = document.getElementById('cbtn');
   var status = document.getElementById('fstatus');
   var LABEL = btn.textContent;
@@ -3007,6 +3021,10 @@ CASE_PAGE = {
 # number); the strip numbers what remains. Release 28 removed the 4 Points card that
 # used to follow it (its logo stays on the client wall). The id stays "more-work":
 # the old Handyman Dan pages and the #handyman hash forward to it.
+# The enquiry link (release 28, owner) goes straight to the form with ?campaign=, which
+# FORM_JS maps to a fixed prefilled message. It is a specific enquiry, not the site's
+# conversion CTA, so it does not go through cta_href(): a calendar would lose the message.
+CAMPAIGN_ASK = "/contact/?campaign=handyman-dan#start"
 MORE_WORK = f"""<section id="more-work"><div class="wrap">
   <div class="sec-head">
     <p class="eyebrow">Handyman Dan &middot; Commercial campaign</p>
@@ -3019,6 +3037,8 @@ MORE_WORK = f"""<section id="more-work"><div class="wrap">
   </div>
   <p class="mw-result"><span class="mw-k">The result</span>One company running the spots saw
   calls from Google climb from about one a week to ten a day.</p>
+  <p class="mw-ask">Want to run this campaign in your market?</p>
+  <a class="wwd-link" href="{CAMPAIGN_ASK}">Ask about the campaign&nbsp;&rarr;</a>
 </div></section>"""
 
 
