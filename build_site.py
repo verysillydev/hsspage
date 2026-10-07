@@ -4006,7 +4006,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <div class="hero-scrim"></div>
   </div>
   <div class="hero-lines">{SPLAT_SVG}<div class="wrap band-a">
-  <p class="sub">We write, shoot, edit and post video for home service companies every month.
+  <p class="sub">We write, shoot, edit and post video for home service companies <strong>nationwide</strong>.
   When a homeowner needs a repair, a replacement or a remodel, they call a name they already know.
   <strong>We make sure that name is yours.</strong></p>
   {SLATE_DEFS}

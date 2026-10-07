@@ -595,10 +595,13 @@ the pitch is the trap**: case studies stay concrete about HVAC, vans and dark at
 hero and the benefit blocks stay trigger agnostic. **Since 2026-10-06 (owner approved) the homepage
 hero lede speaks to one audience with one promise**: home service companies, every month, so the
 name a homeowner already knows is theirs when a repair, a replacement or a remodel comes up. It no
-longer lists builders, realtors and creators. Since release 30 it is three short sentences: "We write, shoot, edit and post
-video for home service companies every month. When a homeowner needs a repair, a replacement or
-a remodel, they call a name they already know. We make sure that name is yours." The last
-sentence carries the `<strong>`. The "Creator work" service card went with the
+longer lists builders, realtors and creators. Since release 30 it is three short sentences. Since
+release 34 (owner) the first ends "nationwide" instead of "every month": "We write, shoot, edit and
+post video for home service companies nationwide. When a homeowner needs a repair, a replacement
+or a remodel, they call a name they already know. We make sure that name is yours." "nationwide"
+and the last sentence carry the paragraph's `<strong>`, the same white bold, not a new style. The
+/team meta description ("...post home service video every month.") is a different sentence and
+stays. The "Creator work" service card went with the
 whole "Three ways we work" section (R2, owner request, 2026-10-06); the creator option in the
 contact dropdown and "and creators" in the site-wide JSON-LD description stay until the owners
 decide on creator work.
