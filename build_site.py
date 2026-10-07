@@ -534,10 +534,8 @@ CSS = """<style>
   .rv{opacity:0;transform:translateY(16px);}
   .rv-in{opacity:1;transform:none;
     transition:opacity .4s cubic-bezier(.16,1,.3,1),transform .4s cubic-bezier(.16,1,.3,1);}
-  /* mobile reduces rather than replicates: shorter travel, shorter duration. .rv-in
-     restates transform:none here (release 29): this .rv comes later than the generic
-     .rv-in with equal specificity, so without it every revealed element stayed 10px low
-     on phones (the same bug the .benefit note below describes for desktop). */
+  /* mobile reduces rather than replicates: shorter travel, shorter duration
+     (.rv-in restates transform:none or this .rv wins, see CLAUDE.md Motion) */
   @media(max-width:700px){
     .rv{transform:translateY(10px);}
     .rv-in{transform:none;transition-duration:.3s;}
@@ -1125,19 +1123,7 @@ CSS = """<style>
   .wwd-block:first-of-type{padding-top:0;}
   .wwd-block:last-child{padding-bottom:0;}
   .wwd-block + .wwd-block{border-top:1px solid var(--line);}
-  .wwd-num{margin:0;font-family:var(--display);font-weight:900;font-size:var(--f-mega);
-    line-height:1;letter-spacing:-.02em;color:var(--orange-text);font-variant-numeric:tabular-nums;
-    height:1em;}
-  /* What We Do slates and their clap: see slate() and CLAP_JS */
-  .wwd-num .slate{display:block;width:auto;overflow:visible;}
-  .slate.is-clap .arm{transform-box:view-box;transform-origin:2px 14px;
-    animation:slate-clap .45s both;}
-  @keyframes slate-clap{
-    0%{transform:rotate(-9deg);animation-timing-function:cubic-bezier(.55,0,1,.45);}
-    30%{transform:rotate(0deg);animation-timing-function:cubic-bezier(.2,.8,.3,1);}
-    78%{transform:rotate(-10.5deg);animation-timing-function:ease-in-out;}
-    100%{transform:rotate(-9deg);}}
-  .slate-defs{position:absolute;width:0;height:0;overflow:hidden;}
+  .wwd-num{margin:0;font-size:var(--f-mega);line-height:1;height:1em;}
   .wwd-title{margin:var(--s3) 0 0;font-family:var(--display);font-weight:700;font-size:var(--f-h2);
     line-height:1.15;letter-spacing:var(--t-head);color:var(--ink);}
   .wwd-copy{margin:var(--s3) 0 0;font-size:var(--f-lede);line-height:1.55;color:var(--ink-2);
@@ -3708,12 +3694,11 @@ def slate(n):
     its transform attribute (so no JS, no CSS and reduced motion all show it open)."""
     assert re.fullmatch(r"\d\d", n), n
     hx, hy = SLATE_HINGE
-    return (f'<svg class="slate" viewBox="{_SLATE_VB}" style="{_SLATE_STYLE}" aria-hidden="true" '
-            f'focusable="false"><use class="arm" href="#slate-arm" '
-            f'transform="rotate({SLATE_ARM_DEG} {hx} {hy})"/><use href="#slate-body"/>'
-            f'<text x="{_svgn(_SW / 2)}" y="{_svgn(_SLATE_NUM_Y)}" text-anchor="middle" '
-            f'font-family="{_SLATE_FONT}" font-weight="900" font-size="64" '
-            f'letter-spacing="{_svgn(-0.02 * 64)}" fill="{_SLATE_INK["white"]}">{n}</text></svg>')
+    # size, offset and number type live in SLATE_CSS (homepage only), once, not per slate
+    return (f'<svg class="slate" viewBox="{_SLATE_VB}" aria-hidden="true" focusable="false">'
+            f'<use class="arm" href="#slate-arm" transform="rotate({SLATE_ARM_DEG} {hx} {hy})"/>'
+            f'<use href="#slate-body"/><text class="sn" x="{_svgn(_SW / 2)}" '
+            f'y="{_svgn(_SLATE_NUM_Y)}">{n}</text></svg>')
 
 
 # The clap (release 29, owner): each What We Do slate claps once when it scrolls into
@@ -3725,6 +3710,21 @@ def slate(n):
 # past -9 degrees can paint above the viewBox. Reduced motion or no
 # IntersectionObserver: nothing runs and the arm rests open. The .wwd-num box keeps the
 # old number's 1em line so the headings do not move; slate() sizes and offsets the svg.
+# The slate rules ship on the homepage only (release 29): CSS is inline in every page's
+# head and render-blocking, so other pages should not pay for them.
+SLATE_CSS = f"""<style>
+  .wwd-num .slate{{display:block;width:auto;overflow:visible;{_SLATE_STYLE}}}
+  .slate .sn{{font:900 64px {_SLATE_FONT};letter-spacing:{_svgn(-0.02 * 64)}px;fill:#FFFFFF;
+    text-anchor:middle;}}
+  .slate-defs{{position:absolute;width:0;height:0;overflow:hidden;}}
+  .slate.is-clap .arm{{transform-box:view-box;transform-origin:2px 14px;
+    animation:slate-clap .45s both;}}
+  @keyframes slate-clap{{
+    0%{{transform:rotate(-9deg);animation-timing-function:cubic-bezier(.55,0,1,.45);}}
+    30%{{transform:rotate(0deg);animation-timing-function:cubic-bezier(.2,.8,.3,1);}}
+    78%{{transform:rotate(-10.5deg);animation-timing-function:ease-in-out;}}
+    100%{{transform:rotate(-9deg);}}}}
+</style>"""
 CLAP_JS = """<script>
 (function(){
   if(!('IntersectionObserver' in window)) return;
@@ -3744,6 +3744,7 @@ CLAP_JS = """<script>
 HOME_HTML = f"""<title>Home Service Studios</title>
 {FONT_CSS}
 {CSS}
+{SLATE_CSS}
 <a class="skip" href="#main">Skip to content</a>
 {nav("home")}
 
