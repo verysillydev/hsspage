@@ -1312,7 +1312,11 @@
      reasoning as .reels and .logos elsewhere on the site */
   .roster{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s5) var(--s4);}
   @media(min-width:560px){.roster{grid-template-columns:repeat(3,1fr);}}
-  .member .portrait{aspect-ratio:1/1;margin-bottom:var(--s3);}
+  /* 4:5 crew frames (release 19, owner): Yoni's photo is a tight 4:5 portrait and only a
+     4:5 frame holds both his hair and the HSS logo on his shirt. Paloma's and Sergy's are
+     700x700 squares, so in the same frame object-fit:cover trims only their sides (10%
+     each), which keeps their faces and logos whole. Leadership stays 3:4. */
+  .member .portrait{aspect-ratio:4/5;margin-bottom:var(--s3);}
   .member h3{margin:0;font-size:var(--f-body);font-family:var(--display);font-weight:600;
     letter-spacing:var(--t-head);}
   .member .rtitle{display:block;margin-top:1px;font-family:var(--mono);font-size:var(--f-micro);
