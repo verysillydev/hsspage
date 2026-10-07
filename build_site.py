@@ -2546,14 +2546,14 @@ A1_REELS = "\n".join(
 # each logo taken from the company's own website; originals and sources live outside
 # the repo in reports/hss-audit/logos-new/ (manifest.json, originals/). HCCI stays out.
 # HVAC, plumbing and electrical brands lead; roofing, generators, GatorWraps and
-# garage doors follow; the agencies and the sales trainer (Rocket Group, Lokal Media
-# House, Service MVP) come last. Busy mascot marks (All Heart, Bee Right There,
+# garage doors follow; the agencies, the business advisor and the sales trainer (Rocket
+# Group, Lokal Media House, Rivenway, Service MVP) come last. Busy mascot marks (All Heart, Bee Right There,
 # iComfort, Veterans AC PHX, Grasshopper, Good Guy, Warm Welcome, Doggone, Bellaire,
 # Gengatorz, The Generator Guys, GatorWraps) never sit next to each other: in the
 # marquee (including where it loops back to the first mark), in the phones'
 # three-column grid (beside or directly above) and in the five-column reduced-motion
-# grid (directly above), and they spread across all three phone columns. LOGO_MASCOTS and the asserts below the
-# list hold the order to that. Alt text uses "and", not &, and no person's name.
+# grid (directly above), and they spread across all three phone columns. LOGO_MASCOTS
+# and the asserts below the list hold the order to that. Alt text uses "and", not &, and no person's name.
 # Release 25 (owner, 2026-10-07): Monarch Home Services is off the wall. Closing its slot
 # put Grasshopper three after iComfort, which the rules forbid, so a few HVAC marks swapped
 # places. The order is the smallest change that keeps every rule through all of release 25.
@@ -2591,6 +2591,7 @@ CLIENT_LOGOS = [
     ("logo_stellar.png",       "Stellar Garage Doors"),
     ("logo_rocketgroup.png",   "Rocket Group"),
     ("logo_lmh.png",           "Lokal Media House"),
+    ("logo_rivenway.png",      "Rivenway"),
     ("logo_servicemvp.png",    "Service MVP"),
 ]
 LOGO_MASCOTS = {"logo_allheart.png", "logo_beerightthere.png", "logo_icomfort.png",
