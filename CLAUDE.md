@@ -249,13 +249,37 @@ sentence, then a row of the four services, then the stat line and its two button
 to follow the row. Nothing else changed order.
 - **Markup:** `services_row()` from `SERVICES`. It is a `nav` labelled by a visible eyebrow `h2`,
   "Our services", so it does not repeat the "What We Do" H2.
-- **Cards:** four light cards (they re-declare the light tokens inside the dark band). Each is one
-  link to its What We Do block (`#wwd-social`, `#wwd-commercial`, `#wwd-brand`, `#wwd-podcast`;
-  the build asserts each target exists), with the block's slate drawn small, arm open, no clap.
-  Each has the service name and one short line.
-- **Columns:** four across from 900px, two by two below that, including compact cards on phones.
-- **States:** hover is white with an orange border, focus is the site's orange ring. The blocks
-  have `scroll-margin-top`, so a jump lands clear of the fixed nav.
+- **A film strip (release 34, owner: the white cards "don't look good").** The four services are
+  four frames of one charcoal strip (`#262B30`) on the dark band. Cream sprocket rails run along
+  the top and bottom, in the buttons' hole language: the same tile, larger, 8x6 in a 14px pitch.
+  `background-repeat:space` keeps every hole whole inside each frame, and the frames touch, so
+  the rails read as continuous.
+- **Each frame is a real still from that service's own work** (`post/svc-*.webp`, 480x270, with a
+  336px variant through `srcset`). Desktop at 1x and phones at 2x fetch the 336 file. They carry
+  real dimensions and `alt=""`, because the caption names the link.
+- **The stills are deferred by `SVC_JS`, not `loading="lazy"`.** Native lazy loading fetches
+  anything within 1,250 to 2,500px of the viewport, which on a phone is all four at first load
+  (measured: 11 to 17 requests, 287 to 328KB). `SVC_JS` sets each `src`/`srcset` from `data-*`
+  once the strip is within 100px of the viewport. The phone first load measured 14 requests and
+  296KB, where the three extra requests are inline `data:` images. Until then the img holds a 1x1
+  transparent GIF. **`aspect-ratio:16/9` on the img is required**: without it the GIF's square
+  natural shape overrides the width and height ratio, and the frame shrinks while the visitor
+  scrolls (CLS). Without JS, a `<noscript>` copy lies over the placeholder.
+  - 01 is a crop of the iComfort Instagram grid (`post/ig-icomfort.webp`).
+  - 02 is the All Heart spot poster (`post_yt/TPDZ-OvRNgc.webp`).
+  - 03 is the Quality brand film at 84s: technicians walking to the branded vans. The poster
+    frame repeats the hero's aerial, so it was not used.
+  - 04 is the Service MVP set (`post/servicemvp-podcast.webp`).
+- **Under each frame:** the small open slate (left-aligned; `align-self:flex-start`, or the flex
+  column centres it), the service name and the one short line. Each frame plus caption is one link
+  to its What We Do block (`#wwd-social`, `#wwd-commercial`, `#wwd-brand`, `#wwd-podcast`); the
+  build asserts each target exists. No clap on these slates.
+- **Columns:** one strip of four from 760px, so a tablet still sees one strip. Below 760px it is
+  two strips of two (2x2), compact, never one column.
+- **States:** hover (pointer only) lifts the still to full opacity, scales it 1.045 inside its
+  window and turns the name orange. Transform and opacity only. Focus is the site's orange ring
+  around frame and caption. The blocks have `scroll-margin-top`, so a jump lands clear of the
+  fixed nav.
 - **Shared artwork:** `SLATE_DEFS` now sits just above the row, so its slates draw from the
   first paint. The styles are in `HOME_CSS`.
 - **Not decided by the brief:** the intro sentence stays directly under the video and the row

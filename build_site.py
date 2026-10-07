@@ -3840,6 +3840,10 @@ def slate(n):
 # films are one sideways swipe row like the Handyman Dan strip (82% cards, snap,
 # overflow-y hidden so it never scrolls vertically); .wwd-pair dissolves into the row
 # with display:contents. From 760px the layout is unchanged.
+# the strip's sprocket rails: the buttons' hole tile, larger (8x6 in a 14px pitch)
+SVC_HOLE = ("url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='6'%3E"
+            "%3Crect x='3' width='8' height='6' rx='1.5' fill='%23F5F4F1'/%3E%3C/svg%3E\")")
+SVC_HOLES = f"{SVC_HOLE},{SVC_HOLE}"
 HOME_CSS = f"""<style>
   .wwd-num .slate{{display:block;width:auto;overflow:visible;{_SLATE_STYLE}}}
   .slate .sn{{font:900 64px {_SLATE_FONT};letter-spacing:{_svgn(-0.02 * 64)}px;fill:#FFFFFF;
@@ -3854,23 +3858,27 @@ HOME_CSS = f"""<style>
     100%{{transform:rotate(-9deg);}}}}
   .wwd-block{{scroll-margin-top:76px;}}
   .svc{{margin-top:var(--s7);}}
-  .svc-h{{margin:0 0 var(--s3);}}
-  .svc-grid{{list-style:none;margin:0;padding:0;display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s3);}}
-  @media(min-width:900px){{.svc-grid{{grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s4);}}}}
-  .svc-grid li{{display:flex;}}
-  .svc-card{{--ground:#FFFFFF;--ground-2:#F5F4F1;--line:#E2E0DA;--ink:#14171A;--ink-2:#4B535B;
-    flex:1;display:flex;flex-direction:column;gap:var(--s1);padding:var(--s4);
-    background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
-    color:var(--ink);text-decoration:none;}}
-  .svc-card:hover{{background:var(--ground);border-color:var(--orange);}}
-  .svc-card .slate{{display:block;align-self:flex-start;height:56px;width:auto;overflow:visible;
+  .svc-h{{margin:0 0 var(--s4);}}
+  .svc-strip{{list-style:none;margin:0;padding:0;display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));row-gap:var(--s5);}}
+  @media(min-width:760px){{.svc-strip{{grid-template-columns:repeat(4,minmax(0,1fr));}}}}
+  .svc-frame{{display:block;color:var(--ink);text-decoration:none;}}
+  .svc-film{{display:block;padding:16px 4px;background:{SVC_HOLES} #262B30;
+    background-repeat:space no-repeat;background-size:14px 6px;
+    background-position:0 5px,0 calc(100% - 5px);}}
+  .svc-pic{{display:block;position:relative;overflow:hidden;border-radius:1px;background:#0B0D0F;}}
+  .svc-pic noscript img{{position:absolute;inset:0;}}
+  .svc-pic img{{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;opacity:.9;
+    transition:transform .4s cubic-bezier(.2,.6,.3,1),opacity .4s;}}
+  @media(hover:hover){{.svc-frame:hover img{{opacity:1;transform:scale(1.045);}}
+    .svc-frame:hover .svc-name{{color:var(--orange);}}}}
+  .svc-cap{{display:flex;flex-direction:column;gap:2px;padding:var(--s3) var(--s2) 0;}}
+  .svc-cap .slate{{display:block;align-self:flex-start;height:34px;width:auto;overflow:visible;
     margin:0 0 var(--s2) -2px;}}
   .svc-name{{font-family:var(--display);font-weight:700;font-size:var(--f-h4);line-height:1.2;
     letter-spacing:var(--t-head);}}
   .svc-line{{font-size:var(--f-sm);line-height:1.45;color:var(--ink-2);}}
-  @media(max-width:559px){{.svc-card{{padding:var(--s3);}}.svc-card .slate{{height:36px;}}
-    .svc-name{{font-size:var(--f-body);}}}}
+  @media(max-width:559px){{.svc-cap .slate{{height:28px;}}.svc-name{{font-size:var(--f-body);}}}}
   .wwd-pair{{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s6);margin-top:var(--s6);}}
   .wwd-pair .wwd-film{{margin-top:0;}}
   @media(min-width:760px){{.wwd-pair{{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s5);}}}}
@@ -3891,19 +3899,58 @@ HOME_CSS = f"""<style>
 # Light cards on the dark band: they re-declare the light tokens, the same scoping the
 # hero uses the other way round. One short line each, from the section copy.
 SERVICES = [
-    ("01", "Social Media Packages", "A reel every weekday, posted for you.", "wwd-social"),
-    ("02", "Commercial shoots", "Spots built on one strong idea.", "wwd-commercial"),
-    ("03", "Brand videos", "A film that tells your story.", "wwd-brand"),
-    ("04", "Podcast production", "We build the set. You talk.", "wwd-podcast"),
+    ("01", "Social Media Packages", "A reel every weekday, posted for you.", "wwd-social", "svc-social"),
+    ("02", "Commercial shoots", "Spots built on one strong idea.", "wwd-commercial", "svc-commercial"),
+    ("03", "Brand videos", "A film that tells your story.", "wwd-brand", "svc-brand"),
+    ("04", "Podcast production", "We build the set. You talk.", "wwd-podcast", "svc-podcast"),
 ]
 
 
+# frame width: a quarter of the 1072px content column less the 8px between frames, or of
+# the viewport less the 48px gutters; half on phones (two frames a row)
+SVC_SIZES = ("(min-width:1120px) 260px,(min-width:760px) calc(25vw - 20px),calc(50vw - 32px)")
+
+
+BLANK_GIF = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+
+
 def services_row():
-    cards = "".join(f'<li><a class="svc-card" href="#{aid}">{slate(n)}'
-                    f'<span class="svc-name">{name}</span><span class="svc-line">{line}</span></a></li>'
-                    for n, name, line, aid in SERVICES)
+    def frame(n, name, line, aid, still):
+        big = f"{P}/{still}.webp"
+        src = asset(big, "image/webp")
+        # 480w covers a 2x desktop frame (260px); phones at 2x need about 330px, so they take
+        # the 336w file. In the web build the stills are deferred by SVC_JS (data-src), because
+        # native lazy loading fetches anything within 1250 to 2500px of the viewport, which is
+        # all four at first load on a phone; <noscript> keeps them for readers without JS. The
+        # inline artifact build keeps a plain src (its data URIs are already inline).
+        if MODE != "web":
+            img = f'<img src="{src}"{dims(big)} alt="" loading="lazy" decoding="async">'
+        else:
+            small = asset(f"{P}/{still}-336.webp", "image/webp")
+            img = (f'<img src="{BLANK_GIF}" data-src="{src}" data-srcset="{small} 336w, {src} 480w" '
+                   f'sizes="{SVC_SIZES}"{dims(big)} alt="" decoding="async">'
+                   f'<noscript><img src="{small}"{dims(big)} alt=""></noscript>')
+        return (f'<li><a class="svc-frame" href="#{aid}"><span class="svc-film"><span class="svc-pic">'
+                f'{img}</span></span><span class="svc-cap">{slate(n)}<span class="svc-name">{name}'
+                f'</span><span class="svc-line">{line}</span></span></a></li>')
     return (f'<nav class="svc" aria-labelledby="svc-h"><h2 class="eyebrow svc-h" id="svc-h">Our '
-            f'services</h2><ul class="svc-grid">{cards}</ul></nav>')
+            f'services</h2><ul class="svc-strip">{"".join(frame(*x) for x in SERVICES)}</ul></nav>')
+
+
+# The services strip's stills (release 34): set each src only when the strip is within 100px
+# of the viewport, so a phone's first load does not carry them. No IntersectionObserver: load.
+SVC_JS = """<script>
+(function(){
+  var imgs = [].slice.call(document.querySelectorAll('.svc img[data-src]'));
+  function show(i){ i.srcset = i.getAttribute('data-srcset'); i.src = i.getAttribute('data-src');
+    i.removeAttribute('data-src'); }
+  if(!('IntersectionObserver' in window)){ imgs.forEach(show); return; }
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ io.unobserve(e.target); show(e.target); } });
+  }, {rootMargin: '0px 0px 100px 0px'});
+  imgs.forEach(function(i){ io.observe(i); });
+})();
+</script>"""
 
 
 CLAP_JS = """<script>
@@ -3951,7 +3998,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   When a homeowner needs a repair, a replacement or a remodel, they call a name they already know.
   <strong>We make sure that name is yours.</strong></p>
   {SLATE_DEFS}
-  {services_row()}
+  {services_row()}{SVC_JS if MODE == "web" else ""}
   <div class="stats quad">
     <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views in six months</span></a>
     <div class="stat"><a class="case" href="{case_url("beerightthere")}">Bee Right There</a><a class="n" href="{BRT_REEL_URL}" aria-label="{BRT_REEL_LABEL}">{BRT_REEL_SHORT}</a><span class="k">Views on one reel</span></div>
@@ -4813,7 +4860,7 @@ if MODE == "web":
                    desc=D5, og_image=f"{SITE}/og/og-team.jpg",
                    url=f"{SITE}/team/")
 
-    for _n, _name, _line, _aid in SERVICES:      # every services card lands on its block
+    for _n, _name, _line, _aid, _still in SERVICES:      # every services card lands on its block
         assert HOME_HTML.count(f'id="{_aid}"') == 1, f"services card #{_aid} has no target"
     home = validate(HOME_HTML, "home")
     D3 = ("Los Angeles video production for HVAC, plumbing and home service brands. Written, "
