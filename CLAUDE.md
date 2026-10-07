@@ -312,7 +312,14 @@ dropped its "followers / following" line), resized to
   website states it in visible copy. The Family Plumber's does. Gator Wraps' lists two shops
   (Ontario, CA and Lake Havasu City, AZ) only in structured data, so its caption has none. The
   logo manifest's "Las Vegas, NV" for Gator Wraps is not backed by their site. The pair's CSS is
-  in `HOME_CSS` (homepage only, renamed from `SLATE_CSS`).
+  in `HOME_CSS` (homepage only, renamed from `SLATE_CSS`). **Phones (release 33, owner: "do not stack them"):** below 760px
+  all three films are one sideways swipe row (`.wwd-films`), like the Handyman Dan strip:
+  - 82% cards so the next one peeks, with scroll-snap and captions under each.
+  - `overflow-y:hidden`: scrollHeight equals clientHeight (222/222 at 390).
+  - `.wwd-pair` dissolves into the row with `display:contents`.
+  - A swipe that starts on a video scrolls the row; the player never cancels touch.
+  - Tap to play and one at a time still hold.
+  - From 760px the layout is unchanged: Quality featured, the pair below.
 - **04 Podcast production.** "Watch the full episode" (YouTube `WoQBaTu2K28`, new tab), the
   small line "Set build, production and post.", then the podcast film, hover-play at full width,
   captioned "Service MVP Sales Training Podcast with Joe Crisara." with 3:24. **The media is one

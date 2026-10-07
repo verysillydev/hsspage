@@ -3742,8 +3742,12 @@ def slate(n):
 # past -9 degrees can paint above the viewBox. Reduced motion or no
 # IntersectionObserver: nothing runs and the arm rests open. The .wwd-num box keeps the
 # old number's 1em line so the headings do not move; slate() sizes and offsets the svg.
-# Homepage-only styles (release 29 slates, release 32 film pair): CSS is inline in every
-# page's head and render-blocking, so other pages should not pay for them.
+# Homepage-only styles (release 29 slates, release 32 film pair, release 33 services row
+# and the phone film row): CSS is inline in every page's head and render-blocking, so
+# other pages should not pay for them. Release 33 (owner): below 760px block 03's three
+# films are one sideways swipe row like the Handyman Dan strip (82% cards, snap,
+# overflow-y hidden so it never scrolls vertically); .wwd-pair dissolves into the row
+# with display:contents. From 760px the layout is unchanged.
 HOME_CSS = f"""<style>
   .wwd-num .slate{{display:block;width:auto;overflow:visible;{_SLATE_STYLE}}}
   .slate .sn{{font:900 64px {_SLATE_FONT};letter-spacing:{_svgn(-0.02 * 64)}px;fill:#FFFFFF;
@@ -3778,6 +3782,13 @@ HOME_CSS = f"""<style>
   .wwd-pair{{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s6);margin-top:var(--s6);}}
   .wwd-pair .wwd-film{{margin-top:0;}}
   @media(min-width:760px){{.wwd-pair{{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s5);}}}}
+  @media(max-width:759px){{
+    .wwd-films{{display:flex;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;
+      scroll-snap-type:x mandatory;gap:var(--s3);margin-top:var(--s6);padding-bottom:var(--s2);
+      scrollbar-width:thin;}}
+    .wwd-films .wwd-pair{{display:contents;}}
+    .wwd-films .wwd-film{{flex:0 0 82%;margin-top:0;scroll-snap-align:start;}}
+  }}
 </style>"""
 # Services index (release 33, owner): the four What We Do services as a row of cards in
 # the hero band, after the intro sentence and above the stat line, so a first visit
@@ -3908,12 +3919,14 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <p class="wwd-copy">A film that tells your company&#39;s story. Made for your homepage, your
     YouTube and your hiring.</p>
     <a class="wwd-link" href="https://www.youtube.com/watch?v=m3HEWS9qMTM">Watch the full film&nbsp;&rarr;</a>
+    <div class="wwd-films">
     <div class="wwd-film">
     {brand_film()}
     <p class="wwd-cap"><span>Brand film for Quality Heating Cooling Plumbing Electrical, Tulsa.</span>
     <span class="du">1:44</span></p>
     </div>
     {brand_films_more()}
+    </div>
     <p class="mw-ask">Want a film like these for your company?</p>
     <a class="wwd-link" href="{BRAND_ASK}">Ask about a brand video&nbsp;&rarr;</a>
   </div>
