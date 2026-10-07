@@ -1160,6 +1160,7 @@ CSS = """<style>
     color:var(--ink);text-wrap:pretty;}
   .mw-ask{margin:var(--s5) 0 0;font-size:var(--f-body);line-height:1.55;color:var(--ink);}
   .mw-ask + .wwd-link{margin-top:var(--s1);}
+  .mw-ask + .cta{margin-top:var(--s3);}
   .mw-k{display:block;margin-bottom:var(--s1);font-family:var(--display);
     font-variant-caps:all-small-caps;letter-spacing:.06em;font-size:var(--f-sm);color:var(--ink-2);}
   /* What We Do (homepage, release 8): warm white ground, three numbered blocks with a
@@ -2322,7 +2323,9 @@ FORM_JS = """<script>
      anything else in the address is ignored, and the text goes in through .value, so
      nothing from the URL ever reaches the page. Only into an empty field. */
   var PREFILL = {'handyman-dan': "I'd like to run the Handyman Dan campaign in my market.",
-                 'brand-video': "I'd like a brand video for my company."};
+                 'brand-video': "I'd like a brand video for my company.",
+                 'commercial-shoot': "I'd like to talk about a commercial shoot.",
+                 'podcast': "I'd like to talk about producing a podcast."};
   try {
     var want = new URLSearchParams(location.search).get('campaign');
     var note = document.getElementById('f-message');
@@ -3112,6 +3115,11 @@ CASE_PAGE = {
 CAMPAIGN_ASK = "/contact/?campaign=handyman-dan#start"
 # Same pattern for block 03's brand films (release 32): FORM_JS maps brand-video to a fixed message.
 BRAND_ASK = "/contact/?campaign=brand-video#start"
+# Release 34 (owner): blocks 02 and 04 end the same way, and all four asks (these, BRAND_ASK
+# and CAMPAIGN_ASK) are Reel wheel buttons after a one-line prompt. Each key is in FORM_JS's
+# PREFILL map.
+COMMERCIAL_ASK = "/contact/?campaign=commercial-shoot#start"
+PODCAST_ASK = "/contact/?campaign=podcast#start"
 MORE_WORK = f"""<section id="more-work"><div class="wrap">
   <div class="sec-head">
     <p class="eyebrow">Handyman Dan &middot; Commercial campaign</p>
@@ -3125,7 +3133,7 @@ MORE_WORK = f"""<section id="more-work"><div class="wrap">
   <p class="mw-result"><span class="mw-k">The result</span>One company running the spots saw
   calls from Google climb from about one a week to ten a day.</p>
   <p class="mw-ask">Want to run this campaign in your market?</p>
-  <a class="wwd-link" href="{CAMPAIGN_ASK}">Ask about the campaign&nbsp;&rarr;</a>
+  <a class="cta" href="{CAMPAIGN_ASK}">{reel("Ask about the campaign")}</a>
 </div></section>"""
 
 
@@ -3995,6 +4003,8 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <div class="grid">
 {chr(10).join(spot(*s) for s in HOME_SPOTS)}
     </div>
+    <p class="mw-ask">Want spots like these for your market?</p>
+    <a class="cta" href="{COMMERCIAL_ASK}">{reel("Ask about a commercial shoot")}</a>
   </div>
 
   <div class="wwd-block" id="wwd-brand">
@@ -4012,7 +4022,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     {brand_films_more()}
     </div>
     <p class="mw-ask">Want a film like these for your company?</p>
-    <a class="wwd-link" href="{BRAND_ASK}">Ask about a brand video&nbsp;&rarr;</a>
+    <a class="cta" href="{BRAND_ASK}">{reel("Ask about a brand video")}</a>
   </div>
 
   <div class="wwd-block" id="wwd-podcast">
@@ -4023,6 +4033,8 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <p class="wwd-small">Set build, production and post.</p>
     <a class="wwd-link" href="{PODCAST_EPISODE_URL}">Watch the full episode&nbsp;&rarr;</a>
     {podcast_media()}
+    <p class="mw-ask">Want a show of your own?</p>
+    <a class="cta" href="{PODCAST_ASK}">{reel("Ask about podcast production")}</a>
   </div>
 </div></section>
 

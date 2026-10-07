@@ -300,7 +300,8 @@ dropped its "followers / following" line), resized to
   public counts on 6 Oct 2026** (`IG_COUNTS_DATE`); refresh counts and grabs together, and keep the
   iComfort count in step with its case page (R19). A swipe strip at 78% on phones, never stacked.
 - **02 Commercial shoots.** "See the All Heart campaign", then the three hover-play spot cards
-  (`HOME_SPOTS`).
+  (`HOME_SPOTS`). It ends (release 34) with "Want spots like these for your market?" and the
+  Reel wheel button "Ask about a commercial shoot" (`COMMERCIAL_ASK`).
 - **03 Brand videos.** "Watch the full film" (YouTube, new tab), then the Quality brand film at full
   width (`brand_film()`, see Video), captioned "Brand film for Quality Heating Cooling Plumbing
   Electrical, Tulsa." with 1:44. **Since release 32 (owner) two more films sit under it**
@@ -320,6 +321,8 @@ dropped its "followers / following" line), resized to
   - A swipe that starts on a video scrolls the row; the player never cancels touch.
   - Tap to play and one at a time still hold.
   - From 760px the layout is unchanged: Quality featured, the pair below.
+  - The block ends with "Want a film like these for your company?" and, since release 34, the
+    Reel wheel button "Ask about a brand video" (`BRAND_ASK`). It used to be a text link.
 - **04 Podcast production.** "Watch the full episode" (YouTube `WoQBaTu2K28`, new tab), the
   small line "Set build, production and post.", then the podcast film, hover-play at full width,
   captioned "Service MVP Sales Training Podcast with Joe Crisara." with 3:24. **The media is one
@@ -329,6 +332,8 @@ dropped its "followers / following" line), resized to
   close-up, so play cuts from the wide shot). `None` renders the block without media, with the
   caption under the link. **Never swap in another Service MVP episode pulled from YouTube without
   the owner**: the latest one was rejected.
+  The block ends (release 34) with "Want a show of your own?" and the Reel wheel button "Ask about
+  podcast production" (`PODCAST_ASK`).
 
 ## Planned (not built)
 
@@ -790,7 +795,7 @@ and the asserts beside `CASE_BY_ID` ("more than ten times" is checked as 3,127 /
   running the spots saw calls from Google climb from about one a week to ten a day." There is no
   display stat and no "yours depend" note any more (owner, release 28).
 - Then an enquiry prompt (release 28, owner): "Want to run this campaign in your market?" and the
-  `.wwd-link` text link "Ask about the campaign" to `CAMPAIGN_ASK`
+  Reel wheel button (a text link until release 34) "Ask about the campaign" to `CAMPAIGN_ASK`
   (`/contact/?campaign=handyman-dan#start`). It does not go through `cta_href()`, because it is a
   specific enquiry and a calendar would lose the message.
 - On `/contact/`, `FORM_JS` prefills "Anything else" from `?campaign=`, only when the field is
@@ -798,8 +803,13 @@ and the asserts beside `CASE_BY_ID` ("more than ten times" is checked as 3,127 /
   Handyman Dan campaign in my market."). Anything else is ignored, and the text goes in through
   `.value`, so nothing from the URL reaches the page. Add a key there for any future campaign
   link. Release 32 added `brand-video`: "I'd like a brand video for my company.". It is used by
-  `BRAND_ASK`, the "Ask about a brand video" link that ends What We Do block 03 after "Want a film
-  like these for your company?". Never say "licensing", or who or how many run it.
+  `BRAND_ASK`, the "Ask about a brand video" button that ends What We Do block 03 after "Want a film
+  like these for your company?". Release 34 added `commercial-shoot` ("I'd like to talk about a
+  commercial shoot.", `COMMERCIAL_ASK`, block 02) and `podcast` ("I'd like to talk about
+  producing a podcast.", `PODCAST_ASK`, block 04, after "Want a show of your own?"). All four asks
+  are Reel wheel buttons after a one-line prompt. The blocks' other text links ("See the All Heart
+  campaign", "Watch the full film", "Watch the full episode") stay text links. Never say
+  "licensing", or who or how many run it.
 - The copy stays count-free.
 - On phones the spot row scrolls sideways only. It has `overflow-y:hidden`, and its cards fade
   in without the reveal's slide. The phone `.rv` offset used to outrank `.rv-in` and leave them
