@@ -4090,13 +4090,13 @@ CONTACT_HTML = f"""<title>Contact</title>
 # these two lists rather than to the page structure.
 TEAM_LEADS = [
     {"name": "Craig Balog", "title": "Cofounder", "photo": "craig-balog.jpg",
-        # R21 (owner copy, 2026-10-06). Production titles in <em>.
-        "bio": "A filmmaker and photographer with more than ten years in production, Craig "
-               "worked on the crews of network reality and game shows, including "
-               "<em>America&#39;s Got Talent</em> and <em>Family Feud</em>: television made "
-               "fast, on schedule, with real people instead of actors. That is exactly what "
-               "filming a contractor on a live job takes. He cofounded Home Service Studios out "
-               "of its Marina del Rey office and is hands-on with every shoot."},
+        # Release 30 (owner copy, short sentences; R21 before). Production titles in <em>.
+        "bio": "Craig is a filmmaker and photographer with more than ten years in production. "
+               "He worked on the crews of network reality and game shows, including "
+               "<em>America&#39;s Got Talent</em> and <em>Family Feud</em>. That meant "
+               "television made fast, on schedule, with real people instead of actors. Filming "
+               "a contractor on a live job takes exactly that. Craig cofounded Home Service "
+               "Studios out of its Marina del Rey office. He is hands-on with every shoot."},
     {"name": "Seth Yeager", "title": "Cofounder", "photo": "seth-yeager.jpg",
         # Release 18 (owner copy, exact, short sentences). The earlier unit credit was
         # removed on the owner's instruction; do not restore it.
