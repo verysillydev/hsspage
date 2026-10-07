@@ -2554,26 +2554,28 @@ A1_REELS = "\n".join(
 # directly above) and in the five-column reduced-motion grid (directly above), and
 # they spread across all three phone columns. LOGO_MASCOTS and the asserts below the
 # list hold the order to that. Alt text uses "and", not &, and no person's name.
+# Release 25 (owner, 2026-10-07): Monarch Home Services is off the wall. Closing its slot
+# put Grasshopper three after iComfort, which the rules forbid, so a few HVAC marks swapped
+# places. The order is the smallest change that keeps every rule through all of release 25.
 CLIENT_LOGOS = [
     ("logo_allheart.png",      "All Heart Heating, Cooling and Plumbing"),
     ("logo_quality.png",       "Quality Heating Cooling Plumbing and Electric"),
     ("logo_beerightthere.png", "Bee Right There Heating and Air"),
     ("logo_a1.png",            "A1 Air Conditioning and Heating"),
-    ("logo_vector.png",        "Vector Heating, Cooling, Plumbing and Electrical"),
-    ("logo_harmony.png",       "Harmony Electrical, Plumbing and Air"),
     ("logo_icomfort.png",      "iComfort Heating and Air"),
+    ("logo_vector.png",        "Vector Heating, Cooling, Plumbing and Electrical"),
     ("logo_veterans.png",      "Veterans AC PHX"),
-    ("logo_fiscor.png",        "Fiscor Plumbing and Air"),
-    ("logo_monarch.png",       "Monarch Home Services"),
+    ("logo_harmony.png",       "Harmony Electrical, Plumbing and Air"),
     ("logo_grasshopper.png",   "Grasshopper Heating, Cooling and Plumbing"),
-    ("logo_premier.png",       "Premier Heating and Air"),
+    ("logo_fiscor.png",        "Fiscor Plumbing and Air"),
     ("logo_goodguy.png",       "Good Guy Plumbing"),
+    ("logo_premier.png",       "Premier Heating and Air"),
     ("logo_familyplumber.png", "The Family Plumber"),
     ("logo_acplus.png",        "AC Plus Heating and Cooling"),
     ("logo_martins.png",       "Martins A/C and Electric"),
-    ("logo_warmwelcome.png",   "Warm Welcome Heating, Cooling and Plumbing"),
     ("logo_airone.png",        "Air One"),
     ("logo_blanchards.png",    "Blanchards Refrigeration"),
+    ("logo_warmwelcome.png",   "Warm Welcome Heating, Cooling and Plumbing"),
     ("logo_firstmate.png",     "First Mate Heating and Cooling"),
     ("logo_doggone.png",       "Doggone Good Heating and Cooling"),
     ("logo_clogbusters.png",   "Clog Busters Drain Cleaning and Repair"),

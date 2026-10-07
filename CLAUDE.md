@@ -301,8 +301,9 @@ a solid scrim (`::cue`), and on a captioned film the sound hint moves to the top
 
 The marks live in `logos/` (PNG masters) with matching WebP copies in `logos_webp/` (what the
 wall ships, via `logomark()`); `CLIENT_LOGOS` sets the order and alt text, and the count shown
-anywhere (the homepage roster stat, `ROSTER_COUNT`) is derived from it, never typed. **35 marks
-as of 2026-10-06.** Fourteen were added in R15 from the HSS Dropbox client folders and eight more
+anywhere (the homepage roster stat, `ROSTER_COUNT`) is derived from it, never typed. **34 marks
+as of release 25 (2026-10-07).** Monarch Home Services was removed in release 25 (owner); its
+files are deleted from `logos/` and `logos_webp/`. Fourteen were added in R15 from the HSS Dropbox client folders and eight more
 in release 8 (owner reviewed and approved): Rocket Group, Lokal Media House, First Mate Heating and
 Cooling, Clog Busters Drain Cleaning and Repair, 4 Points A/C and Heating, All American Heating and
 Plumbing, Bellaire Air Conditioning and Heating and Service MVP. Each logo is taken from the
@@ -319,12 +320,11 @@ each other: not in the marquee (including where it loops), not beside or above o
 phones' three-column grid, not stacked in the five-column reduced-motion grid; and they spread
 across all three phone columns. **The build asserts all of this**, plus no duplicates and no HCCI,
 so a reorder that breaks a rule fails the build; add a new mascot mark to `LOGO_MASCOTS`. The
-marquee's duration scales with the count (about 4.6s per mark, 162s at 35) so a longer wall
-scrolls at the same calm speed, and the static wall (phones, reduced motion) wraps and centres its
-last row so no count leaves a corner orphan: at 35 that is eleven rows of three plus a centred
-pair on phones, and seven even rows of five under reduced motion. The homepage roster cell reads
-"Our Brands / 35 / Clients across the country" (release 8): not "Home service companies", since
-three of the 35 are an agency group, an agency and a sales trainer. Each is a flat silhouette,
+marquee's duration scales with the count (about 4.6s per mark) so a longer wall scrolls at the
+same calm speed. The static wall (phones, reduced motion) wraps and centres its last row, so no
+count leaves a corner orphan. The homepage roster cell reads "Our Brands / N / Clients across the
+country", where N is `ROSTER_COUNT` (release 8). It does not say "Home service companies", because
+some marks are not: an agency group, an agency and a sales trainer. Each is a flat silhouette,
 alpha-only shape data on a transparent background, one uniform fill colour, scaled to equal
 optical ink area on an identical 500x200 canvas, which is what makes the grid space evenly
 without per logo tuning.
