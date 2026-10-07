@@ -3391,7 +3391,7 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
   keep it running without landing on your desk.</p>
   <div class="ctarow">
     {book("Social%20Media%20Packages")}
-    <a class="cta ghost" href="/our-work/">See the work first</a>
+    <a class="cta ghost" href="/our-work/">See our work</a>
   </div>
   {reassure("packages")}
 </div></div>
@@ -3952,7 +3952,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   </div>
   <div class="ctarow">
     <a class="cta" href="/packages/">{reel("See the packages")}</a>
-    <a class="cta ghost" href="/our-work/">See the work first</a>
+    <a class="cta ghost" href="/our-work/">See our work</a>
   </div>
   </div></div>
 </div>
