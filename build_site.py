@@ -1124,11 +1124,15 @@ CSS = """<style>
   .wwd-num{margin:0;font-family:var(--display);font-weight:900;font-size:var(--f-mega);
     line-height:1;letter-spacing:-.02em;color:var(--orange-text);font-variant-numeric:tabular-nums;
     height:1em;}
-  /* Release 29 (owner chose option B of the clapper mockups): each number is a brand
-     production slate with its arm resting open, see slate(). The box stays the old
-     number's 1em line, so the headings do not move; slate() sizes and offsets the svg
-     so the board is .86em tall and ends where the digits used to end. */
-  .wwd-num .slate{display:block;width:auto;}
+  /* What We Do slates and their clap: see slate() and CLAP_JS */
+  .wwd-num .slate{display:block;width:auto;overflow:visible;}
+  .slate.is-clap .arm{transform-box:view-box;transform-origin:2px 14px;
+    animation:slate-clap .45s both;}
+  @keyframes slate-clap{
+    0%{transform:rotate(-9deg);animation-timing-function:cubic-bezier(.55,0,1,.45);}
+    30%{transform:rotate(0deg);animation-timing-function:cubic-bezier(.2,.8,.3,1);}
+    78%{transform:rotate(-10.5deg);animation-timing-function:ease-in-out;}
+    100%{transform:rotate(-9deg);}}
   .slate-defs{position:absolute;width:0;height:0;overflow:hidden;}
   .wwd-title{margin:var(--s3) 0 0;font-family:var(--display);font-weight:700;font-size:var(--f-h2);
     line-height:1.15;letter-spacing:var(--t-head);color:var(--ink);}
@@ -3708,6 +3712,31 @@ def slate(n):
             f'letter-spacing="{_svgn(-0.02 * 64)}" fill="{_SLATE_INK["white"]}">{n}</text></svg>')
 
 
+# The clap (release 29, owner): each What We Do slate claps once when it scrolls into
+# view. CLAP_JS adds .is-clap; the CSS keyframes (slate-clap) shut the arm and spring it
+# back to its resting angle in .45s, transform only. The CSS rotation pivots on the
+# hinge, (2, 14) in the slate's user space (transform-box:view-box): the same point as
+# the arm's transform attribute, so the clap starts and ends exactly on the resting pose
+# (checked pixel for pixel). The slate svg is overflow:visible so the small overshoot
+# past -9 degrees can paint above the viewBox. Reduced motion or no
+# IntersectionObserver: nothing runs and the arm rests open. The .wwd-num box keeps the
+# old number's 1em line so the headings do not move; slate() sizes and offsets the svg.
+CLAP_JS = """<script>
+(function(){
+  if(!('IntersectionObserver' in window)) return;
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting) return;
+      io.unobserve(e.target);                       /* once per slate per load */
+      e.target.classList.add('is-clap');
+    });
+  }, {threshold: 0.6});
+  [].forEach.call(document.querySelectorAll('.wwd-num .slate'), function(s){ io.observe(s); });
+})();
+</script>"""
+
+
 HOME_HTML = f"""<title>Home Service Studios</title>
 {FONT_CSS}
 {CSS}
@@ -3847,6 +3876,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 {SOLO_JS}
 {NAV_JS}
 {MOTION_JS}
+{CLAP_JS}
 {HERO_JS}
 """
 

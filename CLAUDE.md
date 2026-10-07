@@ -256,6 +256,13 @@ option B, "Brand production slate", from `reports/hss-audit/clapper-options`).
   through the paragraph) so the board and number keep the approved mockup's exact size.
 - **Accessibility:** decorative. The paragraph is `aria-hidden`, as the number was, and the
   headings carry the structure.
+- **The clap (release 29):** `CLAP_JS` (homepage only) adds `.is-clap` once per slate when it is
+  60% in view. The `slate-clap` keyframes shut the arm and spring it back to rest in .45s,
+  transform only: shut at 30%, a -10.5 degree overshoot at 78%, rest at 100%. It pivots on
+  the hinge with `transform-box:view-box; transform-origin:2px 14px`, the same point as the
+  attribute, so it starts and ends exactly on the resting pose (`fill-box` would pivot on the
+  unclipped stripe geometry). The svg is `overflow:visible` for the overshoot. Reduced motion
+  or no IntersectionObserver: nothing runs and the arm rests open. No layout change, no CLS.
 
 Each block then has a title, short-sentence copy, a link or button, then media, with a hairline
 between blocks:
