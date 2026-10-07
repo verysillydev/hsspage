@@ -3756,10 +3756,53 @@ HOME_CSS = f"""<style>
     30%{{transform:rotate(0deg);animation-timing-function:cubic-bezier(.2,.8,.3,1);}}
     78%{{transform:rotate(-10.5deg);animation-timing-function:ease-in-out;}}
     100%{{transform:rotate(-9deg);}}}}
+  .wwd-block{{scroll-margin-top:76px;}}
+  .svc{{margin-top:var(--s7);}}
+  .svc-h{{margin:0 0 var(--s3);}}
+  .svc-grid{{list-style:none;margin:0;padding:0;display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s3);}}
+  @media(min-width:900px){{.svc-grid{{grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s4);}}}}
+  .svc-grid li{{display:flex;}}
+  .svc-card{{--ground:#FFFFFF;--ground-2:#F5F4F1;--line:#E2E0DA;--ink:#14171A;--ink-2:#4B535B;
+    flex:1;display:flex;flex-direction:column;gap:var(--s1);padding:var(--s4);
+    background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
+    color:var(--ink);text-decoration:none;}}
+  .svc-card:hover{{background:var(--ground);border-color:var(--orange);}}
+  .svc-card .slate{{display:block;align-self:flex-start;height:56px;width:auto;overflow:visible;
+    margin:0 0 var(--s2) -2px;}}
+  .svc-name{{font-family:var(--display);font-weight:700;font-size:var(--f-h4);line-height:1.2;
+    letter-spacing:var(--t-head);}}
+  .svc-line{{font-size:var(--f-sm);line-height:1.45;color:var(--ink-2);}}
+  @media(max-width:559px){{.svc-card{{padding:var(--s3);}}.svc-card .slate{{height:36px;}}
+    .svc-name{{font-size:var(--f-body);}}}}
   .wwd-pair{{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s6);margin-top:var(--s6);}}
   .wwd-pair .wwd-film{{margin-top:0;}}
   @media(min-width:760px){{.wwd-pair{{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s5);}}}}
 </style>"""
+# Services index (release 33, owner): the four What We Do services as a row of cards in
+# the hero band, after the intro sentence and above the stat line, so a first visit
+# sees what the company does at a glance. Each card is one link to its block below
+# (ids on the .wwd-block divs), with the block's slate drawn small, arm open and
+# without the clap (CLAP_JS only watches .wwd-num). A nav landmark labelled by a
+# visible h2 eyebrow, "Our services", so it does not repeat the "What We Do" H2.
+# Light cards on the dark band: they re-declare the light tokens, the same scoping the
+# hero uses the other way round. One short line each, from the section copy.
+SERVICES = [
+    ("01", "Social Media Packages", "A reel every weekday, posted for you.", "wwd-social"),
+    ("02", "Commercial shoots", "Spots built on one strong idea.", "wwd-commercial"),
+    ("03", "Brand videos", "A film that tells your story.", "wwd-brand"),
+    ("04", "Podcast production", "We build the set. You talk.", "wwd-podcast"),
+]
+
+
+def services_row():
+    cards = "".join(f'<li><a class="svc-card" href="#{aid}">{slate(n)}'
+                    f'<span class="svc-name">{name}</span><span class="svc-line">{line}</span></a></li>'
+                    for n, name, line, aid in SERVICES)
+    return (f'<nav class="svc" aria-labelledby="svc-h"><h2 class="eyebrow svc-h" id="svc-h">Our '
+            f'services</h2><ul class="svc-grid">{cards}</ul></nav>')
+
+
 CLAP_JS = """<script>
 (function(){
   if(!('IntersectionObserver' in window)) return;
@@ -3804,6 +3847,8 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   <p class="sub">We write, shoot, edit and post video for home service companies every month.
   When a homeowner needs a repair, a replacement or a remodel, they call a name they already know.
   <strong>We make sure that name is yours.</strong></p>
+  {SLATE_DEFS}
+  {services_row()}
   <div class="stats quad">
     <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views in six months</span></a>
     <div class="stat"><a class="case" href="{case_url("beerightthere")}">Bee Right There</a><a class="n" href="{BRT_REEL_URL}" aria-label="{BRT_REEL_LABEL}">{BRT_REEL_SHORT}</a><span class="k">Views on one reel</span></div>
@@ -3828,12 +3873,11 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 </div></section>
 
 <section id="what-we-do" class="wwd"><div class="wrap">
-  {SLATE_DEFS}
   <div class="sec-head">
     <h2 class="display">What We Do</h2>
   </div>
 
-  <div class="wwd-block">
+  <div class="wwd-block" id="wwd-social">
     <p class="wwd-num" aria-hidden="true">{slate("01")}</p>
     <h3 class="wwd-title">Social Media Packages</h3>
     <p class="wwd-copy">A reel every weekday and graphics every weekend, planned and posted for
@@ -3847,7 +3891,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     </div>
   </div>
 
-  <div class="wwd-block">
+  <div class="wwd-block" id="wwd-commercial">
     <p class="wwd-num" aria-hidden="true">{slate("02")}</p>
     <h3 class="wwd-title">Commercial shoots</h3>
     <p class="wwd-copy">Spots built on one strong idea. Shot in a single production block, so the
@@ -3858,7 +3902,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     </div>
   </div>
 
-  <div class="wwd-block">
+  <div class="wwd-block" id="wwd-brand">
     <p class="wwd-num" aria-hidden="true">{slate("03")}</p>
     <h3 class="wwd-title">Brand videos</h3>
     <p class="wwd-copy">A film that tells your company&#39;s story. Made for your homepage, your
@@ -3874,7 +3918,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <a class="wwd-link" href="{BRAND_ASK}">Ask about a brand video&nbsp;&rarr;</a>
   </div>
 
-  <div class="wwd-block">
+  <div class="wwd-block" id="wwd-podcast">
     <p class="wwd-num" aria-hidden="true">{slate("04")}</p>
     <h3 class="wwd-title">Podcast production</h3>
     <p class="wwd-copy">We build the set, run the shoot and handle the edit. You show up and
@@ -4642,6 +4686,8 @@ if MODE == "web":
                    desc=D5, og_image=f"{SITE}/og/og-team.jpg",
                    url=f"{SITE}/team/")
 
+    for _n, _name, _line, _aid in SERVICES:      # every services card lands on its block
+        assert HOME_HTML.count(f'id="{_aid}"') == 1, f"services card #{_aid} has no target"
     home = validate(HOME_HTML, "home")
     D3 = ("Los Angeles video production for HVAC, plumbing and home service brands. Written, "
           "shot, cut and posted monthly. 2.26M views in six months for one HVAC client.")

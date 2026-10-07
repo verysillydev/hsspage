@@ -244,6 +244,23 @@ old "Proven results with real data" section (A1 lede, A1 reel strip, the commerc
 section (lede, six-price strip, its button row) were removed in release 8; the homepage carries no
 prices.
 
+**Services index (release 33, owner priority 1).** The hero band now reads: video, the intro
+sentence, then a row of the four services, then the stat line and its two buttons, which moved down
+to follow the row. Nothing else changed order.
+- **Markup:** `services_row()` from `SERVICES`. It is a `nav` labelled by a visible eyebrow `h2`,
+  "Our services", so it does not repeat the "What We Do" H2.
+- **Cards:** four light cards (they re-declare the light tokens inside the dark band). Each is one
+  link to its What We Do block (`#wwd-social`, `#wwd-commercial`, `#wwd-brand`, `#wwd-podcast`;
+  the build asserts each target exists), with the block's slate drawn small, arm open, no clap.
+  Each has the service name and one short line.
+- **Columns:** four across from 900px, two by two below that, including compact cards on phones.
+- **States:** hover is white with an orange border, focus is the site's orange ring. The blocks
+  have `scroll-margin-top`, so a jump lands clear of the fixed nav.
+- **Shared artwork:** `SLATE_DEFS` now sits just above the row, so its slates draw from the
+  first paint. The styles are in `HOME_CSS`.
+- **Not decided by the brief:** the intro sentence stays directly under the video and the row
+  follows it. Putting the row above the intro sentence instead is a one-line move.
+
 What We Do is four numbered blocks. **Since release 29 each number is a film slate** (owner chose
 option B, "Brand production slate", from `reports/hss-audit/clapper-options`).
 - **Design:** a charcoal board, HSS orange and white stripes, ROLL | SCENE | TAKE labels and
