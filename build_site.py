@@ -3766,9 +3766,9 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <div class="hero-scrim"></div>
   </div>
   <div class="hero-lines">{SPLAT_SVG}<div class="wrap">
-  <p class="sub">We write, shoot, edit and post video for home service companies every month, so
-  when a homeowner needs a repair, a replacement or a remodel, <strong>the name they already know
-  is yours</strong>.</p>
+  <p class="sub">We write, shoot, edit and post video for home service companies every month.
+  When a homeowner needs a repair, a replacement or a remodel, they call a name they already know.
+  <strong>We make sure that name is yours.</strong></p>
   <div class="stats quad">
     <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views in six months</span></a>
     <div class="stat"><a class="case" href="{case_url("beerightthere")}">Bee Right There</a><a class="n" href="{BRT_REEL_URL}" aria-label="{BRT_REEL_LABEL}">{BRT_REEL_SHORT}</a><span class="k">Views on one reel</span></div>
