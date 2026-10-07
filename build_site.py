@@ -3849,10 +3849,11 @@ TEAM_LEADS = [
     {"name": "Seth Yeager", "title": "Cofounder", "photo": "seth-yeager.jpg",
         # Release 18 (owner copy, exact, short sentences). The earlier unit credit was
         # removed on the owner's instruction; do not restore it.
-        "bio": "Seth came up on set. He has worked camera, electrical, cinematography and stunts "
-               "across film and television. He has worked on <em>The Chosen</em> and on many "
-               "independent films. He was first assistant director on <em>The Shop</em>. He "
-               "cofounded Home Service Studios to bring that production standard to contractors."},
+        "bio": "Seth came up on set. Camera, electrical, cinematography and stunts: he has done "
+               "it all across film and television. His work includes <em>The Chosen</em> and many "
+               "independent films. On <em>The Shop</em>, he was first assistant director. That "
+               "production standard is what he brought to contractors as a cofounder of Home "
+               "Service Studios."},
 ]
 TEAM_ROSTER = [
     {"name": "Paloma Barros", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
