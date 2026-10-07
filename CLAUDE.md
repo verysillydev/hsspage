@@ -284,6 +284,11 @@ to follow the row. Nothing else changed order.
   first paint. The styles are in `HOME_CSS`.
 - **Not decided by the brief:** the intro sentence stays directly under the video and the row
   follows it. Putting the row above the intro sentence instead is a one-line move.
+- **A clear divide before the stats (release 34, owner).** The strip and the stat line are two
+  sections. The band's `.wrap` splits in two (`.band-a`, `.band-b`) around `.band-rule`, a
+  full-width 1px hairline in the site's gradient-rule style (the nav and footer rule, dark-ground
+  stops: orange, cyan, white, fading out). It has 48px on each side on phones and 64px from 760px.
+  Above the stats sits an eyebrow `h2`, "Real numbers", in the same style as "Our services".
 
 What We Do is four numbered blocks. **Since release 29 each number is a film slate** (owner chose
 option B, "Brand production slate", from `reports/hss-audit/clapper-options`).

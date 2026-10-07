@@ -3858,6 +3858,18 @@ HOME_CSS = f"""<style>
     100%{{transform:rotate(-9deg);}}}}
   .wwd-block{{scroll-margin-top:76px;}}
   .svc{{margin-top:var(--s7);}}
+  /* release 34: the strip and the stat line are two sections. The band's wrap splits around a
+     full-width gradient hairline (the nav and footer rule, dark-ground stops), with room on both
+     sides and a "Real numbers" eyebrow over the stats */
+  .hero-lines > .band-a{{padding-bottom:var(--s7);}}
+  .hero-lines > .band-b{{padding-top:var(--s7);}}
+  @media(min-width:760px){{.hero-lines > .band-a{{padding-bottom:var(--s8);}}
+    .hero-lines > .band-b{{padding-top:var(--s8);}}}}
+  .band-rule{{position:relative;z-index:1;height:1px;background:linear-gradient(90deg,
+    rgba(var(--orange-rgb),.55) 0%,rgba(var(--cyan-rgb),.42) 42%,rgba(255,255,255,.3) 78%,
+    rgba(255,255,255,0) 100%);}}
+  .stats-h{{margin:0;}}
+  .band-b .stats{{margin-top:var(--s4);}}
   .svc-h{{margin:0 0 var(--s4);}}
   .svc-strip{{list-style:none;margin:0;padding:0;display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));row-gap:var(--s5);}}
@@ -3993,12 +4005,16 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     {HERO_MEDIA}
     <div class="hero-scrim"></div>
   </div>
-  <div class="hero-lines">{SPLAT_SVG}<div class="wrap">
+  <div class="hero-lines">{SPLAT_SVG}<div class="wrap band-a">
   <p class="sub">We write, shoot, edit and post video for home service companies every month.
   When a homeowner needs a repair, a replacement or a remodel, they call a name they already know.
   <strong>We make sure that name is yours.</strong></p>
   {SLATE_DEFS}
   {services_row()}{SVC_JS if MODE == "web" else ""}
+  </div>
+  <div class="band-rule" aria-hidden="true"></div>
+  <div class="wrap band-b">
+  <h2 class="eyebrow stats-h">Real numbers</h2>
   <div class="stats quad">
     <a class="stat" href="{case_url("a1")}"><span class="case">A1 Air Conditioning</span><span class="n">2.26M</span><span class="k">Views in six months</span></a>
     <div class="stat"><a class="case" href="{case_url("beerightthere")}">Bee Right There</a><a class="n" href="{BRT_REEL_URL}" aria-label="{BRT_REEL_LABEL}">{BRT_REEL_SHORT}</a><span class="k">Views on one reel</span></div>
