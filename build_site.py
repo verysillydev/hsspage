@@ -2239,7 +2239,8 @@ FORM_JS = """<script>
      /our-work links here). Only known values count, each mapped to a fixed sentence;
      anything else in the address is ignored, and the text goes in through .value, so
      nothing from the URL ever reaches the page. Only into an empty field. */
-  var PREFILL = {'handyman-dan': "I'd like to run the Handyman Dan campaign in my market."};
+  var PREFILL = {'handyman-dan': "I'd like to run the Handyman Dan campaign in my market.",
+                 'brand-video': "I'd like a brand video for my company."};
   try {
     var want = new URLSearchParams(location.search).get('campaign');
     var note = document.getElementById('f-message');
@@ -3025,6 +3026,8 @@ CASE_PAGE = {
 # FORM_JS maps to a fixed prefilled message. It is a specific enquiry, not the site's
 # conversion CTA, so it does not go through cta_href(): a calendar would lose the message.
 CAMPAIGN_ASK = "/contact/?campaign=handyman-dan#start"
+# Same pattern for block 03's brand films (release 32): FORM_JS maps brand-video to a fixed message.
+BRAND_ASK = "/contact/?campaign=brand-video#start"
 MORE_WORK = f"""<section id="more-work"><div class="wrap">
   <div class="sec-head">
     <p class="eyebrow">Handyman Dan &middot; Commercial campaign</p>
@@ -3867,6 +3870,8 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <span class="du">1:44</span></p>
     </div>
     {brand_films_more()}
+    <p class="mw-ask">Want a film like these for your company?</p>
+    <a class="wwd-link" href="{BRAND_ASK}">Ask about a brand video&nbsp;&rarr;</a>
   </div>
 
   <div class="wwd-block">

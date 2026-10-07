@@ -749,7 +749,9 @@ and the asserts beside `CASE_BY_ID` ("more than ten times" is checked as 3,127 /
   empty. Only keys in its `PREFILL` map count ("handyman-dan" becomes "I'd like to run the
   Handyman Dan campaign in my market."). Anything else is ignored, and the text goes in through
   `.value`, so nothing from the URL reaches the page. Add a key there for any future campaign
-  link. Never say "licensing", or who or how many run it.
+  link. Release 32 added `brand-video`: "I'd like a brand video for my company.". It is used by
+  `BRAND_ASK`, the "Ask about a brand video" link that ends What We Do block 03 after "Want a film
+  like these for your company?". Never say "licensing", or who or how many run it.
 - The copy stays count-free.
 - On phones the spot row scrolls sideways only. It has `overflow-y:hidden`, and its cards fade
   in without the reveal's slide. The phone `.rv` offset used to outrank `.rv-in` and leave them
