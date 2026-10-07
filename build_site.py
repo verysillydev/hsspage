@@ -117,15 +117,52 @@ def cta_href():
     return BOOK_URL if BOOKED else "/contact/#start"
 
 
+# Release 34 (owner): every primary button on the site is the "Reel wheel", option D of
+# the approved mockup (reports/hss-audit/button-options). The reel is drawn once per page
+# as a <symbol> (BM_DEFS, emitted by nav(), which every page calls) and each button uses
+# it. The symbol: a disc for the film wound on the reel (no fill of its own, so it takes
+# the button's state colour through CSS fill inheritance, and the cut-outs read the same on
+# cream and on dark grounds), under the orange flange with its rim groove, five round
+# cut-outs and the hub hole, all one even-odd path. 56 units, the desktop diameter.
+def _bm_circle(cx, cy, r):
+    f = lambda v: f"{v:.2f}".rstrip("0").rstrip(".")
+    return f"M{f(cx - r)} {f(cy)}a{f(r)} {f(r)} 0 1 0 {f(2 * r)} 0a{f(r)} {f(r)} 0 1 0 {f(-2 * r)} 0Z"
+
+
+def _bm_flange():
+    d = _bm_circle(28, 28, 27.5) + _bm_circle(28, 28, 25.2) + _bm_circle(28, 28, 23.9)
+    for k in range(5):
+        a = math.radians(-90 + 72 * k)
+        d += _bm_circle(28 + 13.6 * math.cos(a), 28 + 13.6 * math.sin(a), 6.7)
+    return d + _bm_circle(28, 28, 3.1)
+
+
+BM_DEFS = ('<svg class="bm-defs" aria-hidden="true" focusable="false"><symbol id="bm-reel" '
+           'viewBox="0 0 56 56"><circle cx="28" cy="28" r="25.6"/>'
+           f'<path fill="#F04820" fill-rule="evenodd" d="{_bm_flange()}"/></symbol></svg>')
+
+
+def reel(label):
+    """Inner markup of a primary button: the reel, a row of sprocket holes above and below
+    the label, and the label in its own span. FORM_JS swaps only .bm-label's text while
+    the form sends, so the reel and the holes survive. Everything but the label is
+    aria-hidden, so the accessible name is the label alone. validate() fails the build if
+    any primary button (.cta not .ghost, .navcta, the action bar's .primary) lacks it."""
+    return ('<svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg>'
+            f'<span class="bm-gate t"></span><span class="bm-label">{label}</span>'
+            '<span class="bm-gate b"></span>')
+
+
 def book(subject, label="", cls="cta"):
     """The single conversion CTA. While there is no scheduler it sends people to the
     enquiry form, which beats a mailto on every device and actually qualifies them.
     Set BOOK_URL and the same buttons become the calendar instead. `subject` is kept
     so the fallback can still address an email if it is ever needed."""
+    assert "ghost" not in cls, "book() is the primary CTA; secondary buttons are plain links"
     if BOOKED:
         return (f'<a class="{cls}" href="{cta_href()}" target="_blank" '
-                f'rel="noopener noreferrer">{label or "Book a call"}</a>')
-    return f'<a class="{cls}" href="{cta_href()}">{label or "Start a project"}</a>'
+                f'rel="noopener noreferrer">{reel(label or "Book a call")}</a>')
+    return f'<a class="{cls}" href="{cta_href()}">{reel(label or "Start a project")}</a>'
 
 def reassure(page="home"):
     """Sits under the CTA and describes what actually happens next. The promise has
@@ -143,7 +180,7 @@ def actionbar():
     return (f'<nav class="actionbar" aria-label="Quick actions">'
             f'<a href="/contact/">Contact</a>'
             f'<a class="primary" href="{cta_href()}">'
-            f'{"Book a call" if BOOKED else "Start a project"}</a></nav>')
+            f'{reel("Book a call" if BOOKED else "Start a project")}</a></nav>')
 
 
 def nav(active=""):
@@ -168,6 +205,7 @@ def nav(active=""):
     # must keep matching the file or the reserved box changes and CLS comes back.
     icon = asset(f"{S}/logos_hss/nav_mark_hss.webp", "image/webp")
     return (
+        BM_DEFS +
         '<nav class="nav" id="nav" aria-label="Primary"><div class="wrap navin">'
         f'<a class="brand" href="/"><img class="brandmark" src="{icon}" alt="" '
         f'width="174" height="84">Home Service Studios</a>'
@@ -194,8 +232,8 @@ def nav(active=""):
         + (f'<a class="navcta" href="{href}" '
            f'target="_blank" rel="noopener noreferrer">'
            if BOOKED else f'<a class="navcta" href="{href}">')
-        + f'<span class="ctalong">{long_label}</span>'
-          f'<span class="ctashort">{short_label}</span></a>'
+        + reel(f'<span class="ctalong">{long_label}</span>'
+               f'<span class="ctashort">{short_label}</span>') + '</a>'
         '</div></div></nav><div class="navspacer"></div>'
     )
 
@@ -358,6 +396,7 @@ CSS = """<style>
   :root{
     --ground:#FFFFFF; --ground-2:#F5F4F1; --panel:#EFEEEA;
     --line:#E2E0DA; --line-soft:#ECEBE6;
+    --hair:#BDB8AE;
     --ink:#14171A; --ink-2:#4B535B; --ink-3:#6B747C;
     --orange:#F04820; --orange-text:#B93412; --cyan:#00B0C8; --cyan-text:#006673;
     --orange-rgb:240,72,32; --cyan-rgb:0,176,200;
@@ -774,7 +813,12 @@ CSS = """<style>
   .actionbar a{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
     min-height:54px;text-decoration:none;font-size:var(--f-sm);font-weight:650;
     background:var(--ground-2);color:var(--ink);}
-  .actionbar a.primary{background:var(--orange);color:#14171A;}
+  .actionbar a.primary{--d:0px;--bh:0px;background:var(--btn-cur);color:#FFFFFF;}
+  .actionbar a.primary .bm-wheel{position:static;width:30px;height:30px;}
+  .actionbar a.primary .bm-gate{left:0;right:0;height:5px;width:calc(100% - 8px);
+    width:round(down,100% - 8px,12px);}
+  .actionbar a.primary .bm-gate.t{top:3px;}
+  .actionbar a.primary:focus-visible{outline-offset:-4px;}
   .actionbar a svg{flex:none;}
   @media(min-width:760px){.actionbar{display:none;}}
   @media(max-width:759px){body{padding-bottom:54px;}}
@@ -850,19 +894,20 @@ CSS = """<style>
     border-radius:var(--r-md);overflow:hidden;}
   .schedwrap iframe{display:block;width:100%;}
 
-  .navcta{background:var(--orange);color:#14171A !important;border-radius:var(--r-pill);
-    padding:0 16px;font-weight:700;transition:filter var(--ease);
+  /* compact Reel wheel from 560px; film only below (80px slot, no room for a reel) */
+  .navcta{--d:0px;--bh:0px;background:transparent;color:#FFFFFF !important;
+    border-radius:var(--r-pill);padding:0 var(--s3);font-weight:700;text-decoration:none;
     font-family:'Onest',-apple-system,sans-serif !important;text-transform:none;
     font-variant-caps:normal !important;letter-spacing:var(--t-head);font-size:var(--f-sm);
-    display:inline-flex;align-items:center;min-height:40px;}
-  .navcta:hover{filter:brightness(1.08);}
+    display:inline-flex;align-items:center;min-height:44px;}
+  .navcta .bm-wheel{display:none;}
   /* The box is sized to the label in Onest, so it cannot grow when Onest lands
      after first paint (since N5 the fonts are files; the -apple-system fallback
      is about 6px narrower for "Contact" and 11px for "Start a project", which
      shifted the whole right side of the bar, CLS about 0.001 on throttled
      phones). em-based, so it scales with the fluid label size. */
   .navcta{justify-content:center;min-width:calc(3.9em + 24px);}
-  @media(min-width:560px){.navcta{min-width:calc(7em + 40px);}}
+  @media(min-width:560px){.navcta{min-width:calc(7em + 70px);}}
   /* below 560px the row needed about 354px of a 342px content box once the
      brand set in Onest, so the right group overflowed into the page padding
      and moved when the font arrived; a tighter gap and CTA padding make it fit */
@@ -874,11 +919,12 @@ CSS = """<style>
      CTA's own minimum) means a partly parsed nav already sits in its final box. */
   @media(max-width:559px){.navright{min-width:calc(50px + 3.9 * var(--f-sm) + 24px);}}
   @media(min-width:560px) and (max-width:619px){
-    .navright{min-width:calc(40px + var(--s5) + 7 * var(--f-sm) + 40px);}}
+    .navright{min-width:calc(40px + var(--s5) + 7 * var(--f-sm) + 70px);}}
   .navcta .ctashort{display:inline;}
   .navcta .ctalong{display:none;}
   @media(min-width:560px){
-    .navcta{padding:0 20px;min-height:42px;}
+    .navcta{--d:44px;--bh:36px;padding:calc(var(--d) - var(--bh) + 4px) 16px 4px calc(var(--d) + 10px);}
+    .navcta .bm-wheel{display:block;}
     .navcta .ctashort{display:none;}
     .navcta .ctalong{display:inline;}
   }
@@ -910,7 +956,7 @@ CSS = """<style>
      checked with the WCAG formula: --ink-2 #D8D3C9 12.6:1, --ink-3 #A8A29A
      7.4:1, --orange 4.8:1, --cyan 6.9:1. */
   .hero.hero-bold,.hero.hero-dark,.on-ink{background:#14171A;color:#FFFFFF;
-    --ground:#14171A; --ground-2:#1E2226; --panel:#262B30; --line:#33383D;
+    --ground:#14171A; --ground-2:#1E2226; --panel:#262B30; --line:#33383D; --hair:#4B535B;
     --ink:#FFFFFF; --ink-2:#D8D3C9; --ink-3:#A8A29A;
     --orange-text:var(--orange); --cyan-text:var(--cyan);}
   .hero.hero-bold{padding:0;}
@@ -1480,7 +1526,7 @@ CSS = """<style>
     .pkg .best{margin:calc(var(--s5) * -1) calc(var(--s4) * -1) 0;}
     .pkg ul{gap:var(--s2);}
     .incl{padding:var(--s5) var(--s4);gap:var(--s3);}
-    .hero .ctarow .cta{padding-left:var(--s4);padding-right:var(--s4);}
+    .hero .ctarow .cta.ghost{padding-left:var(--s4);padding-right:var(--s4);}
     /* explanatory paragraphs one step down (still above the 12px floor);
        headings, prices and the "Not leads" lede keep their size */
     .benefit p,.engine p,.step2 p,.pkg li{font-size:var(--f-sm);line-height:1.5;}
@@ -1587,11 +1633,47 @@ CSS = """<style>
   .door p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
   .door .go{margin-top:var(--s2);font-size:var(--f-sm);font-weight:650;color:var(--orange-text);}
 
-  .cta{display:inline-flex;align-items:center;gap:var(--s2);background:var(--orange);color:#14171A;
-    border-radius:var(--r-pill);padding:14px var(--s5);font-size:var(--f-body);font-weight:650;
-    text-decoration:none;transition:filter var(--ease),transform var(--ease);}
-  .cta:hover{filter:brightness(1.08);transform:translateY(-1px);}
-  .cta.ghost{background:transparent;color:var(--orange-text);border:1px solid rgba(var(--orange-rgb),.4);}
+  /* Reel wheel buttons (release 34): see reel() and CLAUDE.md */
+  .cta{display:inline-flex;align-items:center;gap:var(--s2);border-radius:var(--r-pill);
+    font-size:var(--f-body);font-weight:700;text-decoration:none;}
+  .cta:not(.ghost),.navcta,.actionbar a.primary{--btn-bg:#14171A;--btn-hover:#23292E;
+    --btn-press:#0B0D0F;--btn-edge:#14171A;--btn-cur:var(--btn-bg);
+    position:relative;isolation:isolate;color:#FFFFFF;}
+  .hero-bold .cta:not(.ghost),.hero-dark .cta:not(.ghost),.on-ink .cta:not(.ghost),.navcta{
+    --btn-bg:#262B30;--btn-hover:#30363C;--btn-press:#1A1E22;--btn-edge:#3D444B;}
+  .cta:not(.ghost){--d:56px;--bh:44px;min-height:var(--d);background:transparent;
+    padding:calc(var(--d) - var(--bh) + 8px) 22px 8px calc(var(--d) + 12px);}
+  .cta:not(.ghost)::before,.navcta::before{content:"";position:absolute;z-index:-1;
+    left:calc(var(--d) / 2);right:0;top:calc(var(--d) - var(--bh));bottom:0;
+    background:var(--btn-cur);box-shadow:inset 0 0 0 1px var(--btn-edge);
+    border-radius:0 var(--r-sm) var(--r-sm) 0;}
+  @media(hover:hover){
+    .cta:not(.ghost):hover,.navcta:hover,.actionbar a.primary:hover{--btn-cur:var(--btn-hover);}}
+  .cta:not(.ghost):active,.navcta:active,.actionbar a.primary:active{--btn-cur:var(--btn-press);
+    transform:translateY(1px);}
+  .cta:focus-visible{outline:2px solid var(--orange);outline-offset:3px;}
+  .bm-defs{position:absolute;width:0;height:0;overflow:hidden;}
+  .bm-wheel{position:absolute;left:0;bottom:0;width:var(--d);height:var(--d);
+    fill:var(--btn-cur);transition:transform .5s cubic-bezier(.2,.6,.3,1);}
+  /* gates are whole 12px frames wide (round()), so holes rest whole */
+  .bm-gate{position:absolute;left:calc(var(--d) + 2px);right:4px;margin-inline:auto;height:4px;
+    width:calc(100% - var(--d) - 6px);width:round(down,100% - var(--d) - 6px,12px);
+    overflow:hidden;pointer-events:none;}
+  .bm-gate.t{top:calc(var(--d) - var(--bh) + 3px);}
+  .bm-gate.b{bottom:3px;}
+  .bm-gate::before{content:"";position:absolute;top:0;bottom:0;left:-12px;right:-12px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='5' viewBox='0 0 12 5' preserveAspectRatio='none'%3E%3Crect x='3' width='6' height='5' rx='1.3' fill='%23F5F4F1'/%3E%3C/svg%3E") 0 0/12px 100% repeat-x;
+    transition:transform .45s cubic-bezier(.2,.6,.3,1);}
+  @media(hover:hover) and (prefers-reduced-motion:no-preference){
+    .cta:hover .bm-wheel,.navcta:hover .bm-wheel,.actionbar a.primary:hover .bm-wheel{
+      transform:rotate(-40deg);}
+    .cta:hover .bm-gate::before,.navcta:hover .bm-gate::before,
+    .actionbar a.primary:hover .bm-gate::before{transform:translateX(12px);}
+  }
+  /* secondary: quiet label on a themed grey hairline */
+  .cta.ghost{background:transparent;color:var(--ink);border:1px solid var(--hair);
+    padding:14px var(--s5);font-weight:650;}
+  @media(hover:hover){.cta.ghost:hover{border-color:var(--ink-3);}}
   .ctarow{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center;margin-top:var(--s6);}
   .ctanote{font-size:var(--f-sm);color:var(--ink-3);}
 
@@ -2250,7 +2332,9 @@ FORM_JS = """<script>
   } catch(err){}
   var btn = document.getElementById('cbtn');
   var status = document.getElementById('fstatus');
-  var LABEL = btn.textContent;
+  /* the button is a Reel wheel (reel()): only its .bm-label text changes while sending */
+  var lab = btn.querySelector('.bm-label') || btn;
+  var LABEL = lab.textContent;
 
   /* Where enquiries go. Substituted from FORM_TO at build time so the address
      lives in exactly one place, next to EMAIL at the top of this file. */
@@ -2310,7 +2394,7 @@ FORM_JS = """<script>
     status.innerHTML = (serverMsg ? serverMsg + ' ' : 'That did not send from here. ')
       + '<a href="' + href + '">Send it as an email instead</a>'
       + ', everything you typed is already filled in.';
-    btn.disabled = false; btn.textContent = LABEL;
+    btn.disabled = false; lab.textContent = LABEL;
   }
 
   f.addEventListener('submit', function(e){
@@ -2336,7 +2420,7 @@ FORM_JS = """<script>
       else data[el.name] = el.value;
     });
 
-    btn.disabled = true; btn.textContent = 'Sending...';
+    btn.disabled = true; lab.textContent = 'Sending...';
 
     /* The site moved to GitHub Pages on 2026-08-28. Pages is static hosting and
        cannot execute the Vercel function at /api/contact, so every POST came
@@ -3867,7 +3951,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <a class="stat" href="#roster"><span class="case">Our Brands</span><span class="n">{ROSTER_COUNT}</span><span class="k">Clients across the country</span></a>
   </div>
   <div class="ctarow">
-    <a class="cta" href="/packages/">See the packages</a>
+    <a class="cta" href="/packages/">{reel("See the packages")}</a>
     <a class="cta ghost" href="/our-work/">See the work first</a>
   </div>
   </div></div>
@@ -3894,7 +3978,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <p class="wwd-copy">A reel every weekday and graphics every weekend, planned and posted for
     you. Here is what that looks like on three client accounts.</p>
     <div class="ctarow">
-      <a class="cta" href="/packages/">Compare the packages</a>
+      <a class="cta" href="/packages/">{reel("Compare the packages")}</a>
       <span class="ctanote">Month to month, with no setup fee.</span>
     </div>
     <div class="igrow">
@@ -4086,7 +4170,7 @@ def enquiry_form():
   </div>
 
   <div class="fsubmit">
-    <button type="submit" class="cta" id="cbtn">Send to HSS</button>
+    <button type="submit" class="cta" id="cbtn">{reel("Send to HSS")}</button>
     <p class="ctanote">We answer within one business day. No list, no newsletter,
     no automated sequence.</p>
   </div>
@@ -4133,7 +4217,7 @@ CONTACT_HTML = f"""<title>Contact</title>
   <a href="/packages/">priced in public</a>. You can also <a href="mailto:{EMAIL}">email us</a>
   directly for scope, budgets or attachments. The form gets you a faster, more specific reply.</p>
   <div class="ctarow">
-    <a class="cta" href="#start">Send us a message</a>
+    <a class="cta" href="#start">{reel("Send us a message")}</a>
   </div>
   {reassure("contact")}
 </div></div>
@@ -4493,7 +4577,7 @@ NOT_FOUND_HTML = f"""<title>Page not found</title>
   <p class="sub">The link may be out of date, or the address may have a typo in it. The work,
   the packages and a way to reach us are all one click away.</p>
   <div class="ctarow">
-    <a class="cta" href="/our-work/">See the work</a>
+    <a class="cta" href="/our-work/">{reel("See the work")}</a>
     <a class="cta ghost" href="/packages/">Social Media Packages</a>
     <a class="cta ghost" href="/contact/">Contact us</a>
   </div>
@@ -4562,6 +4646,14 @@ def validate(page, label):
         assert "spotstop" in page, f"{label}: hover-play spots but no SOLO_JS to run them"
     if MODE == "web":
         assert 'class="ytspot"' not in page, f"{label}: a YouTube spot card left in the web build"
+    # release 34: every primary button is a Reel wheel (reel()), on every page
+    for m in re.finditer(r'<(?:a|button)\b[^>]*\bclass="(cta|navcta|primary)((?: [^"]*)?)"[^>]*>', page):
+        if "ghost" in m.group(2):
+            continue
+        assert page.startswith('<svg class="bm-wheel"', m.end()), \
+            f"{label}: a primary button without the reel: {m.group(0)[:90]}"
+    if 'class="bm-wheel"' in page:
+        assert page.count('id="bm-reel"') == 1, f"{label}: Reel wheel buttons need BM_DEFS once"
     assert "—" not in page and "–" not in page, f"DASH FOUND IN {label}"
     bad = sorted({c for c in page if ord(c) > 127})
     assert not bad, f"NON-ASCII IN {label} (use HTML entities): {bad}"

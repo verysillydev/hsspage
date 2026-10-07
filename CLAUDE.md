@@ -14,7 +14,7 @@ own work (the case pages' spots and the D7 doors band). The /our-work case cards
 led by the client's problem (R8). Benchmarks the owners
 pointed at: Lemonlight, Hook Agency, Valve+Meter, Smuggler, Clay (flat, heavy type, real footage,
 the actual deliverable shown); KickCharge is the dated counterexample. Kept on purpose: Archivo +
-Onest, the orange headline highlight bar, square orange and ghost buttons, the stat ledgers, the
+Onest, the orange headline highlight bar, the Reel wheel buttons (release 34, below), the stat ledgers, the
 footer, the angled tier-group tabs on `/packages`, no pills, radii 2-4px, tracking <= .06em, only
 transform/opacity animate, `font-display:optional`.
 
@@ -591,6 +591,30 @@ times). It renders the tagline, the primary CTA via `book()`, the email as a mai
 labelled footer nav (Work, Packages, Team, Contact, 44px targets), the credentials line and
 `&copy; YEAR`. It never links a page to itself: the current page drops out of the nav, and on
 `/contact` the CTA is dropped while `cta_href()` points at that same page.
+
+**Buttons: the Reel wheel (release 34, owner).** Every primary button is option D of the
+approved mockup (`reports/hss-audit/button-options`, `zoom-d.png`). A round orange reel sits at
+the left end. The film leaves it along the bottom and becomes the charcoal body, with cream
+sprocket holes, holding a bold white label. The label measures 18.0:1 on `#14171A`, and 14.3:1 on
+the `#262B30` body used on dark grounds (`.hero-bold`, `.hero-dark`, `.on-ink`, the nav). The
+orange fill with black text it replaced measured 4.8:1, and the owner found it hard to read.
+- **Markup is `reel(label)`**, inside `<a class="cta">`, `book()`, the nav's `.navcta` and the
+  action bar's `.primary`. It holds a `<use>` of the `#bm-reel` symbol (`BM_DEFS`, emitted once
+  per page by `nav()`), two `.bm-gate` rows of holes and the label in `.bm-label`. Motif classes
+  are prefixed `bm-` because the site already uses `.reel`. **`validate()` fails the build if
+  any primary button lacks the reel**, so a hand-written `<a class="cta">Label</a>` cannot ship.
+- **Hover** (a pointer, motion allowed) turns the reel 40 degrees anticlockwise and slides the
+  film one 12px frame. Transform only. It never runs on touch and is static under reduced
+  motion. Pressed darkens the body and moves it 1px. Focus is the site's orange ring.
+- **Compact variants.** The nav uses a 44px reel on a 36px film from 560px. Below 560px the nav
+  is film only: the row leaves it an 80px slot and "Contact" needs 77. The phone action bar's
+  cell is the film, with a 30px reel beside the label. The nav's `min-width` reservations
+  (font-swap CLS) now include the reel's 70px of padding.
+- **`FORM_JS` changes only `.bm-label` while sending.** Setting the button's `textContent` would
+  delete the reel.
+- **Secondary buttons** (`.cta.ghost`) are a quiet label on a grey hairline: ink on light grounds
+  and white on dark, through the themed `--hair` token. The old orange outline outshone a
+  charcoal primary on the dark bands.
 
 The nav pill is the tightest thing on the site at 390px. It shows "Start a project" from 560px up
 and "Contact" below that, and the short label may not be a generic word: "Start" on its own fails
