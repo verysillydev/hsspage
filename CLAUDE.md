@@ -600,7 +600,7 @@ only as the `@supports not (subgrid)` fallback.
 Conditioning (01), Bee Right There (02), iComfort (03), All Heart (04). The spelling is **Bee**
 Right There (Bee Right There Heating & Air, Atascadero, CA, in business since 2018; Instagram
 @beerightthereheatingair, #BeeRightThere); the site said "Be" until R1. iComfort's full name is
-iComfort Heating and Air Conditioning (family-owned, San Fernando, CA, serving the San Fernando
+iComfort Heating and Air (owner, release 11: not "...Air Conditioning"; family-owned, San Fernando, CA, serving the San Fernando
 Valley since 2004). The `/our-work` hero ledger is A1, Bee Right There, iComfort and All Heart;
 the homepage ledger is A1, Bee Right There, iComfort and the roster count.
 

@@ -74,7 +74,7 @@ const cards = {
     <p class="sub">46 posts were seen 27,851 times. The next 57, in three weeks, 106,439 times.</p></div>`,
   'og-icomfort': `${top}<div class="bars pair">${[290, 1970]
       .map((v, i) => `<span class="${i ? 'lead' : ''}" style="height:${(v / 1970 * 100).toFixed(1)}%"></span>`).join('')}</div>${lines}
-    <div class="body"><p class="eyebrow">Case study &middot; iComfort Heating and Air Conditioning</p>
+    <div class="body"><p class="eyebrow">Case study &middot; iComfort Heating and Air</p>
     <h1><span class="hl">290 to 1,970 followers.</span></h1>
     <p class="sub">A family-owned HVAC company in the San Fernando Valley, in under a year, all organic.</p></div>`,
 };

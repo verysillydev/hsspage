@@ -2524,7 +2524,7 @@ CLIENT_LOGOS = [
     ("logo_a1.png",            "A1 Air Conditioning and Heating"),
     ("logo_vector.png",        "Vector Heating, Cooling, Plumbing and Electrical"),
     ("logo_harmony.png",       "Harmony Electrical, Plumbing and Air"),
-    ("logo_icomfort.png",      "iComfort Heating and Air Conditioning"),
+    ("logo_icomfort.png",      "iComfort Heating and Air"),
     ("logo_veterans.png",      "Veterans AC PHX"),
     ("logo_fiscor.png",        "Fiscor Plumbing and Air"),
     ("logo_monarch.png",       "Monarch Home Services"),
@@ -2642,13 +2642,13 @@ CASES = [
               "3.8 times as often within three weeks, on 24% more posts, and a reel past "
               f"{BRT_REEL_LONG} views."),
     dict(id="icomfort", slug="icomfort", name="iComfort",
-         full="iComfort Heating and Air Conditioning", og="og-icomfort.jpg",
+         full="iComfort Heating and Air", og="og-icomfort.jpg",
          vertical="Home services", tag="Social Media Packages",
          problem="Twenty years in business and a feed that looked quiet.",
          card_metric="6.8x", card_line="the followers in under a year, all organic",
          card_now="3,127 followers today",
-         where="iComfort Heating and Air Conditioning &middot; San Fernando, CA",
-         desc="iComfort Heating and Air Conditioning, a family-owned HVAC company in San "
+         where="iComfort Heating and Air &middot; San Fernando, CA",
+         desc="iComfort Heating and Air, a family-owned HVAC company in San "
               "Fernando, CA: Instagram from 290 to 1,970 followers in under a year, all organic."),
     dict(id="allheart", slug="all-heart", name="All Heart", og="og-allheart.jpg",
          full="All Heart Heating, Cooling &amp; Plumbing",
@@ -2858,7 +2858,7 @@ CASE_PAGE = {
     "icomfort": dict(
         kind="Audience", roles=["Social Media Packages", "Short form"],
         tag="290 to 1,970 followers, no ads.",
-        lede="iComfort Heating and Air Conditioning has served the San Fernando Valley since 2004. "
+        lede="iComfort Heating and Air has served the San Fernando Valley since 2004. "
              "In March 2024 their Instagram had 290 followers and looked quiet. A year of daily "
              "posts later <strong>it had 1,970 followers, all organic</strong>, a library of 354 "
              "new posts, and a technician whose heat pump explainer reached 150,282 views. "
@@ -3393,7 +3393,7 @@ HERO_JS = """<script>
 # 780px WebP (post/ig-*.webp). Follower counts are the public profile counts on
 # 6 Oct 2026: refresh them (and the grabs) together, see CLAUDE.md.
 IG_GRABS = [
-    ("ig-icomfort.webp", "iComfort Heating and Air Conditioning", "icomfort.hvac", "3,127"),
+    ("ig-icomfort.webp", "iComfort Heating and Air", "icomfort.hvac", "3,127"),
     ("ig-veteransacphx.webp", "Veterans AC PHX", "veteransacphx", "1,027"),
     ("ig-acplus.webp", "AC Plus Heating and Cooling", "acplus_hvac", "1,792"),
 ]
