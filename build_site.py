@@ -2653,7 +2653,7 @@ CASES = [
     dict(id="allheart", slug="all-heart", name="All Heart", og="og-allheart.jpg",
          full="All Heart Heating, Cooling &amp; Plumbing",
          vertical="Home services", tag="Campaign",
-         problem="He wanted a campaign his market would not forget.",
+         problem="A market full of forgettable HVAC ads.",
          card_metric="10 spots", card_line="produced in less than a week",
          where="All Heart Heating, Cooling &amp; Plumbing",
          desc="Ten commercial spots written and produced in a single production block on one "
@@ -2731,13 +2731,13 @@ CSI = {
         "times the audience. It went from 154 posts to 508. Every post was produced to a high "
         "standard and went out on schedule, day after day. That consistency is what turned a "
         "quiet feed into an audience."),
-    # Release 16 (owner copy): the owner's goal, then how it was made.
-    "allheart": ("All Heart&#39;s owner was done with forgettable HVAC ads. He wanted to disrupt his "
-                 "local market. He wanted spots people would remember when it was time to call a "
-                 "contractor.",
+    # Release 17 (owner copy): the market problem, never "he" or "the owner".
+    "allheart": ("Most local HVAC ads look and sound the same. Nobody remembers them. The goal was to "
+                 "disrupt the market with something different. That meant spots people would "
+                 "remember when it was time to call a contractor.",
                  "We built the campaign on one comic premise: the contractor you want versus the "
                  "contractor you got. Then we produced all ten spots in less than a week. The "
-                 "process is repeatable. The next campaign can be made the same way.",
+                 "process is repeatable. Your next campaign can be made the same way.",
                  "Ten finished spots from a single production, delivered complete and in scope."),
 }
 
