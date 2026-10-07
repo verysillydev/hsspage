@@ -925,10 +925,35 @@ tiles are 96x96 `object-fit:cover`, centred, so before re-running `make_og.mjs` 
 an `object-position` near the top or his hair will be cropped. `PERSON_ICON` is still in the file as the fallback for anyone added
 without a photo.
 
+**Crew row and bio teaser (release 24, owner).** `TEAM_ROSTER` is in reading order, and that is
+also the phone order: Yoni, Paloma, Sergy. Below 760px (the site's phone breakpoint, shared with
+the action bar and `TERMS_JS`) the crew is one card per row. Cards are capped at 420px and centred;
+at 390 the cap never bites, so the 4:5 frame spans the column (342x428). From 760px the crew is one
+row of three. The first card goes to the middle column by grid placement (`grid-column:2` plus
+`grid-auto-flow:row dense`), so desktop reads Paloma | Yoni | Sergy. The DOM never changes, so
+focus and screen reader order always match the phone order. Do not reorder with `order` or a
+second DOM.
+
+The teaser is data-driven. A roster entry may carry `bio_teaser`, the exact start of its `bio`
+(the build asserts it is a strict prefix). With a teaser, phones show the lead, a plain "...",
+then a "Read more" button. Tapping it shows the whole bio, ending in "Show less". It is one
+`<button>` after the text, so focus never moves. It flips `aria-expanded`, and its accessible
+name switches between "Read more about <first name>" and "Show less about <first name>". It is
+styled as a link: `--orange-text`, underlined, 5.9:1 on white. A `::after` gives it a 44px tall
+hit area without touching the line box, and it has the site's orange focus ring. After Show less,
+`BIO_JS` scrolls the card back under the fixed nav if its top went above it. After Read more, it
+scrolls just enough to keep the button above the action bar. From 760px, and without JS, the
+whole bio shows and there is no button. Without a teaser there is no button either. To give
+Paloma or Sergy the same, add `bio` and `bio_teaser` to their entries; nothing else changes.
+`BIO_JS` is inlined right after the roster, so the collapse lands before that part of the page
+paints. It is only emitted when some entry has a teaser.
+
 What is still open:
 
-- **Two crew bios.** `member_card()` renders an optional `bio` field, added 2026-09-03. Yoni's is
-  filled with the owner's copy (release 23): he learned video where attention is the only
+- **Two crew bios.** `member_card()` renders an optional `bio` field, added 2026-09-03, and an
+  optional `bio_teaser` (release 24, see above). Yoni's has both. His teaser on phones is "Yoni
+  learned video where attention is the only currency. He spent a decade". His bio is the
+  owner's copy (release 23): he learned video where attention is the only
   currency. He spent a decade in the creator economy, shaping original ideas and monetization
   strategies for full-time creators. Yoni brings their rule (if people stop watching, the money
   stops) to every video for home service brands. The bio ends there. The owner cut the closing

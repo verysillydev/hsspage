@@ -1629,10 +1629,22 @@ CSS = """<style>
   .lead p{margin:var(--s3) 0 0;color:var(--ink-2);font-size:var(--f-body);line-height:1.6;
     max-width:52ch;}
 
-  /* fixed nine, so explicit breakpoint columns rather than auto-fill, the same
-     reasoning as .reels and .logos elsewhere on the site */
-  .roster{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s5) var(--s4);}
-  @media(min-width:560px){.roster{grid-template-columns:repeat(3,1fr);}}
+  /* Crew (release 24, owner). TEAM_ROSTER is in reading order, which is also the
+     phone order: one card per row below 760px, the site's phone breakpoint (the
+     action bar and TERMS_JS use the same one). From 760px it is one row of three and
+     the first person sits in the middle column by grid placement; dense flow puts the
+     second in the left column and the third on the right. The DOM, focus and screen
+     reader order never change. Below 760px a card is capped at 420px and centred, so
+     on a small tablet the 4:5 frame does not fill the screen; at 390 the cap never
+     bites and the frame spans the column. */
+  .roster{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s6);}
+  .roster > .member{width:100%;max-width:420px;margin:0 auto;}
+  @media(min-width:760px){
+    .roster{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-flow:row dense;
+      gap:var(--s5) var(--s4);}
+    .roster > .member{max-width:none;}
+    .roster > .member:first-child{grid-column:2;}
+  }
   /* 4:5 crew frames (release 19, owner): Yoni's photo is a tight 4:5 portrait and only a
      4:5 frame holds both his hair and the HSS logo on his shirt. Paloma's and Sergy's are
      700x700 squares, so in the same frame object-fit:cover trims only their sides (10%
@@ -1646,6 +1658,27 @@ CSS = """<style>
      down, so a filled card and an empty one still sit on the same grid. */
   .member .mbio{margin:var(--s2) 0 0;font-size:var(--f-sm);line-height:1.5;
     color:var(--ink-2);}
+  /* Optional bio teaser (release 24): see member_card() and BIO_JS. Without JS, and
+     from 760px, the whole bio shows and the ellipsis and the toggle stay hidden.
+     BIO_JS adds .js-cut; below 760px that shows the lead, "...", then "Read more".
+     .is-open shows the rest, with "Show less" at the end. The toggle reads as a
+     link (--orange-text, underlined: 5.9:1 on white) and its ::after gives it a 44px
+     tall hit area without touching the line box, so no text moves. */
+  .mbio .ell,.mbio .bio-tog{display:none;}
+  .bio-tog{position:relative;padding:0;margin:0;border:0;background:none;font:inherit;
+    color:var(--orange-text);text-decoration:underline;text-decoration-thickness:1px;
+    text-underline-offset:.16em;cursor:pointer;border-radius:var(--r-sm);}
+  .bio-tog::after{content:"";position:absolute;left:-6px;right:-6px;top:50%;height:44px;
+    margin-top:-22px;}
+  /* hover only where it exists, or a tap leaves the thick underline stuck on phones;
+     the ring sits 1px out so it clears the full stop before "Show less" */
+  @media(hover:hover){.bio-tog:hover{text-decoration-thickness:2px;}}
+  .bio-tog:focus-visible{outline:2px solid var(--orange);outline-offset:1px;}
+  @media(max-width:759px){
+    .mbio.js-cut .bio-tog{display:inline-block;}
+    .mbio.js-cut:not(.is-open) .ell{display:inline;}
+    .mbio.js-cut:not(.is-open) .rest{display:none;}
+  }
 
   .skip{position:absolute;left:-9999px;top:0;background:var(--orange);color:#14171A;
     padding:var(--s3) var(--s4);border-radius:0 0 var(--r-sm) 0;z-index:99;font-weight:600;}
@@ -3859,8 +3892,11 @@ TEAM_LEADS = [
                "production standard is what he brought to contractors as a cofounder of Home "
                "Service Studios."},
 ]
+# Release 24 (owner): TEAM_ROSTER is in reading order, which is the phone order
+# (Yoni, Paloma, Sergy). From 760px the CSS puts the first card in the middle column,
+# so desktop still reads Paloma | Yoni | Sergy. "bio_teaser" is optional: the exact
+# start of "bio" that phones show before "... Read more". No teaser, no toggle.
 TEAM_ROSTER = [
-    {"name": "Paloma Barros", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
     # Release 23: the owner's exact copy. No name-dropping in bios. The owner says treat it
     # as a decade; never use an exact year count like "seven years".
     # Craig Balog and Seth Yeager own the company (owner confirmed 2026-10-06); nothing
@@ -3869,7 +3905,9 @@ TEAM_ROSTER = [
         "bio": "Yoni learned video where attention is the only currency. He spent a decade in the "
                "creator economy, shaping original ideas and monetization strategies for full-time "
                "creators. In that world, one rule decides everything: if people stop watching, the "
-               "money stops. Yoni brings that rule to every video we make for home service brands."},
+               "money stops. Yoni brings that rule to every video we make for home service brands.",
+        "bio_teaser": "Yoni learned video where attention is the only currency. He spent a decade"},
+    {"name": "Paloma Barros", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
     {"name": "Sergy Olkowski", "title": "Post Production Supervisor", "photo": "sergy-olkowski.jpg"},
 ]
 
@@ -3902,9 +3940,62 @@ def member_card(p):
     # the card is unchanged when it does not, so people can be filled in one at a
     # time as they send something rather than all at once.
     bio = f'<p class="mbio">{p["bio"]}</p>' if p.get("bio") else ""
+    # Release 24: an optional "bio_teaser" (the exact start of the bio) adds a phone
+    # only Read more / Show less toggle. The markup always holds the whole bio, so
+    # no-JS readers and desktop get all of it; the CSS hides .ell and the button
+    # unless BIO_JS has run, and only collapses below 760px. One button, after the
+    # text, toggles both ways, so focus stays on it.
+    teaser = p.get("bio_teaser")
+    if teaser:
+        full = p["bio"]
+        assert full.startswith(teaser) and full[len(teaser):].strip(), \
+            f'{p["name"]}: bio_teaser must be a strict prefix of bio'
+        slug = re.sub(r"[^a-z0-9]+", "-", p["name"].lower()).strip("-")
+        first = p["name"].split()[0]
+        bio = (f'<p class="mbio" data-cut>{teaser}<span class="ell" aria-hidden="true">...</span>'
+               f'<span class="rest" id="bio-{slug}">{full[len(teaser):]}</span> '
+               f'<button type="button" class="bio-tog" aria-expanded="false" '
+               f'aria-controls="bio-{slug}" aria-label="Read more about {first}" '
+               f'data-more="Read more about {first}" data-less="Show less about {first}">'
+               f'Read more</button></p>')
     return (f'<div class="member"><div class="portrait">{art}</div>'
             f'<h3>{p["name"]}</h3><span class="rtitle">{p["title"]}</span>'
             f'{bio}</div>')
+
+
+BIO_JS = """<script>
+(function(){
+  /* Crew bio teasers (release 24): see member_card(). Inline right after the roster
+     so the collapse lands before that part of the page paints. The CSS collapses
+     only below 760px; this script only adds .js-cut and flips .is-open. */
+  [].forEach.call(document.querySelectorAll('.mbio[data-cut]'), function(p){
+    var b = p.querySelector('.bio-tog'), card = p.closest('.member') || p;
+    p.classList.add('js-cut');
+    b.addEventListener('click', function(){
+      var open = !p.classList.contains('is-open');
+      p.classList.toggle('is-open', open);
+      b.setAttribute('aria-expanded', open ? 'true' : 'false');
+      b.setAttribute('aria-label', b.getAttribute(open ? 'data-less' : 'data-more'));
+      b.textContent = open ? 'Show less' : 'Read more';
+      /* Keep the card and the toggle in view. After Show less, if the card's top is
+         now above the fixed nav, scroll it back under the nav. After Read more, if the
+         toggle dropped below the phone action bar, scroll just enough to show it.
+         Neither scroll may push the toggle itself out of view. The action bar comes
+         later in the page than this script, so both bars are looked up here. */
+      var nav = document.querySelector('.nav'), bar = document.querySelector('.actionbar');
+      var top = (nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0) + 8;
+      var bot = window.innerHeight;
+      if(bar){ var t = bar.getBoundingClientRect(); if(t.height) bot = Math.min(bot, t.top); }
+      bot -= 8;
+      var c = card.getBoundingClientRect(), r = b.getBoundingClientRect(), d = 0;
+      if(!open && c.top < top) d = Math.max(c.top - top, r.bottom - bot);
+      else if(r.bottom > bot) d = Math.min(r.bottom - bot, r.top - top);
+      if(d) window.scrollBy(0, d);
+    });
+  });
+})();
+</script>"""
+ROSTER_JS = BIO_JS if any(p.get("bio_teaser") for p in TEAM_ROSTER) else ""
 
 
 TEAM_HTML = f"""<title>Meet the team</title>
@@ -3940,6 +4031,7 @@ TEAM_HTML = f"""<title>Meet the team</title>
   <div class="roster">
     {"".join(member_card(p) for p in TEAM_ROSTER)}
   </div>
+  {ROSTER_JS}
 </div></section>
 
 <!-- /team was a dead end: 231 words, then nothing but the footer, on the one page
