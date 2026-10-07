@@ -2726,8 +2726,8 @@ CSI = {
         "154 posts and 290 followers. A homeowner checking iComfort out before a call found a "
         "company that looked inactive, the opposite of twenty years in the Valley.",
         "Daily posting, led by their own people: technicians explaining real equipment in plain "
-        "terms, the moments every tech knows, and the trends their customers were already "
-        "watching.",
+        "terms, the moments every tech knows, and creating trends that entertain their "
+        "customers.",
         "In under a year the account grew from 290 followers to 1,970, all organic: nearly seven "
         "times the audience. It went from 154 posts to 508. On TikTok, five of those posts alone "
         "drew 264,938 views, led by a technician&#39;s heat pump explainer at 150,282."),
