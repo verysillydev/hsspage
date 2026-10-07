@@ -929,12 +929,12 @@ What is still open:
 
 - **Two crew bios.** `member_card()` renders an optional `bio` field, added 2026-09-03. Yoni's is
   filled with the owner's copy (release 23): he learned video where attention is the only
-  currency, spent the better part of a decade in the creator economy shaping original ideas and
-  monetization strategies for full-time creators, and brings their rule (if people stop watching,
-  the money stops) to every video for home service brands. It ends there; the owner cut the
-  closing line "Your video has to hold attention before anyone remembers your name." in release
-  23. **The bio uses "the better part of a decade" (owner, 2026-10-06)**: it is true from 7 to 9
-  years; switch to "over a decade" once it passes ten.
+  currency. He spent a decade in the creator economy, shaping original ideas and monetization
+  strategies for full-time creators. Yoni brings their rule (if people stop watching, the money
+  stops) to every video for home service brands. The bio ends there. The owner cut the closing
+  line "Your video has to hold attention before anyone remembers your name." in release 23.
+  **A decade, never an exact count (owner, 2026-10-06).** The owner says treat it as a decade.
+  Never use an exact year count like "seven years".
   **No name-dropping in bios (owner, 2026-10-06)**: no "big names", famous
   clients or celebrity credits, implied or named; the release-21 line about "some of its biggest
   names" was cut for that reason. Paloma and Sergy have a name and a title only. A card with nothing but

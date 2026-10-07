@@ -3861,16 +3861,15 @@ TEAM_LEADS = [
 ]
 TEAM_ROSTER = [
     {"name": "Paloma Barros", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
-    # Release 23: the owner's exact copy; no name-dropping in bios. "The better part of a
-    # decade" holds from 7 to 9 years; switch to "over a decade" once it passes ten.
+    # Release 23: the owner's exact copy. No name-dropping in bios. The owner says treat it
+    # as a decade; never use an exact year count like "seven years".
     # Craig Balog and Seth Yeager own the company (owner confirmed 2026-10-06); nothing
     # here may read as Yoni having founded or built it.
     {"name": "Yoni Paz", "title": "Creative Director and Producer", "photo": "yoni-paz.jpg",
-        "bio": "Yoni learned video where attention is the only currency. He spent the better part "
-               "of a decade in the creator economy, shaping original ideas and monetization "
-               "strategies for full-time creators. In that world, one rule decides everything: if "
-               "people stop watching, the money stops. He brings that rule to every video we make "
-               "for home service brands."},
+        "bio": "Yoni learned video where attention is the only currency. He spent a decade in the "
+               "creator economy, shaping original ideas and monetization strategies for full-time "
+               "creators. In that world, one rule decides everything: if people stop watching, the "
+               "money stops. Yoni brings that rule to every video we make for home service brands."},
     {"name": "Sergy Olkowski", "title": "Post Production Supervisor", "photo": "sergy-olkowski.jpg"},
 ]
 
