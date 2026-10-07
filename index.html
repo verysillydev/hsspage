@@ -1308,10 +1308,22 @@
   .lead p{margin:var(--s3) 0 0;color:var(--ink-2);font-size:var(--f-body);line-height:1.6;
     max-width:52ch;}
 
-  /* fixed nine, so explicit breakpoint columns rather than auto-fill, the same
-     reasoning as .reels and .logos elsewhere on the site */
-  .roster{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s5) var(--s4);}
-  @media(min-width:560px){.roster{grid-template-columns:repeat(3,1fr);}}
+  /* Crew (release 24, owner). TEAM_ROSTER is in reading order, which is also the
+     phone order: one card per row below 760px, the site's phone breakpoint (the
+     action bar and TERMS_JS use the same one). From 760px it is one row of three and
+     the first person sits in the middle column by grid placement; dense flow puts the
+     second in the left column and the third on the right. The DOM, focus and screen
+     reader order never change. Below 760px a card is capped at 420px and centred, so
+     on a small tablet the 4:5 frame does not fill the screen; at 390 the cap never
+     bites and the frame spans the column. */
+  .roster{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s6);}
+  .roster > .member{width:100%;max-width:420px;margin:0 auto;}
+  @media(min-width:760px){
+    .roster{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-flow:row dense;
+      gap:var(--s5) var(--s4);}
+    .roster > .member{max-width:none;}
+    .roster > .member:first-child{grid-column:2;}
+  }
   /* 4:5 crew frames (release 19, owner): Yoni's photo is a tight 4:5 portrait and only a
      4:5 frame holds both his hair and the HSS logo on his shirt. Paloma's and Sergy's are
      700x700 squares, so in the same frame object-fit:cover trims only their sides (10%
@@ -1325,6 +1337,27 @@
      down, so a filled card and an empty one still sit on the same grid. */
   .member .mbio{margin:var(--s2) 0 0;font-size:var(--f-sm);line-height:1.5;
     color:var(--ink-2);}
+  /* Optional bio teaser (release 24): see member_card() and BIO_JS. Without JS, and
+     from 760px, the whole bio shows and the ellipsis and the toggle stay hidden.
+     BIO_JS adds .js-cut; below 760px that shows the lead, "...", then "Read more".
+     .is-open shows the rest, with "Show less" at the end. The toggle reads as a
+     link (--orange-text, underlined: 5.9:1 on white) and its ::after gives it a 44px
+     tall hit area without touching the line box, so no text moves. */
+  .mbio .ell,.mbio .bio-tog{display:none;}
+  .bio-tog{position:relative;padding:0;margin:0;border:0;background:none;font:inherit;
+    color:var(--orange-text);text-decoration:underline;text-decoration-thickness:1px;
+    text-underline-offset:.16em;cursor:pointer;border-radius:var(--r-sm);}
+  .bio-tog::after{content:"";position:absolute;left:-6px;right:-6px;top:50%;height:44px;
+    margin-top:-22px;}
+  /* hover only where it exists, or a tap leaves the thick underline stuck on phones;
+     the ring sits 1px out so it clears the full stop before "Show less" */
+  @media(hover:hover){.bio-tog:hover{text-decoration-thickness:2px;}}
+  .bio-tog:focus-visible{outline:2px solid var(--orange);outline-offset:1px;}
+  @media(max-width:759px){
+    .mbio.js-cut .bio-tog{display:inline-block;}
+    .mbio.js-cut:not(.is-open) .ell{display:inline;}
+    .mbio.js-cut:not(.is-open) .rest{display:none;}
+  }
 
   .skip{position:absolute;left:-9999px;top:0;background:var(--orange);color:#14171A;
     padding:var(--s3) var(--s4);border-radius:0 0 var(--r-sm) 0;z-index:99;font-weight:600;}
