@@ -125,7 +125,7 @@ def cta_href():
 # cream and on dark grounds), under the orange flange with its rim groove, five round
 # cut-outs and the hub hole, all one even-odd path. 56 units, the desktop diameter.
 def _bm_circle(cx, cy, r):
-    f = lambda v: f"{v:.2f}".rstrip("0").rstrip(".")
+    f = lambda v: f"{v:.1f}".rstrip("0").rstrip(".")
     return f"M{f(cx - r)} {f(cy)}a{f(r)} {f(r)} 0 1 0 {f(2 * r)} 0a{f(r)} {f(r)} 0 1 0 {f(-2 * r)} 0Z"
 
 
@@ -1020,6 +1020,9 @@ CSS = """<style>
   .hero-media > .wrap{position:relative;z-index:3;display:flex;align-items:center;
     gap:var(--s5);padding-bottom:clamp(var(--s8), 10vh, 140px);}
   .hero-media > .wrap > .herotext{min-width:0;flex:1 1 auto;}
+  /* not painted half parsed: on a slow line the headline's last words can arrive after the
+     first paint, and this bottom-anchored block then pushed it up (CLS .01, release 34) */
+  .hero-media > .wrap:not(:has(> .scrollhint)){visibility:hidden;}
   /* scroll hint: waits a second before it appears (so it never competes
      with the headline landing), then bobs gently. Fade-in and bob are
      split across two elements so their transforms never fight over the
@@ -1654,9 +1657,11 @@ CSS = """<style>
     transform:translateY(1px);}
   .cta:focus-visible{outline:2px solid var(--orange);outline-offset:3px;}
   .bm-defs{position:absolute;width:0;height:0;overflow:hidden;}
+  /* a half-parsed button (reel in, label not yet) paints nothing: the bar's centred reel
+     moved when its label arrived (CLS); .bm-gate.b is the last child reel() writes */
+  :is(.cta,.navcta,.actionbar a.primary):not(:has(> .bm-gate.b)) > *{visibility:hidden;}
   .bm-wheel{position:absolute;left:0;bottom:0;width:var(--d);height:var(--d);
     fill:var(--btn-cur);transition:transform .5s cubic-bezier(.2,.6,.3,1);}
-  /* gates are whole 12px frames wide (round()), so holes rest whole */
   .bm-gate{position:absolute;left:calc(var(--d) + 2px);right:4px;margin-inline:auto;height:4px;
     width:calc(100% - var(--d) - 6px);width:round(down,100% - var(--d) - 6px,12px);
     overflow:hidden;pointer-events:none;}
@@ -1671,7 +1676,6 @@ CSS = """<style>
     .cta:hover .bm-gate::before,.navcta:hover .bm-gate::before,
     .actionbar a.primary:hover .bm-gate::before{transform:translateX(12px);}
   }
-  /* secondary: quiet label on a themed grey hairline */
   .cta.ghost{background:transparent;color:var(--ink);border:1px solid var(--hair);
     padding:14px var(--s5);font-weight:650;}
   @media(hover:hover){.cta.ghost:hover{border-color:var(--ink-3);}}
@@ -3837,7 +3841,10 @@ def slate(n):
 # other pages should not pay for them. Release 33 (owner): below 760px block 03's three
 # films are one sideways swipe row like the Handyman Dan strip (82% cards, snap,
 # overflow-y hidden so it never scrolls vertically); .wwd-pair dissolves into the row
-# with display:contents. From 760px the layout is unchanged.
+# with display:contents. From 760px the layout is unchanged. Release 34: HOME_CSS styles nothing
+# in the hero, so it ships in the body just before .hero-lines, after the hero's text and its
+# placeholder image (the phone LCP). Head CSS is render blocking, and at the throttled phone
+# profile every KB ahead of that image costs about 5ms of LCP.
 # the strip's sprocket rails: the buttons' hole tile, larger (8x6 in a 14px pitch)
 SVC_HOLE = ("url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='6'%3E"
             "%3Crect x='3' width='8' height='6' rx='1.5' fill='%23F5F4F1'/%3E%3C/svg%3E\")")
@@ -3982,7 +3989,6 @@ CLAP_JS = """<script>
 HOME_HTML = f"""<title>Home Service Studios</title>
 {FONT_CSS}
 {CSS}
-{HOME_CSS}
 <a class="skip" href="#main">Skip to content</a>
 {nav("home")}
 
@@ -4003,6 +4009,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     {HERO_MEDIA}
     <div class="hero-scrim"></div>
   </div>
+  {HOME_CSS}
   <div class="hero-lines">{SPLAT_SVG}<div class="wrap band-a">
   <p class="sub">We write, shoot, edit and post video for home service companies <strong>nationwide</strong>.
   When a homeowner needs a repair, a replacement or a remodel, they call a name they already know.

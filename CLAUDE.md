@@ -229,6 +229,16 @@ title-strip mask; nothing third-party loads on the homepage now). Do not bring a
 - The phone action bar clearance (`.hero-media` bottom padding) is unchanged: at 390x664 the
   headline ends at 604px and the bar starts at 609px.
 
+**The hero text block is not painted half parsed (release 34).** It is bottom anchored
+(`justify-content:flex-end`). When a network chunk boundary fell inside the headline, the first
+paint showed it one line short, and "does nothing." then pushed it up 32px: CLS 0.0100 in 2 of 10
+throttled loads. Release 34's extra bytes moved the boundary there. `.hero-media >
+.wrap:not(:has(> .scrollhint)){visibility:hidden}` keeps the block unpainted until its last child
+is parsed. Measured after: 0 of 15 loads. **`HOME_CSS` ships after the hero (release 34)**, just
+before `.hero-lines`, because it styles nothing above it. That took 4KB off the bytes ahead of the
+phone LCP image. Paired phone runs against release 33 went from +28ms median to +12ms (1,228 vs
+1,220ms). The rest is the shared button CSS.
+
 **Do not strip CSS comments from the shipped pages to win first paint** without solving font timing
 first: tried in release 10, it took 30KB off every page but painted the hero before Archivo 900
 arrived, so the headline rendered in the Arial Black fallback on every cold throttled load (reverted).
@@ -651,6 +661,12 @@ orange fill with black text it replaced measured 4.8:1, and the owner found it h
   (font-swap CLS) now include the reel's 70px of padding.
 - **`FORM_JS` changes only `.bm-label` while sending.** Setting the button's `textContent` would
   delete the reel.
+- **A half-parsed button paints nothing.** On a slow line Chrome can paint while a button's HTML
+  is only partly parsed. The phone bar's centred reel then moved when its label arrived: CLS
+  0.0003 in 9 of 12 throttled loads. `:is(.cta,.navcta,.actionbar a.primary):not(:has(>
+  .bm-gate.b)) > *{visibility:hidden}` hides a button's children until its last child (the bottom
+  gate `reel()` writes) is parsed. Hidden nodes do not count as layout shifts. Measured after: 0 of
+  15 loads.
 - **Secondary buttons** (`.cta.ghost`) are a quiet label on a grey hairline: ink on light grounds
   and white on dark, through the themed `--hair` token. The old orange outline outshone a
   charcoal primary on the dark bands.
