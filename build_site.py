@@ -2664,7 +2664,6 @@ CASE_BY_ID = {c["id"]: c for c in CASES}
 assert round(106439 / 27851, 1) == 3.8 and round(57 / 46 - 1, 2) == 0.24
 assert round(6634 / 843, 1) == 7.9 and round(78 / 21, 1) == 3.7
 assert round(27851 / 46, -2) == 600 and round(106439 / 57, -1) == 1870
-assert 150282 + 49380 + 28327 + 20431 + 16518 == 264938
 assert round(1970 / 290, 1) == 6.8 and 1970 - 290 == 1680 and 508 - 154 == 354
 # iComfort today (R19, public profile, 6 Oct 2026): 3,127 followers, 1,085 posts.
 # "more than ten times where it started" is 3,127 / 290 = 10.8x.
@@ -2866,7 +2865,7 @@ CASE_PAGE = {
              "Today, 3,127 people follow the account, more than ten times where it started.",
         ops=ops([("3,127", "Instagram followers today, up from 290"),
                  ("6.8x", "Followers in the first year, all organic"),
-                 ("265K", "Views on five TikToks"), ("354", "New posts in the first year")]),
+                 ("14.2M", "Impressions"), ("354", "New posts in the first year")]),
         proof_head="A year of daily posts",
         proof=before_after(
             "First year: 354 new posts, 6.8 times the followers.",
@@ -2882,7 +2881,8 @@ CASE_PAGE = {
               "trucks and techs, and when a system fails, iComfort is the name they have been "
               "watching.",
         source="Figures from the account&#39;s own Instagram and TikTok, 27&nbsp;Mar&nbsp;2024 to "
-               "11&nbsp;Mar&nbsp;2025; current count from the public profile, 6&nbsp;Oct&nbsp;2026."),
+               "11&nbsp;Mar&nbsp;2025; current count from the public profile, 6&nbsp;Oct&nbsp;2026. "
+               "Impressions figure from the account owner, 6&nbsp;Oct&nbsp;2026."),
     "allheart": dict(
         kind="Campaign",
         roles=["Writer", "Producer"], tag="Ten spots, one shoot.",

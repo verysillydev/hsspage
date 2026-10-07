@@ -610,7 +610,9 @@ started with (`problem` in `CASES`), then the metric, its line, the client and c
 the case" link stretched over the whole card. The same problem line opens "The problem" on the
 case page (`csi_block`), so the card and the page agree; change it in one place only, `CASES`.
 Case pages use plain words a home service owner would use (R12): "times their posts were seen",
-not "impressions"; "likes, comments, shares and saves", not "engagements". The blocks are "The
+not "impressions" (one owner-made exception: iComfort's stat "14.2M / Impressions", release 14,
+owner-supplied on 6 Oct 2026 and sourced as such); "likes, comments, shares and saves", not
+"engagements". The blocks are "The
 problem", "What we changed", "What happened", and the new cases close with "What it did for them"
 plus a source line. Bee Right There's views must never be called organic (the source report mixed
 organic and paid); its engagements were organic.
