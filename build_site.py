@@ -1098,38 +1098,20 @@ CSS = """<style>
   .op .k{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);
     font-family:var(--mono);}
 
-  /* /our-work "More results": dated proof from three more accounts, ruled like
-     the other ledgers (gap:1px on --line) rather than three boxed cards */
-  .proofs{display:grid;grid-template-columns:minmax(0,1fr);gap:1px;background:var(--line);}
-  @media(min-width:900px){.proofs{grid-template-columns:repeat(3,minmax(0,1fr));}}
-  .proof{background:var(--ground);padding:var(--s5);display:flex;flex-direction:column;
-    gap:var(--s2);}
-  .proof h3{margin:0;font-family:var(--display);font-size:var(--f-h4);font-weight:700;
-    letter-spacing:var(--t-head);line-height:1.2;}
-  .proof .who{margin:0;font-size:var(--f-sm);color:var(--ink-3);}
-  .proof .pm{margin:var(--s2) 0 0;display:flex;flex-direction:column;gap:2px;}
-  /* .pfig, not .pn: .pn is the case pages' prev/next link, whose padding and
-     background were leaking onto this figure (and its scroll reveal) */
-  .proof .pfig{font-family:var(--display);font-size:var(--f-h2);font-weight:700;
-    color:var(--orange-text);letter-spacing:-.012em;line-height:1.05;
-    font-variant-numeric:tabular-nums;}
-  .proof .pl{font-size:var(--f-micro);letter-spacing:.06em;text-transform:uppercase;
-    color:var(--ink-3);font-family:var(--mono);}
-  .proof p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:var(--s5);}
-  /* subheads inside a section (More work, the homepage spots row) */
+  /* subheads inside a section (the homepage spots row) */
   .subhead{margin:var(--s7) 0 var(--s4);font-family:var(--display);font-size:var(--f-h3);
     font-weight:700;letter-spacing:var(--t-head);line-height:1.15;}
   .sec-head + .subhead{margin-top:0;}
-  /* More work: the Handyman Dan campaign block (R14) */
-  .mw-eyebrow + .subhead{margin-top:var(--s2);}
-  .mw-body{margin:0;max-width:62ch;font-size:var(--f-lede);line-height:1.55;color:var(--ink-2);}
-  .mw-stat{margin:var(--s5) 0 0;display:flex;flex-direction:column;gap:var(--s1);max-width:40ch;}
-  .mw-stat b{font-family:var(--display);font-weight:900;font-size:var(--f-mega);line-height:1;
-    letter-spacing:-.02em;color:var(--orange-text);}
-  .mw-stat span{font-size:var(--f-body);line-height:1.45;color:var(--ink);}
-  .mw-note{margin:var(--s2) 0 var(--s5);font-size:var(--f-sm);color:var(--ink-2);max-width:62ch;}
+  /* The Handyman Dan campaign on /our-work (release 28): intro, the spots, then the
+     result as one quiet line in body size under a small label. No display stat. */
+  .mw-body{margin:0 0 var(--s5);max-width:62ch;font-size:var(--f-lede);line-height:1.55;
+    color:var(--ink-2);text-wrap:pretty;}
+  .mw-result{margin:var(--s5) 0 0;max-width:62ch;font-size:var(--f-body);line-height:1.55;
+    color:var(--ink);text-wrap:pretty;}
+  .mw-k{display:block;margin-bottom:var(--s1);font-family:var(--display);
+    font-variant-caps:all-small-caps;letter-spacing:.06em;font-size:var(--f-sm);color:var(--ink-2);}
   /* What We Do (homepage, release 8): warm white ground, three numbered blocks with a
      hairline between them. --ink-3 on --ground-2 is 4.32:1, so small text uses --ink-2. */
   section.wwd{background:var(--ground-2);}
@@ -1198,25 +1180,16 @@ CSS = """<style>
   @media(min-width:1100px){.strip.five > .spot{flex-basis:calc((100% - 4 * var(--s4)) / 5);}}
   @media(max-width:759px){
     .strip{display:flex;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;
+      overflow-y:hidden;overscroll-behavior-x:contain;
       scroll-snap-type:x mandatory;gap:var(--s3);padding-bottom:var(--s2);scrollbar-width:thin;}
     .strip > .spot{flex:0 0 80%;scroll-snap-align:start;}
+    /* One row, so it only ever scrolls sideways (release 28). The phone reveal
+       (.rv at 10px, which outranks .rv-in by source order) left every card 10px low,
+       and inside this scroller that was vertical overflow: the row scrolled up and
+       down. Cards here fade in without the slide, and overflow-y:hidden guards the
+       axis. The card's focus ring is inset (.vplay), so nothing it draws is clipped. */
+    .strip > .spot.rv{transform:none;}
   }
-  .proofs-one{background:none;}
-  .proofs-one .proof{background:var(--ground-2);border-radius:var(--r-md);}
-  /* --ink-3 on --ground-2 is 4.32:1; the small labels need --ink-2 here */
-  .proofs-one .proof .who,.proofs-one .proof .pl{color:var(--ink-2);}
-  @media(min-width:900px){.proofs-one{grid-template-columns:minmax(0,2fr) minmax(0,1fr);}}
-  .fp{width:100%;border-collapse:collapse;margin:var(--s2) 0;font-size:var(--f-sm);}
-  .fp th,.fp td{text-align:left;padding:var(--s2) var(--s2) var(--s2) 0;
-    border-bottom:1px solid var(--line);vertical-align:top;}
-  .fp thead th{font-family:var(--display);font-variant-caps:all-small-caps;letter-spacing:.05em;
-    font-weight:700;color:var(--ink-2);}
-  .fp tbody th{font-weight:650;color:var(--ink);}
-  .fp td{color:var(--ink-2);font-variant-numeric:tabular-nums;}
-  .fp td:last-child{color:var(--ink);font-weight:650;}
-  .proof .fp-note{font-size:var(--f-sm);color:var(--ink-2);}
-  .proof h4{margin:0;font-family:var(--display);font-size:var(--f-h4);font-weight:700;
-    letter-spacing:var(--t-head);line-height:1.2;}
   .spot{background:var(--panel);border-radius:var(--r-md);
     overflow:hidden;display:flex;flex-direction:column;}
   .spot video{width:100%;display:block;background:#000;aspect-ratio:16/9;object-fit:cover;}
@@ -3023,65 +2996,29 @@ CASE_PAGE = {
 }
 
 
-# ---- 4 Points ------------------------------------------------------------------
-# From the owners' pitch deck, in English formats (the deck's screenshots used
-# Portuguese ones: "509 mil" is 509K, "6.096" is 6,096). The deck gives no dates for
-# it, so the card shows none. Bee Right There and iComfort, which used to sit beside
-# it in a "More results" block, are full case studies since R4.
-# 4 Points is a single short-form result, shown in More work rather than as a case.
-FOUR_POINTS = dict(client="4 Points", who="Home services", metric="509K",
-                   mlabel="Views on their best post, up from 705",
-                   rows=[("Eight posts, combined", "3,543 views", "about 636,000 views"),
-                         ("Typical post", "about 430 views", "about 4,300 views"),
-                         ("Best post", "705 views", "509,000 views")],
-                   line="Same account, same kind of business, about ten times the views on a "
-                        "typical post.",
-                   note="After figures are rounded from the account&#39;s own counts.")
-
-
-def four_points_card(x, h="h4"):
-    """The 4 Points result (R12): a small card, not a case, with a real two-column
-    before/after table so it reads correctly to a screen reader too."""
-    rows = "".join(f'<tr><th scope="row">{k}</th><td>{a}</td><td>{b}</td></tr>'
-                   for k, a, b in x["rows"])
-    return (f'<article class="proof"><{h}>{x["client"]}</{h}><p class="who">{x["who"]}</p>'
-            f'<p class="pm"><span class="pfig">{x["metric"]}</span>'
-            f'<span class="pl">{x["mlabel"]}</span></p>'
-            f'<table class="fp"><thead><tr><td></td><th scope="col">Before us</th>'
-            f'<th scope="col">After</th></tr></thead><tbody>{rows}</tbody></table>'
-            f'<p>{x["line"]}</p><p class="fp-note">{x["note"]}</p></article>')
-
-
-# More work (R3, 2026-10-06): Handyman Dan is no longer a case study, by the
-# owners' request. R14 gives its spots a selling frame: a white-label commercial
-# campaign a home service company runs under its own name. The one result is the
-# owner's: inbound calls for one company running the spots went from about one a
-# week to about ten a day. It is a reported past result for paid commercial
-# placement, never a promise, so the note under it stays. Never name who ran the
-# spots or how many did, and no market counts, account counts or licensing terms.
-# R17 dropped "Father Vs AC" (its picture carried one licensee's logo and phone
-# number, which named who ran the campaign); the strip numbers what remains.
-# The 4 Points result sits here too, as a small card rather than a case.
+# The Handyman Dan campaign on /our-work (R3, 2026-10-06; reworked in release 28, owner).
+# Handyman Dan is not a case study: it is a white-label commercial campaign a home
+# service company runs under its own name, in its own market. The section is the
+# campaign itself (no "More work" wrapper): the work leads, then the one result as a
+# quiet line, never a display stat. The result is the owner's: calls from Google for
+# one company running the spots went from about one a week to ten a day. Never name who
+# ran the spots or how many did, and no market counts, account counts or licensing
+# terms. R17 dropped "Father Vs AC" (its picture carried one licensee's logo and phone
+# number); the strip numbers what remains. Release 28 removed the 4 Points card that
+# used to follow it (its logo stays on the client wall). The id stays "more-work":
+# the old Handyman Dan pages and the #handyman hash forward to it.
 MORE_WORK = f"""<section id="more-work"><div class="wrap">
   <div class="sec-head">
-    <p class="eyebrow">More work</p>
-    <h2 class="display">More of the work</h2>
+    <p class="eyebrow">Handyman Dan &middot; Commercial campaign</p>
+    <h2 class="display">One campaign. Any market.</h2>
   </div>
-  <p class="eyebrow mw-eyebrow">Handyman Dan &middot; Commercial campaign</p>
-  <h3 class="subhead">Spots built to run in any market.</h3>
-  <p class="mw-body">A white-label commercial campaign a home service company runs under its own
-  name, in its own market.</p>
-  <p class="mw-stat"><b>10 a day</b><span>Inbound calls for one company running the spots, up
-  from about one a week.</span></p>
-  <p class="mw-note">One company&#39;s results; yours depend on where and how often the spots
-  run.</p>
+  <p class="mw-body">We wrote and produced a commercial campaign built to travel. It is white
+  label, so a home service company can run it under its own name, in its own market.</p>
   <div class="strip{" five" if len(handyman) == 5 else ""}">
 {chr(10).join(spot(fn, f"{i:02d}", nm, du, yt) for i, (fn, _, nm, du, yt) in enumerate(handyman, 1))}
   </div>
-  <h3 class="subhead">One more short-form result</h3>
-  <div class="proofs proofs-one">
-{four_points_card(FOUR_POINTS)}
-  </div>
+  <p class="mw-result"><span class="mw-k">The result</span>One company running the spots saw
+  calls from Google climb from about one a week to ten a day.</p>
 </div></section>"""
 
 
@@ -3159,7 +3096,7 @@ def logo_marquee():
 # The case write-ups used to open inline on /our-work from #a1, #handyman and
 # #allheart, and the homepage and outside links still use those. This forwards
 # them to the case pages before anything paints.
-# #handyman is the old in-page anchor of a case that is now part of More work.
+# #handyman is the old in-page anchor of a case that is now the Handyman Dan section.
 HASH_REDIRECT_JS = ("<script>(function(){var m={" + ",".join(
     [f'"{c["id"]}":"{case_url(c["id"])}"' for c in CASES] + ['"handyman":"#more-work"'])
     + "};var h=(location.hash||'').slice(1);if(m[h])location.replace(m[h]);})();</script>")
@@ -4470,7 +4407,7 @@ if MODE == "web":
         lp.write_text(legacy, encoding="utf-8")
 
     # Handyman Dan stopped being a case study (R3, 2026-10-06); both of its old
-    # addresses now forward to its spots in More work on /our-work.
+    # addresses now forward to its section on /our-work (#more-work).
     for old in ("/our-work/handyman-dan/", "/work/handyman-dan/"):
         stub = ('<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
                 '<title>Handyman Dan commercial campaign | Home Service Studios</title>'

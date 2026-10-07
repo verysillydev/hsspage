@@ -106,7 +106,7 @@ Two assertions run before anything is written to disk, so a bad build fails inst
 **The commercial spots are self-hosted for hover play (release 4, 2026-10-06, owner request);
 the homepage hero is self-hosted too since release 10 (see Homepage hero), and YouTube now
 remains only for the `/our-work` Quality banner.** The All Heart case page's ten spots, the Handyman Dan
-strip under More work on `/our-work`, and on the homepage the three spots in What We Do block 02,
+strip on `/our-work` (the Handyman Dan section), and on the homepage the three spots in What We Do block 02,
 the Quality brand film in block 03 and (once supplied) the podcast video in block 04 play the
 whole film, not a preview:
 - Real hover (`(hover: hover) and (pointer: fine)`), no reduced motion: entering a card plays from
@@ -430,11 +430,12 @@ one session could not tell whether it was one person or a company.
 
 Never promise leads, calls or booked jobs from short form; the honest pitch is the long
 compounding play. **One reported call result exists, and it is not short form (R14, 2026-10-06):**
-Handyman Dan is shown on `/our-work` under More work as a white-label commercial campaign (spots
+Handyman Dan is shown on `/our-work` in its own section as a white-label commercial campaign (spots
 a home service company runs under its own name, in its own market), with the owner-supplied
-result that inbound calls for one company running the spots went from about one a week to about
-ten a day. It is a past result for paid commercial placement, always shown with its note ("One
-company's results; yours depend on where and how often the spots run."). Never name who ran the
+result that calls from Google for one company running the spots went from about one a week to
+ten a day. It is a past result for paid commercial placement, stated as one quiet line, never
+as a promise or a display stat. The owner removed the "yours depend on where and how often the
+spots run" note in release 28. Never name who ran the
 spots or how many companies did, and no market counts, account counts, licensing terms or other
 deployment details. The "Not leads. Anyone selling you leads from organic **short form** is
 guessing" paragraph on `/packages` is deliberate and must not be softened, it disqualifies the
@@ -686,15 +687,26 @@ from 290"), the chart carries it as a third point, the grid card adds one small 
 `CASES`), and the close and source line carry it too; when the count is refreshed, change all five
 and the asserts beside `CASE_BY_ID` ("more than ten times" is checked as 3,127 / 290 > 10).
 
-**Handyman Dan is not a case study (R3).** It sits under More work on `/our-work` as a white-label
-commercial campaign with its spots, one owner-supplied call result and its note (see Voice).
-Its copy is count-free ("Spots built to run in any market."). "Father Vs AC" was removed on
+**Handyman Dan is not a case study (R3).** Since release 28 (owner) it is its own section on
+`/our-work` (id still `more-work`, so the old links land on it). There is no "More work" wrapper.
+- Eyebrow "Handyman Dan &middot; Commercial campaign", H2 "One campaign. Any market.", and a
+  two-sentence intro: "We wrote and produced a commercial campaign built to travel. It is white
+  label, so a home service company can run it under its own name, in its own market."
+- Then the spots, so the work leads.
+- Then the result as one quiet line in body size under a small "The result" label: "One company
+  running the spots saw calls from Google climb from about one a week to ten a day." There is no
+  display stat and no "yours depend" note any more (owner, release 28).
+- The copy stays count-free.
+- On phones the spot row scrolls sideways only. It has `overflow-y:hidden`, and its cards fade
+  in without the reveal's slide: the phone `.rv` offset outranks `.rv-in` and used to leave
+  them 10px low, which made the row scroll vertically. "Father Vs AC" was removed on
 2026-10-06 (R17): its picture carried one licensee's logo and phone number, which named who ran the
 campaign; its thumbnail was deleted. Never re-add a spot that shows a licensee's branding.
 Its old pages (`/our-work/handyman-dan/`, `/work/handyman-dan/`) are noindex stubs to
 `/our-work/#more-work`. Never mention market counts, account counts, licensing, twelve-month
-agreements, "earned back its cost" or spec production. The 4 Points result is a small card in
-More work, not a case.
+agreements, "earned back its cost" or spec production. The 4 Points result card that used to
+follow it was removed in release 28 (owner), along with its CSS. 4 Points stays on the client
+wall.
 
 **Copy is count-free wherever a case count would be typed (R6):** "All case studies", "Case
 studies with the numbers attached". (The homepage case note built from `CASES`, `CASE_NAMES`,
@@ -1028,10 +1040,10 @@ What is still open:
   likely path, still never sees a person. A crew photo beside the production-day tiers on
   `/packages` would be the literal proof of what those tiers sell.
 - **Recency, partly fixed (2026-10-06).** The Bee Right There and iComfort case pages carry real
-  dates (Aug and Sep 2024, early 2025; Mar 2024 to Mar 2025). Their figures and the 4 Points card
-  come from the owners and must stay in English formats (the deck's screenshots were Portuguese:
-  "509 mil" is 509K, "6.096" is 6,096). The two unnamed deck clients and reels from unnamed
-  accounts stay off the site; 4 Points has no dates, so it shows none.
+  dates (Aug and Sep 2024, early 2025; Mar 2024 to Mar 2025). Their figures come from the owners
+  and must stay in English formats (the deck's screenshots were Portuguese: "509 mil" is 509K,
+  "6.096" is 6,096). The two unnamed deck clients and reels from unnamed accounts stay off the
+  site. The 4 Points result card was removed in release 28.
 
 ## Accessibility rules that were bought the hard way
 
