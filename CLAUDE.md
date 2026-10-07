@@ -1107,9 +1107,10 @@ What is still open:
 
 - **Crew bios: Yoni and Paloma have one, Sergy does not yet.** `member_card()` renders an
   optional `bio` field, added 2026-09-03, and an optional `bio_teaser` (release 24, see above).
-  **Paloma's (release 27, owner copy, verbatim, serial commas as written)** starts "Paloma has built
-  her career around why people stop, watch, and engage." and ends "...turns attention into
-  measurable growth." Her phone teaser ends "...and working across countries". Both toggles
+  **Paloma's (release 33, owner copy, verbatim, his commas and wording; it replaces the release-27
+  bio)** starts "Paloma's approach to social media is rooted in understanding people." and ends
+  "...built stronger connections between brands and their audiences." The source uses plain ASCII
+  apostrophes. Her phone teaser ends "...What captures their attention". Both toggles
   work on their own. Yoni's bio and teaser are below. His teaser on phones is "Yoni
   learned video where attention is the only currency. He spent a decade". His bio is the
   owner's copy (release 23): he learned video where attention is the only
