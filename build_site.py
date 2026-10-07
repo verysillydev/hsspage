@@ -2745,9 +2745,8 @@ CASES = [
          problem="A crowded market where every company looks the same.",
          card_metric="2.26M", card_line="views on seven reels in their first six months",
          where="A1 Air Conditioning &middot; Tucson, AZ",
-         desc="A Tucson HVAC company with 9,200 followers. In their first six months with us, "
-              "seven reels passed 100,000 views: roughly 2.26 million views in six months, in a "
-              "market of one million people."),
+         desc="A Tucson HVAC company with 9,200 followers. In their first six months with Home "
+              "Service Studios, seven reels reached 2.26M views."),
     dict(id="beerightthere", slug="bee-right-there", name="Bee Right There",
          full="Bee Right There Heating &amp; Air", og="og-bee-right-there.jpg",
          vertical="Home services", tag="Social Media Packages",
@@ -4513,9 +4512,13 @@ if MODE == "web":
     # SITE now lives at the top of the file beside EMAIL, so JSON_LD can reach it
     # too. The old domain should 301 here rather than keep serving its stale
     # pre-rebrand build, which is the one part of this that is not a code change.
+    # Release 30 (owner): 155 characters or fewer, same facts as the case pages (A1 2.26M in
+    # six months, Bee Right There 3.8x in three weeks, iComfort 6.8x followers, All Heart ten
+    # spots from one shoot). Also the og:description and the CollectionPage description.
     D1 = (f"{num_word(len(CASES)).capitalize()} home service companies and what changed: "
-          "2.26M views in six months for A1 in Tucson, 3.8x the views for Bee Right There, 6.8x the "
-          "followers for iComfort, ten spots from one shoot for All Heart.")
+          "2.26M views in six months, 3.8x views in three weeks, 6.8x followers and ten spots "
+          "from one shoot.")
+    assert len(D1) <= 155, f"/our-work/ meta description is {len(D1)} characters"
     # The portfolio as structured data: a CollectionPage listing every case page.
     WORK_LD = ('<script type="application/ld+json">' + json.dumps({
         "@context": "https://schema.org", "@type": "CollectionPage",
