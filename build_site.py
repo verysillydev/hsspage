@@ -2653,8 +2653,8 @@ CASES = [
     dict(id="allheart", slug="all-heart", name="All Heart", og="og-allheart.jpg",
          full="All Heart Heating, Cooling &amp; Plumbing",
          vertical="Home services", tag="Campaign",
-         problem="No video library, and no appetite for repeat shoot days.",
-         card_metric="10 spots", card_line="from a single production block",
+         problem="He wanted a campaign his market would not forget.",
+         card_metric="10 spots", card_line="produced in less than a week",
          where="All Heart Heating, Cooling &amp; Plumbing",
          desc="Ten commercial spots written and produced in a single production block on one "
               "premise: the contractor you want versus the contractor you got."),
@@ -2731,10 +2731,13 @@ CSI = {
         "times the audience. It went from 154 posts to 508. Every post was produced to a high "
         "standard and went out on schedule, day after day. That consistency is what turned a "
         "quiet feed into an audience."),
-    "allheart": ("Fill a year of paid and organic inventory for a brand with no library and no "
-                 "appetite for repeat shoot days.",
-                 "Write one comic premise strong enough to sustain ten spots, then shoot the entire "
-                 "campaign in one block so the cost lands once.",
+    # Release 16 (owner copy): the owner's goal, then how it was made.
+    "allheart": ("All Heart&#39;s owner was done with forgettable HVAC ads. He wanted to disrupt his "
+                 "local market. He wanted spots people would remember when it was time to call a "
+                 "contractor.",
+                 "We built the campaign on one comic premise: the contractor you want versus the "
+                 "contractor you got. Then we produced all ten spots in less than a week. The "
+                 "process is repeatable. The next campaign can be made the same way.",
                  "Ten finished spots from a single production, delivered complete and in scope."),
 }
 
