@@ -4,7 +4,7 @@
   python3 build_site.py          -> single self-contained file (Claude artifact)
   python3 build_site.py web      -> deploy/our-work/ with external assets (Vercel)
 """
-import base64, datetime, html as html_lib, json, os, pathlib, re, shutil, sys
+import base64, datetime, html as html_lib, json, os, pathlib, re, shutil, sys, zlib
 
 S = os.path.dirname(os.path.abspath(__file__))
 MODE = "web" if len(sys.argv) > 1 and sys.argv[1] == "web" else "inline"
@@ -576,22 +576,20 @@ CSS = """<style>
      static grid instead, 3 across on phones and 5 across on desktop, which
      both divide the 15 marks evenly; the loop's duplicate set (.dupe) is not
      shown there. Every mark sits on the same 500x200 canvas at equal optical
-     ink area, so one width per breakpoint keeps them visually equal. */
+     ink area, so one width per breakpoint keeps them visually equal in the
+     grids. The marquee shows each mark's ink only (release 26, below). */
   .marquee{overflow:hidden;position:relative;
     -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
     mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);}
-  /* Release 25 (owner), animated marquee only (760px up, motion allowed): the gap is
-     15% under --s7 (48 to 40.8px). The same gap pads the end of the track, so -50% is
-     exactly one set plus one gap and the loop is seamless; before, it landed 24px short
-     and jumped once a lap. logo_marquee() sets the real duration inline from the count
-     (MARQUEE_PX_PER_S); the 60s here is only a fallback. */
-  .marquee{--mq-gap:calc(var(--s7) * .85);}
+  /* animated marquee (760px up): items are ink-wide, see logomark() and logo_marquee() */
   .marquee-track{display:flex;width:max-content;gap:var(--mq-gap);padding-right:var(--mq-gap);
     align-items:center;animation:marq 60s linear infinite;}
   .marquee:hover .marquee-track,.marquee:focus-within .marquee-track{animation-play-state:paused;}
   @keyframes marq{from{transform:translateX(0);}to{transform:translateX(-50%);}}
-  .marquee .logomark{width:150px;flex:none;}
-  @media(min-width:700px){.marquee .logomark{width:190px;}}
+  .marquee .logomark{width:calc(var(--w) * 190px);flex:none;}
+  .marquee .logomark img{width:190px;max-width:none;margin-left:calc(var(--x) * -190px);
+    clip-path:inset(0 calc((1 - var(--x) - var(--w)) * 190px) 0 calc(var(--x) * 190px));
+    transform-origin:calc((var(--x) + var(--w) / 2) * 190px) 50%;}
   /* The static wall (phones, reduced motion) wraps and centres its last row, so
      any number of marks works: CLIENT_LOGOS changes as clients come and go
      (13 after R10, more on the way), and a fixed 3- or 5-column grid left an
@@ -601,6 +599,7 @@ CSS = """<style>
     .marquee-track{animation:none;transform:none;width:auto;display:flex;flex-wrap:wrap;
       justify-content:center;gap:var(--s5);padding-right:0;}
     .marquee .logomark{width:calc((100% - 2 * var(--s5)) / 3);}
+    .marquee .logomark img{width:100%;margin-left:0;clip-path:none;transform-origin:50% 50%;}
     .marquee .dupe{display:none;}
   }
   @media(min-width:760px) and (prefers-reduced-motion:reduce){
@@ -2619,11 +2618,85 @@ assert len({fn for fn, _ in CLIENT_LOGOS}) == len(CLIENT_LOGOS), "a logo is list
 assert not any(re.search(r"hcci", fn) for fn, _ in CLIENT_LOGOS), "HCCI stays off the wall"
 
 
+_INK_ALPHA = bytes(1 if v >= 8 else 0 for v in range(256))   # "ink": alpha 8 and up
+
+
+def logo_ink(fn):
+    """(left, width) of a mark's ink, in pixels of its 500x200 canvas: the first to the
+    last column holding any pixel with alpha 8 or more, read from the PNG master in
+    logos/ (logos_webp/ holds lossless copies with identical pixels). Every master is
+    8-bit RGBA, non-interlaced. PNG filters work per byte with a 4-byte pixel step, so
+    each channel reconstructs on its own; only the alpha bytes are decoded, which keeps
+    this fast enough to run on every build. Used by the marquee (release 26)."""
+    b = pathlib.Path(S, "logos", fn).read_bytes()
+    assert b[:8] == b"\x89PNG\r\n\x1a\n", fn
+    i, idat = 8, []
+    while i < len(b):
+        n = int.from_bytes(b[i:i + 4], "big")
+        kind = b[i + 4:i + 8]
+        if kind == b"IHDR":
+            w, h = int.from_bytes(b[i + 8:i + 12], "big"), int.from_bytes(b[i + 12:i + 16], "big")
+            assert (w, h) == (500, 200) and b[i + 16:i + 19] == b"\x08\x06\x00" and b[i + 20] == 0, \
+                f"{fn}: logo masters must be 500x200 8-bit RGBA, non-interlaced"
+        elif kind == b"IDAT":
+            idat.append(b[i + 8:i + 8 + n])
+        i += 12 + n
+    raw = zlib.decompress(b"".join(idat))
+    row = 1 + 500 * 4
+    prev = bytearray(500)
+    x0, x1 = 500, -1
+    for y in range(200):
+        f = raw[y * row]
+        a = bytearray(raw[y * row + 4:(y + 1) * row:4])   # this row's filtered alpha bytes
+        if f == 1:
+            for k in range(1, 500):
+                a[k] = (a[k] + a[k - 1]) & 255
+        elif f == 2:
+            for k in range(500):
+                a[k] = (a[k] + prev[k]) & 255
+        elif f == 3:
+            a[0] = (a[0] + (prev[0] >> 1)) & 255
+            for k in range(1, 500):
+                a[k] = (a[k] + ((a[k - 1] + prev[k]) >> 1)) & 255
+        elif f == 4:
+            a[0] = (a[0] + prev[0]) & 255
+            for k in range(1, 500):
+                l, u, ul = a[k - 1], prev[k], prev[k - 1]
+                q = l + u - ul
+                pl, pu, pul = abs(q - l), abs(q - u), abs(q - ul)
+                a[k] = (a[k] + (l if pl <= pu and pl <= pul else u if pu <= pul else ul)) & 255
+        hit = bytes(a).translate(_INK_ALPHA)
+        first = hit.find(1)
+        if first >= 0:
+            x0, x1 = min(x0, first), max(x1, hit.rfind(1))
+        prev = a
+    assert x1 >= x0, f"{fn}: no ink"
+    return x0, x1 - x0 + 1
+
+
+LOGO_INK = {fn: logo_ink(fn) for fn, _ in CLIENT_LOGOS}
+
+
+def _frac(v):
+    """v/500 written short: exact to three decimals, no leading zero (0.338 -> .338)."""
+    return f"{v / 500:g}".lstrip("0") or "0"
+
+
 def logomark(fn, name):
     """WebP at the canvas size every mark is rendered onto, with width and height
-    declared so the grid reserves its space before the image arrives."""
+    declared so the grid reserves its space before the image arrives. --x and --w
+    (the ink's left edge and width as fractions of the 500px canvas) let the marquee
+    size the item to the ink alone; the grids ignore them.
+
+    Release 26 (owner), the marquee from 760px with motion allowed. The space between
+    neighbouring logos is equal everywhere. Each item is as wide as its mark's ink at the
+    scale a 500px canvas has at 190px, so no mark changes size or weight. The img stays
+    the full canvas at 190px, shifted left to the ink and clipped to it (clip-path:
+    inset). So the shipped files do not change, hover hit-testing stops at the ink and
+    the hover scale is centred on it. --mq-gap is then the visible ink-to-ink gap."""
     src = asset(os.path.join(S, "logos_webp", fn.replace(".png", ".webp")), "image/webp")
-    return (f'<div class="logomark">'
+    ix, iw = LOGO_INK[fn]
+    return (f'<div class="logomark" style="--x:{_frac(ix)};--w:{_frac(iw)}">'
             f'<img src="{src}" alt="{name}" width="500" height="200" '
             f'loading="lazy" decoding="async"></div>')
 
@@ -3042,29 +3115,39 @@ def site_footer(page=""):
             f'</div></footer>')
 
 
-# Marquee speed (release 25, owner): about 15% faster than the 51.3 px/s it had (162s
-# for 35 marks with a 48px gap). It only runs from 760px, where every mark is 190px wide
-# and the gap is calc(var(--s7) * .85); the asserts keep these numbers in step with the
-# CSS, so a change to either side fails the build instead of changing the speed.
-MARQUEE_MARK_PX = 190
-MARQUEE_GAP_PX = 48 * 0.85
+# Marquee geometry. The marquee only runs from 760px with motion allowed.
+# MARQUEE_SCALE_PX: a full 500px canvas renders 190px wide, so every mark keeps the size
+#   and weight it has had since release 8; the assert ties this to the CSS.
+# MARQUEE_INK_GAP_PX (release 26, owner): the one visible gap between neighbouring inks.
+#   It is the average visible ink-to-ink gap the marquee had before release 26 (110.414px
+#   measured at 1440 across all 36 pairs), so the wall's density is unchanged. It reaches
+#   the CSS as --mq-gap, inline on .marquee, so the two cannot drift.
+# MARQUEE_PX_PER_S (release 25, owner): about 15% faster than the 51.3 px/s it had before.
+MARQUEE_SCALE_PX = 190
+MARQUEE_INK_GAP_PX = 110.4
 MARQUEE_PX_PER_S = 59
-assert "@media(min-width:700px){.marquee .logomark{width:190px;}}" in CSS
-assert ".marquee{--mq-gap:calc(var(--s7) * .85);}" in CSS and "--s7:48px;" in CSS
+assert ".marquee .logomark{width:calc(var(--w) * 190px);flex:none;}" in CSS
+assert ".marquee .logomark img{width:190px;max-width:none;margin-left:calc(var(--x) * -190px);" in CSS
 
 
 def logo_marquee():
     """The client wall as a continuous marquee. The track is duplicated because a
     translateX of -50% only loops seamlessly if the second half repeats the first.
-    The second set is marked .dupe (and hidden from assistive tech), so the static
+    The second set is marked .dupe (and decorative, alt=""), so the static
     grid used on phones and under reduced motion can drop it."""
     marks = "".join(logomark(*c) for c in CLIENT_LOGOS)
-    dupe = (marks.replace('class="logomark"', 'class="logomark dupe"')
-                 .replace('loading="lazy"', 'loading="lazy" aria-hidden="true"'))
-    # One lap is one set of marks plus one gap each, so the duration follows the count
-    # and a wall of any size scrolls at MARQUEE_PX_PER_S.
-    dur = round(len(CLIENT_LOGOS) * (MARQUEE_MARK_PX + MARQUEE_GAP_PX) / MARQUEE_PX_PER_S)
-    return (f'<div class="marquee"><div class="marquee-track" style="animation-duration:{dur}s">'
+    # The repeat set is decorative: alt="" keeps it out of the accessibility tree without
+    # repeating 36 alt texts and aria-hidden in the page (release 26: these bytes paid for
+    # the ink-box styles, so the homepage LCP did not get worse).
+    dupe = re.sub(r'alt="[^"]*"', 'alt=""', marks.replace('class="logomark"', 'class="logomark dupe"'))
+    # One lap is every mark's ink width at MARQUEE_SCALE_PX plus one gap each (the end
+    # padding closes the loop), so the duration comes from the real lap length and a wall
+    # of any size or mix scrolls at MARQUEE_PX_PER_S. The widths use the same exact
+    # fractions logomark() writes, so this is the width the browser lays out.
+    lap = sum(iw / 500 * MARQUEE_SCALE_PX + MARQUEE_INK_GAP_PX for _, iw in LOGO_INK.values())
+    dur = lap / MARQUEE_PX_PER_S
+    return (f'<div class="marquee" style="--mq-gap:{MARQUEE_INK_GAP_PX:g}px">'
+            f'<div class="marquee-track" style="animation-duration:{dur:.1f}s">'
             f'{marks}{dupe}</div></div>')
 
 

@@ -335,14 +335,39 @@ phones' three-column grid, not stacked in the five-column reduced-motion grid; a
 across all three phone columns. **The build asserts all of this**, plus no duplicates and no HCCI,
 so a reorder that breaks a rule fails the build; add a new mascot mark to `LOGO_MASCOTS`. The
 marquee runs only from 760px with motion allowed. **Its speed is set in px per second, not
-seconds (release 25, owner): `MARQUEE_PX_PER_S = 59`.** That is about 15% faster than the 51.3
-px/s it had, and the desktop gap is 15% smaller, `calc(var(--s7) * .85)`, 40.8px instead of
-48px. `logo_marquee()` turns the speed into the inline duration from the count: one lap is one
-set of marks plus one gap each (141s at 36). Build asserts tie `MARQUEE_MARK_PX` and
-`MARQUEE_GAP_PX` to the CSS. The track is padded at its end by one gap, so the -50% loop is
-exactly one lap. Before release 25 it landed 24px short and the wall jumped once a lap. Hover
-still pauses it. Phones and reduced motion keep their own static-grid gaps. The static wall (phones, reduced motion) wraps and centres its last row, so no
-count leaves a corner orphan. The homepage roster cell reads "Our Brands / N / Clients across the
+seconds (release 25, owner): `MARQUEE_PX_PER_S = 59`,** about 15% faster than the 51.3 px/s it
+had before.
+
+**On the marquee the visible gap between neighbouring logos is the same everywhere (release 26,
+owner).** Before, every mark sat in a 190px box with a fixed box-to-box gap, so compact badges
+had wide empty margins and the visible gaps ran from 59 to 159px.
+- **Ink boxes.** `logo_ink()` reads each mark's ink box from its PNG master at build time: the
+  first to the last column with alpha 8 or more. It is pure Python and decodes only the alpha
+  bytes, adding about 0.25s to the build. `logos_webp/` must stay a lossless copy of `logos/`
+  (it is today).
+- **Item size.** Each marquee item is exactly its ink width at the same 190px canvas scale, so
+  no mark changed size or weight. `logomark()` writes `--x` and `--w` inline: the ink's left
+  edge and width as exact fractions of the canvas, written short (`.338`).
+- **Bytes.** The repeat set (`.dupe`) now uses `alt=""` instead of repeating 36 alt texts with
+  `aria-hidden`. That pays for the inline styles: the homepage is 277 bytes heavier than in
+  release 25. The CSS comment is one line, since head CSS ships on every page; the detail lives
+  in the Python docstrings.
+- **Showing only the ink.** The img stays the full canvas at 190px, shifted to the ink and
+  clipped to it with `clip-path: inset()`. The shipped files are unchanged. Hover hit-testing
+  stops at the ink, and the hover scale is centred on the ink.
+- **The gap.** One visible gap, `MARQUEE_INK_GAP_PX = 110.4`, is the average visible gap
+  measured before the change (110.414px at 1440). So the density, the lap length and the speed
+  match release 25. It reaches the CSS as `--mq-gap`, inline on `.marquee`.
+- **Duration and seam.** `logo_marquee()` takes the duration from the real lap: every ink
+  width plus one gap each, 140.8s at 36. The track is padded at its end by one gap, so the -50%
+  loop is exactly one lap. Before release 25 it landed 24px short and jumped once a lap.
+- **Measured at 1440** across all 36 pairs and the wrap: every gap is 110.37 to 110.39px, the
+  seam error is 0 and the speed is 59.0 px/s.
+- **Unchanged.** Hover still pauses the marquee. Phones and reduced motion keep their static
+  grids, and the release-26 rules are reset there (pixel-identical before and after).
+
+The static wall (phones, reduced motion) wraps and centres its last row, so no count leaves a
+corner orphan. The homepage roster cell reads "Our Brands / N / Clients across the
 country", where N is `ROSTER_COUNT` (release 8). It does not say "Home service companies", because
 some marks are not: an agency group, an agency, a business advisor and a sales trainer. Each is a flat silhouette,
 alpha-only shape data on a transparent background, one uniform fill colour, scaled to equal
