@@ -1005,8 +1005,12 @@ paints. It is only emitted when some entry has a teaser.
 
 What is still open:
 
-- **Two crew bios.** `member_card()` renders an optional `bio` field, added 2026-09-03, and an
-  optional `bio_teaser` (release 24, see above). Yoni's has both. His teaser on phones is "Yoni
+- **Crew bios: Yoni and Paloma have one, Sergy does not yet.** `member_card()` renders an
+  optional `bio` field, added 2026-09-03, and an optional `bio_teaser` (release 24, see above).
+  **Paloma's (release 27, owner copy, verbatim, serial commas as written)** starts "Paloma has built
+  her career around why people stop, watch, and engage." and ends "...turns attention into
+  measurable growth." Her phone teaser ends "...and working across countries". Both toggles
+  work on their own. Yoni's bio and teaser are below. His teaser on phones is "Yoni
   learned video where attention is the only currency. He spent a decade". His bio is the
   owner's copy (release 23): he learned video where attention is the only
   currency. He spent a decade in the creator economy, shaping original ideas and monetization
@@ -1017,9 +1021,9 @@ What is still open:
   Never use an exact year count like "seven years".
   **No name-dropping in bios (owner, 2026-10-06)**: no "big names", famous
   clients or celebrity credits, implied or named; the release-21 line about "some of its biggest
-  names" was cut for that reason. Paloma and Sergy have a name and a title only. A card with nothing but
+  names" was cut for that reason. Sergy still has a name and a title only. A card with nothing but
   a name and a title reads as a template waiting for data, which is the thing this whole section
-  is about. One or two sentences each closes it.
+  is about. Adding `bio` and `bio_teaser` to his entry closes it.
 - **Faces on one page out of five.** A visitor going homepage to packages to contact, the most
   likely path, still never sees a person. A crew photo beside the production-day tiers on
   `/packages` would be the literal proof of what those tiers sell.

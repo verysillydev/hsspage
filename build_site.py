@@ -4019,7 +4019,16 @@ TEAM_ROSTER = [
                "creators. In that world, one rule decides everything: if people stop watching, the "
                "money stops. Yoni brings that rule to every video we make for home service brands.",
         "bio_teaser": "Yoni learned video where attention is the only currency. He spent a decade"},
-    {"name": "Paloma Barros", "title": "Social Media Director", "photo": "paloma-barro.jpg"},
+    # Release 27: the owner's exact copy, commas as written (serial commas included).
+    {"name": "Paloma Barros", "title": "Social Media Director", "photo": "paloma-barro.jpg",
+        "bio": "Paloma has built her career around why people stop, watch, and engage. Living, "
+               "studying, and working across countries shaped how she reads audiences, online "
+               "behavior, and brand connection. As Social Media Director at Home Service Studios, "
+               "she blends creative direction, organic social strategy, and performance insights. "
+               "Her work creates content that has earned millions of organic views for clients and "
+               "turns attention into measurable growth.",
+        "bio_teaser": "Paloma has built her career around why people stop, watch, and engage. "
+                      "Living, studying, and working across countries"},
     {"name": "Sergy Olkowski", "title": "Post Production Supervisor", "photo": "sergy-olkowski.jpg"},
 ]
 
