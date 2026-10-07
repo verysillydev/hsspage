@@ -3530,6 +3530,37 @@ def brand_film():
                        "the Quality Heating Cooling Plumbing Electrical brand film")
 
 
+# Block 03's second row (release 32, owner): two more of the owner's own films beside the
+# featured Quality film, as equal smaller players with the same hover-play behaviour.
+# (file in spots/, poster, "m:ss" label checked against the file, caption, play label).
+# Encoded like the spots from the owner's .mov masters (not committed): 1280x720 H.264
+# High@3.1, CRF 23 capped at 1.6 Mbps, AAC 96k, +faststart. Posters are 1024x576 WebP
+# from the masters (a 2-up card is about 524px wide, so 700px would be soft on retina):
+# Gator Wraps at 61.0s (the wrapped truck at their shop), The Family Plumber at 10.25s
+# (eyes open, logo wall). A caption names a city only when the company's own website
+# states it in visible copy: The Family Plumber's does (Los Alamitos). Gator Wraps' lists
+# two shops only in structured data, so its caption has none.
+BRAND_FILMS_MORE = [
+    ("gatorwraps-brand.mp4", f"{P}/gatorwraps-brand.webp", "1:24",
+     "Website film for Gator Wraps.", "the Gator Wraps website film"),
+    ("familyplumber-30.mp4", f"{P}/familyplumber-30.webp", "0:30",
+     "30-second spot for The Family Plumber, Los Alamitos.",
+     "the 30-second spot for The Family Plumber"),
+]
+
+
+def brand_films_more():
+    """Block 03's pair of films under the Quality film, each with its caption."""
+    cells = []
+    for fn, poster_path, du, cap, label in BRAND_FILMS_MORE:
+        media = (vspot_media(fn, du, poster_path, label) if MODE == "web" else
+                 f'<div class="vspot"><img src="{asset(poster_path, "image/webp")}"'
+                 f'{dims(poster_path)} alt="" loading="lazy"></div>')
+        cells.append(f'<div class="wwd-film">{media}<p class="wwd-cap"><span>{cap}</span>'
+                     f'<span class="du">{du}</span></p></div>')
+    return f'<div class="wwd-pair">{"".join(cells)}</div>'
+
+
 # Block 04, podcast production. PODCAST_VIDEO is (file in spots/, poster path,
 # duration label "m:ss"); None renders the block without media, with the caption
 # under the link. The film is the owner's chosen cut of the Service MVP episode
@@ -3692,7 +3723,7 @@ def slate(n):
     its transform attribute (so no JS, no CSS and reduced motion all show it open)."""
     assert re.fullmatch(r"\d\d", n), n
     hx, hy = SLATE_HINGE
-    # size, offset and number type live in SLATE_CSS (homepage only), once, not per slate
+    # size, offset and number type live in HOME_CSS (homepage only), once, not per slate
     return (f'<svg class="slate" viewBox="{_SLATE_VB}" aria-hidden="true" focusable="false">'
             f'<use class="arm" href="#slate-arm" transform="rotate({SLATE_ARM_DEG} {hx} {hy})"/>'
             f'<use href="#slate-body"/><text class="sn" x="{_svgn(_SW / 2)}" '
@@ -3708,9 +3739,9 @@ def slate(n):
 # past -9 degrees can paint above the viewBox. Reduced motion or no
 # IntersectionObserver: nothing runs and the arm rests open. The .wwd-num box keeps the
 # old number's 1em line so the headings do not move; slate() sizes and offsets the svg.
-# The slate rules ship on the homepage only (release 29): CSS is inline in every page's
-# head and render-blocking, so other pages should not pay for them.
-SLATE_CSS = f"""<style>
+# Homepage-only styles (release 29 slates, release 32 film pair): CSS is inline in every
+# page's head and render-blocking, so other pages should not pay for them.
+HOME_CSS = f"""<style>
   .wwd-num .slate{{display:block;width:auto;overflow:visible;{_SLATE_STYLE}}}
   .slate .sn{{font:900 64px {_SLATE_FONT};letter-spacing:{_svgn(-0.02 * 64)}px;fill:#FFFFFF;
     text-anchor:middle;}}
@@ -3722,6 +3753,9 @@ SLATE_CSS = f"""<style>
     30%{{transform:rotate(0deg);animation-timing-function:cubic-bezier(.2,.8,.3,1);}}
     78%{{transform:rotate(-10.5deg);animation-timing-function:ease-in-out;}}
     100%{{transform:rotate(-9deg);}}}}
+  .wwd-pair{{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s6);margin-top:var(--s6);}}
+  .wwd-pair .wwd-film{{margin-top:0;}}
+  @media(min-width:760px){{.wwd-pair{{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s5);}}}}
 </style>"""
 CLAP_JS = """<script>
 (function(){
@@ -3742,7 +3776,7 @@ CLAP_JS = """<script>
 HOME_HTML = f"""<title>Home Service Studios</title>
 {FONT_CSS}
 {CSS}
-{SLATE_CSS}
+{HOME_CSS}
 <a class="skip" href="#main">Skip to content</a>
 {nav("home")}
 
@@ -3832,6 +3866,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <p class="wwd-cap"><span>Brand film for Quality Heating Cooling Plumbing Electrical, Tulsa.</span>
     <span class="du">1:44</span></p>
     </div>
+    {brand_films_more()}
   </div>
 
   <div class="wwd-block">

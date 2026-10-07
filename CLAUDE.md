@@ -137,7 +137,8 @@ attribute, which loads eagerly and cannot come back after playback). Every film'
 checked against its file there, and `mp4_info()` refuses one that is not faststart. **A page load fetches no video at all** (verified per release);
 keep it that way.
 
-The files are `spots/` (committed, about 54 MB): `ah01`-`ah10` in the order of the `allheart`
+The files are `spots/` (committed; about 124 MB in all since release 32 added
+`gatorwraps-brand.mp4`, 15.2 MB, and `familyplumber-30.mp4`, 4.7 MB): `ah01`-`ah10` in the order of the `allheart`
 list, and `hd01 hd02 hd03 hd05 hd06`, which keep the original six-spot numbering (there is no
 `hd04`: Father Vs AC was removed in R17 and must not return), plus `quality-brand.mp4` (release 8,
 20.9 MB, 1:44): the Quality Heating Cooling Plumbing Electrical brand film **cut from 1:14 to the
@@ -147,7 +148,11 @@ poster key. The web build copies a file to `/our-work/a/` only when a card uses 
 refuses a spot whose duration does not match its card label, one that is not faststart (moov must
 come before mdat: re-encode with `-movflags +faststart`), two cards sharing a file, a page with
 spot cards but no `SOLO_JS`, and any YouTube spot card left in the web build. To add a spot:
-encode the same way, put it in `spots/`, name it in the list with its YouTube id. Every full play
+encode the same way, put it in `spots/`, name it in the list with its YouTube id. Release 32
+encoded from the owner's own .mov masters (kept in Downloads, never committed): 1280x720 H.264
+High@3.1, `-crf 23 -maxrate 1600k -bufsize 3200k -preset slow`, bt709 tags, AAC 96k 44.1 kHz,
+`-movflags +faststart`, timecode track dropped. Posters for two-across players are 1024x576 WebP
+(cwebp -q 80), taken from the masters at a checked frame (no blink, no fade). Every full play
 costs the visitor (and the host) 1.4 to 7.2 MB.
 
 The inline artifact build (`python3 build_site.py`) cannot carry the films under its 16MB cap, so
@@ -281,7 +286,16 @@ dropped its "followers / following" line), resized to
   (`HOME_SPOTS`).
 - **03 Brand videos.** "Watch the full film" (YouTube, new tab), then the Quality brand film at full
   width (`brand_film()`, see Video), captioned "Brand film for Quality Heating Cooling Plumbing
-  Electrical, Tulsa." with 1:44.
+  Electrical, Tulsa." with 1:44. **Since release 32 (owner) two more films sit under it**
+  (`BRAND_FILMS_MORE`, `brand_films_more()`): Gator Wraps' website film (1:24) and The Family
+  Plumber's 30-second spot (0:30). They are equal hover-play players in `.wwd-pair`, two columns
+  from 760px and stacked on phones; two across at 390 would make each about 159px wide. They use
+  the same one-at-a-time behaviour. Captions are "Website film for Gator Wraps." and "30-second
+  spot for The Family Plumber, Los Alamitos.". A caption names a city only when the company's own
+  website states it in visible copy. The Family Plumber's does. Gator Wraps' lists two shops
+  (Ontario, CA and Lake Havasu City, AZ) only in structured data, so its caption has none. The
+  logo manifest's "Las Vegas, NV" for Gator Wraps is not backed by their site. The pair's CSS is
+  in `HOME_CSS` (homepage only, renamed from `SLATE_CSS`).
 - **04 Podcast production.** "Watch the full episode" (YouTube `WoQBaTu2K28`, new tab), the
   small line "Set build, production and post.", then the podcast film, hover-play at full width,
   captioned "Service MVP Sales Training Podcast with Joe Crisara." with 3:24. **The media is one
