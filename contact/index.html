@@ -1606,7 +1606,8 @@
      /our-work links here). Only known values count, each mapped to a fixed sentence;
      anything else in the address is ignored, and the text goes in through .value, so
      nothing from the URL ever reaches the page. Only into an empty field. */
-  var PREFILL = {'handyman-dan': "I'd like to run the Handyman Dan campaign in my market."};
+  var PREFILL = {'handyman-dan': "I'd like to run the Handyman Dan campaign in my market.",
+                 'brand-video': "I'd like a brand video for my company."};
   try {
     var want = new URLSearchParams(location.search).get('campaign');
     var note = document.getElementById('f-message');
