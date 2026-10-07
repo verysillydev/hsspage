@@ -468,7 +468,9 @@ wrong buyer on purpose. The words "short form" in it are load bearing, see below
 
 Short sentences. The owner dislikes run-on sentences (2026-10-06): one idea per sentence, split
 anything joined by a semicolon or a chain of commas. (First applied to the Bee Right There case
-page, R22.)
+page, R22.) **No semicolons in body copy (owner, release 30).** Release 30 rewrote the homepage
+intro, Craig's bio, seven `/packages` lines and the `/contact` intros to that rule, word for word as
+the owner supplied them.
 
 **The offering is called "Social Media Packages"** (title case, a product name; release 8, owner).
 Never "monthly packages", "monthly programs" or "retainers" in copy, tags, chips, eyebrows,
@@ -509,9 +511,10 @@ library that keeps working" inside the block about what *short form* does, which
 engines collapsing back into one. It is now "Proof you are still around", which is a real short
 form benefit: the volume is what someone sees when they look you up before calling.
 
-**"Intent rather than attention" is the shared phrase**; it appears on `/packages` (Engine 02)
-(and was in the homepage packages lede until release 8 removed that section), so the pages
-describe the same mechanism in the same words. Engine 2 is also what Platinum adds on top of Gold, so do not cut it.
+**"Intent, not attention" is the shared idea.** Since release 30 `/packages` Engine 02 opens
+"Made for intent, not attention." (owner copy, short sentences). It was also in the homepage
+packages lede until release 8 removed that section. Keep the pages describing the same mechanism
+in the same words. Engine 2 is also what Platinum adds on top of Gold, so do not cut it.
 
 Never pin the pitch to one buying trigger. An earlier draft said recognition matters "when the
 unit dies", which pigeonholed the whole site as HVAC and technician facing. Name several triggers

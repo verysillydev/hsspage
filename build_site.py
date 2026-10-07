@@ -80,8 +80,8 @@ REASSURE_VARIANTS = {
                 "someone here who has looked at your market."),
     # /packages calls reassure() twice, once at the top and once under the terms
     # grid, so the second needs its own line or the page repeats itself to itself.
-    "packages-terms": ("Still six questions, still under a minute. A person answers within "
-                       "one business day, and tells you which program actually fits."),
+    "packages-terms": ("Six questions, under a minute. A person answers within one business "
+                       "day and tells you which package fits."),
 }
 
 # Feather "user", stands in for a headshot on /team/ until real photos exist.
@@ -3251,12 +3251,12 @@ ENGINE_LONG = ('<svg class="edia" viewBox="0 0 300 92" role="img" aria-label="A 
 # Terms (N2, 2026-10-06): one <details> per term, so on a phone the grid folds to
 # eight 44px rows a buyer opens as needed. They render open, and TERMS_JS closes
 # them only below 760px, right after the grid is parsed, so desktop and no-JS
-# visitors see every term as before. Wording unchanged.
+# visitors see every term as before. Release 30: owner rewrote two terms in short sentences.
 TERMS = [
-    ("Starting and stopping", "There is no setup fee. When you want out, we ask for 30 days "
-     "notice and one final payment, so the shortest a package runs is two months."),
+    ("Starting and stopping", "There is no setup fee. To stop, give us 30 days notice and make "
+     "one final payment. That makes the shortest package two months."),
     ("Ad budget", "From Starter up, each package includes the monthly ad budget shown on its card, "
-     "which our team manages for you. It goes behind your own content; it is not a promise of "
+     "which our team manages for you. It goes behind your own content. It is not a promise of "
      "leads."),
     ("Insurance", "We are insured. If your office needs paperwork on file before a crew is on your "
      "property or a job site, ask and we will send it over."),
@@ -3287,7 +3287,7 @@ ONBOARDING = "\n".join(
     for i, t in enumerate(["Strategy kickoff", "Agreement signed and first payment",
                            "Content collection and scheduling", "Production day",
                            "Post-production", "First post live"], 1))
-ONBOARDING_NOTE = ("Timing depends on our production calendar when you sign up; we confirm "
+ONBOARDING_NOTE = ("Timing depends on our production calendar when you sign up. We confirm "
                    "your dates on the kickoff call.")
 
 PACKAGES_HTML = f"""<title>Social Media Packages</title>
@@ -3300,9 +3300,9 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
 <div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
   <p class="eyebrow">Social Media Packages &middot; Home Service Studios</p>
   <h1 class="display">Known and trusted <span class="hl">before they need you.</span></h1>
-  <p class="sub">Homeowners call the company they already recognize, and that recognition is built
-  over months, not in a month. <strong>It only works if it actually runs</strong>, and these
-  packages make it run without landing on your desk.</p>
+  <p class="sub">Homeowners call the company they already recognize. That recognition is built
+  over months, not in a month. <strong>It only works if it actually runs.</strong> These packages
+  keep it running without landing on your desk.</p>
   <div class="ctarow">
     {book("Social%20Media%20Packages")}
     <a class="cta ghost" href="/our-work/">See the work first</a>
@@ -3327,8 +3327,8 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
         <p>Someone who has already watched your team work starts the visit past the part where
         they size you up.</p></div>
       <div class="benefit"><span class="bn">04</span><h3>Proof you are still around</h3>
-        <p>Everyone looks you up before they call. A feed with two years behind it reads as busy
-        and still here; one that stopped in 2023 reads as the opposite.</p></div>
+        <p>Everyone looks you up before they call. A feed with two years behind it says you are
+        busy and still here. One that stopped in 2023 says the opposite.</p></div>
     </div>
   </div>
 
@@ -3352,10 +3352,9 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
         <span class="etag">Engine 02 &middot; Long form</span>
         <h3>Intent</h3>
         {ENGINE_LONG}
-        <p>Made for intent rather than attention, aimed at someone already searching for what you
-        sell. Slower to start, it does produce trackable inbound, and <strong>unlike short form it
-        does not expire</strong>: a video made for search keeps getting found years after it is
-        posted.</p>
+        <p>Made for intent, not attention. It reaches someone already searching for what you sell.
+        It is slower to start, but it produces trackable inbound. <strong>Unlike short form, it
+        does not expire.</strong> A video made for search keeps getting found for years.</p>
         <span class="ewhere">Platinum only</span>
       </div>
     </div>
