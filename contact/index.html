@@ -208,10 +208,11 @@
   .rv{opacity:0;transform:translateY(16px);}
   .rv-in{opacity:1;transform:none;
     transition:opacity .4s cubic-bezier(.16,1,.3,1),transform .4s cubic-bezier(.16,1,.3,1);}
-  /* mobile reduces rather than replicates: shorter travel, shorter duration */
+  /* mobile reduces rather than replicates: shorter travel, shorter duration
+     (.rv-in restates transform:none or this .rv wins, see CLAUDE.md Motion) */
   @media(max-width:700px){
     .rv{transform:translateY(10px);}
-    .rv-in{transition-duration:.3s;}
+    .rv-in{transform:none;transition-duration:.3s;}
   }
   /* The four "what you are actually buying" cards get a longer, more visible
      travel than the generic reveal so they read as sliding into frame rather
@@ -227,7 +228,8 @@
      itself at the same compound specificity to actually win. */
   .benefit.rv,.step2.rv{transform:translateY(48px);}
   .benefit.rv-in,.step2.rv-in{transform:none;transition-duration:.5s;}
-  @media(max-width:700px){.benefit.rv,.step2.rv{transform:translateY(30px);}}
+  @media(max-width:700px){.benefit.rv,.step2.rv{transform:translateY(30px);}
+    .benefit.rv-in,.step2.rv-in{transform:none;}}
 
   /* the one deliberate entrance above the fold. It runs on the stat cards only,
      never on the hero paragraph, which is the LCP element on most pages. */
@@ -795,8 +797,7 @@
   .wwd-block:first-of-type{padding-top:0;}
   .wwd-block:last-child{padding-bottom:0;}
   .wwd-block + .wwd-block{border-top:1px solid var(--line);}
-  .wwd-num{margin:0;font-family:var(--display);font-weight:900;font-size:var(--f-mega);
-    line-height:1;letter-spacing:-.02em;color:var(--orange-text);font-variant-numeric:tabular-nums;}
+  .wwd-num{margin:0;font-size:var(--f-mega);line-height:1;height:1em;}
   .wwd-title{margin:var(--s3) 0 0;font-family:var(--display);font-weight:700;font-size:var(--f-h2);
     line-height:1.15;letter-spacing:var(--t-head);color:var(--ink);}
   .wwd-copy{margin:var(--s3) 0 0;font-size:var(--f-lede);line-height:1.55;color:var(--ink-2);

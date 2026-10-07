@@ -209,10 +209,11 @@
   .rv{opacity:0;transform:translateY(16px);}
   .rv-in{opacity:1;transform:none;
     transition:opacity .4s cubic-bezier(.16,1,.3,1),transform .4s cubic-bezier(.16,1,.3,1);}
-  /* mobile reduces rather than replicates: shorter travel, shorter duration */
+  /* mobile reduces rather than replicates: shorter travel, shorter duration
+     (.rv-in restates transform:none or this .rv wins, see CLAUDE.md Motion) */
   @media(max-width:700px){
     .rv{transform:translateY(10px);}
-    .rv-in{transition-duration:.3s;}
+    .rv-in{transform:none;transition-duration:.3s;}
   }
   /* The four "what you are actually buying" cards get a longer, more visible
      travel than the generic reveal so they read as sliding into frame rather
@@ -228,7 +229,8 @@
      itself at the same compound specificity to actually win. */
   .benefit.rv,.step2.rv{transform:translateY(48px);}
   .benefit.rv-in,.step2.rv-in{transform:none;transition-duration:.5s;}
-  @media(max-width:700px){.benefit.rv,.step2.rv{transform:translateY(30px);}}
+  @media(max-width:700px){.benefit.rv,.step2.rv{transform:translateY(30px);}
+    .benefit.rv-in,.step2.rv-in{transform:none;}}
 
   /* the one deliberate entrance above the fold. It runs on the stat cards only,
      never on the hero paragraph, which is the LCP element on most pages. */
@@ -796,8 +798,7 @@
   .wwd-block:first-of-type{padding-top:0;}
   .wwd-block:last-child{padding-bottom:0;}
   .wwd-block + .wwd-block{border-top:1px solid var(--line);}
-  .wwd-num{margin:0;font-family:var(--display);font-weight:900;font-size:var(--f-mega);
-    line-height:1;letter-spacing:-.02em;color:var(--orange-text);font-variant-numeric:tabular-nums;}
+  .wwd-num{margin:0;font-size:var(--f-mega);line-height:1;height:1em;}
   .wwd-title{margin:var(--s3) 0 0;font-family:var(--display);font-weight:700;font-size:var(--f-h2);
     line-height:1.15;letter-spacing:var(--t-head);color:var(--ink);}
   .wwd-copy{margin:var(--s3) 0 0;font-size:var(--f-lede);line-height:1.55;color:var(--ink-2);
@@ -1366,6 +1367,19 @@
     margin-top:var(--s7);padding-top:var(--s4);border-top:1px solid var(--line);}
   footer .foot-meta p{font-size:var(--f-sm);color:var(--ink-3);}
 </style>
+<style>
+  .wwd-num .slate{display:block;width:auto;overflow:visible;height:1.0268em;position:relative;top:-.1668em;left:-.0213em}
+  .slate .sn{font:900 64px Archivo, 'Arial Black', Arial, sans-serif;letter-spacing:-1.28px;fill:#FFFFFF;
+    text-anchor:middle;}
+  .slate-defs{position:absolute;width:0;height:0;overflow:hidden;}
+  .slate.is-clap .arm{transform-box:view-box;transform-origin:2px 14px;
+    animation:slate-clap .45s both;}
+  @keyframes slate-clap{
+    0%{transform:rotate(-9deg);animation-timing-function:cubic-bezier(.55,0,1,.45);}
+    30%{transform:rotate(0deg);animation-timing-function:cubic-bezier(.2,.8,.3,1);}
+    78%{transform:rotate(-10.5deg);animation-timing-function:ease-in-out;}
+    100%{transform:rotate(-9deg);}}
+</style>
 <a class="skip" href="#main">Skip to content</a>
 <nav class="nav" id="nav" aria-label="Primary"><div class="wrap navin"><a class="brand" href="/"><img class="brandmark" src="/our-work/a/nav_mark_hss.webp" alt="" width="174" height="84">Home Service Studios</a><div class="navright"><button type="button" class="navtoggle" id="navtoggle" aria-expanded="false" aria-controls="navlinks" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="navlinks" id="navlinks"><a href="/our-work/">Work</a><a href="/packages/">Packages</a><a href="/team/">Team</a><a href="/contact/" class="navsecondary">Contact</a></div><a class="navcta" href="/contact/#start"><span class="ctalong">Start a project</span><span class="ctashort">Contact</span></a></div></div></nav><div class="navspacer"></div>
 
@@ -1414,12 +1428,13 @@
 </div></section>
 
 <section id="what-we-do" class="wwd"><div class="wrap">
+  <svg class="slate-defs" aria-hidden="true" focusable="false"><defs><g id="slate-arm"><clipPath id="slate-ca"><rect y="1" width="136" height="13" rx="2"/></clipPath><g clip-path="url(#slate-ca)"><rect y="1" width="136" height="13" fill="#FFFFFF"/><path d="M-32 14L-16 14L-24.06 1L-40.06 1ZM0 14L16 14L7.94 1L-8.06 1ZM32 14L48 14L39.94 1L23.94 1ZM64 14L80 14L71.94 1L55.94 1ZM96 14L112 14L103.94 1L87.94 1ZM128 14L144 14L135.94 1L119.94 1ZM160 14L176 14L167.94 1L151.94 1Z" fill="#F04820"/></g><rect x="0.5" y="1.5" width="135" height="12" rx="2" fill="none" stroke="#1E2226" stroke-width="1"/></g><g id="slate-body"><clipPath id="slate-cl"><rect y="15.6" width="136" height="13" rx="2"/></clipPath><g clip-path="url(#slate-cl)"><rect y="15.6" width="136" height="13" fill="#FFFFFF"/><path d="M-40.06 28.6L-24.06 28.6L-16 15.6L-32 15.6ZM-8.06 28.6L7.94 28.6L16 15.6L0 15.6ZM23.94 28.6L39.94 28.6L48 15.6L32 15.6ZM55.94 28.6L71.94 28.6L80 15.6L64 15.6ZM87.94 28.6L103.94 28.6L112 15.6L96 15.6ZM119.94 28.6L135.94 28.6L144 15.6L128 15.6ZM151.94 28.6L167.94 28.6L176 15.6L160 15.6Z" fill="#F04820"/></g><rect x="0.5" y="16.1" width="135" height="12" rx="2" fill="none" stroke="#1E2226" stroke-width="1"/><rect y="30.2" width="136" height="75" rx="3" fill="#1E2226"/><path d="M24 36.2V99.2M112 36.2V99.2M6 46.7H130" stroke="#4B535B" stroke-width="1.1" fill="none"/><g text-anchor="middle" font-family="Archivo, 'Arial Black', Arial, sans-serif" font-weight="700" font-size="7.4" letter-spacing="0.44" fill="#C9CDD2"><text x="12" y="41.8">ROLL</text><text x="68" y="41.8">SCENE</text><text x="124" y="41.8">TAKE</text></g><circle cx="5.6" cy="14.8" r="2.8" fill="#9AA3AB"/></g></defs></svg>
   <div class="sec-head">
     <h2 class="display">What We Do</h2>
   </div>
 
   <div class="wwd-block">
-    <p class="wwd-num" aria-hidden="true">01</p>
+    <p class="wwd-num" aria-hidden="true"><svg class="slate" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true" focusable="false"><use class="arm" href="#slate-arm" transform="rotate(-9 2 14)"/><use href="#slate-body"/><text class="sn" x="68" y="98.35">01</text></svg></p>
     <h3 class="wwd-title">Social Media Packages</h3>
     <p class="wwd-copy">A reel every weekday and graphics every weekend, planned and posted for
     you. Here is what that looks like on three client accounts.</p>
@@ -1435,7 +1450,7 @@
   </div>
 
   <div class="wwd-block">
-    <p class="wwd-num" aria-hidden="true">02</p>
+    <p class="wwd-num" aria-hidden="true"><svg class="slate" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true" focusable="false"><use class="arm" href="#slate-arm" transform="rotate(-9 2 14)"/><use href="#slate-body"/><text class="sn" x="68" y="98.35">02</text></svg></p>
     <h3 class="wwd-title">Commercial shoots</h3>
     <p class="wwd-copy">Spots built on one strong idea. Shot in a single production block, so the
     cost lands once.</p>
@@ -1448,7 +1463,7 @@
   </div>
 
   <div class="wwd-block">
-    <p class="wwd-num" aria-hidden="true">03</p>
+    <p class="wwd-num" aria-hidden="true"><svg class="slate" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true" focusable="false"><use class="arm" href="#slate-arm" transform="rotate(-9 2 14)"/><use href="#slate-body"/><text class="sn" x="68" y="98.35">03</text></svg></p>
     <h3 class="wwd-title">Brand videos</h3>
     <p class="wwd-copy">A film that tells your company&#39;s story. Made for your homepage, your
     YouTube and your hiring.</p>
@@ -1461,7 +1476,7 @@
   </div>
 
   <div class="wwd-block">
-    <p class="wwd-num" aria-hidden="true">04</p>
+    <p class="wwd-num" aria-hidden="true"><svg class="slate" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true" focusable="false"><use class="arm" href="#slate-arm" transform="rotate(-9 2 14)"/><use href="#slate-body"/><text class="sn" x="68" y="98.35">04</text></svg></p>
     <h3 class="wwd-title">Podcast production</h3>
     <p class="wwd-copy">We build the set, run the shoot and handle the edit. You show up and
     talk.</p>
@@ -1933,6 +1948,20 @@
      rest of the banner's ambient-play logic, not here. The homepage hero is
      self-hosted since release 10 (HERO_JS) and has no push in. */
 
+})();
+</script>
+<script>
+(function(){
+  if(!('IntersectionObserver' in window)) return;
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting) return;
+      io.unobserve(e.target);                       /* once per slate per load */
+      e.target.classList.add('is-clap');
+    });
+  }, {threshold: 0.6});
+  [].forEach.call(document.querySelectorAll('.wwd-num .slate'), function(s){ io.observe(s); });
 })();
 </script>
 <script>
