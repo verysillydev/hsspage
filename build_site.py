@@ -2860,8 +2860,8 @@ CASE_PAGE = {
         tag="290 to 1,970 followers, no ads.",
         lede="iComfort Heating and Air has served the San Fernando Valley since 2004. "
              "In March 2024 their Instagram had 290 followers and looked quiet. A year of daily "
-             "posts later <strong>it had 1,970 followers, all organic</strong>, a library of 354 "
-             "new posts, and a technician whose heat pump explainer reached 150,282 views. "
+             "posts later <strong>it had 1,970 followers, all organic</strong>, and a library of "
+             "354 new posts. "
              "Today, 3,127 people follow the account, more than ten times where it started.",
         ops=ops([("3,127", "Instagram followers today, up from 290"),
                  ("6.8x", "Followers in the first year, all organic"),
@@ -2871,16 +2871,12 @@ CASE_PAGE = {
             "First year: 354 new posts, 6.8 times the followers.",
             ("27 Mar 2024", "11 Mar 2025", "6 Oct 2026"),
             [("Posts", 154, 508, 1085, "+354"),
-             ("Instagram followers", 290, 1970, 3127, "6.8x")])
-            + '\n  <h3 class="subhead">Five TikToks, Jul 2024 to Jan 2025</h3>\n  '
-            + ops([("150,282", "TikTok views"), ("49,380", "TikTok views"),
-                   ("28,327", "TikTok views"), ("20,431", "TikTok views"),
-                   ("16,518", "TikTok views")]),
+             ("Instagram followers", 290, 1970, 3127, "6.8x")]),
         close="A twenty-year-old family business now looks like what it is, busy, expert and "
               "still here, to anyone who checks before they call. 3,127 people now follow their "
               "trucks and techs, and when a system fails, iComfort is the name they have been "
               "watching.",
-        source="Figures from the account&#39;s own Instagram and TikTok, 27&nbsp;Mar&nbsp;2024 to "
+        source="Figures from the account&#39;s own Instagram, 27&nbsp;Mar&nbsp;2024 to "
                "11&nbsp;Mar&nbsp;2025; current count from the public profile, 6&nbsp;Oct&nbsp;2026. "
                "Impressions figure from the account owner, 6&nbsp;Oct&nbsp;2026."),
     "allheart": dict(
