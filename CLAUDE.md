@@ -1098,20 +1098,26 @@ styled as a link: `--orange-text`, underlined, 5.9:1 on white. A `::after` gives
 hit area without touching the line box, and it has the site's orange focus ring. After Show less,
 `BIO_JS` scrolls the card back under the fixed nav if its top went above it. After Read more, it
 scrolls just enough to keep the button above the action bar. From 760px, and without JS, the
-whole bio shows and there is no button. Without a teaser there is no button either. To give
-Paloma or Sergy the same, add `bio` and `bio_teaser` to their entries; nothing else changes.
+whole bio shows and there is no button. Without a teaser there is no button either. All three
+crew entries carry both fields since release 33. A new crew member gets the same by adding `bio`
+and `bio_teaser` to their entry; nothing else changes.
 `BIO_JS` is inlined right after the roster, so the collapse lands before that part of the page
 paints. It is only emitted when some entry has a teaser.
 
 What is still open:
 
-- **Crew bios: Yoni and Paloma have one, Sergy does not yet.** `member_card()` renders an
+- **Crew bios: all three crew have one (closed in release 33).** `member_card()` renders an
   optional `bio` field, added 2026-09-03, and an optional `bio_teaser` (release 24, see above).
   **Paloma's (release 33, owner copy, verbatim, his commas and wording; it replaces the release-27
   bio)** starts "Paloma's approach to social media is rooted in understanding people." and ends
   "...built stronger connections between brands and their audiences." The source uses plain ASCII
-  apostrophes. Her phone teaser ends "...What captures their attention". Both toggles
-  work on their own. Yoni's bio and teaser are below. His teaser on phones is "Yoni
+  apostrophes. Her phone teaser ends "...What captures their attention".
+  **Sergy's (release 33, owner copy, verbatim, his first bio)** is "Sergy lives where raw
+  footage becomes a finished story. With a background in editing, motion design, and 3D
+  animation, Sergy builds the custom tools and workflows that keep production fast without
+  cutting corners." His phone teaser ends "...With a background in editing". All three toggles
+  work on their own. The bios differ in length; the desktop row stays aligned because names and
+  roles sit at the same height and only the bio text below them varies. Yoni's bio and teaser are below. His teaser on phones is "Yoni
   learned video where attention is the only currency. He spent a decade". His bio is the
   owner's copy (release 23): he learned video where attention is the only
   currency. He spent a decade in the creator economy, shaping original ideas and monetization
@@ -1122,9 +1128,8 @@ What is still open:
   Never use an exact year count like "seven years".
   **No name-dropping in bios (owner, 2026-10-06)**: no "big names", famous
   clients or celebrity credits, implied or named; the release-21 line about "some of its biggest
-  names" was cut for that reason. Sergy still has a name and a title only. A card with nothing but
-  a name and a title reads as a template waiting for data, which is the thing this whole section
-  is about. Adding `bio` and `bio_teaser` to his entry closes it.
+  names" was cut for that reason. Until release 33 Sergy had a name and a title only, and a card
+  like that reads as a template waiting for data. His bio closed that gap.
 - **Faces on one page out of five.** A visitor going homepage to packages to contact, the most
   likely path, still never sees a person. A crew photo beside the production-day tiers on
   `/packages` would be the literal proof of what those tiers sell.

@@ -4227,7 +4227,14 @@ TEAM_ROSTER = [
                "brands and their audiences.",
         "bio_teaser": "Paloma's approach to social media is rooted in understanding people. "
                       "What captures their attention"},
-    {"name": "Sergy Olkowski", "title": "Post Production Supervisor", "photo": "sergy-olkowski.jpg"},
+    # Release 33: the owner's exact copy, verbatim (his first bio; until now the card had a
+    # name and a title only). Plain ASCII.
+    {"name": "Sergy Olkowski", "title": "Post Production Supervisor", "photo": "sergy-olkowski.jpg",
+        "bio": "Sergy lives where raw footage becomes a finished story. With a background in "
+               "editing, motion design, and 3D animation, Sergy builds the custom tools and "
+               "workflows that keep production fast without cutting corners.",
+        "bio_teaser": "Sergy lives where raw footage becomes a finished story. With a background "
+                      "in editing"},
 ]
 
 
