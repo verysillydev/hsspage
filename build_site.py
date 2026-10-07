@@ -580,8 +580,14 @@ CSS = """<style>
   .marquee{overflow:hidden;position:relative;
     -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
     mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);}
-  .marquee-track{display:flex;width:max-content;gap:var(--s7);align-items:center;
-    animation:marq 60s linear infinite;}
+  /* Release 25 (owner), animated marquee only (760px up, motion allowed): the gap is
+     15% under --s7 (48 to 40.8px). The same gap pads the end of the track, so -50% is
+     exactly one set plus one gap and the loop is seamless; before, it landed 24px short
+     and jumped once a lap. logo_marquee() sets the real duration inline from the count
+     (MARQUEE_PX_PER_S); the 60s here is only a fallback. */
+  .marquee{--mq-gap:calc(var(--s7) * .85);}
+  .marquee-track{display:flex;width:max-content;gap:var(--mq-gap);padding-right:var(--mq-gap);
+    align-items:center;animation:marq 60s linear infinite;}
   .marquee:hover .marquee-track,.marquee:focus-within .marquee-track{animation-play-state:paused;}
   @keyframes marq{from{transform:translateX(0);}to{transform:translateX(-50%);}}
   .marquee .logomark{width:150px;flex:none;}
@@ -593,7 +599,7 @@ CSS = """<style>
   @media(max-width:759px),(prefers-reduced-motion:reduce){
     .marquee{-webkit-mask-image:none;mask-image:none;}
     .marquee-track{animation:none;transform:none;width:auto;display:flex;flex-wrap:wrap;
-      justify-content:center;gap:var(--s5);}
+      justify-content:center;gap:var(--s5);padding-right:0;}
     .marquee .logomark{width:calc((100% - 2 * var(--s5)) / 3);}
     .marquee .dupe{display:none;}
   }
@@ -3032,6 +3038,17 @@ def site_footer(page=""):
             f'</div></footer>')
 
 
+# Marquee speed (release 25, owner): about 15% faster than the 51.3 px/s it had (162s
+# for 35 marks with a 48px gap). It only runs from 760px, where every mark is 190px wide
+# and the gap is calc(var(--s7) * .85); the asserts keep these numbers in step with the
+# CSS, so a change to either side fails the build instead of changing the speed.
+MARQUEE_MARK_PX = 190
+MARQUEE_GAP_PX = 48 * 0.85
+MARQUEE_PX_PER_S = 59
+assert "@media(min-width:700px){.marquee .logomark{width:190px;}}" in CSS
+assert ".marquee{--mq-gap:calc(var(--s7) * .85);}" in CSS and "--s7:48px;" in CSS
+
+
 def logo_marquee():
     """The client wall as a continuous marquee. The track is duplicated because a
     translateX of -50% only loops seamlessly if the second half repeats the first.
@@ -3040,9 +3057,9 @@ def logo_marquee():
     marks = "".join(logomark(*c) for c in CLIENT_LOGOS)
     dupe = (marks.replace('class="logomark"', 'class="logomark dupe"')
                  .replace('loading="lazy"', 'loading="lazy" aria-hidden="true"'))
-    # The loop length grows with the wall, so the duration does too: about 4.6s per
-    # mark keeps the scroll at the speed it had with 13 marks over 60s.
-    dur = round(len(CLIENT_LOGOS) * 60 / 13)
+    # One lap is one set of marks plus one gap each, so the duration follows the count
+    # and a wall of any size scrolls at MARQUEE_PX_PER_S.
+    dur = round(len(CLIENT_LOGOS) * (MARQUEE_MARK_PX + MARQUEE_GAP_PX) / MARQUEE_PX_PER_S)
     return (f'<div class="marquee"><div class="marquee-track" style="animation-duration:{dur}s">'
             f'{marks}{dupe}</div></div>')
 

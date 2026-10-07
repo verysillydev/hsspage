@@ -329,8 +329,14 @@ each other: not in the marquee (including where it loops), not beside or above o
 phones' three-column grid, not stacked in the five-column reduced-motion grid; and they spread
 across all three phone columns. **The build asserts all of this**, plus no duplicates and no HCCI,
 so a reorder that breaks a rule fails the build; add a new mascot mark to `LOGO_MASCOTS`. The
-marquee's duration scales with the count (about 4.6s per mark) so a longer wall scrolls at the
-same calm speed. The static wall (phones, reduced motion) wraps and centres its last row, so no
+marquee runs only from 760px with motion allowed. **Its speed is set in px per second, not
+seconds (release 25, owner): `MARQUEE_PX_PER_S = 59`.** That is about 15% faster than the 51.3
+px/s it had, and the desktop gap is 15% smaller, `calc(var(--s7) * .85)`, 40.8px instead of
+48px. `logo_marquee()` turns the speed into the inline duration from the count: one lap is one
+set of marks plus one gap each (137s at 35). Build asserts tie `MARQUEE_MARK_PX` and
+`MARQUEE_GAP_PX` to the CSS. The track is padded at its end by one gap, so the -50% loop is
+exactly one lap. Before release 25 it landed 24px short and the wall jumped once a lap. Hover
+still pauses it. Phones and reduced motion keep their own static-grid gaps. The static wall (phones, reduced motion) wraps and centres its last row, so no
 count leaves a corner orphan. The homepage roster cell reads "Our Brands / N / Clients across the
 country", where N is `ROSTER_COUNT` (release 8). It does not say "Home service companies", because
 some marks are not: an agency group, an agency, a business advisor and a sales trainer. Each is a flat silhouette,
