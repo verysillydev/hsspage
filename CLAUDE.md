@@ -303,7 +303,12 @@ The marks live in `logos/` (PNG masters) with matching WebP copies in `logos_web
 wall ships, via `logomark()`); `CLIENT_LOGOS` sets the order and alt text, and the count shown
 anywhere (the homepage roster stat, `ROSTER_COUNT`) is derived from it, never typed. **34 marks
 as of release 25 (2026-10-07).** Monarch Home Services was removed in release 25 (owner); its
-files are deleted from `logos/` and `logos_webp/`. Fourteen were added in R15 from the HSS Dropbox client folders and eight more
+files are deleted from `logos/` and `logos_webp/`. **Veterans AC PHX's mark is the soldier badge
+from its Instagram profile picture (release 25, owner),** replacing the old star wordmark (the
+website header still shows the old one). It was fetched logged out; 150x150 is the largest public
+size. The image has a plain white ground, so the luma pipeline isolates the badge with no
+cut-out work. It was upscaled 4x with Lanczos first and processed at gamma 0.8. It is a mascot
+mark. Fourteen were added in R15 from the HSS Dropbox client folders and eight more
 in release 8 (owner reviewed and approved): Rocket Group, Lokal Media House, First Mate Heating and
 Cooling, Clog Busters Drain Cleaning and Repair, 4 Points A/C and Heating, All American Heating and
 Plumbing, Bellaire Air Conditioning and Heating and Service MVP. Each logo is taken from the
@@ -314,8 +319,9 @@ never a person's name (Rocket Group's mark is the company's alone).
 
 Order: HVAC, plumbing and electrical brands lead; roofing, generators, GatorWraps and garage doors
 follow; the agencies and the sales trainer (Rocket Group, Lokal Media House, Service MVP) come
-last. Busy mascot marks (`LOGO_MASCOTS`: All Heart, Bee Right There, iComfort, Grasshopper, Good
-Guy, Warm Welcome, Doggone, Bellaire, Gengatorz, The Generator Guys, GatorWraps) never sit next to
+last. Busy mascot marks (`LOGO_MASCOTS`: All Heart, Bee Right There, iComfort, Veterans AC PHX,
+Grasshopper, Good Guy, Warm Welcome, Doggone, Bellaire, Gengatorz, The Generator Guys,
+GatorWraps) never sit next to
 each other: not in the marquee (including where it loops), not beside or above one another in the
 phones' three-column grid, not stacked in the five-column reduced-motion grid; and they spread
 across all three phone columns. **The build asserts all of this**, plus no duplicates and no HCCI,
