@@ -4,7 +4,7 @@
   python3 build_site.py          -> single self-contained file (Claude artifact)
   python3 build_site.py web      -> deploy/our-work/ with external assets (Vercel)
 """
-import base64, datetime, html as html_lib, json, os, pathlib, re, shutil, sys, zlib
+import base64, datetime, html as html_lib, json, math, os, pathlib, re, shutil, sys, zlib
 
 S = os.path.dirname(os.path.abspath(__file__))
 MODE = "web" if len(sys.argv) > 1 and sys.argv[1] == "web" else "inline"
@@ -1122,7 +1122,14 @@ CSS = """<style>
   .wwd-block:last-child{padding-bottom:0;}
   .wwd-block + .wwd-block{border-top:1px solid var(--line);}
   .wwd-num{margin:0;font-family:var(--display);font-weight:900;font-size:var(--f-mega);
-    line-height:1;letter-spacing:-.02em;color:var(--orange-text);font-variant-numeric:tabular-nums;}
+    line-height:1;letter-spacing:-.02em;color:var(--orange-text);font-variant-numeric:tabular-nums;
+    height:1em;}
+  /* Release 29 (owner chose option B of the clapper mockups): each number is a brand
+     production slate with its arm resting open, see slate(). The box stays the old
+     number's 1em line, so the headings do not move; slate() sizes and offsets the svg
+     so the board is .86em tall and ends where the digits used to end. */
+  .wwd-num .slate{display:block;width:auto;}
+  .slate-defs{position:absolute;width:0;height:0;overflow:hidden;}
   .wwd-title{margin:var(--s3) 0 0;font-family:var(--display);font-weight:700;font-size:var(--f-h2);
     line-height:1.15;letter-spacing:var(--t-head);color:var(--ink);}
   .wwd-copy{margin:var(--s3) 0 0;font-size:var(--f-lede);line-height:1.55;color:var(--ink-2);
@@ -3599,6 +3606,108 @@ HOME_SPOTS = [(_SPOT_BY_YT[yt][0], who, _SPOT_BY_YT[yt][2], _SPOT_BY_YT[yt][3], 
 DOORS_STILL = (f'<img class="doors-bg" src="{asset(f"{P}/doors-allheart.webp", "image/webp")}"'
                f'{dims(f"{P}/doors-allheart.webp")} alt="" loading="lazy" decoding="async">')
 
+# ---- What We Do slates (release 29) ----------------------------------------------
+# The owner chose option B, "Brand production slate", from the clapper mockups in
+# reports/hss-audit/clapper-options (gen.mjs optionB). Same geometry, colours and type:
+# a charcoal board, HSS orange and white stripes, ROLL | SCENE | TAKE, the number large
+# in the SCENE field. Flat shapes only. The artwork is drawn once (SLATE_DEFS) and each
+# number is a small <svg> that <use>s it, so four slates cost the homepage about 3KB
+# instead of about 10KB. Each bar's stripes are one <path> rather than one polygon each,
+# same shapes. Owner correction (release 29): the arm rests OPEN at option A's angle and
+# hinge, -9 degrees about the arm's bottom-left (2, 14), with A's steel hinge rivet. The
+# viewBox grows to the open arm's reach and slate() scales and shifts the svg so the
+# board and number stay exactly the size and place of the approved closed mockup.
+# Decorative: the .wwd-num paragraph around it is aria-hidden, as the plain number was,
+# and the headings carry the structure.
+def _svgn(v):
+    """A coordinate to two decimals, written short (14 not 14.0, -24.06)."""
+    r = float("%.2f" % v)
+    if r == 0:
+        return "0"
+    t = repr(r)
+    return t[:-2] if t.endswith(".0") else t
+
+
+_SLATE_INK = {"charcoal": "#1E2226", "orange": "#F04820", "white": "#FFFFFF", "rule": "#4B535B",
+              "label": "#C9CDD2"}
+_SLATE_FONT = "Archivo, 'Arial Black', Arial, sans-serif"
+
+
+def _slate_bar(cid, y, w, h, d):
+    """A white bar with orange diagonal stripes (period 32, slant .62 of the height),
+    clipped to its rounded rect and framed in charcoal. d: 1 = '/', -1 = '\\'."""
+    s, k, sub, xi = 16, h * 0.62, [], -h * 0.62 - 32
+    while xi < w + 32:
+        q = ([(xi, y + h), (xi + s, y + h), (xi + s + k, y), (xi + k, y)] if d > 0 else
+             [(xi + k, y + h), (xi + k + s, y + h), (xi + s, y), (xi, y)])
+        sub.append("M" + "L".join(f"{_svgn(a)} {_svgn(b)}" for a, b in q) + "Z")
+        xi += 32
+    return (f'<clipPath id="{cid}"><rect y="{_svgn(y)}" width="{w}" height="{h}" rx="2"/></clipPath>'
+            f'<g clip-path="url(#{cid})"><rect y="{_svgn(y)}" width="{w}" height="{h}" '
+            f'fill="{_SLATE_INK["white"]}"/><path d="{"".join(sub)}" fill="{_SLATE_INK["orange"]}"/></g>'
+            f'<rect x="0.5" y="{_svgn(y + 0.5)}" width="{w - 1}" height="{h - 1}" rx="2" fill="none" '
+            f'stroke="{_SLATE_INK["charcoal"]}" stroke-width="1"/>')
+
+
+_SW, _SSTICK, _SGAP, _SBOARD = 136, 13, 1.6, 75
+_S_LOW = 1 + _SSTICK + _SGAP
+_S_BOARD = _S_LOW + _SSTICK + _SGAP
+_S_RULE = _S_BOARD + 16.5
+SLATE_DEFS = (
+    '<svg class="slate-defs" aria-hidden="true" focusable="false"><defs>'
+    f'<g id="slate-arm">{_slate_bar("slate-ca", 1, _SW, _SSTICK, -1)}</g>'
+    f'<g id="slate-body">{_slate_bar("slate-cl", _S_LOW, _SW, _SSTICK, 1)}'
+    f'<rect y="{_svgn(_S_BOARD)}" width="{_SW}" height="{_SBOARD}" rx="3" fill="{_SLATE_INK["charcoal"]}"/>'
+    f'<path d="M24 {_svgn(_S_BOARD + 6)}V{_svgn(_S_BOARD + _SBOARD - 6)}M{_SW - 24} {_svgn(_S_BOARD + 6)}'
+    f'V{_svgn(_S_BOARD + _SBOARD - 6)}M6 {_svgn(_S_RULE)}H{_SW - 6}" stroke="{_SLATE_INK["rule"]}" '
+    f'stroke-width="1.1" fill="none"/>'
+    f'<g text-anchor="middle" font-family="{_SLATE_FONT}" font-weight="700" font-size="7.4" '
+    f'letter-spacing="{_svgn(0.06 * 7.4)}" fill="{_SLATE_INK["label"]}">'
+    + "".join(f'<text x="{_svgn(x)}" y="{_svgn(_S_BOARD + 11.6)}">{t}</text>'
+              for t, x in (("ROLL", 12), ("SCENE", _SW / 2), ("TAKE", (_SW - 24 + _SW) / 2)))
+    + '</g>'
+    f'<circle cx="5.6" cy="{_svgn(_S_LOW - _SGAP / 2)}" r="2.8" fill="#9AA3AB"/></g></defs></svg>')
+_SLATE_NUM_Y = (_S_RULE + _S_BOARD + _SBOARD) / 2 + 0.7 * 64 / 2   # centred on the digits' ink
+SLATE_ARM_DEG, SLATE_HINGE = -9, (2, 1 + _SSTICK)                  # option A's angle and pivot
+
+
+def _slate_box():
+    """viewBox and inline sizing for the open slate. The closed board is .86em of
+    --f-mega over a 105.2-unit viewBox; the open arm reaches above and left of it, so
+    the viewBox grows by that much (plus .6 units) and the svg grows and shifts by the
+    same fraction: the board keeps its size and position, the heading below stays put."""
+    a, (px, py) = math.radians(SLATE_ARM_DEG), SLATE_HINGE
+    pts = [(x, y) for x in (0, _SW) for y in (1, 1 + _SSTICK)]
+    xs = [px + (x - px) * math.cos(a) - (y - py) * math.sin(a) for x, y in pts]
+    ys = [py + (x - px) * math.sin(a) + (y - py) * math.cos(a) for x, y in pts]
+    left, top = -min(0, min(xs) - 0.6), -min(0, min(ys) - 0.6)
+    h0 = _S_BOARD + _SBOARD
+    em = 0.86 / h0
+    vb = f"{_svgn(-left)} {_svgn(-top)} {_svgn(_SW + left)} {_svgn(h0 + top)}"
+    # position:relative, not margins: a negative top margin collapses through the
+    # paragraph and would move the heading too
+    style = (f"height:{(h0 + top) * em:.4f}em;position:relative;top:{-top * em:.4f}em;"
+             f"left:{-left * em:.4f}em")
+    return vb, re.sub(r"(?<![0-9])0\.", ".", style)
+
+
+_SLATE_VB, _SLATE_STYLE = _slate_box()
+
+
+def slate(n):
+    """One What We Do slate: the shared artwork plus this block's number, white Archivo
+    900 at 64 units in the SCENE field. The arm is its own <use>, resting open through
+    its transform attribute (so no JS, no CSS and reduced motion all show it open)."""
+    assert re.fullmatch(r"\d\d", n), n
+    hx, hy = SLATE_HINGE
+    return (f'<svg class="slate" viewBox="{_SLATE_VB}" style="{_SLATE_STYLE}" aria-hidden="true" '
+            f'focusable="false"><use class="arm" href="#slate-arm" '
+            f'transform="rotate({SLATE_ARM_DEG} {hx} {hy})"/><use href="#slate-body"/>'
+            f'<text x="{_svgn(_SW / 2)}" y="{_svgn(_SLATE_NUM_Y)}" text-anchor="middle" '
+            f'font-family="{_SLATE_FONT}" font-weight="900" font-size="64" '
+            f'letter-spacing="{_svgn(-0.02 * 64)}" fill="{_SLATE_INK["white"]}">{n}</text></svg>')
+
+
 HOME_HTML = f"""<title>Home Service Studios</title>
 {FONT_CSS}
 {CSS}
@@ -3650,12 +3759,13 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 </div></section>
 
 <section id="what-we-do" class="wwd"><div class="wrap">
+  {SLATE_DEFS}
   <div class="sec-head">
     <h2 class="display">What We Do</h2>
   </div>
 
   <div class="wwd-block">
-    <p class="wwd-num" aria-hidden="true">01</p>
+    <p class="wwd-num" aria-hidden="true">{slate("01")}</p>
     <h3 class="wwd-title">Social Media Packages</h3>
     <p class="wwd-copy">A reel every weekday and graphics every weekend, planned and posted for
     you. Here is what that looks like on three client accounts.</p>
@@ -3669,7 +3779,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   </div>
 
   <div class="wwd-block">
-    <p class="wwd-num" aria-hidden="true">02</p>
+    <p class="wwd-num" aria-hidden="true">{slate("02")}</p>
     <h3 class="wwd-title">Commercial shoots</h3>
     <p class="wwd-copy">Spots built on one strong idea. Shot in a single production block, so the
     cost lands once.</p>
@@ -3680,7 +3790,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   </div>
 
   <div class="wwd-block">
-    <p class="wwd-num" aria-hidden="true">03</p>
+    <p class="wwd-num" aria-hidden="true">{slate("03")}</p>
     <h3 class="wwd-title">Brand videos</h3>
     <p class="wwd-copy">A film that tells your company&#39;s story. Made for your homepage, your
     YouTube and your hiring.</p>
@@ -3693,7 +3803,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   </div>
 
   <div class="wwd-block">
-    <p class="wwd-num" aria-hidden="true">04</p>
+    <p class="wwd-num" aria-hidden="true">{slate("04")}</p>
     <h3 class="wwd-title">Podcast production</h3>
     <p class="wwd-copy">We build the set, run the shoot and handle the edit. You show up and
     talk.</p>

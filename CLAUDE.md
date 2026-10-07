@@ -239,8 +239,26 @@ old "Proven results with real data" section (A1 lede, A1 reel strip, the commerc
 section (lede, six-price strip, its button row) were removed in release 8; the homepage carries no
 prices.
 
-What We Do is four numbered blocks, each a large orange number (`--f-mega`, `--orange-text`), a
-title, short-sentence copy, a link or button, then media, with a hairline between blocks:
+What We Do is four numbered blocks. **Since release 29 each number is a film slate** (owner chose
+option B, "Brand production slate", from `reports/hss-audit/clapper-options`).
+- **Design:** a charcoal board, HSS orange and white stripes, ROLL | SCENE | TAKE labels and
+  the number in white Archivo 900 in the SCENE field.
+- **Arm rests open:** owner correction. It sits at option A's angle and hinge, -9 degrees
+  about (2, 14), with A's steel rivet.
+- **Markup:** `slate()` draws it. The artwork is defined once (`SLATE_DEFS`, a hidden
+  `<defs>` at the top of the section), and each number is a small `<svg>` that `<use>`s it,
+  about 3KB in all. The resting angle is the arm's own `transform` attribute, so no JS, no
+  CSS and reduced motion all show it open.
+- **Sizing:** the `.wwd-num` box stays the old number's 1em line, so the headings sit where
+  they did (checked against release 28 at 1440 and 390). The board is .86em of `--f-mega`
+  and ends where the digits used to end. The viewBox grows to the open arm's reach, and the
+  svg is sized and shifted (`position:relative`, never a negative margin, which collapses
+  through the paragraph) so the board and number keep the approved mockup's exact size.
+- **Accessibility:** decorative. The paragraph is `aria-hidden`, as the number was, and the
+  headings carry the structure.
+
+Each block then has a title, short-sentence copy, a link or button, then media, with a hairline
+between blocks:
 - **01 Social Media Packages.** The primary button "Compare the packages" (`/packages/`)
   with "Month to month, with no setup fee.", then three Instagram profile grabs (`IG_GRABS`):
   iComfort, Veterans AC PHX, AC Plus. **Source:** the owner's 390px phone captures at 3x, login
