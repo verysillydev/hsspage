@@ -759,30 +759,37 @@ The code is `CAL_CSS`, `CAL_BUBBLE`, `CAL_HTML` and `CAL_JS`. They are placed af
 build.
 
 **The bubble (`CAL_BUBBLE`).**
-- A real `<button>`: a 56px charcoal circle with the orange reel (the buttons' `#bm-reel`
-  symbol), fixed bottom right, plus a label pill "Free social audit" inside the button, so the
-  pill is clickable too.
-- `aria-label` is "Get a free social audit and content calendar". It contains the visible pill
-  text, so label-in-name holds. It also has `aria-haspopup="dialog"`, `aria-expanded` and
-  `aria-controls="cal"`, and the site's orange focus ring.
+- A real `<button>` with two halves that read as one unit: a label pill "Free social audit" that
+  tucks under a charcoal circle holding the orange reel (the buttons' `#bm-reel` symbol), fixed
+  bottom right.
+- **The label is always visible, at every width (owner change, release 37).** It never
+  collapses, and there is no timer and no reduced-motion variant. Below 360px it reads "Free
+  audit" so the unit stays compact.
+- `aria-label` is "Get a free social audit and content calendar". It starts with "Free audit:"
+  below 360px and with "Audit requested." after a send, so it always contains the visible
+  label (label-in-name). The button also has `aria-haspopup="dialog"`, `aria-expanded` and
+  `aria-controls="cal"`, and the site's orange focus ring around the whole unit.
 - It ships `hidden`, and `CAL_JS` shows it, so without JS (or without `<dialog>`) there is no
   dead control. It is never on `/contact/` or `/book/`.
-- **Desktop (from 760px):** right and bottom 24px, the pill always visible. While the panel is
-  open the pill hides and the reel turns into a down chevron. A click there lands on the
-  backdrop, which closes the panel, so it works as a toggle.
-- **Phones:** right 16px, bottom 66px plus the safe-area inset, which is 11px above the action
-  bar, so it never covers "Contact" or "Book a call". The pill shows once per visit, for 5s
-  after the first scroll past 40px, then collapses to the round button (`is-peek`,
-  sessionStorage `hss-peek`). Collapsed, it takes no pointer events, so there is no invisible
-  tap area. Reduced motion: it never shows.
-- **Room at the end of the page:** `body:has(> .calb:not([hidden]))` adds bottom padding (96px
-  from 760px; 134px plus the inset on phones). At the end of any page nothing sits under the
-  bubble (measured at 1440 and 390). While the page scrolls it passes over content like any chat
-  launcher. At 390 it can cover the bottom-right 56px corner of a passing card (the video
-  players, an Instagram grab, the portfolio door). The rest of each card stays tappable, and
-  the main film's centred play button is never under it.
-- **After a successful send** the pill reads "Audit requested" (and the `aria-label` starts with
-  it) for the rest of the visit (sessionStorage `hss-audit`). Storage is in try/catch, and
+- **Desktop (from 760px):** right and bottom 24px. The unit is 199x56: a 40px pill and a 56px
+  circle. While the panel is open the reel turns into a down chevron. A click on the unit lands on
+  the backdrop, which closes the panel, so it works as a toggle.
+- **Phones:** right 12px, bottom 66px plus the safe-area inset, which is 11px above the action
+  bar, so it never covers "Contact" or "Book a call". The unit is 177x48 at 390 (a 36px pill and
+  a 48px circle) and 136x48 at 320.
+- **It never covers anything at rest where a visitor lands.** On phones the homepage hero's text
+  block sits 64px higher (`.hero-media` bottom padding 118px plus the inset), so the unit sits
+  below the headline. That was measured at 320 to 430: nothing interactive or heading-level is
+  under it at load on any page.
+  - Two exceptions sit in short phone viewports, under 700px tall. The /our-work hero's second
+    button and the 404's "See the work" can sit partly under the unit until the first scroll.
+  - At the end of every page the extra bottom padding (`body:has(> .calb:not([hidden]))`, 96px
+    from 760px, 134px plus the inset on phones) keeps it clear.
+  - While the page scrolls it passes over content like any chat launcher. At 390 it can cover
+    the bottom-right corner of a passing card (a video player, an Instagram grab, a text link).
+    The rest of each card stays tappable.
+- **After a successful send** the label reads "Audit requested" (both the long and the short
+  label) for the rest of the visit (sessionStorage `hss-audit`). Storage is in try/catch, and
   blocked storage falls back to the page load. The release-35 localStorage key `hss-cal` is
   removed on load.
 
@@ -840,7 +847,7 @@ links.
 intercepts every request to it (CDP Fetch: it answers the preflight and the POST itself). It
 checks:
 - that nothing opens on scrolling, and the bubble's geometry against the action bar;
-- the peek, reduced motion and blocked storage;
+- that the label never collapses (after a swipe, after 6s, reduced motion), and blocked storage;
 - every close path and focus return, and the footer link;
 - the payload, validation, success, "Audit requested" across pages, and failure and retry;
 - `/contact/`, no-JS and both prefill keys, and what sits under the bubble at 390;

@@ -837,7 +837,7 @@ CSS = """<style>
      the end of the document rather than anything inside a viewport-height box.
      Padding the hero itself is what clears it. */
   @media(max-width:759px){
-    .hero-media{padding-bottom:calc(54px + env(safe-area-inset-bottom));}
+    .hero-media{padding-bottom:calc(118px + env(safe-area-inset-bottom));}
   }
 
   /* a section that opens without a label, set larger to carry the weight the
@@ -2506,9 +2506,10 @@ assert "__FORM_TO__" not in FORM_JS, "form failover address was not substituted"
 # itself any more.
 # - The bubble (CAL_BUBBLE): a round charcoal <button> with the orange reel, fixed bottom
 #   right on every page but /contact/, with a "Free social audit" label pill beside it. It
-#   ships hidden and CAL_JS shows it, so without JS there is no dead control. Desktop keeps the
-#   pill. Phones show it once per visit, for 5s after the first scroll, then only the round
-#   button (reduced motion: never). On phones it sits above the action bar.
+#   ships hidden and CAL_JS shows it, so without JS there is no dead control. Owner change
+#   (release 37): the label is always visible, at every width, pill and reel as one unit; below
+#   360px it reads "Free audit". On phones it sits above the action bar, and the homepage hero's
+#   text sits higher so the unit never covers the headline.
 # - The panel (CAL_HTML): one native <dialog> per page, opened with showModal(), so the page
 #   goes inert, focus is held inside, and Esc, the backdrop, the 44px X and "No thanks, keep
 #   browsing" all close it. Focus returns to whatever opened it. From 760px it is a 392px chat
@@ -2597,44 +2598,45 @@ CAL_HTML = (
 
 CAL_BUBBLE = ('<button type="button" class="calb" data-cal hidden aria-haspopup="dialog" '
               'aria-expanded="false" aria-controls="cal" aria-label="Get a free social audit and '
-              'content calendar"><span class="calb-pill">Free social audit</span>'
+              'content calendar"><span class="calb-pill"><span class="calb-l">Free social audit</span>'
+              '<span class="calb-s">Free audit</span></span><span class="calb-ic">'
               '<svg class="calb-reel" viewBox="0 0 56 56" aria-hidden="true" focusable="false">'
               '<use href="#bm-reel"/></svg><svg class="calb-down" viewBox="0 0 24 24" '
               'aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" '
               'stroke="currentColor" stroke-width="2.4" stroke-linecap="round" '
-              'stroke-linejoin="round"/></svg></button>')
+              'stroke-linejoin="round"/></svg></span></button>')
 
 CAL_CSS = """<style>
   html{scrollbar-gutter:stable;}
   html.cal-lock{overflow:hidden;}
-  .calb{position:fixed;right:24px;bottom:24px;z-index:54;width:56px;height:56px;padding:0;
-    display:flex;align-items:center;justify-content:center;border:1px solid #3D444B;
-    border-radius:50%;background:#14171A;color:#FFFFFF;cursor:pointer;
-    box-shadow:0 6px 20px rgba(20,23,26,.28);transition:background var(--ease);}
+  .calb{position:fixed;right:24px;bottom:24px;z-index:54;display:flex;align-items:center;
+    padding:0;border:0;border-radius:var(--r-lg);background:none;color:#FFFFFF;cursor:pointer;}
   .calb[hidden]{display:none;}
   .calb:focus-visible{outline:2px solid var(--orange);outline-offset:3px;}
+  .calb-pill,.calb-ic{background:#14171A;border:1px solid #3D444B;
+    box-shadow:0 6px 20px rgba(20,23,26,.28);transition:background var(--ease);}
+  .calb-pill{display:flex;align-items:center;height:40px;margin-right:-26px;padding:0 38px 0 16px;
+    border-radius:var(--r-lg);white-space:nowrap;font:600 var(--f-sm)/1 'Onest',-apple-system,sans-serif;}
+  .calb-s{display:none;}
+  .calb-ic{position:relative;flex:none;width:56px;height:56px;display:flex;align-items:center;
+    justify-content:center;border-radius:50%;}
   .calb-reel{display:block;width:34px;height:34px;fill:#262B30;
     transition:transform .5s cubic-bezier(.2,.6,.3,1);}
   .calb-down{display:none;width:24px;height:24px;}
   .calb[aria-expanded="true"] .calb-reel{display:none;}
   .calb[aria-expanded="true"] .calb-down{display:block;}
-  .calb-pill{position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);
-    display:flex;align-items:center;height:36px;padding:0 14px;white-space:nowrap;
-    background:#14171A;border:1px solid #3D444B;border-radius:var(--r-lg);color:#FFFFFF;
-    font:600 var(--f-sm)/1 'Onest',-apple-system,sans-serif;
-    box-shadow:0 4px 14px rgba(20,23,26,.2);
-    transition:opacity .25s ease,transform .25s cubic-bezier(.2,.6,.3,1);}
-  .calb[aria-expanded="true"] .calb-pill{opacity:0;pointer-events:none;}
-  @media(hover:hover){.calb:hover,.calb:hover .calb-pill{background:#23292E;}}
+  @media(hover:hover){.calb:hover .calb-pill,.calb:hover .calb-ic{background:#23292E;}}
   @media(hover:hover) and (prefers-reduced-motion:no-preference){
     .calb:hover .calb-reel{transform:rotate(-40deg);}}
   @media(min-width:760px){body:has(> .calb:not([hidden])){padding-bottom:96px;}}
   @media(max-width:759px){
-    .calb{right:16px;bottom:calc(66px + env(safe-area-inset-bottom));}
-    .calb-pill{opacity:0;pointer-events:none;transform:translate(8px,-50%) scale(.96);}
-    .calb.is-peek .calb-pill{opacity:1;pointer-events:auto;transform:translateY(-50%);}
+    .calb{right:12px;bottom:calc(66px + env(safe-area-inset-bottom));}
+    .calb-pill{height:36px;margin-right:-22px;padding:0 32px 0 12px;}
+    .calb-ic{width:48px;height:48px;}
+    .calb-reel{width:30px;height:30px;}
     body:has(> .calb:not([hidden])){padding-bottom:calc(134px + env(safe-area-inset-bottom));}
   }
+  @media(max-width:359px){.calb-l{display:none;}.calb-s{display:inline;}}
   .cal{position:fixed;inset:auto 24px 92px auto;margin:0;padding:0;
     width:min(392px,calc(100vw - 48px));max-width:none;max-height:min(80vh,calc(100vh - 116px));
     border:1px solid #33383D;border-radius:var(--r-lg);color:#FFFFFF;overflow:hidden;
@@ -2726,31 +2728,32 @@ CAL_JS = """<script>
     where: 'Add your website or at least one social account, so we know where to look.'};
   function sget(k){ try { return sessionStorage.getItem(k) || mem[k]; } catch(e){ return mem[k]; } }
   function sset(k){ mem[k] = '1'; try { sessionStorage.setItem(k, '1'); } catch(e){} }
+  /* the accessible name always contains the visible label: "Free audit" below 360px */
+  var narrow = matchMedia('(max-width: 359px)');
+  function name(){
+    if(!bub) return;
+    var done = bub.classList.contains('is-done');
+    bub.setAttribute('aria-label', (done ? 'Audit requested. ' : (narrow.matches ? 'Free audit: ' : ''))
+      + (narrow.matches && !done ? 'get' : 'Get') + ' a free social audit and content calendar');
+  }
   function requested(){
     if(!bub || bub.classList.contains('is-done')) return;
     bub.classList.add('is-done');
-    bub.querySelector('.calb-pill').textContent = 'Audit requested';
-    bub.setAttribute('aria-label', 'Audit requested. Get a free social audit and content calendar');
+    [].forEach.call(bub.querySelectorAll('.calb-l, .calb-s'), function(e){ e.textContent = 'Audit requested'; });
+    name();
   }
   if(bub){
     bub.hidden = false;
     if(sget('hss-audit')) requested();
-    var small = matchMedia('(max-width: 759px)'), still = matchMedia('(prefers-reduced-motion: reduce)');
-    addEventListener('scroll', function first(){
-      if(window.scrollY < 40) return;
-      removeEventListener('scroll', first);
-      if(!small.matches || still.matches || sget('hss-peek')) return;
-      sset('hss-peek');
-      bub.classList.add('is-peek');
-      setTimeout(function(){ bub.classList.remove('is-peek'); }, 5000);
-    }, {passive: true});
+    name();
+    if(narrow.addEventListener) narrow.addEventListener('change', name);
   }
   function open(from){
     if(d.open) return;
     opener = from || document.activeElement; y0 = window.scrollY;
     f.elements.page.value = location.pathname;
     document.documentElement.classList.add('cal-lock');
-    if(bub){ bub.setAttribute('aria-expanded', 'true'); bub.classList.remove('is-peek'); }
+    if(bub) bub.setAttribute('aria-expanded', 'true');
     d.showModal();
     body.scrollTop = 0;
   }
