@@ -1784,6 +1784,10 @@ CSS = """<style>
   .foot-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3) var(--s5);}
   .foot-mail{display:inline-flex;align-items:center;min-height:44px;font-size:var(--f-body);}
   .foot-nav{display:flex;flex-wrap:wrap;gap:0 var(--s5);}
+  .foot-social{display:flex;gap:var(--s2);margin:var(--s3) 0 0 -11px;}
+  .soc{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;
+    color:var(--ink-2);border-radius:var(--r-md);transition:color var(--ease);}
+  .soc:hover{color:var(--orange-text);}
   .foot-nav a{display:inline-flex;align-items:center;min-height:44px;font-family:var(--display);
     font-variant-caps:all-small-caps;letter-spacing:.06em;font-size:var(--f-lede);
     color:var(--ink);text-decoration:none;transition:color var(--ease);}
@@ -3531,6 +3535,24 @@ FOOTER_LINKS = [("/our-work/", "Work", "work"), ("/packages/", "Packages", "pack
 YEAR = datetime.date.today().year
 
 
+# Release 40 (owner): the company's social profiles, the URLs exactly as the owner supplied them
+# with tracking parameters removed. Footer icon links on every page (inline SVG, Feather style
+# like the site's other line icons, so no third-party request), and sameAs in JSON_LD.
+# validate() opens them in a new tab, like every external link on the site.
+SOCIAL = [
+    ("Instagram", "https://www.instagram.com/homeservicestudios/",
+     '<rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 '
+     '0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/>'),
+    ("Facebook", "https://www.facebook.com/profile.php?id=100084171721318",
+     '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>'),
+]
+SOCIAL_LINKS = "".join(
+    f'<a class="soc" href="{url}" aria-label="Home Service Studios on {name}">'
+    f'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" '
+    f'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" '
+    f'focusable="false">{icon}</svg></a>' for name, url, icon in SOCIAL)
+
+
 def site_footer(page=""):
     links = "".join(f'<a href="{h}">{label}</a>' for h, label, key in FOOTER_LINKS
                     if key != page)
@@ -3544,6 +3566,7 @@ def site_footer(page=""):
             f'<a class="foot-mail" href="mailto:{EMAIL}">{EMAIL}</a>'
             f'<a class="foot-mail foot-cal" href="{SOCIAL_AUDIT_ASK}" data-cal '
             f'aria-haspopup="dialog">Free social audit</a></div>'
+            f'<div class="foot-social">{SOCIAL_LINKS}</div>'
             f'</div>'
             f'<nav class="foot-nav" aria-label="Footer">{links}</nav>'
             f'</div>'
@@ -5217,6 +5240,7 @@ JSON_LD = (
     '<script type="application/ld+json">'
     '{"@context":"https://schema.org","@type":"ProfessionalService",'
     '"name":"Home Service Studios","url":"' + SITE + '/",'
+    '"sameAs":' + json.dumps([url for _n, url, _i in SOCIAL]) + ','
     '"logo":"' + SITE + '/our-work/a/og-cover.jpg",'
     '"image":"' + SITE + '/og/og-home.jpg",'
     '"email":"' + EMAIL + '",'

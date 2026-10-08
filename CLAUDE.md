@@ -704,7 +704,10 @@ email on purpose, as the secondary path.
 **The footer is one function, `site_footer(page)`** (2026-10-06; it used to be hand copied five
 times). It renders the tagline, the primary CTA via `book()`, the email as a mailto text link, a
 labelled footer nav (Work, Packages, Team, Contact, 44px targets), the credentials line and
-`&copy; YEAR`. It never links a page to itself: the current page drops out of the nav, and the
+`&copy; YEAR`. Since release 40 it also carries the Instagram and Facebook icon links
+(`SOCIAL`, `SOCIAL_LINKS`): inline Feather-style SVGs, so no third-party request, 44px targets,
+accessible names "Home Service Studios on Instagram" / "... on Facebook". Like every external
+link they open in a new tab (`validate()`). It never links a page to itself: the current page drops out of the nav, and the
 CTA is dropped on whichever page `cta_href()` points at (`/book/` now, `/contact/` without
 booking).
 
@@ -1548,8 +1551,11 @@ One `ProfessionalService` block, identical on every page, built in `JSON_LD`. Tw
   This is the rare case where price markup is worth having: the prices are already public, so it
   is free rich-result eligibility rather than a claim that needs defending. Added 2026-09-03.
 
-Still absent, and both need something only Yoni can give: `telephone` (there is no phone number
-anywhere on the site) and `sameAs` (no confirmed social profile URLs).
+**`sameAs` lists the company's social profiles (release 40, owner):** Instagram
+`https://www.instagram.com/homeservicestudios/` and Facebook
+`https://www.facebook.com/profile.php?id=100084171721318` (the URLs the owner supplied, tracking
+parameters removed), from `SOCIAL`. Still absent: `telephone` (there is no phone number anywhere
+on the site).
 
 ## Pricing has one source of truth
 
