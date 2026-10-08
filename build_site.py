@@ -19,10 +19,10 @@ if MODE == "web":
     shutil.rmtree(f"{S}/deploy", ignore_errors=True)
     os.makedirs(f"{OUT}/a", exist_ok=True)
 
-# Where every "book a call" button points. A mailto opens a blank compose window on
-# a phone and most people close it, so this is meant to hold a Google Calendar
-# appointment booking page URL instead. Set BOOK_URL and every CTA on every page
-# follows; leave it empty and they fall back to email.
+# Where every "book a call" button points. Release 37 (owner): BOOK_URL is the owner's free
+# Google Calendar appointment schedule (a one-hour Strategy Call, on collab@). Every general
+# CTA goes to our own /book/ page, which embeds it; leave BOOK_URL empty and they all fall
+# back to the enquiry form.
 # Switched 2026-08-25: homeservicestudios.com is live and receiving mail. Since
 # 2026-10-07 (owner) it is collab@, the same address as FORM_TO below. See
 # api_contact.js for the matching TO on the dormant Brevo path.
@@ -51,10 +51,14 @@ FORM_ACTION = f"https://formsubmit.co/{FORM_TO}"
 # Paste the Google Calendar appointment booking page here and every CTA on the site
 # switches at once. While it is empty the buttons fall back to a prefilled mailto,
 # and the reassurance line below them is suppressed (it promises a Meet call).
-BOOK_URL = ""          # e.g. https://calendar.app.google/xxxxxxxx
+BOOK_URL = "https://calendar.app.google/aLYtZcqSZ5RvUcSM7"
+# BOOK_URL 302s to this schedule; ?gv=true is Google's embeddable view of it. Only /book/
+# loads it (in an iframe); the build asserts no other page does.
+BOOK_EMBED = ("https://calendar.google.com/appointments/schedules/AcZssZ0xpyqKX2Q-EB1VApY3UM8vgVX"
+              "oujhSLplEc_vOdARROcAsnXd_wbuXama7IXEhu7MZkRcNwWVQ?gv=true")
 BOOKED = bool(BOOK_URL)
 
-REASSURE = ("Twenty minutes on Google Meet. We'll look at your market and your current content. "
+REASSURE = ("A one-hour video call on Google Meet. We'll look at your market and what you're posting now. "
             "Then we'll see if one of our Social Media Packages fits.")
 
 # what the form path actually promises, which is not a call yet.
@@ -67,6 +71,11 @@ REASSURE = ("Twenty minutes on Google Meet. We'll look at your market and your c
 # in another; only the phrasing moves. reassure() picks by page.
 REASSURE_FORM = ("Six questions, under a minute. You will hear back within one business day, "
                  "from a human, about your market specifically.")
+
+# /packages calls reassure() twice; with booking on, its second line must not repeat the first
+REASSURE_BOOKED = {
+    "packages-terms": "One hour on Google Meet with our team. We'll tell you which package fits.",
+}
 
 REASSURE_VARIANTS = {
     "home": REASSURE_FORM,
@@ -114,7 +123,7 @@ SCROLL_ICON = ('<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stro
 def cta_href():
     """Where every conversion CTA on the site points. One rule, no exceptions, so a
     button cannot quietly keep pointing somewhere stale."""
-    return BOOK_URL if BOOKED else "/contact/#start"
+    return "/book/" if BOOKED else "/contact/#start"
 
 
 # Release 34 (owner): every primary button on the site is the "Reel wheel", option D of
@@ -159,18 +168,17 @@ def book(subject, label="", cls="cta"):
     Set BOOK_URL and the same buttons become the calendar instead. `subject` is kept
     so the fallback can still address an email if it is ever needed."""
     assert "ghost" not in cls, "book() is the primary CTA; secondary buttons are plain links"
-    if BOOKED:
-        return (f'<a class="{cls}" href="{cta_href()}" target="_blank" '
-                f'rel="noopener noreferrer">{reel(label or "Book a call")}</a>')
-    return f'<a class="{cls}" href="{cta_href()}">{reel(label or "Start a project")}</a>'
+    default = "Book a strategy call" if BOOKED else "Start a project"
+    return f'<a class="{cls}" href="{cta_href()}">{reel(label or default)}</a>'
 
 def reassure(page="home"):
     """Sits under the CTA and describes what actually happens next. The promise has
     to match the destination, so it changes with it. Once BOOKED is set every CTA
     becomes the calendar and there is only one true promise to make, so the
     per-page phrasing collapses back to a single line on purpose."""
-    if BOOKED:
-        return f'<p class="reassure">{REASSURE}</p>'
+    # /contact/'s button is the form, so it keeps a form promise even when booking is on
+    if BOOKED and page != "contact":
+        return f'<p class="reassure">{REASSURE_BOOKED.get(page, REASSURE)}</p>'
     return f'<p class="reassure">{REASSURE_VARIANTS.get(page, REASSURE_FORM)}</p>'
 
 def actionbar():
@@ -229,9 +237,8 @@ def nav(active=""):
         # voice-control user saying "click Contact" it simply does nothing.
         # Letting the name come from the visible span keeps the two identical at
         # every width, and both labels are descriptive enough to pass link-text.
-        + (f'<a class="navcta" href="{href}" '
-           f'target="_blank" rel="noopener noreferrer">'
-           if BOOKED else f'<a class="navcta" href="{href}">')
+        + (f'<a class="navcta" href="{href}" aria-current="page">' if active == "book"
+           else f'<a class="navcta" href="{href}">')
         + reel(f'<span class="ctalong">{long_label}</span>'
                f'<span class="ctashort">{short_label}</span>') + '</a>'
         '</div></div></nav><div class="navspacer"></div>'
@@ -890,6 +897,7 @@ CSS = """<style>
   .reassure{margin:var(--s3) 0 0;font-size:var(--f-sm);color:var(--ink-3);max-width:52ch;
     line-height:1.5;}
 
+  .booknote{margin:var(--s4) 0 0;font-size:var(--f-body);color:var(--ink-2);}
   .schedwrap{background:var(--ground-2);border:1px solid var(--line);
     border-radius:var(--r-md);overflow:hidden;}
   .schedwrap iframe{display:block;width:100%;}
@@ -907,7 +915,7 @@ CSS = """<style>
      shifted the whole right side of the bar, CLS about 0.001 on throttled
      phones). em-based, so it scales with the fluid label size. */
   .navcta{justify-content:center;min-width:calc(3.9em + 24px);}
-  @media(min-width:560px){.navcta{min-width:calc(7em + 70px);}}
+  @media(min-width:560px){.navcta{min-width:calc(var(--cta-em,7em) + 70px);}}
   /* below 560px the row needed about 354px of a 342px content box once the
      brand set in Onest, so the right group overflowed into the page padding
      and moved when the font arrived; a tighter gap and CTA padding make it fit */
@@ -919,7 +927,7 @@ CSS = """<style>
      CTA's own minimum) means a partly parsed nav already sits in its final box. */
   @media(max-width:559px){.navright{min-width:calc(50px + 3.9 * var(--f-sm) + 24px);}}
   @media(min-width:560px) and (max-width:619px){
-    .navright{min-width:calc(40px + var(--s5) + 7 * var(--f-sm) + 70px);}}
+    .navright{min-width:calc(40px + var(--s5) + var(--cta-k,7) * var(--f-sm) + 70px);}}
   .navcta .ctashort{display:inline;}
   .navcta .ctalong{display:none;}
   @media(min-width:560px){
@@ -1774,6 +1782,13 @@ CSS = """<style>
     margin-top:var(--s7);padding-top:var(--s4);border-top:1px solid var(--line);}
   footer .foot-meta p{font-size:var(--f-sm);color:var(--ink-3);}
 </style>"""
+
+# The nav button reserves its long label's width (font-swap CLS, see .navcta). "Start a
+# project" needs 7em; with booking on the label is "Book a call", 5.03em in Onest (measured,
+# release 37), so it reserves 5.2em.
+if BOOKED:
+    assert CSS.count("  :root{\n") == 1
+    CSS = CSS.replace("  :root{\n", "  :root{\n    --cta-em:5.2em; --cta-k:5.2;\n", 1)
 
 # CSS above is a plain string, not an f-string (it holds far too many literal
 # {braces} to make that safe). If it ever needs an asset URL, patch it in after
@@ -2827,9 +2842,9 @@ CAL_JS = """<script>
 CAL_JS = (CAL_JS.replace("__FORM_ENDPOINT__", f"https://formsubmit.co/ajax/{FORM_TO}")
                 .replace("__FORM_TO__", FORM_TO))
 assert "__FORM" not in CAL_JS, "calendar pop-up placeholders were not substituted"
-# /contact/ gets the panel (its footer link opens it) but no bubble
+# /contact/ and /book/ get the panel (their footer link opens it) but no bubble
 CAL_POPUP = CAL_CSS + CAL_BUBBLE + CAL_HTML + CAL_JS if MODE == "web" else ""
-CAL_POPUP_CONTACT = CAL_CSS + CAL_HTML + CAL_JS if MODE == "web" else ""
+CAL_POPUP_PANEL = CAL_CSS + CAL_HTML + CAL_JS if MODE == "web" else ""
 
 
 SPOT_DIR = f"{S}/spots"
@@ -3504,7 +3519,7 @@ YEAR = datetime.date.today().year
 def site_footer(page=""):
     links = "".join(f'<a href="{h}">{label}</a>' for h, label, key in FOOTER_LINKS
                     if key != page)
-    cta_is_here = page == "contact" and cta_href().startswith("/contact/")
+    cta_is_here = bool(page) and cta_href().startswith(f"/{page}/")
     cta = "" if cta_is_here else book("Footer", "", "cta")
     return (f'<footer><div class="wrap">'
             f'<div class="foot">'
@@ -3588,7 +3603,7 @@ html = f"""<title>Selected work, Home Service Studios</title>
     <a class="stat" href="{case_url("allheart")}"><span class="case">All Heart</span><span class="n">10</span><span class="k">Spots from one shoot</span></a>
   </div>
   <div class="ctarow">
-    {book("Project%20enquiry", "Start a project")}
+    {book("Project%20enquiry")}
     <a class="cta ghost" href="/packages/">Social Media Packages</a>
   </div>
   {reassure("work")}
@@ -4582,25 +4597,62 @@ def enquiry_form():
 
 # ---- contact page ---------------------------------------------------------
 
-# Google Calendar appointment pages can be iframed. Until BOOK_URL is set there is
-# nothing to embed, so the slot explains itself instead of rendering an empty frame.
-# The booking section exists only when there is a calendar to put in it. An empty
-# "coming soon" panel advertises a thing you cannot do, which is worse than silence.
-if BOOKED:
-    SCHEDULER_SECTION = (
-        '<section><div class="wrap">'
-        '<div class="sec-head"><p class="eyebrow">Booking</p>'
-        '<h2 class="display">Or pick a time now</h2>'
-        '<p class="lede">Twenty minutes on Google Meet. We look at your market and your current '
-        'content. Then we see if one of our Social Media Packages fits. No deck, no pitch.</p></div>'
-        '<div class="schedwrap"><iframe src="' + BOOK_URL + '" title="Book a call with '
-        'Home Service Studios" loading="lazy" style="border:0" width="100%" height="640" '
-        'frameborder="0"></iframe></div>'
-        '</div></section>')
-else:
-    SCHEDULER_SECTION = ""
+# Release 37: the Google scheduler lives on /book/ only. /contact/ points there in one line
+# under its hero button (with booking on), and keeps the form as its own job.
+# The scheduler's frame height, reserved up front. Google's embedded page, measured at the
+# frame's width (release 37): 704 to 771px tall side by side, 1,213 to 1,256px stacked, which it
+# does once the frame is under about 580px wide (a viewport under about 630px). So 800px from
+# a 650px viewport up and 1,300px below, with room to spare and no second scrollbar.
+BOOK_FRAME_H = (800, 1300)
+BOOK_LINE = ('<p class="booknote">Rather talk it through? <a href="/book/">Book a strategy call.</a></p>'
+             if BOOKED else "")
 
 
+
+
+# /book/ (release 37, owner): the strategy call. Google's embedded appointment schedule in a
+# frame whose height is reserved up front (no layout shift; the frame scrolls inside if
+# Google's page is ever taller), loaded eagerly here and nowhere else. No floating bubble on
+# this page: nothing should sit over the scheduler.
+BOOK_HTML = f"""<title>Book a strategy call</title>
+{FONT_CSS}
+{CSS}
+<style>
+  .book-sec{{padding:var(--s7) 0 var(--s8);}}
+  .book-frame{{height:{BOOK_FRAME_H[0]}px;}}
+  .book-frame iframe{{display:block;width:100%;height:100%;border:0;}}
+  @media(max-width:759px){{.book-sec{{padding:var(--s5) 0 var(--s7);}}}}
+  @media(max-width:649px){{.book-frame{{height:{BOOK_FRAME_H[1]}px;}}}}
+  .book-alt{{margin:var(--s5) 0 0;font-size:var(--f-body);color:var(--ink-2);}}
+  .book-alt + .book-alt{{margin-top:var(--s2);font-size:var(--f-sm);}}
+</style>
+<a class="skip" href="#main">Skip to content</a>
+{nav("book")}
+
+<main id="main">
+<div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
+  <p class="eyebrow">Strategy call &middot; Home Service Studios</p>
+  <h1 class="display">Book a <span class="hl">strategy call.</span></h1>
+  <p class="sub">Pick a time that works for you. It&#39;s a one-hour video call with our team.
+  We&#39;ll look at your market and what you&#39;re posting now.</p>
+</div></div>
+
+<section class="book-sec"><div class="wrap">
+  <div class="schedwrap book-frame">
+    <iframe src="{BOOK_EMBED}" title="Book a strategy call with Home Service Studios"
+      width="100%" height="{BOOK_FRAME_H[0]}" loading="eager"></iframe>
+  </div>
+  <p class="book-alt">Prefer to write? <a href="/contact/">Send us a message</a></p>
+  <p class="book-alt"><a href="{BOOK_URL}">Open the booking page</a></p>
+</div></section>
+</main>
+
+{site_footer("book")}
+{actionbar()}
+{CAL_POPUP_PANEL}
+{SPLAT_JS}
+{NAV_JS}
+"""
 
 
 CONTACT_HTML = f"""<title>Contact</title>
@@ -4622,10 +4674,9 @@ CONTACT_HTML = f"""<title>Contact</title>
     <a class="cta" href="#start">{reel("Send us a message")}</a>
   </div>
   {reassure("contact")}
+  {BOOK_LINE}
 </div></div>
 
-
-{SCHEDULER_SECTION}
 
 <section id="start"><div class="wrap">
   <div class="sec-head">
@@ -4654,7 +4705,7 @@ CONTACT_HTML = f"""<title>Contact</title>
 
 {site_footer("contact")}
 {actionbar()}
-{CAL_POPUP_CONTACT}
+{CAL_POPUP_PANEL}
 {SPLAT_JS}
 {NAV_JS}
 {MOTION_JS}
@@ -4947,7 +4998,7 @@ def case_page(i):
 <section><div class="wrap">
   <div class="pnrow">{chain}</div>
   <div class="ctarow">
-    {book("Project%20enquiry", "Start a project")}
+    {book("Project%20enquiry")}
     <a class="cta ghost" href="/our-work/">All case studies</a>
   </div>
   {reassure("case")}
@@ -5155,6 +5206,15 @@ if MODE == "web":
                    desc=D4, og_image=f"{SITE}/og/og-contact.jpg",
                    url=f"{SITE}/contact/")
 
+    if BOOKED:
+        bookp = validate(BOOK_HTML, "book")
+        assert bookp.count("calendar.google.com/appointments") == 1, "book: the scheduler frame"
+        D6 = ("Book a one-hour strategy call with Home Service Studios. A video call on Google "
+              "Meet about your market and what you are posting now.")
+        write_web(bookp, f"{S}/deploy/book/index.html",
+                  title="Book a Strategy Call | Home Service Studios",
+                  desc=D6, og_image=f"{SITE}/og/og-book.jpg", url=f"{SITE}/book/")
+
     # case pages (N1). OG art: the per-case frames in og/; A1 has no still yet.
     case_sizes = []
     for i, c in enumerate(CASES):
@@ -5227,12 +5287,16 @@ if MODE == "web":
     # /our-work/, opened by the carousel instead of its own URL.
     # 404.html is deliberately not listed: it is noindex and has no address of its own
     urls = (["/", "/our-work/"] + [case_url(c["id"]) for c in CASES]
-            + ["/packages/", "/team/", "/contact/"])
+            + ["/packages/", "/team/", "/contact/"] + (["/book/"] if BOOKED else []))
     sm = ('<?xml version="1.0" encoding="UTF-8"?>\n'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
           + "".join(f"  <url><loc>{SITE}{u}</loc></url>\n" for u in urls)
           + "</urlset>\n")
     pathlib.Path(f"{S}/deploy/sitemap.xml").write_text(sm, encoding="utf-8")
+    # the Google scheduler loads on /book/ and nowhere else
+    for _f in pathlib.Path(f"{S}/deploy").rglob("*.html"):
+        if _f.parent.name != "book":
+            assert "calendar.google.com" not in _f.read_text(), f"{_f}: the scheduler outside /book/"
     pathlib.Path(f"{S}/deploy/robots.txt").write_text(
         f"User-agent: *\nAllow: /\nSitemap: {SITE}/sitemap.xml\n", encoding="utf-8")
 

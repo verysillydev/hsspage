@@ -63,6 +63,9 @@ const cards = {
       .map(n => `<img src="${f('post/' + n + '.jpg')}"${n === 'yoni-paz' ? ' class="y"' : ''} alt="">`).join('')}</div>${lines}
     <div class="body"><p class="eyebrow">Meet the team</p><h1>Meet <span class="hl">the team.</span></h1>
     <p class="sub">The people who write, shoot, edit and post the work.</p></div>`,
+  'og-book': `${top}${lines}<div class="body"><p class="eyebrow">Strategy call</p>
+    <h1>Book a <span class="hl">strategy call.</span></h1>
+    <p class="sub">One hour on Google Meet with our team, about your market.</p></div>`,
   'og-contact': `${top}${lines}<div class="body"><p class="eyebrow">Contact</p>
     <h1>Talk <span class="hl">to us.</span></h1>
     <p class="sub">Tell us your city and your trade. A person answers within one business day.</p></div>`,

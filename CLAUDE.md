@@ -52,8 +52,8 @@ authentication for homeservicestudios.com before assuming it's a code bug. Don't
 the same way without the same kind of explicit go ahead — it's a bigger, separate move (Vercel
 routing, canonical/SEO URLs) than the contact address was.
 
-Live: **/** (homepage), **/our-work** (portfolio), **/packages** (Social Media Packages) and
-**/team** (roster, currently placeholder photos and copy for Yoni to fill in).
+Live: **/** (homepage), **/our-work** (portfolio), **/packages** (Social Media Packages),
+**/team** (roster), **/contact** and, since release 37, **/book** (the strategy call).
 `deploy/index.html` lands at the project root, so Vercel serves it at the apex.
 
 ## Build and deploy
@@ -634,8 +634,9 @@ Only ever one SPF and one DMARC record on the domain in use.
 ## Contact and CTAs
 
 **`cta_href()` is the single source of truth for where every conversion CTA points.** While
-`BOOK_URL` is empty they all go to the enquiry form at `/contact/#start`; set it and the same
-buttons become the calendar, and `reassure()` swaps its promise to match the destination. `nav()`
+`BOOK_URL` is empty they all go to the enquiry form at `/contact/#start`. Since release 37
+`BOOK_URL` is set (see Booking below), so they all go to our own `/book/` page, and
+`reassure()` swaps its promise to match the destination. `nav()`
 and the old Studio Max apply button (gone with that tier) used to build their own hrefs, which is
 how they kept pointing at `mailto:` after everything else had moved. `nav()` and `book()` go
 through `cta_href()` now. **Do not hand write a CTA href again.**
@@ -646,8 +647,9 @@ email on purpose, as the secondary path.
 **The footer is one function, `site_footer(page)`** (2026-10-06; it used to be hand copied five
 times). It renders the tagline, the primary CTA via `book()`, the email as a mailto text link, a
 labelled footer nav (Work, Packages, Team, Contact, 44px targets), the credentials line and
-`&copy; YEAR`. It never links a page to itself: the current page drops out of the nav, and on
-`/contact` the CTA is dropped while `cta_href()` points at that same page.
+`&copy; YEAR`. It never links a page to itself: the current page drops out of the nav, and the
+CTA is dropped on whichever page `cta_href()` points at (`/book/` now, `/contact/` without
+booking).
 
 **Buttons: the Reel wheel (release 34, owner).** Every primary button is option D of the
 approved mockup (`reports/hss-audit/button-options`, `zoom-d.png`). A round orange reel sits at
@@ -679,11 +681,58 @@ orange fill with black text it replaced measured 4.8:1, and the owner found it h
   and white on dark, through the themed `--hair` token. The old orange outline outshone a
   charcoal primary on the dark bands.
 
-The nav pill is the tightest thing on the site at 390px. It shows "Start a project" from 560px up
-and "Contact" below that, and the short label may not be a generic word: "Start" on its own fails
+The nav pill is the tightest thing on the site at 390px. With booking on (release 37) it shows
+"Book a call" from 560px up and "Book" below that; without booking, "Start a project" and
+"Contact". Its `min-width` reserves the long label's width against the font swap: `--cta-em`
+(5.2em for "Book a call", measured 5.03em in Onest; 7em for "Start a project"). The short label
+may not be a generic word: "Start" on its own fails
 Lighthouse's `link-text` audit and cost 8 SEO points. The pill also uses sentence case Onest
 rather than the mono uppercase of the nav links, because 15 characters of `--t-caps` tracking is
 about 25px the bar does not have.
+
+## Booking (release 37, owner)
+
+The owner set up a free Google Calendar appointment schedule: a one-hour Strategy Call, three
+slots a day, on collab@. The constants are at the top of `build_site.py`:
+- `BOOK_URL` (`https://calendar.app.google/aLYtZcqSZ5RvUcSM7`) is the short link.
+- `BOOK_EMBED` is the schedule it 302s to, plus `?gv=true`, Google's embeddable view.
+- `BOOKED = bool(BOOK_URL)`. Empty `BOOK_URL` turns all of this off and every CTA falls back to
+  the enquiry form.
+
+**Where the CTAs go.**
+- Every general CTA goes to our own `/book/`, in the same tab: the nav button ("Book a call",
+  "Book" below 560px), the phone action bar ("Book a call" beside "Contact"), the hero and page
+  CTAs of `/our-work`, `/packages` and the case pages, and the footer ("Book a strategy call",
+  `book()`'s default label).
+- The homepage stat-line buttons were never "Start a project" ("See the packages", "See our
+  work") and are unchanged.
+- The What We Do and Handyman Dan "Ask about ..." buttons still go to `/contact/` with their
+  prefills, because a calendar would lose the message.
+- `/contact/` keeps its form, with one line under its hero button: "Rather talk it through? Book
+  a strategy call." (`BOOK_LINE`).
+
+**`/book/` (`BOOK_HTML`).**
+- A dark hero: "Book a strategy call." and the owner's intro, "Pick a time that works for you.
+  It's a one-hour video call with our team. We'll look at your market and what you're posting
+  now."
+- Then Google's scheduler in an iframe, titled "Book a strategy call with Home Service Studios",
+  loaded eagerly.
+- Under it: "Prefer to write? Send us a message" (to `/contact/`) and "Open the booking page"
+  (`BOOK_URL`, a new tab).
+- It has its own meta, `og/og-book.jpg` (`make_og.mjs og-book`) and a sitemap entry.
+- The nav button carries `aria-current="page"` there. The footer drops its CTA there, and the
+  bubble is left out.
+
+**The frame's height is reserved up front, so there is no layout shift** (`BOOK_FRAME_H`).
+Google's embedded page was measured at the frame's width: 704 to 771px tall side by side, and
+1,213 to 1,256px stacked, which it does once the frame is under about 580px wide. So the frame is
+800px from a 650px viewport up and 1,300px below. If Google's page grows, the frame scrolls
+inside. Google's page names the schedule's host as "Seth Yeager", from the owner's Google
+account.
+
+**The scheduler loads on `/book/` and nowhere else.** The build asserts that no other page
+contains `calendar.google.com`. The old `SCHEDULER_SECTION`, which would have embedded it on
+`/contact/` (lazily, with "Twenty minutes" copy), is gone.
 
 ## Free social audit: the bubble and its panel (release 37, owner)
 
@@ -693,8 +742,8 @@ found that too in-your-face, so release 36b removed the trigger and release 37 r
 pop-up with a chat-style launcher. Do not bring back a scroll, timer or exit-intent trigger.
 
 The code is `CAL_CSS`, `CAL_BUBBLE`, `CAL_HTML` and `CAL_JS`. They are placed after
-`{actionbar()}` as `CAL_POPUP` on six page templates and as `CAL_POPUP_CONTACT` (no bubble) on
-`/contact/`. All of it is at the end of `<body>`, after the LCP element, and only in the web
+`{actionbar()}` as `CAL_POPUP` on six page templates and as `CAL_POPUP_PANEL` (no bubble) on
+`/contact/` and `/book/` (nothing may float over the scheduler). All of it is at the end of `<body>`, after the LCP element, and only in the web
 build.
 
 **The bubble (`CAL_BUBBLE`).**
@@ -705,12 +754,12 @@ build.
   text, so label-in-name holds. It also has `aria-haspopup="dialog"`, `aria-expanded` and
   `aria-controls="cal"`, and the site's orange focus ring.
 - It ships `hidden`, and `CAL_JS` shows it, so without JS (or without `<dialog>`) there is no
-  dead control. It is never on `/contact/`.
+  dead control. It is never on `/contact/` or `/book/`.
 - **Desktop (from 760px):** right and bottom 24px, the pill always visible. While the panel is
   open the pill hides and the reel turns into a down chevron. A click there lands on the
   backdrop, which closes the panel, so it works as a toggle.
 - **Phones:** right 16px, bottom 66px plus the safe-area inset, which is 11px above the action
-  bar, so it never covers "Contact" or "Start a project". The pill shows once per visit, for 5s
+  bar, so it never covers "Contact" or "Book a call". The pill shows once per visit, for 5s
   after the first scroll past 40px, then collapses to the round button (`is-peek`,
   sessionStorage `hss-peek`). Collapsed, it takes no pointer events, so there is no invisible
   tap area. Reduced motion: it never shows.
@@ -1014,8 +1063,13 @@ about. `/packages` calls it twice, so it has its own second variant (`packages-t
 **Every variant makes the same three promises**: short, one business day, answered by a person
 about your own market. Only the phrasing moves, so nothing is over-claimed in one place and
 under-claimed in another. If you add a page, add a variant rather than falling through to the
-default. Once `BOOK_URL` is set every CTA becomes the calendar and there is only one true promise
-to make, so this collapses back to the single `REASSURE` line on purpose.
+default. **With booking on (release 37)** every general CTA goes to `/book/`, so the line under
+it is the call's promise: `REASSURE`, "A one-hour video call on Google Meet. We'll look at your
+market and what you're posting now. Then we'll see if one of our Social Media Packages fits."
+`/packages` calls it twice, so its second line comes from `REASSURE_BOOKED` ("One hour on Google
+Meet with our team. We'll tell you which package fits.") and the page does not repeat itself.
+**`/contact/` keeps its form variant**, because its own button is "Send us a message". The old
+"Twenty minutes on Google Meet" wording was wrong for the owner's one-hour schedule.
 
 ## Copy conventions
 
@@ -1197,7 +1251,8 @@ to send paperwork before a crew is on site, which is what a commercial client ac
 **Do not state a coverage amount or promise a certificate by name** unless Yoni confirms it.
 
 **OG art is per page and per case** (1200x630, in `og/`, copied into the deploy). The homepage
-and All Heart use frames from the real footage; `/packages`, `/team`, `/contact` and the A1, Bee
+and All Heart use frames from the real footage; `/packages`, `/team`, `/contact`, `/book`
+(release 37) and the A1, Bee
 Right There and iComfort cases use cards rendered by `node make_og.mjs` (2026-10-06): flat ink,
 white Archivo with the orange bar, real material only (the team headshots, the clients' real
 numbers), the /packages price read from `data/packages.json`. Rerun it after changing a card, the team photos or the price book; it
@@ -1244,7 +1299,8 @@ into its own system and the fingerprint returns.
 - **Section openers vary.** Homepage sections using the identical eyebrow, heading, lede block
   went from 5 of 7 to 3 of 7 via `.sec-head.bare`. Since release 8 the homepage has two section
   headings, "Our Clients" (`.sec-head.bare`) and "What We Do" (`.sec-head`, 46px at 1440).
-- **A sticky action bar on phones**, contact and start-a-project, hidden from 760px up.
+- **A sticky action bar on phones**, "Contact" and the primary CTA ("Book a call" since release
+  37), hidden from 760px up.
   **It overlapped the hero headline until 2026-09-03.** `.hero-media` is `min-height:100dvh` with
   `justify-content:flex-end`, so its text block anchors to the bottom of the viewport, which is
   exactly where the fixed `.actionbar` sits. Measured at 390x844: the h1 ended at 820px and the
