@@ -579,7 +579,7 @@ CSS = """<style>
     .rv{transform:translateY(10px);}
     .rv-in{transform:none;transition-duration:.3s;}
   }
-  /* The four "what you are actually buying" cards get a longer, more visible
+  /* The four "what you are investing in" cards get a longer, more visible
      travel than the generic reveal so they read as sliding into frame rather
      than a subtle fade. Only .benefit uses this, nothing else, so the
      generic .rv distance elsewhere is untouched.
@@ -1464,7 +1464,7 @@ CSS = """<style>
      text on it) */
   .always{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
     padding:var(--s6) var(--s5);margin-bottom:var(--s8);}
-  /* D6: the "what you are actually buying" block is a flat ink panel; .on-ink
+  /* D6: the "what you are investing in" block is a flat ink panel; .on-ink
      re-themes its heading, copy and the four benefit cards (--panel becomes a
      dark card, --cyan-text the bright cyan). The steps block and the tiers
      stay on warm white. */
@@ -3387,8 +3387,9 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
   <p class="eyebrow">Social Media Packages &middot; Home Service Studios</p>
   <h1 class="display">Known and trusted <span class="hl">before they need you.</span></h1>
   <p class="sub">Homeowners call the company they already recognize. That recognition is built
-  over months, not in a month. <strong>It only works if it actually runs.</strong> These packages
-  keep it running without landing on your desk.</p>
+  over months, not in a month. When something goes wrong, you're top of mind. <strong>It only
+  works if it actually runs.</strong> These packages keep it running without landing on your
+  desk.</p>
   <div class="ctarow">
     {book("Social%20Media%20Packages")}
     <a class="cta ghost" href="/our-work/">See our work</a>
@@ -3399,7 +3400,7 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
 <section><div class="wrap">
 
   <div class="always on-ink">
-    <h2>What you are actually buying</h2>
+    <h2>What you are investing in</h2>
     <p class="sub2">Not leads. Anyone selling you leads from organic short form is guessing.
     Consistent short form reliably does four things, and all four compound.</p>
     <div class="benefits">
@@ -3410,8 +3411,9 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
         <p>Good people are harder to find than customers, and they judge where to work from your
         feed long before they send a resume.</p></div>
       <div class="benefit"><span class="bn">03</span><h3>Trust at the door</h3>
-        <p>Someone who has already watched your team work starts the visit past the part where
-        they size you up.</p></div>
+        <p>Homeowners feel comfortable letting in a team they've already seen. They know your faces
+        and how you work. That familiarity lowers their guard, so the visit starts on the right
+        foot.</p></div>
       <div class="benefit"><span class="bn">04</span><h3>Proof you are still around</h3>
         <p>Everyone looks you up before they call. A feed with two years behind it says you are
         busy and still here. One that stopped in 2023 says the opposite.</p></div>

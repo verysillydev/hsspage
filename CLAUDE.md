@@ -8,7 +8,7 @@ framework, no template files and no component tree. Editing that script is how t
 **Design rule, 2026-10-06 (owner feedback: "the manila folders are ugly"): no faux-material
 textures.** No paper, manila folders, blueprint, concrete/plaster, wood siding, scanned marker
 strokes, handwritten faces or background grain. Surfaces are flat: the ink (`#14171A`, every hero,
-the logo band, the "actually buying" panel) or the warm white ground with `--ground-2` cards. **The
+the logo band, the "What you are investing in" panel) or the warm white ground with `--ground-2` cards. **The
 footage is the texture**: where a section needs an image, it is a real still from the company's
 own work (the case pages' spots and the D7 doors band). The /our-work case cards are flat ink,
 led by the client's problem (R8). Benchmarks the owners
