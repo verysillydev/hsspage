@@ -1404,6 +1404,25 @@ CSS = """<style>
   .band-tab.t-orange ~ .band-body{border-top:3px solid var(--orange);}
   .band-tab.t-cyan ~ .band-body{border-top:3px solid var(--cyan);}
   .band-tab.t-ink ~ .band-body{border-top:3px solid var(--ink);}
+  /* Release 34 (owner): from 900px every tier card sits on one three-column grid. The first
+     two groups share a row (1 + 2 columns) above the third (3). Panels lose their side
+     padding there, so a card is exactly one column wide in every row, and subgrid rows line
+     up both groups' tab, explainer and cards (same top, same height). */
+  @media(max-width:899px){.band-row > .band:first-child{margin-bottom:var(--s8);}}
+  @media(max-width:759px){.band-row > .band:first-child{margin-bottom:var(--s5);}}
+  @media(min-width:900px){
+    .band-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:var(--s4);
+      grid-template-rows:auto auto auto;margin-bottom:var(--s8);}
+    .band-row > .band{display:grid;grid-row:span 3;grid-template-rows:subgrid;margin:0;}
+    .band-row > .band + .band{grid-column:2 / span 2;}
+    .band-row .band-tab{justify-self:start;padding-left:18px;padding-right:18px;}
+    .band-row .band-body{grid-row:span 2;display:grid;grid-template-rows:subgrid;row-gap:0;}
+    .band-body{padding-left:0;padding-right:0;}
+    .band-body > p{padding:0 var(--s5);}
+    .band .pkgs{grid-template-columns:repeat(3,minmax(0,1fr));}
+    .band-row .band .pkgs{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .band-row .band:first-child .pkgs{grid-template-columns:minmax(0,1fr);}
+  }
   /* auto-fill, not auto-fit: since 2026-10-06 the groups hold one, two and
      three tiers, and with auto-fit a lone card stretched across the whole band
      and read as a banner, not a price. auto-fill keeps the empty tracks, so a
@@ -1466,25 +1485,6 @@ CSS = """<style>
   .benefit h3{margin:0;font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);}
   .benefit p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
 
-  /* the two engines, side by side, each with a diagram of how it actually works.
-     This was the hardest idea on the page and it used to be one long paragraph. */
-  .engines{display:grid;grid-template-columns:1fr;gap:var(--s4);}
-  @media(min-width:760px){.engines{grid-template-columns:1fr 1fr;}}
-  .engine{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
-    padding:var(--s5);display:flex;flex-direction:column;gap:var(--s3);}
-  .engine.is-two{border-color:rgba(var(--orange-rgb),.30);}
-  .engine .etag{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
-    text-transform:uppercase;color:var(--cyan-text);}
-  .engine.is-two .etag{color:var(--orange-text);}
-  .engine h3{margin:0;font-size:var(--f-h3);font-weight:700;letter-spacing:var(--t-head);}
-  .edia{width:100%;height:auto;display:block;margin:var(--s1) 0;}
-  .engine p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
-  /* --ink-2, not --ink-3: the panel is --ground-2, and --ink-3 on it is 4.32:1 */
-  .engine .ewhere{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:.06em;
-    text-transform:uppercase;color:var(--ink-2);border-top:1px solid var(--line);
-    padding-top:var(--s3);margin-top:auto;}
-  .engine.is-two .ewhere{color:var(--orange-text);}
-
   /* onboarding strip (D8): one ruled row of six on desktop, a compact
      numbered list on phones */
   .ob{list-style:none;margin:var(--s5) 0 0;padding:0;display:grid;
@@ -1517,8 +1517,6 @@ CSS = """<style>
       column-gap:var(--s3);row-gap:var(--s1);align-items:baseline;}
     .benefit .bn{font-size:var(--f-h4);border-bottom:0;padding:0;margin:0;}
     .benefit p{grid-column:1 / -1;}
-    .engines{gap:var(--s3);}
-    .engine{padding:var(--s4);gap:var(--s2);}
     .steps{gap:1px;background:var(--line);}
     .step2{padding:var(--s3) var(--s4);background:var(--ground-2);}
     .step2 h3{margin:var(--s1) 0 2px;}
@@ -1533,12 +1531,11 @@ CSS = """<style>
     .hero .ctarow .cta.ghost{padding-left:var(--s4);padding-right:var(--s4);}
     /* explanatory paragraphs one step down (still above the 12px floor);
        headings, prices and the "Not leads" lede keep their size */
-    .benefit p,.engine p,.step2 p,.pkg li{font-size:var(--f-sm);line-height:1.5;}
+    .benefit p,.step2 p,.pkg li{font-size:var(--f-sm);line-height:1.5;}
     .step2{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:var(--s2);
       align-items:baseline;}
     .step2 h3{margin:0;}
     .step2 p{grid-column:1 / -1;margin-top:2px;}
-    .edia{max-width:220px;}
     .ob{grid-template-columns:repeat(2,minmax(0,1fr));}
     .ob li{display:flex;flex-direction:column;gap:2px;padding:var(--s3);}
   }
@@ -2180,7 +2177,7 @@ MOTION_JS = """<script>
 
   /* (a) scroll reveals ---------------------------------------------------- */
   if(!reduce && 'IntersectionObserver' in window){
-    var SEL = '.sec-head,.pcard,.benefit,.engine,.pkg,.csi > div,.op,.spot,.reel,' +
+    var SEL = '.sec-head,.pcard,.benefit,.pkg,.csi > div,.op,.spot,.reel,' +
               '.step2,.door,.always,.incl,.pn,.band-head,.lead,.member';
     var vh = window.innerHeight || 800;
     var targets = [].slice.call(document.querySelectorAll(SEL)).filter(function(e){
@@ -3337,13 +3334,6 @@ def pkg_group(gid):
             f'<div class="pkgs">{cards}</div></div></div>')
 
 
-# Two small diagrams for the packages page. The first is breadth: a lot of posts,
-# familiarity rising slowly across all of them. The second is depth: fewer people,
-# each one further along, narrowing to a booked job.
-ENGINE_SHORT = ('<svg class="edia" viewBox="0 0 300 92" role="img" aria-label="Many small posts over time, with familiarity rising slowly across them"><line x1="6" y1="82.5" x2="294" y2="82.5" stroke="#E2E0DA" stroke-width="1"/><rect x="8.0" y="72" width="6" height="10" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="20.5" y="66" width="6" height="16" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="33.0" y="73" width="6" height="9" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="45.5" y="61" width="6" height="21" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="58.0" y="69" width="6" height="13" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="70.5" y="75" width="6" height="7" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="83.0" y="64" width="6" height="18" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="95.5" y="70" width="6" height="12" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="108.0" y="58" width="6" height="24" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="120.5" y="72" width="6" height="10" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="133.0" y="67" width="6" height="15" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="145.5" y="63" width="6" height="19" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="158.0" y="73" width="6" height="9" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="170.5" y="60" width="6" height="22" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="183.0" y="69" width="6" height="13" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="195.5" y="66" width="6" height="16" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="208.0" y="72" width="6" height="10" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="220.5" y="61" width="6" height="21" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="233.0" y="67" width="6" height="15" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="245.5" y="73" width="6" height="9" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="258.0" y="64" width="6" height="18" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="270.5" y="70" width="6" height="12" rx="1.5" fill="#00B0C8" opacity=".42"/><rect x="283.0" y="63" width="6" height="19" rx="1.5" fill="#00B0C8" opacity=".42"/><path d="M8,76 C90,72 156,56 292,14" fill="none" stroke="#F04820" stroke-width="2.5" stroke-linecap="round"/></svg>')
-
-ENGINE_LONG = ('<svg class="edia" viewBox="0 0 300 92" role="img" aria-label="A narrowing funnel, from people searching down to a booked job"><rect x="28" y="8" width="244" height="14" rx="3" fill="#00B0C8" opacity=".26"/><rect x="62" y="30" width="176" height="14" rx="3" fill="#00B0C8" opacity=".40"/><rect x="96" y="52" width="108" height="14" rx="3" fill="#00B0C8" opacity=".58"/><rect x="124" y="74" width="52" height="14" rx="3" fill="#F04820" opacity="1"/></svg>')
-
 # Terms (N2, 2026-10-06): one <details> per term, so on a phone the grid folds to
 # eight 44px rows a buyer opens as needed. They render open, and TERMS_JS closes
 # them only below 760px, right after the grid is parsed, so desktop and no-JS
@@ -3428,34 +3418,6 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
     </div>
   </div>
 
-  <div class="band">
-    <div class="band-head">
-      <h2 class="display">Two different ways this works</h2>
-      <p>Every package below is built on the first one. The second works the other way around,
-      and it is what Platinum adds on top of Gold.</p>
-    </div>
-    <div class="engines">
-      <div class="engine">
-        <span class="etag">Engine 01 &middot; Short form</span>
-        <h3>Attention</h3>
-        {ENGINE_SHORT}
-        <p>Aimed at someone scrolling past who was not looking for you. Each post does little alone;
-        across months they build the four things above. It is not attributable to leads, which is
-        why we do not sell it that way.</p>
-        <span class="ewhere">Included in every package</span>
-      </div>
-      <div class="engine is-two">
-        <span class="etag">Engine 02 &middot; Long form</span>
-        <h3>Intent</h3>
-        {ENGINE_LONG}
-        <p>Made for intent, not attention. It reaches someone already searching for what you sell.
-        It is slower to start, but it produces trackable inbound. <strong>Unlike short form, it
-        does not expire.</strong> A video made for search keeps getting found for years.</p>
-        <span class="ewhere">Platinum only</span>
-      </div>
-    </div>
-  </div>
-
   <div class="always">
     <h2>The same three things happen at every tier</h2>
     <p class="sub2">The packages differ in how often our crew is on site, how much goes out and
@@ -3474,9 +3436,10 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
     </div>
   </div>
 
+  <div class="band-row">
   {pkg_group("you-supply")}
-
   {pkg_group("two-days")}
+  </div>
 
   {pkg_group("four-days")}
 

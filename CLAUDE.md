@@ -572,31 +572,29 @@ The site sells two mechanisms and must never collapse them into one:
    Since the 2026-10-06 price book this only exists at Platinum (one long-form YouTube anchor
    video a month); the Engine 02 panel is labelled "Platinum only".
 
-On `/packages` the two engines are a **visual block**, not prose: `.engines` holds two panels,
-each with an inline SVG in `ENGINE_SHORT` and `ENGINE_LONG`. The first is breadth (many small
-bars, a slowly rising orange curve); the second is depth (a funnel narrowing to one orange bar,
-the booked job). Both use the same 300x92 viewBox and the same two colours so they read as a
-pair; if you edit one, rebalance the other. The four benefits above them are `.benefits` with
-large mono numerals, not the older `.steps`/`.step2` pattern, which is still used by the "same
-three things at every tier" block.
+**Release 34 (owner): the "Two different ways this works" section is gone from `/packages`**: its
+heading, intro and both Engine 01 / Engine 02 panels, with their diagrams (`ENGINE_SHORT`,
+`ENGINE_LONG`), the `.engines`/`.engine`/`.edia` CSS and the reveal selector entry. Nothing
+linked to it. Long form now appears on the site only as Platinum's own card line, "One long-form
+YouTube anchor video every month" (`data/packages.json`). The rules below still hold for any copy
+that talks about either mechanism. The four benefits are `.benefits` with large mono numerals,
+not the older `.steps`/`.step2` pattern, which is still used by the "same three things at every
+tier" block.
 
 **Short form does not persist and the site must never say it does.** Individual posts decay;
 what accumulates is familiarity, and familiarity fades too once you stop. That decay is the
 argument *for* the packages, not something to hide: if posts lasted, a client would buy one batch
 and leave. Only engine 2 genuinely does not expire, because someone searching finds a three year
-old video, so **"does not expire" lives in the Engine 02 panel and nowhere else**. As of
-2026-10-06 that panel states the mechanism only ("a video made for search keeps getting found years
-after it is posted"); none of the four cases is a long form case, so there is no client
-result behind engine 2 on the site right now. Do not invent one. If a real long form result arrives,
-it belongs in that panel as evidence, not in the short form benefits. Benefit 04 used to be "A
+old video. **"Does not expire" lived in the Engine 02 panel and nowhere else**; since release 34
+removed that panel it appears nowhere, and it must not move into the short form copy. None of the
+four cases is a long form case, so there is no client result behind engine 2. Do not invent one. Benefit 04 used to be "A
 library that keeps working" inside the block about what *short form* does, which was the two
 engines collapsing back into one. It is now "Proof you are still around", which is a real short
 form benefit: the volume is what someone sees when they look you up before calling.
 
-**"Intent, not attention" is the shared idea.** Since release 30 `/packages` Engine 02 opens
-"Made for intent, not attention." (owner copy, short sentences). It was also in the homepage
-packages lede until release 8 removed that section. Keep the pages describing the same mechanism
-in the same words. Engine 2 is also what Platinum adds on top of Gold, so do not cut it.
+**"Intent, not attention" was the shared idea** of the Engine 02 panel (release 30 owner copy),
+removed with it in release 34. Engine 2 is still what Platinum adds on top of Gold, through its
+card line.
 
 Never pin the pitch to one buying trigger. An earlier draft said recognition matters "when the
 unit dies", which pigeonholed the whole site as HVAC and technician facing. Name several triggers
@@ -699,6 +697,18 @@ across the client's platforms. They are grouped by production model: "You supply
 "Four production days a year" (Silver, Gold, Platinum, plus local production days as needed).
 Gold adds a dedicated engager; Platinum adds one long-form YouTube anchor video a month. From
 Starter up each tier includes a dedicated monthly ad budget ($150 to $750, `adSpend` in the json).
+
+**Tier layout (release 34, owner).** From 900px every tier card sits on one three-column grid.
+The first two groups share a row: "You supply the footage" (Baby Steps) in column 1, "Two
+production days a year" (Starter, Bronze) across columns 2 and 3. The third group (Silver, Gold,
+Platinum) sits below on the same columns. The group panels lose their side padding there, because
+padded panels side by side cannot land their cards on the same lines as a full-width row: the
+16px card gap is smaller than two paddings. So a card is exactly one column wide in every row
+(347px at 1440). Subgrid rows line up the two groups' tab, explainer and cards, so cards in a
+row share a top and a height. In that row the tabs use 18px side padding, so "You supply the
+footage" fits on one line from 1120px; from 900 to 1119px it wraps, and both tabs grow together.
+Below 900px the old stack is unchanged (2-up at tablet, 1-up on phones, padded panels). The
+Silver badge is unchanged. Prices still come from `data/packages.json`.
 
 **`/packages` on phones (N2, 2026-10-06)** went from 12,340px (13,300 before P1) to about 8,000px at
 390 wide, desktop 6,311px. Below 760px the repeated blocks compact (one media block after the
