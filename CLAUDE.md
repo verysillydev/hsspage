@@ -1409,11 +1409,47 @@ scrolls just enough to keep the button above the action bar (on desktop the bar 
 that check does nothing). On desktop the roster grid is top aligned (`align-items:start`), so
 opening one card grows only that card. The other two keep their tops and heights (measured at
 1440: Paloma 567 to 785px, Yoni and Sergy unchanged). Without JS the whole bio shows and there
-is no button. The leadership cards (Seth, Craig) have no toggle. Without a teaser there is no button either. All three
+is no button. **Since release 38 the leadership cards (Craig, Seth) use the same toggle**, see
+below. Without a teaser there is no button either. All three
 crew entries carry both fields since release 33. A new crew member gets the same by adding `bio`
 and `bio_teaser` to their entry; nothing else changes.
-`BIO_JS` is inlined right after the roster, so the collapse lands before that part of the page
-paints. It is only emitted when some entry has a teaser.
+**The collapsed state is keyed on `html.js-bio` (release 38).** `BIO_ON`, a one-line script just
+before the leadership cards, sets it before the first bio is parsed. So no bio is ever painted
+open and then collapsed, which would shift the page (the leadership cards sit above the crew).
+`BIO_JS`, after the roster, only wires the buttons and flips `.is-open`. Both are emitted only
+when some crew or leadership entry has a teaser. Without JS there is no `js-bio`, so every bio
+shows in full and no button shows.
+
+**Leadership bios and the toggle (release 38, owner).** `lead_bio()` renders a leadership bio as
+paragraphs (split on a blank line in `TEAM_LEADS`) inside one `.lbio` block, which may hold
+several paragraphs.
+- **With a `bio_teaser`** (the exact start of the first paragraph; the build asserts it), the
+  first paragraph shows the teaser and "...". The rest of that paragraph and every later paragraph
+  are `.rest`, controlled by the one button (its `aria-controls` lists them all). Open, the
+  paragraphs read exactly as written, with "Show less" after the last word. To place the button
+  inline, the first paragraph is `display:inline` while collapsed and the last paragraph while
+  open. The gaps between paragraphs come from `margin-bottom`, so they hold either way.
+- **The teasers.** Craig's is "Craig began his Hollywood career in 2018, working as a camera
+  production assistant on shows like <em>American Idol</em>" (the teaser includes the closing
+  `</em>`). Seth's is "Seth came up on set. Camera, electrical, cinematography and stunts: he has
+  done it all".
+- **Measured at 1440:** both cards are 829px tall collapsed. Opening Craig grows only his card
+  (to 1,222px), because `.leads` is top aligned. The scroll back under the nav after Show less
+  works for the leadership cards too (`BIO_JS` looks for `.lead` as well as `.member`).
+- **Craig's bio (release 38, owner copy, verbatim, three paragraphs, show titles in `<em>`,
+  plain ASCII apostrophes)** replaces the release-30 bio:
+  - "Craig began his Hollywood career in 2018, working as a camera production assistant on shows
+    like *American Idol*, *Dancing with the Stars*, *America's Got Talent*, and *The Masked
+    Singer*. When COVID shut down Hollywood in 2020, he pivoted to creating content for a home
+    service brand whose business remained open."
+  - "Over two years working alongside the business, Craig discovered a passion for telling the
+    stories of people in the trades. He connected naturally with hardworking, blue-collar
+    business owners and began applying a Hollywood approach to showcase their teams."
+  - "That passion led him to partner with Seth, his best friend from film school, to build Home
+    Service Studios. Together, they developed a distinct cinematic style that makes contractors
+    look like movie stars while highlighting the people behind their businesses. Craig is
+    grateful to every client who has trusted them to tell their story."
+- Seth's bio is unchanged (release 18, owner copy).
 
 What is still open:
 

@@ -1700,7 +1700,7 @@ CSS = """<style>
   .portrait img{width:100%;height:100%;object-fit:cover;display:block;}
 
   .leads{display:grid;grid-template-columns:1fr;gap:var(--s6);margin-bottom:var(--s8);}
-  @media(min-width:680px){.leads{grid-template-columns:1fr 1fr;gap:var(--s7);}}
+  @media(min-width:680px){.leads{grid-template-columns:1fr 1fr;gap:var(--s7);align-items:start;}}
   .lead .portrait{aspect-ratio:3/4;margin-bottom:var(--s4);}
   .lead h3{margin:0;font-size:var(--f-h3);font-family:var(--display);font-weight:650;
     letter-spacing:var(--t-head);}
@@ -1708,6 +1708,12 @@ CSS = """<style>
     letter-spacing:var(--t-caps);text-transform:uppercase;color:var(--orange-text);}
   .lead p{margin:var(--s3) 0 0;color:var(--ink-2);font-size:var(--f-body);line-height:1.6;
     max-width:52ch;}
+  .lead .lbio{margin:var(--s3) 0 0;max-width:52ch;color:var(--ink-2);font-size:var(--f-body);
+    line-height:1.6;}
+  .lead .lbio > p{margin:0 0 var(--s3);}
+  .lead .lbio > p:last-of-type{margin-bottom:0;}
+  .js-bio .lbio[data-cut].is-open > p:last-of-type,
+  .js-bio .lbio[data-cut]:not(.is-open) > p:first-child{display:inline;}
 
   /* Crew (release 24, owner). TEAM_ROSTER is in reading order, which is also the
      phone order: one card per row below 760px, the site's phone breakpoint (the
@@ -1739,12 +1745,13 @@ CSS = """<style>
   .member .mbio{margin:var(--s2) 0 0;font-size:var(--f-sm);line-height:1.5;
     color:var(--ink-2);}
   /* Optional bio teaser (release 24): see member_card() and BIO_JS. Without JS the whole
-     bio shows and the ellipsis and the toggle stay hidden. BIO_JS adds .js-cut; at every
+     bio shows and the ellipsis and the toggle stay hidden. html.js-bio (set by BIO_ON, a
+     one-line script before the first bio, release 38) collapses them; at every
      width (release 34; phones only before) that shows the lead, "...", then "Read more".
      .is-open shows the rest, with "Show less" at the end. The toggle reads as a
      link (--orange-text, underlined: 5.9:1 on white) and its ::after gives it a 44px
      tall hit area without touching the line box, so no text moves. */
-  .mbio .ell,.mbio .bio-tog{display:none;}
+  [data-cut] .ell,[data-cut] .bio-tog{display:none;}
   .bio-tog{position:relative;padding:0;margin:0;border:0;background:none;font:inherit;
     color:var(--orange-text);text-decoration:underline;text-decoration-thickness:1px;
     text-underline-offset:.16em;cursor:pointer;border-radius:var(--r-sm);}
@@ -1754,9 +1761,9 @@ CSS = """<style>
      the ring sits 1px out so it clears the full stop before "Show less" */
   @media(hover:hover){.bio-tog:hover{text-decoration-thickness:2px;}}
   .bio-tog:focus-visible{outline:2px solid var(--orange);outline-offset:1px;}
-  .mbio.js-cut .bio-tog{display:inline-block;}
-  .mbio.js-cut:not(.is-open) .ell{display:inline;}
-  .mbio.js-cut:not(.is-open) .rest{display:none;}
+  .js-bio [data-cut] .bio-tog{display:inline-block;}
+  .js-bio [data-cut]:not(.is-open) .ell{display:inline;}
+  .js-bio [data-cut]:not(.is-open) .rest{display:none;}
 
   .skip{position:absolute;left:-9999px;top:0;background:var(--orange);color:#14171A;
     padding:var(--s3) var(--s4);border-radius:0 0 var(--r-sm) 0;z-index:99;font-weight:600;}
@@ -4737,13 +4744,26 @@ CONTACT_HTML = f"""<title>Contact</title>
 # these two lists rather than to the page structure.
 TEAM_LEADS = [
     {"name": "Craig Balog", "title": "Cofounder", "photo": "craig-balog.jpg",
-        # Release 30 (owner copy, short sentences; R21 before). Production titles in <em>.
-        "bio": "Craig is a filmmaker and photographer with more than ten years in production. "
-               "He worked on the crews of network reality and game shows, including "
-               "<em>America&#39;s Got Talent</em> and <em>Family Feud</em>. That meant "
-               "television made fast, on schedule, with real people instead of actors. Filming "
-               "a contractor on a live job takes exactly that. Craig cofounded Home Service "
-               "Studios out of its Marina del Rey office. He is hands-on with every shoot."},
+        # Release 38: the owner's copy, verbatim, three paragraphs (a blank line between them),
+        # show titles in <em>, plain ASCII apostrophes. It replaces the release-30 bio.
+        "bio": "Craig began his Hollywood career in 2018, working as a camera production "
+               "assistant on shows like <em>American Idol</em>, <em>Dancing with the Stars</em>, "
+               "<em>America's Got Talent</em>, and <em>The Masked Singer</em>. When COVID shut "
+               "down Hollywood in 2020, he pivoted to creating content for a home service brand "
+               "whose business remained open."
+               "\n\n"
+               "Over two years working alongside the business, Craig discovered a passion for "
+               "telling the stories of people in the trades. He connected naturally with "
+               "hardworking, blue-collar business owners and began applying a Hollywood approach "
+               "to showcase their teams."
+               "\n\n"
+               "That passion led him to partner with Seth, his best friend from film school, to "
+               "build Home Service Studios. Together, they developed a distinct cinematic style "
+               "that makes contractors look like movie stars while highlighting the people behind "
+               "their businesses. Craig is grateful to every client who has trusted them to tell "
+               "their story.",
+        "bio_teaser": "Craig began his Hollywood career in 2018, working as a camera production "
+                      "assistant on shows like <em>American Idol</em>"},
     {"name": "Seth Yeager", "title": "Cofounder", "photo": "seth-yeager.jpg",
         # Release 18 (owner copy, exact, short sentences). The earlier unit credit was
         # removed on the owner's instruction; do not restore it.
@@ -4751,7 +4771,9 @@ TEAM_LEADS = [
                "it all across film and television. His work includes <em>The Chosen</em> and many "
                "independent films. On <em>The Shop</em>, he was first assistant director. That "
                "production standard is what he brought to contractors as a cofounder of Home "
-               "Service Studios."},
+               "Service Studios.",
+        "bio_teaser": "Seth came up on set. Camera, electrical, cinematography and stunts: he has "
+                      "done it all"},
 ]
 # Release 24 (owner): TEAM_ROSTER is in reading order, which is the phone order
 # (Yoni, Paloma, Sergy). From 760px the CSS puts the first card in the middle column,
@@ -4804,7 +4826,36 @@ def lead_card(p, first=False):
         art = PERSON_ICON
     return (f'<div class="lead"><div class="portrait">{art}</div>'
             f'<h3>{p["name"]}</h3><span class="rtitle">{p["title"]}</span>'
-            f'<p>{p["bio"]}</p></div>')
+            f'{lead_bio(p)}</div>')
+
+
+def lead_bio(p):
+    """A leadership bio (release 38): paragraphs split on a blank line, in one .lbio block.
+    With a bio_teaser (the exact start of the first paragraph) it gets the crew's Read more /
+    Show less toggle at every width: the first paragraph shows the teaser and "...", and the
+    rest of that paragraph and every later paragraph are .rest, all controlled by the one
+    button after the text, so focus never moves. Open, the paragraphs read exactly as written.
+    Without JS (no html.js-bio) everything shows and there is no button."""
+    paras = p["bio"].split("\n\n")
+    teaser = p.get("bio_teaser")
+    if not teaser:
+        return '<div class="lbio">' + "".join(f"<p>{x}</p>" for x in paras) + "</div>"
+    assert paras[0].startswith(teaser) and (paras[0][len(teaser):].strip() or len(paras) > 1), \
+        f'{p["name"]}: bio_teaser must be a strict prefix of the first paragraph'
+    slug = re.sub(r"[^a-z0-9]+", "-", p["name"].lower()).strip("-")
+    first = p["name"].split()[0]
+    ids, out = [], f'<p>{teaser}<span class="ell" aria-hidden="true">...</span>'
+    if paras[0][len(teaser):]:
+        ids.append(f"bio-{slug}")
+        out += f'<span class="rest" id="bio-{slug}">{paras[0][len(teaser):]}</span>'
+    out += "</p>"
+    for k, x in enumerate(paras[1:], 2):
+        ids.append(f"bio-{slug}-{k}")
+        out += f'<p class="rest" id="bio-{slug}-{k}">{x}</p>'
+    return (f'<div class="lbio" data-cut>{out} <button type="button" class="bio-tog" '
+            f'aria-expanded="false" aria-controls="{" ".join(ids)}" '
+            f'aria-label="Read more about {first}" data-more="Read more about {first}" '
+            f'data-less="Show less about {first}">Read more</button></div>')
 
 
 def member_card(p):
@@ -4848,10 +4899,10 @@ BIO_JS = """<script>
 (function(){
   /* Crew bio teasers (release 24; every width since release 34): see member_card().
      Inline right after the roster so the collapse lands before that part of the page
-     paints. This script only adds .js-cut and flips .is-open. */
-  [].forEach.call(document.querySelectorAll('.mbio[data-cut]'), function(p){
-    var b = p.querySelector('.bio-tog'), card = p.closest('.member') || p;
-    p.classList.add('js-cut');
+     paints. This script only flips .is-open; BIO_ON's html.js-bio collapses the bios. Since
+     release 38 the leadership bios (.lbio, above the crew) use it too. */
+  [].forEach.call(document.querySelectorAll('[data-cut]'), function(p){
+    var b = p.querySelector('.bio-tog'), card = p.closest('.member, .lead') || p;
     b.addEventListener('click', function(){
       var open = !p.classList.contains('is-open');
       p.classList.toggle('is-open', open);
@@ -4876,7 +4927,12 @@ BIO_JS = """<script>
   });
 })();
 </script>"""
-ROSTER_JS = BIO_JS if any(p.get("bio_teaser") for p in TEAM_ROSTER) else ""
+_BIO_TEASERS = any(p.get("bio_teaser") for p in TEAM_ROSTER + TEAM_LEADS)
+ROSTER_JS = BIO_JS if _BIO_TEASERS else ""
+# Release 38: the collapsed state is keyed on html.js-bio, set by this one line before the first
+# bio (the leadership cards) is parsed, so no bio is ever painted open and then collapsed (CLS).
+# BIO_JS, after the crew, only wires the buttons.
+BIO_ON = "<script>document.documentElement.classList.add('js-bio')</script>" if _BIO_TEASERS else ""
 
 
 TEAM_HTML = f"""<title>Meet the team</title>
@@ -4898,6 +4954,7 @@ TEAM_HTML = f"""<title>Meet the team</title>
     <p class="eyebrow">Leadership</p>
     <h2 class="display">The people steering the work</h2>
   </div>
+  {BIO_ON}
   <div class="leads">
     {"".join(lead_card(p, first=(i == 0)) for i, p in enumerate(TEAM_LEADS))}
   </div>
