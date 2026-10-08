@@ -4691,6 +4691,14 @@ def enquiry_form():
 # The breakpoint is the frame's own width (a container query on .book-box, 2px wider than the
 # iframe), so it always matches Google's switch, classic scrollbars or not.
 BOOK_FRAME_H = (800, 1341 + 40)
+# Release 40 (owner): Google shows collab@'s profile photo, a green "S", beside "Home Service
+# Studios", and the owner cannot change it. BOOK_LOGO (logos_hss/hss_round.webp: the nav mark
+# centred on black, 120px for dpr 3, 1.5KB) is laid over it: .book-av, 1px larger all round so
+# no edge of the green circle shows, pointer-events:none, aria-hidden. Its place follows Google's
+# layout through the same container query: (16,24) 32px stacked and at 600, (16,14) 32px medium,
+# (16,24) 40px at 900, (32,38) 40px side by side. Google's page never scrolls inside the frame,
+# so the patch stays put. The known edge: after "Show more" on a phone the frame scrolls inside
+# and the patch drifts off the avatar. Without container queries the patch is hidden.
 BOOK_LINE = ('<p class="booknote">Rather talk it through? <a href="/book/">Book a strategy call.</a></p>'
              if BOOKED else "")
 
@@ -4763,6 +4771,7 @@ BOOK_JS = """<script>
 # frame whose height is reserved up front (no layout shift; the frame scrolls inside if
 # Google's page is ever taller), loaded eagerly here and nowhere else. No floating bubble on
 # this page: nothing should sit over the scheduler.
+BOOK_LOGO = asset(f"{S}/logos_hss/hss_round.webp", "image/webp")
 BOOK_HTML = f"""<title>Book a strategy call</title>
 {FONT_CSS}
 {CSS}
@@ -4772,8 +4781,14 @@ BOOK_HTML = f"""<title>Book a strategy call</title>
   .book-frame{{position:relative;height:{BOOK_FRAME_H[0]}px;}}
   .book-frame iframe{{display:block;width:100%;height:100%;border:0;}}
   @container book (width < 601.5px){{.book-frame{{height:{BOOK_FRAME_H[1] + 2}px;}}}}
+  .book-av{{position:absolute;left:31px;top:37px;width:42px;height:42px;border-radius:50%;
+    pointer-events:none;}}
+  @container book (width < 902.5px){{.book-av{{left:15px;top:23px;}}}}
+  @container book (width < 901.5px){{.book-av{{top:13px;width:34px;height:34px;}}}}
+  @container book (width < 602.5px){{.book-av{{top:23px;}}}}
   @supports not (container-type:inline-size){{
     @media(max-width:649px){{.book-frame{{height:{BOOK_FRAME_H[1] + 2}px;}}}}
+    .book-av{{display:none;}}
   }}
   @media(max-width:759px){{.book-sec{{padding:var(--s5) 0 var(--s7);}}}}
   /* the frame starts just under the fixed nav when BOOK_JS aligns it (wider layouts) */
@@ -4796,6 +4811,7 @@ BOOK_HTML = f"""<title>Book a strategy call</title>
   <div class="book-box"><div class="schedwrap book-frame">
     <iframe src="{BOOK_EMBED}" title="Book a strategy call with Home Service Studios"
       width="100%" height="{BOOK_FRAME_H[0]}" loading="eager"></iframe>
+    <img class="book-av" src="{BOOK_LOGO}" width="42" height="42" alt="" aria-hidden="true" decoding="async">
   </div></div>
   <p class="book-alt">Prefer to write? <a href="/contact/">Send us a message</a></p>
   <p class="book-alt"><a href="{BOOK_URL}">Open the booking page</a></p>

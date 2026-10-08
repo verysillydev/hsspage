@@ -837,6 +837,20 @@ container queries fall back to `max-width:649px`.
   submit Google's form, and a test must never book**: a booking puts a real event on the owner's
   calendar and sends real email. They close the dialog with its own "Cancel".
 
+**Google's "S" avatar is covered by the HSS logo (release 40, owner).** Google shows collab@'s
+profile photo, a green "S", beside "Home Service Studios", and the owner cannot change it.
+- `.book-av` lays `BOOK_LOGO` over it: `logos_hss/hss_round.webp`, the nav mark centred on black
+  and rounded by CSS, 120px for dpr 3, 1.5KB. It is 1px larger all round than the avatar, so no
+  green edge shows. It has `pointer-events:none`, `aria-hidden`, `alt=""`.
+- Its place follows Google's layout through the same container query: (16,24) at 32px stacked and
+  at 600; (16,14) at 32px medium; (16,24) at 40px at 900; (32,38) at 40px side by side. Coverage
+  was checked at 320 to 1440 against the avatar's real position.
+- **Fragile:** it is laid over Google's page, not part of it. If Google moves the avatar or
+  changes its layout widths, the logo lands beside the "S". Re-measure with
+  `reports/hss-audit/r40/tools/glayout2.mjs` (Google's page rendered top-level) and
+  `geo40.mjs` (on /book/). After "Show more" on a phone the frame scrolls inside, and the patch
+  drifts off the avatar. Without container queries the patch is hidden and the "S" shows.
+
 **The scheduler loads on `/book/` and nowhere else.** The build asserts that no other page
 contains `calendar.google.com`. The old `SCHEDULER_SECTION`, which would have embedded it on
 `/contact/` (lazily, with "Twenty minutes" copy), is gone.
