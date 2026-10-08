@@ -761,10 +761,31 @@ slots a day, on collab@. The constants are at the top of `build_site.py`:
 
 **The frame's height is reserved up front, so there is no layout shift** (`BOOK_FRAME_H`).
 Google's embedded page was measured at the frame's width: 704 to 771px tall side by side, and
-1,213 to 1,256px stacked, which it does once the frame is under about 580px wide. So the frame is
-800px from a 650px viewport up and 1,300px below. If Google's page grows, the frame scrolls
-inside. Google's page names the schedule's host as "Seth Yeager", from the owner's Google
-account.
+1,213 to 1,256px stacked, which it does once the frame is under about 580px wide.
+- **From 650px the frame is 800px**, so the whole page fits with no second scrollbar.
+- **Below 650px (release 39, owner: on his iPhone the "Booking confirmed" card opened above the
+  screen) the frame is the visible screen**: `max(480px, calc(100svh - 60px - 55px -
+  env(safe-area-inset-bottom)))`. That is the screen minus the fixed nav (60px) and the action
+  bar (54px plus its 1px border plus the safe-area inset).
+  - Google centres its dialogs (the slot details form, the confirmation) in the frame's own
+    viewport. With the old 1,300px frame that was about 650px down the frame, so a visitor who had
+    scrolled down to a late slot got the dialog off the top of the screen.
+  - Now Google's page scrolls inside the frame and every dialog centres on screen. Measured in
+    Chrome at 390x844 and 430x932 (dpr 3, touch): after swiping to the 3:00pm slot and tapping
+    it, the details dialog sat at 137 to 712 and 181 to 756, fully visible.
+  - The cost: a swipe that starts on the frame scrolls Google's page first, then the page.
+- **`BOOK_JS`:** when the visitor first taps into the scheduler (the window blurs and the iframe
+  is the active element) and the frame is not fully on screen, the page scrolls the frame to just
+  under the nav (`scroll-margin-top:60px`). It is smooth, or instant under reduced motion. It runs
+  at every width: on desktop it fires when the 800px frame is not fully on screen, which includes
+  a short laptop screen.
+- **Phones only:** `html{scroll-snap-type:y proximity}` with the frame as a `start` snap point, so
+  a scroll that ends near the frame settles with it filling the screen. Checked: swipes still
+  reach the hero and the footer freely.
+- Tests in `reports/hss-audit/r39/tools/` (`slot39.mjs`, `snap39.mjs`) read the cross-origin
+  frame's layout through a CDP session to find the slots. **They never type into or submit
+  Google's form, and a test must never book**: a booking puts a real event on the owner's
+  calendar and sends real email. They close the dialog with its own "Cancel".
 
 **The scheduler loads on `/book/` and nowhere else.** The build asserts that no other page
 contains `calendar.google.com`. The old `SCHEDULER_SECTION`, which would have embedded it on

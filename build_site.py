@@ -4622,15 +4622,47 @@ def enquiry_form():
 
 # Release 37: the Google scheduler lives on /book/ only. /contact/ points there in one line
 # under its hero button (with booking on), and keeps the form as its own job.
-# The scheduler's frame height, reserved up front. Google's embedded page, measured at the
-# frame's width (release 37): 704 to 771px tall side by side, 1,213 to 1,256px stacked, which it
-# does once the frame is under about 580px wide (a viewport under about 630px). So 800px from
-# a 650px viewport up and 1,300px below, with room to spare and no second scrollbar.
-BOOK_FRAME_H = (800, 1300)
+# The scheduler's frame height, reserved up front (no layout shift). Google's embedded page,
+# measured at the frame's width (release 37): 704 to 771px tall side by side, 1,213 to 1,256px
+# stacked, which it does once the frame is under about 580px wide (a viewport under about
+# 630px).
+# - From 650px: 800px, so the whole page fits with no second scrollbar.
+# - Below 650px (release 39, owner): the visible screen between the fixed nav (60px) and the
+#   phone action bar (54px plus its 1px border plus the safe-area inset), with a 480px floor.
+#   Google's page then scrolls inside the frame. Google centres its dialogs (the slot details
+#   form, the "Booking confirmed" card) in the frame's own viewport. With the 1,300px frame of
+#   releases 37 and 38 that was about 650px down the frame, so a visitor who tapped a late slot
+#   was scrolled past it and the dialog opened above the screen. Now the frame's viewport is
+#   the screen, so every dialog centres on screen.
+BOOK_FRAME_H = (800, "max(480px, calc(100svh - 60px - 55px - env(safe-area-inset-bottom)))")
 BOOK_LINE = ('<p class="booknote">Rather talk it through? <a href="/book/">Book a strategy call.</a></p>'
              if BOOKED else "")
 
 
+
+
+# Release 39 (owner, iPhone): when the visitor first taps into the scheduler (the window blurs
+# and the iframe becomes the active element) and the frame is not fully on screen, scroll the
+# page so the frame sits just under the nav: smooth, or instant under reduced motion. At every
+# width; on desktop it only fires when the 800px frame does not fit (a short laptop screen).
+BOOK_JS = """<script>
+(function(){
+  var f = document.querySelector('.book-frame iframe');
+  if(!f) return;
+  var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)');
+  addEventListener('blur', function(){
+    setTimeout(function(){
+      if(document.activeElement !== f) return;
+      var r = f.getBoundingClientRect(), nav = document.querySelector('.nav'),
+          bar = document.querySelector('.actionbar'), top = nav ? nav.getBoundingClientRect().bottom : 0,
+          bot = innerHeight;
+      if(bar){ var b = bar.getBoundingClientRect(); if(b.height) bot = b.top; }
+      if(r.top >= top - 1 && r.bottom <= bot + 1) return;
+      f.parentNode.scrollIntoView({behavior: still && still.matches ? 'auto' : 'smooth', block: 'start'});
+    }, 0);
+  });
+})();
+</script>"""
 
 
 # /book/ (release 37, owner): the strategy call. Google's embedded appointment schedule in a
@@ -4645,7 +4677,10 @@ BOOK_HTML = f"""<title>Book a strategy call</title>
   .book-frame{{height:{BOOK_FRAME_H[0]}px;}}
   .book-frame iframe{{display:block;width:100%;height:100%;border:0;}}
   @media(max-width:759px){{.book-sec{{padding:var(--s5) 0 var(--s7);}}}}
-  @media(max-width:649px){{.book-frame{{height:{BOOK_FRAME_H[1]}px;}}}}
+  /* the frame starts just under the fixed nav when scrolled into place (BOOK_JS, snap) */
+  .book-frame{{scroll-margin-top:60px;}}
+  @media(max-width:649px){{.book-frame{{height:{BOOK_FRAME_H[1]};scroll-snap-align:start;}}
+    html{{scroll-snap-type:y proximity;}}}}
   .book-alt{{margin:var(--s5) 0 0;font-size:var(--f-body);color:var(--ink-2);}}
   .book-alt + .book-alt{{margin-top:var(--s2);font-size:var(--f-sm);}}
 </style>
@@ -4675,6 +4710,7 @@ BOOK_HTML = f"""<title>Book a strategy call</title>
 {CAL_POPUP_PANEL}
 {SPLAT_JS}
 {NAV_JS}
+{BOOK_JS}
 """
 
 
