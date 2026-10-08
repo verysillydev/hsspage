@@ -107,7 +107,7 @@ Two assertions run before anything is written to disk, so a bad build fails inst
 the homepage hero is self-hosted too since release 10 (see Homepage hero), and YouTube now
 remains only for the `/our-work` Quality banner.** The All Heart case page's ten spots, the Handyman Dan
 strip on `/our-work` (the Handyman Dan section), and on the homepage the three spots in What We Do block 02,
-the Quality brand film in block 03 and (once supplied) the podcast video in block 04 play the
+the three brand films in block 03 and the podcast film in block 04 play the
 whole film, not a preview:
 - Real hover (`(hover: hover) and (pointer: fine)`), no reduced motion: entering a card plays from
   0:00 muted (browsers refuse sound without a click), leaving pauses, rewinds to 0:00 and brings
@@ -132,7 +132,7 @@ whole film, not a preview:
 All of it is in `SOLO_JS` (which case pages with spots now carry too). Markup comes from
 `vspot_media()`, shared by `spot()`, `brand_film()` and `podcast_media()`: `<video preload="none"
 playsinline>` with width/height read from the file by `mp4_info()`, under a lazy poster `<img>`
-(`post_yt/<id>.webp` for the spots, `post/quality1.jpg` for the brand film; not the poster
+(`post_yt/<id>.webp` for the spots, `post/<film>.webp` for the brand and podcast films; not the poster
 attribute, which loads eagerly and cannot come back after playback). Every film's duration label is
 checked against its file there, and `mp4_info()` refuses one that is not faststart. **A page load fetches no video at all** (verified per release);
 keep it that way.
@@ -140,10 +140,10 @@ keep it that way.
 The files are `spots/` (committed; about 124 MB in all since release 32 added
 `gatorwraps-brand.mp4`, 15.2 MB, and `familyplumber-30.mp4`, 4.7 MB): `ah01`-`ah10` in the order of the `allheart`
 list, and `hd01 hd02 hd03 hd05 hd06`, which keep the original six-spot numbering (there is no
-`hd04`: Father Vs AC was removed in R17 and must not return), plus `quality-brand.mp4` (release 8,
-20.9 MB, 1:44): the Quality Heating Cooling Plumbing Electrical brand film **cut from 1:14 to the
-end**, the same part the `/our-work` banner opens on, so its poster `post/quality1.jpg` (the 1:14
-frame) matches its first frame. 720p H.264, AAC 96k, encoded from the owner's own YouTube uploads; the YouTube ids stay in the lists as the reference copy and the
+`hd04`: Father Vs AC was removed in R17 and must not return), plus `grasshopper-brand.mp4`
+(release 38, 4.8 MB, 0:30), Grasshopper's brand film, block 03's featured film. Release 38 deleted
+`quality-brand.mp4` (the Quality brand film from 1:14, 20.9 MB), which nothing used once Grasshopper
+replaced it; `post/quality1.jpg` stays as the `/our-work` banner's poster. 720p H.264, AAC 96k, encoded from the owner's own YouTube uploads; the YouTube ids stay in the lists as the reference copy and the
 poster key. The web build copies a file to `/our-work/a/` only when a card uses it. The build
 refuses a spot whose duration does not match its card label, one that is not faststart (moov must
 come before mdat: re-encode with `-movflags +faststart`), two cards sharing a file, a page with
@@ -351,9 +351,22 @@ dropped its "followers / following" line), resized to
 - **02 Commercial shoots.** "See the All Heart campaign", then the three hover-play spot cards
   (`HOME_SPOTS`). It ends (release 34) with "Want spots like these for your market?" and the
   Reel wheel button "Ask about a commercial shoot" (`COMMERCIAL_ASK`).
-- **03 Brand videos.** "Watch the full film" (YouTube, new tab), then the Quality brand film at full
-  width (`brand_film()`, see Video), captioned "Brand film for Quality Heating Cooling Plumbing
-  Electrical, Tulsa." with 1:44. **Since release 32 (owner) two more films sit under it**
+- **03 Brand videos.** The copy, then the featured film at full width (`BRAND_FILM`,
+  `brand_film()`, see Video). **Since release 38 (owner) it is Grasshopper's 30-second brand
+  film** (`spots/grasshopper-brand.mp4`, 4.8 MB, from the owner's 4K .mov master, not committed),
+  captioned "Brand film for Grasshopper Heating &amp; Cooling, Plumbing &amp; Electric, Clifton
+  Park." with 0:30.
+  - The name is their logo lockup ("GRASSHOPPER / HEATING & COOLING / PLUMBING / ELECTRIC"). Their
+    site's body copy says "Grasshopper Heating, Cooling, Plumbing & Electrical", and its footer
+    "...& Electric". The site states Clifton Park, NY in visible copy.
+  - Its poster `post/grasshopper-brand.webp` is the 22.00s frame: the mascot's thumbs-up in front
+    of the lit "GRASSHOPPER Heating & Cooling" sign. The film itself opens on black.
+  - It replaced the Quality brand film and its "Watch the full film" YouTube link. The block now
+    has no text link, because the clip is the whole film and Grasshopper's site links no YouTube
+    film. The Quality film is still the `/our-work` banner.
+  - The services strip's 03 still is unchanged (Quality's vans).
+
+  **Since release 32 (owner) two more films sit under it**
   (`BRAND_FILMS_MORE`, `brand_films_more()`): Gator Wraps' website film (1:24) and The Family
   Plumber's 30-second spot (0:30). They are equal hover-play players in `.wwd-pair`, two columns
   from 760px and stacked on phones; two across at 390 would make each about 159px wide. They use
@@ -369,7 +382,9 @@ dropped its "followers / following" line), resized to
   - `.wwd-pair` dissolves into the row with `display:contents`.
   - A swipe that starts on a video scrolls the row; the player never cancels touch.
   - Tap to play and one at a time still hold.
-  - From 760px the layout is unchanged: Quality featured, the pair below.
+  - The order is the featured film first (Grasshopper since release 38), then Gator Wraps,
+    then The Family Plumber.
+  - From 760px the layout is unchanged: the featured film, the pair below.
   - The block ends with "Want a film like these for your company?" and, since release 34, the
     Reel wheel button "Ask about a brand video" (`BRAND_ASK`). It used to be a text link.
 - **04 Podcast production.** "Watch the full episode" (YouTube `xgo2kAY3DkE`, new tab), the
@@ -1055,7 +1070,8 @@ and the asserts beside `CASE_BY_ID` ("more than ten times" is checked as 3,127 /
   commercial shoot.", `COMMERCIAL_ASK`, block 02) and `podcast` ("I'd like to talk about
   producing a podcast.", `PODCAST_ASK`, block 04, after "Want a show of your own?"). All four asks
   are Reel wheel buttons after a one-line prompt. The blocks' other text links ("See the All Heart
-  campaign", "Watch the full film", "Watch the full episode") stay text links. Never say
+  campaign", "Watch the full episode") stay text links. Block 03's "Watch the full film" went with
+  the Quality film in release 38. Never say
   "licensing", or who or how many run it.
 - The copy stays count-free.
 - On phones the spot row scrolls sideways only. It has `overflow-y:hidden`, and its cards fade

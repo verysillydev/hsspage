@@ -3957,20 +3957,31 @@ def ig_grab(fn, name, handle, followers):
             f'</figure>')
 
 
+# Block 03's featured film (release 38, owner): Grasshopper's 30-second brand film, from the
+# owner's 4K .mov master (not committed), encoded like the release-32 films (1280x720 H.264
+# High@3.1, CRF 23 capped at 1.6 Mbps, bt709, AAC 96k, +faststart). The poster is the 22.00s
+# frame: the mascot's thumbs-up in front of the lit "GRASSHOPPER Heating & Cooling" sign (the
+# film opens on black). The name is the company's logo lockup (Heating & Cooling, Plumbing,
+# Electric); their site states Clifton Park, NY in visible copy. It replaced the Quality brand
+# film (release 8), which is still the /our-work banner (YouTube, poster post/quality1.jpg).
+BRAND_FILM = ("grasshopper-brand.mp4", f"{P}/grasshopper-brand.webp", "0:30",
+              "Brand film for Grasshopper Heating &amp; Cooling, Plumbing &amp; Electric, Clifton Park.",
+              "the Grasshopper brand film")
+
+
 def brand_film():
-    """Block 03: the Quality brand film from 1:14 to the end (spots/quality-brand.mp4),
-    hover-play like the spots. Its poster is post/quality1.jpg, cut from the 1:14
-    frame, so the still matches the first frame. The inline artifact build cannot
-    carry the film, so it gets the still alone."""
-    if MODE != "web":
-        return (f'<div class="vspot"><img src="{asset(f"{P}/quality1.jpg", "image/jpeg")}"'
-                f'{dims(f"{P}/quality1.jpg")} alt="" loading="lazy"></div>')
-    return vspot_media("quality-brand.mp4", "1:44", f"{P}/quality1.jpg",
-                       "the Quality Heating Cooling Plumbing Electrical brand film")
+    """Block 03's featured film (BRAND_FILM), hover-play like the spots, with its caption.
+    The inline artifact build cannot carry the film, so it gets the still alone."""
+    fn, poster_path, du, cap, label = BRAND_FILM
+    media = (vspot_media(fn, du, poster_path, label) if MODE == "web" else
+             f'<div class="vspot"><img src="{asset(poster_path, "image/webp")}"'
+             f'{dims(poster_path)} alt="" loading="lazy"></div>')
+    return (f'{media}\n    <p class="wwd-cap"><span>{cap}</span>\n'
+            f'    <span class="du">{du}</span></p>')
 
 
 # Block 03's second row (release 32, owner): two more of the owner's own films beside the
-# featured Quality film, as equal smaller players with the same hover-play behaviour.
+# featured film, as equal smaller players with the same hover-play behaviour.
 # (file in spots/, poster, "m:ss" label checked against the file, caption, play label).
 # Encoded like the spots from the owner's .mov masters (not committed): 1280x720 H.264
 # High@3.1, CRF 23 capped at 1.6 Mbps, AAC 96k, +faststart. Posters are 1024x576 WebP
@@ -3989,7 +4000,7 @@ BRAND_FILMS_MORE = [
 
 
 def brand_films_more():
-    """Block 03's pair of films under the Quality film, each with its caption."""
+    """Block 03's pair of films under the featured film, each with its caption."""
     cells = []
     for fn, poster_path, du, cap, label in BRAND_FILMS_MORE:
         media = (vspot_media(fn, du, poster_path, label) if MODE == "web" else
@@ -4424,12 +4435,9 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <h3 class="wwd-title">Brand videos</h3>
     <p class="wwd-copy">A film that tells your company&#39;s story. Made for your homepage, your
     YouTube and your hiring.</p>
-    <a class="wwd-link" href="https://www.youtube.com/watch?v=m3HEWS9qMTM">Watch the full film&nbsp;&rarr;</a>
     <div class="wwd-films">
     <div class="wwd-film">
     {brand_film()}
-    <p class="wwd-cap"><span>Brand film for Quality Heating Cooling Plumbing Electrical, Tulsa.</span>
-    <span class="du">1:44</span></p>
     </div>
     {brand_films_more()}
     </div>
