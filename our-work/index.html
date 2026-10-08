@@ -1604,22 +1604,6 @@
     var a = e.target.closest && e.target.closest('[data-cal]');
     if(a){ e.preventDefault(); open(); }
   });
-  var real = false, fired = false;
-  addEventListener('wheel', function(){ real = true; }, {passive: true});
-  addEventListener('touchmove', function(){ real = true; }, {passive: true});
-  addEventListener('keydown', function(e){
-    if(/^(ArrowDown|PageDown|End| |Spacebar)$/.test(e.key)) real = true; });
-  function busy(){
-    var a = document.activeElement;
-    if(a && a.form && a.form !== f) return true;
-    return [].some.call(document.querySelectorAll('video:not([data-ambient])'),
-      function(v){ return !v.paused && !v.ended; });
-  }
-  addEventListener('scroll', function(){
-    if(fired || !real || d.open || window.scrollY < innerHeight * 0.4) return;
-    if(/^\/contact\//.test(location.pathname) || away() || busy()) return;
-    fired = true; open();
-  }, {passive: true});
   function show(el, m){
     var e = document.getElementById(el.id + '-e');
     if(e) e.textContent = m;
