@@ -30,6 +30,7 @@
 <style>@font-face{font-family:'Onest';font-style:normal;font-weight:400;font-display:optional;src:url(/fonts/onest-400.woff2) format('woff2');}@font-face{font-family:'Onest';font-style:normal;font-weight:600;font-display:optional;src:url(/fonts/onest-600.woff2) format('woff2');}@font-face{font-family:'Onest';font-style:normal;font-weight:700;font-display:optional;src:url(/fonts/onest-700.woff2) format('woff2');}@font-face{font-family:'Archivo';font-style:normal;font-weight:400;font-display:optional;src:url(/fonts/archivo-400.woff2) format('woff2');}@font-face{font-family:'Archivo';font-style:normal;font-weight:700;font-display:optional;src:url(/fonts/archivo-700.woff2) format('woff2');}@font-face{font-family:'Archivo';font-style:normal;font-weight:900;font-display:optional;src:url(/fonts/archivo-900.woff2) format('woff2');}</style>
 <style>
   :root{
+    --cta-em:5.2em; --cta-k:5.2;
     --ground:#FFFFFF; --ground-2:#F5F4F1; --panel:#EFEEEA;
     --line:#E2E0DA; --line-soft:#ECEBE6;
     --hair:#BDB8AE;
@@ -466,7 +467,7 @@
      the end of the document rather than anything inside a viewport-height box.
      Padding the hero itself is what clears it. */
   @media(max-width:759px){
-    .hero-media{padding-bottom:calc(54px + env(safe-area-inset-bottom));}
+    .hero-media{padding-bottom:calc(118px + env(safe-area-inset-bottom));}
   }
 
   /* a section that opens without a label, set larger to carry the weight the
@@ -526,6 +527,7 @@
   .reassure{margin:var(--s3) 0 0;font-size:var(--f-sm);color:var(--ink-3);max-width:52ch;
     line-height:1.5;}
 
+  .booknote{margin:var(--s4) 0 0;font-size:var(--f-body);color:var(--ink-2);}
   .schedwrap{background:var(--ground-2);border:1px solid var(--line);
     border-radius:var(--r-md);overflow:hidden;}
   .schedwrap iframe{display:block;width:100%;}
@@ -543,7 +545,7 @@
      shifted the whole right side of the bar, CLS about 0.001 on throttled
      phones). em-based, so it scales with the fluid label size. */
   .navcta{justify-content:center;min-width:calc(3.9em + 24px);}
-  @media(min-width:560px){.navcta{min-width:calc(7em + 70px);}}
+  @media(min-width:560px){.navcta{min-width:calc(var(--cta-em,7em) + 70px);}}
   /* below 560px the row needed about 354px of a 342px content box once the
      brand set in Onest, so the right group overflowed into the page padding
      and moved when the font arrived; a tighter gap and CTA padding make it fit */
@@ -555,7 +557,7 @@
      CTA's own minimum) means a partly parsed nav already sits in its final box. */
   @media(max-width:559px){.navright{min-width:calc(50px + 3.9 * var(--f-sm) + 24px);}}
   @media(min-width:560px) and (max-width:619px){
-    .navright{min-width:calc(40px + var(--s5) + 7 * var(--f-sm) + 70px);}}
+    .navright{min-width:calc(40px + var(--s5) + var(--cta-k,7) * var(--f-sm) + 70px);}}
   .navcta .ctashort{display:inline;}
   .navcta .ctalong{display:none;}
   @media(min-width:560px){
@@ -604,6 +606,9 @@
      every other heading on the site. */
   .hero-bold h1{font-size:clamp(36px, 12px + 5.4vw, 84px);font-weight:900;
     letter-spacing:-.025em;line-height:1.18;}
+  /* release 37 (owner): "does nothing." is one highlighted unit on its own line at every
+     width (a <br> before it, no wrap inside); it measures 7.2em, inside the column from 320px */
+  .hero-bold .hl{white-space:nowrap;}
   .hero-bold .hl,.hero-dark .hl{background:var(--orange);color:#14171A;padding:.02em .14em;
     box-decoration-break:clone;-webkit-box-decoration-break:clone;}
   /* inner pages keep their own --f-hero size; weight, tracking and the 1.18
@@ -1411,7 +1416,7 @@
   footer .foot-meta p{font-size:var(--f-sm);color:var(--ink-3);}
 </style>
 <a class="skip" href="#main">Skip to content</a>
-<svg class="bm-defs" aria-hidden="true" focusable="false"><symbol id="bm-reel" viewBox="0 0 56 56"><circle cx="28" cy="28" r="25.6"/><path fill="#F04820" fill-rule="evenodd" d="M0.5 28a27.5 27.5 0 1 0 55 0a27.5 27.5 0 1 0 -55 0ZM2.8 28a25.2 25.2 0 1 0 50.4 0a25.2 25.2 0 1 0 -50.4 0ZM4.1 28a23.9 23.9 0 1 0 47.8 0a23.9 23.9 0 1 0 -47.8 0ZM21.3 14.4a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM34.2 23.8a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM29.3 39a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM13.3 39a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM8.4 23.8a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM24.9 28a3.1 3.1 0 1 0 6.2 0a3.1 3.1 0 1 0 -6.2 0Z"/></symbol></svg><nav class="nav" id="nav" aria-label="Primary"><div class="wrap navin"><a class="brand" href="/"><img class="brandmark" src="/our-work/a/nav_mark_hss.webp" alt="" width="174" height="84">Home Service Studios</a><div class="navright"><button type="button" class="navtoggle" id="navtoggle" aria-expanded="false" aria-controls="navlinks" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="navlinks" id="navlinks"><a href="/our-work/">Work</a><a href="/packages/">Packages</a><a href="/team/" class="is-on">Team</a><a href="/contact/" class="navsecondary">Contact</a></div><a class="navcta" href="/contact/#start"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label"><span class="ctalong">Start a project</span><span class="ctashort">Contact</span></span><span class="bm-gate b"></span></a></div></div></nav><div class="navspacer"></div>
+<svg class="bm-defs" aria-hidden="true" focusable="false"><symbol id="bm-reel" viewBox="0 0 56 56"><circle cx="28" cy="28" r="25.6"/><path fill="#F04820" fill-rule="evenodd" d="M0.5 28a27.5 27.5 0 1 0 55 0a27.5 27.5 0 1 0 -55 0ZM2.8 28a25.2 25.2 0 1 0 50.4 0a25.2 25.2 0 1 0 -50.4 0ZM4.1 28a23.9 23.9 0 1 0 47.8 0a23.9 23.9 0 1 0 -47.8 0ZM21.3 14.4a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM34.2 23.8a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM29.3 39a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM13.3 39a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM8.4 23.8a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM24.9 28a3.1 3.1 0 1 0 6.2 0a3.1 3.1 0 1 0 -6.2 0Z"/></symbol></svg><nav class="nav" id="nav" aria-label="Primary"><div class="wrap navin"><a class="brand" href="/"><img class="brandmark" src="/our-work/a/nav_mark_hss.webp" alt="" width="174" height="84">Home Service Studios</a><div class="navright"><button type="button" class="navtoggle" id="navtoggle" aria-expanded="false" aria-controls="navlinks" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="navlinks" id="navlinks"><a href="/our-work/">Work</a><a href="/packages/">Packages</a><a href="/team/" class="is-on">Team</a><a href="/contact/" class="navsecondary">Contact</a></div><a class="navcta" href="/book/"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label"><span class="ctalong">Book a call</span><span class="ctashort">Book</span></span><span class="bm-gate b"></span></a></div></div></nav><div class="navspacer"></div>
 
 <main id="main">
 <div class="hero hero-dark"><svg class="splat" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M-600,170 C-510,142 -390,142 -300,170 C-210,198 -90,198 0,170 C90,142 210,142 300,170 C390,198 510,198 600,170 C690,142 810,142 900,170 C990,198 1110,198 1200,170 C1290,142 1410,142 1500,170 C1590,198 1710,198 1800,170" stroke="rgba(240,72,32,.16)" stroke-width="1.5" fill="none"><animateTransform attributeName="transform" type="translate" from="0,0" to="-600,0" dur="26s" repeatCount="indefinite"/></path><path d="M-800,262 C-680,246 -520,246 -400,262 C-280,278 -120,278 0,262 C120,246 280,246 400,262 C520,278 680,278 800,262 C920,246 1080,246 1200,262 C1320,278 1480,278 1600,262 C1720,246 1880,246 2000,262" stroke="rgba(0,176,200,.11)" stroke-width="1" fill="none"><animateTransform attributeName="transform" type="translate" from="0,0" to="-800,0" dur="34s" repeatCount="indefinite"/></path><g><path d="M-400,222 C-340,208 -260,208 -200,222 C-140,236 -60,236 0,222 C60,208 140,208 200,222 C260,236 340,236 400,222 C460,208 540,208 600,222 C660,236 740,236 800,222 C860,208 940,208 1000,222 C1060,236 1140,236 1200,222 C1260,208 1340,208 1400,222 C1460,236 1540,236 1600,222" stroke="rgba(240,72,32,.13)" stroke-width=".8" fill="none"/><circle cx="-400" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="0" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="400" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="800" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="1200" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="1600" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><animateTransform attributeName="transform" type="translate" from="0,0" to="-400,0" dur="18s" repeatCount="indefinite"/></g></svg><div class="wrap">
@@ -1497,39 +1502,39 @@
 </div></section>
 </main>
 
-<footer><div class="wrap"><div class="foot"><div class="foot-main"><p class="display foot-line">Let&#39;s make something that travels.</p><div class="foot-actions"><a class="cta" href="/contact/#start"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label">Start a project</span><span class="bm-gate b"></span></a><a class="foot-mail" href="mailto:collab@homeservicestudios.com">collab@homeservicestudios.com</a><a class="foot-mail foot-cal" href="/contact/?campaign=social-audit#start" data-cal aria-haspopup="dialog">Free social audit</a></div></div><nav class="foot-nav" aria-label="Footer"><a href="/our-work/">Work</a><a href="/packages/">Packages</a><a href="/contact/">Contact</a></nav></div><div class="foot-meta"><p>Los Angeles, CA &middot; Insured &middot; Working since 2020</p><p>&copy; 2026 Home Service Studios</p></div></div></footer>
-<nav class="actionbar" aria-label="Quick actions"><a href="/contact/">Contact</a><a class="primary" href="/contact/#start"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label">Start a project</span><span class="bm-gate b"></span></a></nav>
+<footer><div class="wrap"><div class="foot"><div class="foot-main"><p class="display foot-line">Let&#39;s make something that travels.</p><div class="foot-actions"><a class="cta" href="/book/"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label">Book a strategy call</span><span class="bm-gate b"></span></a><a class="foot-mail" href="mailto:collab@homeservicestudios.com">collab@homeservicestudios.com</a><a class="foot-mail foot-cal" href="/contact/?campaign=social-audit#start" data-cal aria-haspopup="dialog">Free social audit</a></div></div><nav class="foot-nav" aria-label="Footer"><a href="/our-work/">Work</a><a href="/packages/">Packages</a><a href="/contact/">Contact</a></nav></div><div class="foot-meta"><p>Los Angeles, CA &middot; Insured &middot; Working since 2020</p><p>&copy; 2026 Home Service Studios</p></div></div></footer>
+<nav class="actionbar" aria-label="Quick actions"><a href="/contact/">Contact</a><a class="primary" href="/book/"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label">Book a call</span><span class="bm-gate b"></span></a></nav>
 <style>
   html{scrollbar-gutter:stable;}
   html.cal-lock{overflow:hidden;}
-  .calb{position:fixed;right:24px;bottom:24px;z-index:54;width:56px;height:56px;padding:0;
-    display:flex;align-items:center;justify-content:center;border:1px solid #3D444B;
-    border-radius:50%;background:#14171A;color:#FFFFFF;cursor:pointer;
-    box-shadow:0 6px 20px rgba(20,23,26,.28);transition:background var(--ease);}
+  .calb{position:fixed;right:24px;bottom:24px;z-index:54;display:flex;align-items:center;
+    padding:0;border:0;border-radius:var(--r-lg);background:none;color:#FFFFFF;cursor:pointer;}
   .calb[hidden]{display:none;}
   .calb:focus-visible{outline:2px solid var(--orange);outline-offset:3px;}
+  .calb-pill,.calb-ic{background:#14171A;border:1px solid #3D444B;
+    box-shadow:0 6px 20px rgba(20,23,26,.28);transition:background var(--ease);}
+  .calb-pill{display:flex;align-items:center;height:40px;margin-right:-26px;padding:0 38px 0 16px;
+    border-radius:var(--r-lg);white-space:nowrap;font:600 var(--f-sm)/1 'Onest',-apple-system,sans-serif;}
+  .calb-s{display:none;}
+  .calb-ic{position:relative;flex:none;width:56px;height:56px;display:flex;align-items:center;
+    justify-content:center;border-radius:50%;}
   .calb-reel{display:block;width:34px;height:34px;fill:#262B30;
     transition:transform .5s cubic-bezier(.2,.6,.3,1);}
   .calb-down{display:none;width:24px;height:24px;}
   .calb[aria-expanded="true"] .calb-reel{display:none;}
   .calb[aria-expanded="true"] .calb-down{display:block;}
-  .calb-pill{position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);
-    display:flex;align-items:center;height:36px;padding:0 14px;white-space:nowrap;
-    background:#14171A;border:1px solid #3D444B;border-radius:var(--r-lg);color:#FFFFFF;
-    font:600 var(--f-sm)/1 'Onest',-apple-system,sans-serif;
-    box-shadow:0 4px 14px rgba(20,23,26,.2);
-    transition:opacity .25s ease,transform .25s cubic-bezier(.2,.6,.3,1);}
-  .calb[aria-expanded="true"] .calb-pill{opacity:0;pointer-events:none;}
-  @media(hover:hover){.calb:hover,.calb:hover .calb-pill{background:#23292E;}}
+  @media(hover:hover){.calb:hover .calb-pill,.calb:hover .calb-ic{background:#23292E;}}
   @media(hover:hover) and (prefers-reduced-motion:no-preference){
     .calb:hover .calb-reel{transform:rotate(-40deg);}}
   @media(min-width:760px){body:has(> .calb:not([hidden])){padding-bottom:96px;}}
   @media(max-width:759px){
-    .calb{right:16px;bottom:calc(66px + env(safe-area-inset-bottom));}
-    .calb-pill{opacity:0;pointer-events:none;transform:translate(8px,-50%) scale(.96);}
-    .calb.is-peek .calb-pill{opacity:1;pointer-events:auto;transform:translateY(-50%);}
+    .calb{right:12px;bottom:calc(66px + env(safe-area-inset-bottom));}
+    .calb-pill{height:36px;margin-right:-22px;padding:0 32px 0 12px;}
+    .calb-ic{width:48px;height:48px;}
+    .calb-reel{width:30px;height:30px;}
     body:has(> .calb:not([hidden])){padding-bottom:calc(134px + env(safe-area-inset-bottom));}
   }
+  @media(max-width:359px){.calb-l{display:none;}.calb-s{display:inline;}}
   .cal{position:fixed;inset:auto 24px 92px auto;margin:0;padding:0;
     width:min(392px,calc(100vw - 48px));max-width:none;max-height:min(80vh,calc(100vh - 116px));
     border:1px solid #33383D;border-radius:var(--r-lg);color:#FFFFFF;overflow:hidden;
@@ -1604,7 +1609,7 @@
   @keyframes cal-in{from{opacity:0;transform:translateY(8px) scale(.98);}}
   @keyframes cal-up{from{transform:translateY(100%);}}
   @keyframes cal-fade{from{opacity:0;}}
-</style><button type="button" class="calb" data-cal hidden aria-haspopup="dialog" aria-expanded="false" aria-controls="cal" aria-label="Get a free social audit and content calendar"><span class="calb-pill">Free social audit</span><svg class="calb-reel" viewBox="0 0 56 56" aria-hidden="true" focusable="false"><use href="#bm-reel"/></svg><svg class="calb-down" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><dialog class="cal on-ink" id="cal" aria-labelledby="cal-h"><span class="cal-rail" aria-hidden="true"></span><button type="button" class="cal-x" aria-label="Close"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button><div class="cal-body"><p class="eyebrow">Free for home service companies</p><h2 class="cal-h" id="cal-h" tabindex="-1" autofocus>Get a free social audit and content calendar.</h2><p class="cal-sub">We'll audit your existing social first. Then we'll plan your next 30 days of content, built for your trade and your market.</p><p class="cal-when">We'll email both to you within 3 business days.</p><div class="cal-week"><div><p class="cal-wd" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></p><svg viewBox="0 0 164 20" role="img" aria-label="A sample week: a reel every weekday and a graphic on Saturday and Sunday"><defs><g id="cal-r"><rect x="6" y="3" width="8" height="14" rx="1.5" fill="#F04820"/><path d="M8.8 7.5v5l3.6-2.5z" fill="#FFFFFF"/></g><g id="cal-g"><rect x="4" y="4" width="12" height="12" rx="1.5" fill="#00B0C8"/><path d="M5.5 14.6l3.8-4.6 2.3 2.7 1.5-1.5 1.6 3.4z" fill="#14171A"/><circle cx="12.8" cy="7.4" r="1.4" fill="#14171A"/></g></defs><path d="M0 0h20v20h-20zM24 0h20v20h-20zM48 0h20v20h-20zM72 0h20v20h-20zM96 0h20v20h-20zM120 0h20v20h-20zM144 0h20v20h-20z" fill="#262B30"/><use href="#cal-r" x="0" y="0"/><use href="#cal-r" x="24" y="0"/><use href="#cal-r" x="48" y="0"/><use href="#cal-r" x="72" y="0"/><use href="#cal-r" x="96" y="0"/><use href="#cal-g" x="120" y="0"/><use href="#cal-g" x="144" y="0"/></svg></div><p class="cal-key" aria-hidden="true"><span class="k-r">Reels on weekdays</span><span class="k-g">Graphics on weekends</span></p></div><form class="cal-f" id="cal-f" novalidate><div class="cal-fld"><label for="cal-name">Your name</label><input id="cal-name" name="name" type="text" autocomplete="name" required aria-required="true" aria-describedby="cal-name-e"><p class="cal-e" id="cal-name-e"></p></div><div class="cal-fld"><label for="cal-email">Email</label><input id="cal-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-required="true" aria-describedby="cal-email-e"><p class="cal-e" id="cal-email-e"></p></div><div class="cal-fld"><label for="cal-phone">Phone</label><input id="cal-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required aria-required="true" aria-describedby="cal-phone-e"><p class="cal-e" id="cal-phone-e"></p></div><fieldset class="cal-where" aria-describedby="cal-where-e"><legend>Where you post <span>At least one</span></legend><div class="cal-fld"><label for="cal-website">Business website</label><input id="cal-website" name="website" type="url" autocomplete="url" inputmode="url" placeholder="yourcompany.com" aria-describedby="cal-website-e"><p class="cal-e" id="cal-website-e"></p></div><div class="cal-fld"><label for="cal-instagram">Instagram</label><input id="cal-instagram" name="instagram" type="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="@handle or link" aria-describedby="cal-instagram-e"><p class="cal-e" id="cal-instagram-e"></p></div><div class="cal-fld"><label for="cal-tiktok">TikTok</label><input id="cal-tiktok" name="tiktok" type="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="@handle or link" aria-describedby="cal-tiktok-e"><p class="cal-e" id="cal-tiktok-e"></p></div><div class="cal-fld"><label for="cal-facebook">Facebook</label><input id="cal-facebook" name="facebook" type="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Page name or link" aria-describedby="cal-facebook-e"><p class="cal-e" id="cal-facebook-e"></p></div><div class="cal-fld"><label for="cal-youtube">YouTube</label><input id="cal-youtube" name="youtube" type="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Channel or link" aria-describedby="cal-youtube-e"><p class="cal-e" id="cal-youtube-e"></p></div><p class="cal-e" id="cal-where-e"></p></fieldset><input type="hidden" name="lead_type" value="social-audit-calendar"><input type="hidden" name="page" value=""><div class="cal-hp" aria-hidden="true"><label for="cal-fax">Fax</label><input id="cal-fax" name="fax" type="text" tabindex="-1" autocomplete="off"></div><button type="submit" class="cta"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label">Get my free audit</span><span class="bm-gate b"></span></button><p class="cal-st" role="alert"></p><p class="cal-legal">We'll use this to build your calendar and follow up about it. We never sell your information.</p><button type="button" class="cal-skip">No thanks, keep browsing</button></form><div class="cal-done" hidden><h3 tabindex="-1">You&#39;re in. Watch your inbox.</h3><button type="button" class="cal-skip">Keep browsing</button></div></div></dialog><script>
+</style><button type="button" class="calb" data-cal hidden aria-haspopup="dialog" aria-expanded="false" aria-controls="cal" aria-label="Get a free social audit and content calendar"><span class="calb-pill"><span class="calb-l">Free social audit</span><span class="calb-s">Free audit</span></span><span class="calb-ic"><svg class="calb-reel" viewBox="0 0 56 56" aria-hidden="true" focusable="false"><use href="#bm-reel"/></svg><svg class="calb-down" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button><dialog class="cal on-ink" id="cal" aria-labelledby="cal-h"><span class="cal-rail" aria-hidden="true"></span><button type="button" class="cal-x" aria-label="Close"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button><div class="cal-body"><p class="eyebrow">Free for home service companies</p><h2 class="cal-h" id="cal-h" tabindex="-1" autofocus>Get a free social audit and content calendar.</h2><p class="cal-sub">We'll audit your existing social first. Then we'll plan your next 30 days of content, built for your trade and your market.</p><p class="cal-when">We'll email both to you within 3 business days.</p><div class="cal-week"><div><p class="cal-wd" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></p><svg viewBox="0 0 164 20" role="img" aria-label="A sample week: a reel every weekday and a graphic on Saturday and Sunday"><defs><g id="cal-r"><rect x="6" y="3" width="8" height="14" rx="1.5" fill="#F04820"/><path d="M8.8 7.5v5l3.6-2.5z" fill="#FFFFFF"/></g><g id="cal-g"><rect x="4" y="4" width="12" height="12" rx="1.5" fill="#00B0C8"/><path d="M5.5 14.6l3.8-4.6 2.3 2.7 1.5-1.5 1.6 3.4z" fill="#14171A"/><circle cx="12.8" cy="7.4" r="1.4" fill="#14171A"/></g></defs><path d="M0 0h20v20h-20zM24 0h20v20h-20zM48 0h20v20h-20zM72 0h20v20h-20zM96 0h20v20h-20zM120 0h20v20h-20zM144 0h20v20h-20z" fill="#262B30"/><use href="#cal-r" x="0" y="0"/><use href="#cal-r" x="24" y="0"/><use href="#cal-r" x="48" y="0"/><use href="#cal-r" x="72" y="0"/><use href="#cal-r" x="96" y="0"/><use href="#cal-g" x="120" y="0"/><use href="#cal-g" x="144" y="0"/></svg></div><p class="cal-key" aria-hidden="true"><span class="k-r">Reels on weekdays</span><span class="k-g">Graphics on weekends</span></p></div><form class="cal-f" id="cal-f" novalidate><div class="cal-fld"><label for="cal-name">Your name</label><input id="cal-name" name="name" type="text" autocomplete="name" required aria-required="true" aria-describedby="cal-name-e"><p class="cal-e" id="cal-name-e"></p></div><div class="cal-fld"><label for="cal-email">Email</label><input id="cal-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-required="true" aria-describedby="cal-email-e"><p class="cal-e" id="cal-email-e"></p></div><div class="cal-fld"><label for="cal-phone">Phone</label><input id="cal-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required aria-required="true" aria-describedby="cal-phone-e"><p class="cal-e" id="cal-phone-e"></p></div><fieldset class="cal-where" aria-describedby="cal-where-e"><legend>Where you post <span>At least one</span></legend><div class="cal-fld"><label for="cal-website">Business website</label><input id="cal-website" name="website" type="url" autocomplete="url" inputmode="url" placeholder="yourcompany.com" aria-describedby="cal-website-e"><p class="cal-e" id="cal-website-e"></p></div><div class="cal-fld"><label for="cal-instagram">Instagram</label><input id="cal-instagram" name="instagram" type="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="@handle or link" aria-describedby="cal-instagram-e"><p class="cal-e" id="cal-instagram-e"></p></div><div class="cal-fld"><label for="cal-tiktok">TikTok</label><input id="cal-tiktok" name="tiktok" type="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="@handle or link" aria-describedby="cal-tiktok-e"><p class="cal-e" id="cal-tiktok-e"></p></div><div class="cal-fld"><label for="cal-facebook">Facebook</label><input id="cal-facebook" name="facebook" type="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Page name or link" aria-describedby="cal-facebook-e"><p class="cal-e" id="cal-facebook-e"></p></div><div class="cal-fld"><label for="cal-youtube">YouTube</label><input id="cal-youtube" name="youtube" type="text" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Channel or link" aria-describedby="cal-youtube-e"><p class="cal-e" id="cal-youtube-e"></p></div><p class="cal-e" id="cal-where-e"></p></fieldset><input type="hidden" name="lead_type" value="social-audit-calendar"><input type="hidden" name="page" value=""><div class="cal-hp" aria-hidden="true"><label for="cal-fax">Fax</label><input id="cal-fax" name="fax" type="text" tabindex="-1" autocomplete="off"></div><button type="submit" class="cta"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label">Get my free audit</span><span class="bm-gate b"></span></button><p class="cal-st" role="alert"></p><p class="cal-legal">We'll use this to build your calendar and follow up about it. We never sell your information.</p><button type="button" class="cal-skip">No thanks, keep browsing</button></form><div class="cal-done" hidden><h3 tabindex="-1">You&#39;re in. Watch your inbox.</h3><button type="button" class="cal-skip">Keep browsing</button></div></div></dialog><script>
 (function(){
   try { localStorage.removeItem('hss-cal'); } catch(e){}
   var d = document.getElementById('cal');
@@ -1619,31 +1624,32 @@
     where: 'Add your website or at least one social account, so we know where to look.'};
   function sget(k){ try { return sessionStorage.getItem(k) || mem[k]; } catch(e){ return mem[k]; } }
   function sset(k){ mem[k] = '1'; try { sessionStorage.setItem(k, '1'); } catch(e){} }
+  /* the accessible name always contains the visible label: "Free audit" below 360px */
+  var narrow = matchMedia('(max-width: 359px)');
+  function name(){
+    if(!bub) return;
+    var done = bub.classList.contains('is-done');
+    bub.setAttribute('aria-label', (done ? 'Audit requested. ' : (narrow.matches ? 'Free audit: ' : ''))
+      + (narrow.matches && !done ? 'get' : 'Get') + ' a free social audit and content calendar');
+  }
   function requested(){
     if(!bub || bub.classList.contains('is-done')) return;
     bub.classList.add('is-done');
-    bub.querySelector('.calb-pill').textContent = 'Audit requested';
-    bub.setAttribute('aria-label', 'Audit requested. Get a free social audit and content calendar');
+    [].forEach.call(bub.querySelectorAll('.calb-l, .calb-s'), function(e){ e.textContent = 'Audit requested'; });
+    name();
   }
   if(bub){
     bub.hidden = false;
     if(sget('hss-audit')) requested();
-    var small = matchMedia('(max-width: 759px)'), still = matchMedia('(prefers-reduced-motion: reduce)');
-    addEventListener('scroll', function first(){
-      if(window.scrollY < 40) return;
-      removeEventListener('scroll', first);
-      if(!small.matches || still.matches || sget('hss-peek')) return;
-      sset('hss-peek');
-      bub.classList.add('is-peek');
-      setTimeout(function(){ bub.classList.remove('is-peek'); }, 5000);
-    }, {passive: true});
+    name();
+    if(narrow.addEventListener) narrow.addEventListener('change', name);
   }
   function open(from){
     if(d.open) return;
     opener = from || document.activeElement; y0 = window.scrollY;
     f.elements.page.value = location.pathname;
     document.documentElement.classList.add('cal-lock');
-    if(bub){ bub.setAttribute('aria-expanded', 'true'); bub.classList.remove('is-peek'); }
+    if(bub) bub.setAttribute('aria-expanded', 'true');
     d.showModal();
     body.scrollTop = 0;
   }
