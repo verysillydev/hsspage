@@ -976,6 +976,9 @@ CSS = """<style>
      every other heading on the site. */
   .hero-bold h1{font-size:clamp(36px, 12px + 5.4vw, 84px);font-weight:900;
     letter-spacing:-.025em;line-height:1.18;}
+  /* release 37 (owner): "does nothing." is one highlighted unit on its own line at every
+     width (a <br> before it, no wrap inside); it measures 7.2em, inside the column from 320px */
+  .hero-bold .hl{white-space:nowrap;}
   .hero-bold .hl,.hero-dark .hl{background:var(--orange);color:#14171A;padding:.02em .14em;
     box-decoration-break:clone;-webkit-box-decoration-break:clone;}
   /* inner pages keep their own --f-hero size; weight, tracking and the 1.18
@@ -4343,7 +4346,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
     <div class="wrap">
       <div class="herotext">
         <p class="eyebrow">Home Service Studios &middot; Los Angeles</p>
-        <h1 class="display">A video that makes you feel nothing <span class="hl">does nothing.</span></h1>
+        <h1 class="display">A video that makes you feel nothing<br> <span class="hl">does nothing.</span></h1>
       </div>
       <div class="scrollhint">{SCROLL_ICON}</div>
     </div>

@@ -229,6 +229,15 @@ title-strip mask; nothing third-party loads on the homepage now). Do not bring a
 - The phone action bar clearance (`.hero-media` bottom padding) is unchanged: at 390x664 the
   headline ends at 604px and the bar starts at 609px.
 
+**"does nothing." is one highlighted unit on its own line, at every width (release 37,
+owner).** On the owner's iPhone the headline wrapped "you feel nothing [does] / [nothing.]", which
+split the orange block across two lines. The `<h1>` now has a `<br>` before `<span
+class="hl">`, and `.hero-bold .hl{white-space:nowrap}`. The span measures 7.2em, inside the
+column from 320px (187 of 226px there, beside the scroll hint). Measured at 320, 375, 390, 414,
+430, 768, 1024 and 1440, in Archivo and in an Arial fallback: one rect, alone on its line, no
+overflow. The first part ("A video that makes you feel nothing") wraps freely above it. The inner
+pages' `.hero-dark .hl` is unchanged.
+
 **The hero text block is not painted half parsed (release 34).** It is bottom anchored
 (`justify-content:flex-end`). When a network chunk boundary fell inside the headline, the first
 paint showed it one line short, and "does nothing." then pushed it up 32px: CLS 0.0100 in 2 of 10
