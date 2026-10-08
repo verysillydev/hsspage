@@ -1515,23 +1515,26 @@
 <style>
   html{scrollbar-gutter:stable;}
   html.cal-lock{overflow:hidden;}
-  .calb{position:fixed;right:24px;bottom:24px;z-index:54;display:flex;align-items:center;
+  .calb{--calb-bg:#14171A;position:fixed;right:24px;bottom:24px;z-index:54;display:flex;align-items:center;
     padding:0;border:0;border-radius:var(--r-lg);background:none;color:#FFFFFF;cursor:pointer;}
   .calb[hidden]{display:none;}
   .calb:focus-visible{outline:2px solid var(--orange);outline-offset:3px;}
-  .calb-pill,.calb-ic{background:#14171A;border:1px solid #3D444B;
-    box-shadow:0 6px 20px rgba(20,23,26,.28);transition:background var(--ease);}
+  .calb-pill,.calb-ic{box-shadow:0 6px 20px rgba(20,23,26,.28);}
+  .calb-pill{background:var(--calb-bg);border:1px solid #3D444B;transition:background var(--ease);}
   .calb-pill{display:flex;align-items:center;height:40px;margin-right:-26px;padding:0 38px 0 16px;
     border-radius:var(--r-lg);white-space:nowrap;font:600 var(--f-sm)/1 'Onest',-apple-system,sans-serif;}
   .calb-s{display:none;}
   .calb-ic{position:relative;flex:none;width:56px;height:56px;display:flex;align-items:center;
     justify-content:center;border-radius:50%;}
-  .calb-reel{display:block;width:34px;height:34px;fill:#262B30;
+  /* release 41 (owner): the reel is the circle, edge to edge, like the buttons' reel. Its
+     dark ring, holes and hub take the pill's colour (the buttons use their body's). */
+  .calb-reel{display:block;width:100%;height:100%;fill:var(--calb-bg);
     transition:transform .5s cubic-bezier(.2,.6,.3,1);}
   .calb-down{display:none;width:24px;height:24px;}
   .calb[aria-expanded="true"] .calb-reel{display:none;}
   .calb[aria-expanded="true"] .calb-down{display:block;}
-  @media(hover:hover){.calb:hover .calb-pill,.calb:hover .calb-ic{background:#23292E;}}
+  .calb[aria-expanded="true"] .calb-ic{background:var(--calb-bg);border:1px solid #3D444B;}
+  @media(hover:hover){.calb:hover{--calb-bg:#23292E;}}
   @media(hover:hover) and (prefers-reduced-motion:no-preference){
     .calb:hover .calb-reel{transform:rotate(-40deg);}}
   @media(min-width:760px){body:has(> .calb:not([hidden])),body.calb-on{padding-bottom:96px;}}
@@ -1539,7 +1542,6 @@
     .calb{right:12px;bottom:calc(66px + env(safe-area-inset-bottom));}
     .calb-pill{height:36px;margin-right:-22px;padding:0 32px 0 12px;}
     .calb-ic{width:48px;height:48px;}
-    .calb-reel{width:30px;height:30px;}
     body:has(> .calb:not([hidden])),body.calb-on{padding-bottom:calc(134px + env(safe-area-inset-bottom));}
   }
   @media(max-width:359px){.calb-l{display:none;}.calb-s{display:inline;}}
