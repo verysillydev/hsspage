@@ -4673,45 +4673,88 @@ def enquiry_form():
 
 # Release 37: the Google scheduler lives on /book/ only. /contact/ points there in one line
 # under its hero button (with booking on), and keeps the form as its own job.
-# The scheduler's frame height, reserved up front (no layout shift). Google's embedded page,
-# measured at the frame's width (release 37): 704 to 771px tall side by side, 1,213 to 1,256px
-# stacked, which it does once the frame is under about 580px wide (a viewport under about
-# 630px).
-# - From 650px: 800px, so the whole page fits with no second scrollbar.
-# - Below 650px (release 39, owner): the visible screen between the fixed nav (60px) and the
-#   phone action bar (54px plus its 1px border plus the safe-area inset), with a 480px floor.
-#   Google's page then scrolls inside the frame. Google centres its dialogs (the slot details
-#   form, the "Booking confirmed" card) in the frame's own viewport. With the 1,300px frame of
-#   releases 37 and 38 that was about 650px down the frame, so a visitor who tapped a late slot
-#   was scrolled past it and the dialog opened above the screen. Now the frame's viewport is
-#   the screen, so every dialog centres on screen.
-BOOK_FRAME_H = (800, "max(480px, calc(100svh - 60px - 55px - env(safe-area-inset-bottom)))")
+# The scheduler's frame height, reserved up front (no layout shift). Google's page lays out by
+# its own width (the iframe's): stacked under 600px, wider layouts from 600 (release 40
+# measurements, rendered top-level; height never changes the layout).
+# - From 600px: 800px. Google's page is at most 745px there, so it never scrolls inside.
+# - Stacked (phones): a tall frame that never scrolls inside either, so the page is the only
+#   scroller. Google's collapsed page measured 1,341px at frame widths up to 278 (a 320 viewport
+#   gives 270), 1,281 at 350, 1,265 at 358 to 398, 1,238 from 426. So BOOK_PHONE_H = 1,341 + 40.
+#   Tapping Google's "Show more" grows its page to about 1,620 to 1,680px, and then the frame
+#   scrolls inside: a known trade-off.
+# - Release 39 made the phone frame screen-height so Google's page scrolled inside it and its
+#   dialogs centred on screen. On the owner's iPhone that failed twice: nested scrolling (two
+#   grey scroll bars, which he dislikes), and the iOS keyboard. While typing in Google's details
+#   form the keyboard covered the lower fields of a dialog fixed inside a screen-height frame,
+#   and there was nothing to scroll. Release 38's tall frame had neither problem. So the frame
+#   is tall again, and BOOK_JS moves the page instead.
+# The breakpoint is the frame's own width (a container query on .book-box, 2px wider than the
+# iframe), so it always matches Google's switch, classic scrollbars or not.
+BOOK_FRAME_H = (800, 1341 + 40)
 BOOK_LINE = ('<p class="booknote">Rather talk it through? <a href="/book/">Book a strategy call.</a></p>'
              if BOOKED else "")
 
 
 
 
-# Release 39 (owner, iPhone): when the visitor first taps into the scheduler (the window blurs
-# and the iframe becomes the active element) and the frame is not fully on screen, scroll the
-# page so the frame sits just under the nav: smooth, or instant under reduced motion. At every
-# width; on desktop it only fires when the 800px frame does not fit (a short laptop screen).
+# Release 40 (owner, iPhone): in the tall phone frame Google centres every dialog (the slot
+# details form, the "Booking confirmed" card) at the frame's middle, H/2. So BOOK_JS moves the
+# page to put that point in the middle of the visible area (between the nav's bottom and the
+# action bar's top, inside visualViewport). It moves only when the zone H/2 +/- 300px (or half
+# the visible height, if smaller) is not already on screen. Smooth, or instant under reduced
+# motion. It acts:
+# - on the first tap into the scheduler (the window blurs and the iframe is the active element):
+#   that is the slot tap that opens the details form;
+# - when the keyboard closes with the frame focused (visualViewport goes from open, height under
+#   innerHeight - 150, to closed, over innerHeight - 100), after 300ms for Safari to settle.
+#   Tapping "Book" closes the keyboard, so the confirmation card lands centred. Only that
+#   open-to-closed transition counts, never toolbar wobble.
+# It never scrolls while the keyboard is open and never moves focus. In the wider layouts (an
+# 800px frame) it keeps release 39's rule: on the first tap, bring the frame under the nav if it
+# is not fully on screen.
 BOOK_JS = """<script>
 (function(){
-  var f = document.querySelector('.book-frame iframe');
-  if(!f) return;
-  var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)');
+  var f = document.querySelector('.book-frame iframe'), box = document.querySelector('.book-frame');
+  if(!f || !box) return;
+  var vv = window.visualViewport, still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)');
+  function how(){ return still && still.matches ? 'auto' : 'smooth'; }
+  function kbOpen(){ return !!vv && vv.height < innerHeight - 150; }
+  function phone(){ return f.clientWidth < 600; }
+  function area(){
+    var nav = document.querySelector('.nav'), bar = document.querySelector('.actionbar');
+    var top = nav ? Math.max(0, nav.getBoundingClientRect().bottom) : 0, bot = innerHeight;
+    if(bar){ var b = bar.getBoundingClientRect(); if(b.height) bot = Math.min(bot, b.top); }
+    if(vv){ top = Math.max(top, vv.offsetTop); bot = Math.min(bot, vv.offsetTop + vv.height); }
+    return {top: top, bot: bot};
+  }
+  function centre(){
+    if(kbOpen()) return;
+    var a = area(), r = f.getBoundingClientRect(), mid = r.top + r.height / 2,
+        half = Math.min(300, (a.bot - a.top) / 2);
+    if(mid - half >= a.top - 1 && mid + half <= a.bot + 1) return;
+    window.scrollTo({top: window.scrollY + mid - (a.top + a.bot) / 2, behavior: how()});
+  }
+  function align(){
+    var a = area(), r = box.getBoundingClientRect();
+    if(r.top >= a.top - 1 && r.bottom <= a.bot + 1) return;
+    box.scrollIntoView({behavior: how(), block: 'start'});
+  }
   addEventListener('blur', function(){
     setTimeout(function(){
       if(document.activeElement !== f) return;
-      var r = f.getBoundingClientRect(), nav = document.querySelector('.nav'),
-          bar = document.querySelector('.actionbar'), top = nav ? nav.getBoundingClientRect().bottom : 0,
-          bot = innerHeight;
-      if(bar){ var b = bar.getBoundingClientRect(); if(b.height) bot = b.top; }
-      if(r.top >= top - 1 && r.bottom <= bot + 1) return;
-      f.parentNode.scrollIntoView({behavior: still && still.matches ? 'auto' : 'smooth', block: 'start'});
+      if(phone()) centre(); else align();
     }, 0);
   });
+  if(vv){
+    var open = kbOpen();
+    vv.addEventListener('resize', function(){
+      if(vv.height < innerHeight - 150){ open = true; return; }
+      if(open && vv.height > innerHeight - 100){
+        open = false;
+        if(document.activeElement === f && phone()) setTimeout(centre, 300);
+      }
+    });
+  }
 })();
 </script>"""
 
@@ -4725,13 +4768,16 @@ BOOK_HTML = f"""<title>Book a strategy call</title>
 {CSS}
 <style>
   .book-sec{{padding:var(--s7) 0 var(--s8);}}
-  .book-frame{{height:{BOOK_FRAME_H[0]}px;}}
+  .book-box{{container:book / inline-size;}}
+  .book-frame{{position:relative;height:{BOOK_FRAME_H[0]}px;}}
   .book-frame iframe{{display:block;width:100%;height:100%;border:0;}}
+  @container book (width < 601.5px){{.book-frame{{height:{BOOK_FRAME_H[1] + 2}px;}}}}
+  @supports not (container-type:inline-size){{
+    @media(max-width:649px){{.book-frame{{height:{BOOK_FRAME_H[1] + 2}px;}}}}
+  }}
   @media(max-width:759px){{.book-sec{{padding:var(--s5) 0 var(--s7);}}}}
-  /* the frame starts just under the fixed nav when scrolled into place (BOOK_JS, snap) */
+  /* the frame starts just under the fixed nav when BOOK_JS aligns it (wider layouts) */
   .book-frame{{scroll-margin-top:60px;}}
-  @media(max-width:649px){{.book-frame{{height:{BOOK_FRAME_H[1]};scroll-snap-align:start;}}
-    html{{scroll-snap-type:y proximity;}}}}
   .book-alt{{margin:var(--s5) 0 0;font-size:var(--f-body);color:var(--ink-2);}}
   .book-alt + .book-alt{{margin-top:var(--s2);font-size:var(--f-sm);}}
 </style>
@@ -4747,10 +4793,10 @@ BOOK_HTML = f"""<title>Book a strategy call</title>
 </div></div>
 
 <section class="book-sec"><div class="wrap">
-  <div class="schedwrap book-frame">
+  <div class="book-box"><div class="schedwrap book-frame">
     <iframe src="{BOOK_EMBED}" title="Book a strategy call with Home Service Studios"
       width="100%" height="{BOOK_FRAME_H[0]}" loading="eager"></iframe>
-  </div>
+  </div></div>
   <p class="book-alt">Prefer to write? <a href="/contact/">Send us a message</a></p>
   <p class="book-alt"><a href="{BOOK_URL}">Open the booking page</a></p>
 </div></section>

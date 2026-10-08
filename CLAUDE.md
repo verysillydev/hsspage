@@ -784,31 +784,57 @@ slots a day, on collab@. The constants are at the top of `build_site.py`:
   bubble is left out.
 
 **The frame's height is reserved up front, so there is no layout shift** (`BOOK_FRAME_H`).
-Google's embedded page was measured at the frame's width: 704 to 771px tall side by side, and
-1,213 to 1,256px stacked, which it does once the frame is under about 580px wide.
-- **From 650px the frame is 800px**, so the whole page fits with no second scrollbar.
-- **Below 650px (release 39, owner: on his iPhone the "Booking confirmed" card opened above the
-  screen) the frame is the visible screen**: `max(480px, calc(100svh - 60px - 55px -
-  env(safe-area-inset-bottom)))`. That is the screen minus the fixed nav (60px) and the action
-  bar (54px plus its 1px border plus the safe-area inset).
-  - Google centres its dialogs (the slot details form, the confirmation) in the frame's own
-    viewport. With the old 1,300px frame that was about 650px down the frame, so a visitor who had
-    scrolled down to a late slot got the dialog off the top of the screen.
-  - Now Google's page scrolls inside the frame and every dialog centres on screen. Measured in
-    Chrome at 390x844 and 430x932 (dpr 3, touch): after swiping to the 3:00pm slot and tapping
-    it, the details dialog sat at 137 to 712 and 181 to 756, fully visible.
-  - The cost: a swipe that starts on the frame scrolls Google's page first, then the page.
-- **`BOOK_JS`:** when the visitor first taps into the scheduler (the window blurs and the iframe
-  is the active element) and the frame is not fully on screen, the page scrolls the frame to just
-  under the nav (`scroll-margin-top:60px`). It is smooth, or instant under reduced motion. It runs
-  at every width: on desktop it fires when the 800px frame is not fully on screen, which includes
-  a short laptop screen.
-- **Phones only:** `html{scroll-snap-type:y proximity}` with the frame as a `start` snap point, so
-  a scroll that ends near the frame settles with it filling the screen. Checked: swipes still
-  reach the hero and the footer freely.
-- Tests in `reports/hss-audit/r39/tools/` (`slot39.mjs`, `snap39.mjs`) read the cross-origin
-  frame's layout through a CDP session to find the slots. **They never type into or submit
-  Google's form, and a test must never book**: a booking puts a real event on the owner's
+Google's page lays out by its own width, which is the iframe's (release 40 measurements, the page
+rendered top-level; height never changes the layout):
+- **Under 600px it is stacked.** A 32px avatar sits at (16,24), and the page is 1,341px tall at
+  frame widths up to 278 (a 320 viewport gives 270), 1,281 at 350, 1,265 at 358 to 398, and
+  1,238 from 426.
+- **At exactly 600** there is a one-pixel mixed state.
+- **From 601 to 899 it is medium** (tablets in portrait): avatar (16,14), 32px, page 698px.
+- **At exactly 900** there is another mixed state.
+- **From 901 it is side by side:** avatar (32,38), 40px, page 711px.
+
+The breakpoint is the frame's own width, a container query on `.book-box` (2px wider than the
+iframe), so it always matches Google's switch, with classic scrollbars too. Browsers without
+container queries fall back to `max-width:649px`.
+- **From 600px the frame is 800px**, and Google's page never scrolls inside it.
+- **Stacked (phones): a tall frame that never scrolls inside, 1,341 + 40 = 1,381px** (1,383
+  with its border). The page is the only scroller. Tapping Google's "Show more" grows its page to
+  about 1,620 to 1,680px, and then the frame scrolls inside: a known trade-off.
+- **Why not release 39's screen-height frame.** Release 39 made the phone frame the screen's
+  height, so Google's page scrolled inside it and its dialogs centred on screen. On the owner's
+  iPhone that failed twice, so release 40 dropped it:
+  - nested scrolling, with two grey scroll bars, which he dislikes;
+  - the iOS keyboard. While he typed in Google's details form, the keyboard covered the lower
+    fields of a dialog fixed inside a screen-height frame, and there was nothing to scroll.
+    Release 38's tall frame had neither problem. Do not bring an inner-scrolling phone frame
+    back.
+- **`BOOK_JS` moves the page, never the frame.** In the tall frame Google centres every dialog
+  (the slot details form, the "Booking confirmed" card) at the frame's middle, H/2. On phones
+  (iframe under 600px) `BOOK_JS` scrolls the page to put that point in the middle of the visible
+  area. The visible area runs between the nav's bottom and the action bar's top, inside
+  `visualViewport`. It moves only when the zone H/2 +/- 300px (or half the visible height) is
+  not already on screen. The scroll is smooth, or instant under reduced motion. It acts:
+  - on the first tap into the scheduler (the window blurs and the iframe is the active element).
+    That is the slot tap that opens the details form.
+  - when the keyboard closes with the frame focused. That means `visualViewport` going from open
+    (height under `innerHeight - 150`) to closed (over `innerHeight - 100`), plus 300ms for
+    Safari to settle. Tapping "Book" closes the keyboard, so the confirmation card lands
+    centred: the owner's original complaint. Only that open-to-closed transition counts, never
+    toolbar wobble.
+  - It never scrolls while the keyboard is open, and never moves focus.
+  - On wider layouts (the 800px frame) it keeps release 39's rule: on the first tap, bring the
+    frame under the nav if it is not fully on screen.
+- **Verified in Chrome** at 390x844 and 430x932 (dpr 3, touch):
+  - no inner scroll from 320 to 649 wide;
+  - after swiping the page to the 3:00pm slot and tapping it, the page scrolled and the details
+    dialog sat fully on screen (134 to 709, and 178 to 753);
+  - the keyboard path, with `visualViewport.height` stubbed because Chrome cannot raise an iOS
+    keyboard: no scroll while "open", re-centred on "close", none on a 40px toolbar wobble.
+  - **Real iOS Safari is untested by an agent.**
+- Tests in `reports/hss-audit/r40/tools/` (`phone40.mjs`, `deskchk40.mjs`) read the
+  cross-origin frame's layout through a CDP session to find the slots. **They never type into or
+  submit Google's form, and a test must never book**: a booking puts a real event on the owner's
   calendar and sends real email. They close the dialog with its own "Cancel".
 
 **The scheduler loads on `/book/` and nowhere else.** The build asserts that no other page
