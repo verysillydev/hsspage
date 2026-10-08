@@ -2323,7 +2323,8 @@ FORM_JS = """<script>
      nothing from the URL ever reaches the page. Only into an empty field. */
   var PREFILL = {'handyman-dan': "I'd like to run the Handyman Dan campaign in my market.",
                  'brand-video': "I'd like a brand video for my company.",
-                 'content-calendar': "I'd like the free content calendar.",
+                 'social-audit': "I'd like the free social audit and content calendar.",
+                 'content-calendar': "I'd like the free social audit and content calendar.",
                  'commercial-shoot': "I'd like to talk about a commercial shoot.",
                  'podcast': "I'd like to talk about producing a podcast."};
   try {
@@ -2484,53 +2485,49 @@ FORM_JS = FORM_JS.replace("__FORM_TO__", FORM_TO)
 assert "__FORM_ENDPOINT__" not in FORM_JS, "form endpoint placeholder was not substituted"
 assert "__FORM_TO__" not in FORM_JS, "form failover address was not substituted"
 
-# ---- Free content calendar pop-up (release 35, owner) ----------------------------------
-# A lead offer: a free 30-day content calendar. One native <dialog> per page (showModal(): the
-# page goes inert, Esc closes it, focus moves in and comes back), shipped at the end of <body>
-# with its own CSS and JS so nothing of it sits ahead of the LCP element. CAL_JS:
-# - Release 36b (owner hotfix): it never opens by itself. The release-35 scroll trigger is
-#   removed; only the footer link opens it.
-# - The footer link "Free content calendar" (site_footer, every page) opens it on demand.
-#   Without JS or <dialog> it is a plain link to the contact form with its own prefill.
-# - It posts to the same FormSubmit AJAX endpoint as the contact form (FORM_TO), with
-#   _subject "Free content calendar - <website or first handle>", _replyto, _template table,
-#   the honeypot (here "fax": the contact form's honeypot is called "website", and this form
-#   needs a real website field), lead_type=content-calendar and the page it was opened on.
-#   Success replaces the form in the panel; failure keeps everything typed and offers a
-#   retry and a prefilled email to FORM_TO.
-# - Phones get a bottom sheet (at most 85% of the screen, the form scrolls inside it), not a
-#   full-screen interstitial. Desktop gets a centred panel with a month preview beside the form.
-# - Closing (the X, "No thanks, keep browsing", Esc or the backdrop) never submits, and the
-#   page stays where it was: html keeps its scrollbar gutter while scroll is locked.
+# ---- Free social audit: a chat-style bubble and panel (release 37, owner) --------------
+# Release 35 shipped this offer as a pop-up that opened on the first scroll; release 36b took
+# the trigger out and release 37 replaces the pop-up with a launcher. Nothing ever opens by
+# itself any more.
+# - The bubble (CAL_BUBBLE): a round charcoal <button> with the orange reel, fixed bottom
+#   right on every page but /contact/, with a "Free social audit" label pill beside it. It
+#   ships hidden and CAL_JS shows it, so without JS there is no dead control. Desktop keeps the
+#   pill. Phones show it once per visit, for 5s after the first scroll, then only the round
+#   button (reduced motion: never). On phones it sits above the action bar.
+# - The panel (CAL_HTML): one native <dialog> per page, opened with showModal(), so the page
+#   goes inert, focus is held inside, and Esc, the backdrop, the 44px X and "No thanks, keep
+#   browsing" all close it. Focus returns to whatever opened it. From 760px it is a 392px chat
+#   panel anchored above the bubble; below that a bottom sheet (at most 85% of the screen).
+# - The bubble and the footer link "Free social audit" (site_footer, every page) open it.
+#   Without JS the footer link goes to the contact form with its own prefill.
+# - It posts to the contact form's FormSubmit AJAX endpoint (FORM_TO): _subject "Free social
+#   audit + content calendar - <website or first handle>", _replyto, _template table, the
+#   honeypot (named "fax": the contact form's is "website", and this form has a real website
+#   field), lead_type=social-audit-calendar and the page it was opened on. Success replaces the
+#   form in the panel and turns the pill into "Audit requested" for the rest of the visit
+#   (sessionStorage); failure keeps everything typed and offers a retry and an email.
 CAL_LEGAL = "We'll use this to build your calendar and follow up about it. We never sell your information."
 
 
-def _cal_art():
-    """A sample month, flat: Monday to Friday a reel (orange), Saturday and Sunday a graphic
-    (cyan), 30 days from a Monday, then five empty cells. The weekday letters are HTML, not
-    SVG <text>: a visible SVG <text> in Archivo once made that face miss its font window."""
+def _cal_week():
+    """A sample week, flat: Monday to Friday a reel (orange), Saturday and Sunday a graphic
+    (cyan). Desktop panel only. The weekday letters are HTML, not SVG <text>: a visible SVG
+    <text> in Archivo once made that face miss its font window."""
     cw, g = 20, 4
-    cells, empty, uses = [], [], []
-    for r in range(5):
-        for c in range(7):
-            x, y, day = c * (cw + g), r * (cw + g), r * 7 + c
-            (cells if day < 30 else empty).append(f"M{x} {y}h{cw}v{cw}h-{cw}z")
-            if day < 30:
-                uses.append(f'<use href="#cal-{"g" if c >= 5 else "r"}" x="{x}" y="{y}"/>')
-    w, h = 7 * cw + 6 * g, 5 * cw + 4 * g
+    cells = "".join(f"M{c * (cw + g)} 0h{cw}v{cw}h-{cw}z" for c in range(7))
+    uses = "".join(f'<use href="#cal-{"g" if c >= 5 else "r"}" x="{c * (cw + g)}" y="0"/>' for c in range(7))
     letters = "".join(f"<span>{d}</span>" for d in "MTWTFSS")
-    return (f'<div class="cal-art"><p class="cal-wd" aria-hidden="true">{letters}</p>'
-            f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="A sample month: a reel every weekday '
-            f'and a graphic every weekend">'
+    return (f'<div class="cal-week"><div><p class="cal-wd" aria-hidden="true">{letters}</p>'
+            f'<svg viewBox="0 0 {7 * cw + 6 * g} {cw}" role="img" aria-label="A sample week: a reel '
+            f'every weekday and a graphic on Saturday and Sunday">'
             '<defs><g id="cal-r"><rect x="6" y="3" width="8" height="14" rx="1.5" fill="#F04820"/>'
             '<path d="M8.8 7.5v5l3.6-2.5z" fill="#FFFFFF"/></g>'
             '<g id="cal-g"><rect x="4" y="4" width="12" height="12" rx="1.5" fill="#00B0C8"/>'
             '<path d="M5.5 14.6l3.8-4.6 2.3 2.7 1.5-1.5 1.6 3.4z" fill="#14171A"/>'
             '<circle cx="12.8" cy="7.4" r="1.4" fill="#14171A"/></g></defs>'
-            f'<path d="{"".join(cells)}" fill="#262B30"/><path d="{"".join(empty)}" fill="none" '
-            f'stroke="#33383D"/>{"".join(uses)}</svg>'
-            '<p class="cal-key" aria-hidden="true"><span class="k-r">Reels</span>'
-            '<span class="k-g">Graphics</span></p></div>')
+            f'<path d="{cells}" fill="#262B30"/>{uses}</svg></div>'
+            '<p class="cal-key" aria-hidden="true"><span class="k-r">Reels on weekdays</span>'
+            '<span class="k-g">Graphics on weekends</span></p></div>')
 
 
 def _cal_field(name, label, kind="text", req=False, ac="", im="", hint=""):
@@ -2551,14 +2548,13 @@ CAL_HTML = (
     'height="22" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" '
     'stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>'
     '<div class="cal-body">'
-    + _cal_art() +
-    '<div class="cal-main">'
     '<p class="eyebrow">Free for home service companies</p>'
-    '<h2 class="cal-h" id="cal-h" tabindex="-1" autofocus>Get a free content calendar for your '
-    'business.</h2>'
-    "<p class=\"cal-sub\">Tell us where you post. We'll plan your next 30 days of content, built "
-    "for your trade and your market.</p>"
-    "<p class=\"cal-when\">We'll email it to you within 3 business days.</p>"
+    '<h2 class="cal-h" id="cal-h" tabindex="-1" autofocus>Get a free social audit and content '
+    'calendar.</h2>'
+    "<p class=\"cal-sub\">We'll audit your existing social first. Then we'll plan your next 30 days "
+    "of content, built for your trade and your market.</p>"
+    "<p class=\"cal-when\">We'll email both to you within 3 business days.</p>"
+    + _cal_week() +
     '<form class="cal-f" id="cal-f" novalidate>'
     + _cal_field("name", "Your name", req=True, ac="name")
     + _cal_field("email", "Email", "email", True, "email", "email")
@@ -2571,29 +2567,66 @@ CAL_HTML = (
     + _cal_field("facebook", "Facebook", hint="Page name or link")
     + _cal_field("youtube", "YouTube", hint="Channel or link")
     + '<p class="cal-e" id="cal-where-e"></p></fieldset>'
-    '<input type="hidden" name="lead_type" value="content-calendar">'
+    '<input type="hidden" name="lead_type" value="social-audit-calendar">'
     '<input type="hidden" name="page" value="">'
     '<div class="cal-hp" aria-hidden="true"><label for="cal-fax">Fax</label>'
     '<input id="cal-fax" name="fax" type="text" tabindex="-1" autocomplete="off"></div>'
-    f'<button type="submit" class="cta">{reel("Get my free calendar")}</button>'
+    f'<button type="submit" class="cta">{reel("Get my free audit")}</button>'
     '<p class="cal-st" role="alert"></p>'
     f'<p class="cal-legal">{CAL_LEGAL}</p>'
     '<button type="button" class="cal-skip">No thanks, keep browsing</button>'
     '</form>'
     '<div class="cal-done" hidden><h3 tabindex="-1">You&#39;re in. Watch your inbox.</h3>'
-    "<p>We'll email it to you within 3 business days.</p>"
     '<button type="button" class="cal-skip">Keep browsing</button></div>'
-    '</div></div></dialog>')
+    '</div></dialog>')
+
+CAL_BUBBLE = ('<button type="button" class="calb" data-cal hidden aria-haspopup="dialog" '
+              'aria-expanded="false" aria-controls="cal" aria-label="Get a free social audit and '
+              'content calendar"><span class="calb-pill">Free social audit</span>'
+              '<svg class="calb-reel" viewBox="0 0 56 56" aria-hidden="true" focusable="false">'
+              '<use href="#bm-reel"/></svg><svg class="calb-down" viewBox="0 0 24 24" '
+              'aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" '
+              'stroke="currentColor" stroke-width="2.4" stroke-linecap="round" '
+              'stroke-linejoin="round"/></svg></button>')
 
 CAL_CSS = """<style>
   html{scrollbar-gutter:stable;}
   html.cal-lock{overflow:hidden;}
-  .cal{padding:0;border:1px solid #33383D;border-radius:var(--r-lg);color:#FFFFFF;
-    width:min(760px,calc(100% - 48px));max-width:none;max-height:calc(100dvh - 48px);
-    overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.45);}
+  .calb{position:fixed;right:24px;bottom:24px;z-index:54;width:56px;height:56px;padding:0;
+    display:flex;align-items:center;justify-content:center;border:1px solid #3D444B;
+    border-radius:50%;background:#14171A;color:#FFFFFF;cursor:pointer;
+    box-shadow:0 6px 20px rgba(20,23,26,.28);transition:background var(--ease);}
+  .calb[hidden]{display:none;}
+  .calb:focus-visible{outline:2px solid var(--orange);outline-offset:3px;}
+  .calb-reel{display:block;width:34px;height:34px;fill:#262B30;
+    transition:transform .5s cubic-bezier(.2,.6,.3,1);}
+  .calb-down{display:none;width:24px;height:24px;}
+  .calb[aria-expanded="true"] .calb-reel{display:none;}
+  .calb[aria-expanded="true"] .calb-down{display:block;}
+  .calb-pill{position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;height:36px;padding:0 14px;white-space:nowrap;
+    background:#14171A;border:1px solid #3D444B;border-radius:var(--r-lg);color:#FFFFFF;
+    font:600 var(--f-sm)/1 'Onest',-apple-system,sans-serif;
+    box-shadow:0 4px 14px rgba(20,23,26,.2);
+    transition:opacity .25s ease,transform .25s cubic-bezier(.2,.6,.3,1);}
+  .calb[aria-expanded="true"] .calb-pill{opacity:0;pointer-events:none;}
+  @media(hover:hover){.calb:hover,.calb:hover .calb-pill{background:#23292E;}}
+  @media(hover:hover) and (prefers-reduced-motion:no-preference){
+    .calb:hover .calb-reel{transform:rotate(-40deg);}}
+  @media(min-width:760px){body:has(> .calb:not([hidden])){padding-bottom:96px;}}
+  @media(max-width:759px){
+    .calb{right:16px;bottom:calc(66px + env(safe-area-inset-bottom));}
+    .calb-pill{opacity:0;pointer-events:none;transform:translate(8px,-50%) scale(.96);}
+    .calb.is-peek .calb-pill{opacity:1;pointer-events:auto;transform:translateY(-50%);}
+    body:has(> .calb:not([hidden])){padding-bottom:calc(134px + env(safe-area-inset-bottom));}
+  }
+  .cal{position:fixed;inset:auto 24px 92px auto;margin:0;padding:0;
+    width:min(392px,calc(100vw - 48px));max-width:none;max-height:min(80vh,calc(100vh - 116px));
+    border:1px solid #33383D;border-radius:var(--r-lg);color:#FFFFFF;overflow:hidden;
+    box-shadow:0 18px 48px rgba(0,0,0,.35);}
   .cal[open]{display:flex;flex-direction:column;}
   .cal [hidden]{display:none;}
-  .cal::backdrop{background:rgba(10,12,14,.72);}
+  .cal::backdrop{background:rgba(10,12,14,.18);}
   .cal-rail{display:block;flex:none;height:14px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='6'%3E%3Crect x='3' width='8' height='6' rx='1.5' fill='%23F5F4F1'/%3E%3C/svg%3E") 0 4px/14px 6px space no-repeat #262B30;}
   .cal-x{position:absolute;top:22px;right:12px;z-index:2;width:44px;height:44px;display:flex;
     align-items:center;justify-content:center;border:1px solid #4B535B;border-radius:var(--r-md);
@@ -2601,22 +2634,21 @@ CAL_CSS = """<style>
   .cal-x:hover{border-color:#A8A29A;}
   .cal-x:focus-visible,.cal-skip:focus-visible,.cal input:focus-visible{outline:2px solid var(--orange);
     outline-offset:2px;}
-  .cal-body{overflow:auto;overscroll-behavior:contain;padding:28px 28px 24px;
-    display:grid;grid-template-columns:164px minmax(0,1fr);gap:28px;align-items:start;}
-  .cal-art{padding-top:46px;}
-  .cal-wd{display:grid;grid-template-columns:repeat(7,20px);column-gap:4px;margin:0 0 6px;
-    font:700 10px/1 var(--display);letter-spacing:.04em;color:#A8A29A;text-align:center;}
-  .cal-art svg{display:block;width:164px;height:auto;}
-  .cal-key{display:flex;gap:var(--s4);margin:var(--s3) 0 0;font-size:var(--f-micro);color:#D8D3C9;}
-  .cal-key span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;
-    margin-right:6px;vertical-align:-1px;background:#F04820;}
-  .cal-key .k-g::before{background:#00B0C8;}
-  .cal-main{min-width:0;}
+  .cal-body{overflow:auto;overscroll-behavior:contain;padding:24px 24px 20px;}
   .cal-h:focus{outline:none;}
   .cal-h{margin:var(--s2) 52px 0 0;font:700 var(--f-h3)/1.15 var(--display);letter-spacing:var(--t-head);}
   .cal-sub{margin:var(--s3) 0 0;font-size:var(--f-body);line-height:1.55;color:#D8D3C9;}
   .cal-when{margin:var(--s2) 0 0;font-size:var(--f-sm);color:#A8A29A;}
-  .cal-f{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px;}
+  .cal-week{display:flex;align-items:flex-end;gap:var(--s4);margin:var(--s4) 0 0;}
+  .cal-wd{display:grid;grid-template-columns:repeat(7,20px);column-gap:4px;margin:0 0 5px;
+    font:700 10px/1 var(--display);letter-spacing:.04em;color:#A8A29A;text-align:center;}
+  .cal-week svg{display:block;width:164px;height:20px;}
+  .cal-key{display:flex;flex-direction:column;gap:5px;margin:0;font-size:var(--f-micro);
+    line-height:1.2;color:#D8D3C9;}
+  .cal-key span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;
+    margin-right:6px;vertical-align:0;background:#F04820;}
+  .cal-key .k-g::before{background:#00B0C8;}
+  .cal-f{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-top:20px;}
   .cal-fld{display:flex;flex-direction:column;gap:6px;min-width:0;}
   .cal-fld label{font-size:var(--f-sm);font-weight:600;color:#FFFFFF;}
   .cal input{width:100%;min-height:44px;padding:10px 12px;font:inherit;font-size:16px;
@@ -2625,73 +2657,91 @@ CAL_CSS = """<style>
   .cal input[aria-invalid="true"]{border-color:#F04820;}
   .cal-e{margin:0;font-size:var(--f-sm);color:#F04820;}
   .cal-e:empty{display:none;}
-  .cal-where{grid-column:1 / -1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:10px;margin:6px 0 0;padding:14px 0 0;border:0;border-top:1px solid #33383D;min-width:0;}
+  .cal-where{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0 0;
+    padding:14px 0 0;border:0;border-top:1px solid #33383D;min-width:0;}
   .cal-where legend{float:left;grid-column:1 / -1;padding:0;font-size:var(--f-sm);font-weight:600;}
   .cal-where legend span{margin-left:var(--s2);font-weight:400;color:#A8A29A;}
-  .cal-where > .cal-e{grid-column:1 / -1;}
+  .cal-where > .cal-fld:first-of-type,.cal-where > .cal-e{grid-column:1 / -1;}
   .cal-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
-  .cal-f > .cta{grid-column:1 / -1;justify-self:start;margin-top:var(--s3);border:0;cursor:pointer;
-    font-family:inherit;}
+  .cal-f > .cta{justify-self:start;margin-top:var(--s3);border:0;cursor:pointer;font-family:inherit;}
   .cal-f > .cta[disabled]{opacity:.6;cursor:default;}
-  .cal-st{grid-column:1 / -1;margin:0;font-size:var(--f-sm);line-height:1.5;color:#F04820;}
+  .cal-st{margin:0;font-size:var(--f-sm);line-height:1.5;color:#F04820;}
   .cal-st:empty{display:none;}
   .cal-st a{color:#FFFFFF;}
-  .cal-legal{grid-column:1 / -1;margin:0;font-size:var(--f-sm);line-height:1.5;color:#A8A29A;}
-  .cal-skip{grid-column:1 / -1;justify-self:start;min-height:44px;padding:0;border:0;background:none;
+  .cal-legal{margin:0;font-size:var(--f-sm);line-height:1.5;color:#A8A29A;}
+  .cal-skip{justify-self:start;min-height:44px;padding:0;border:0;background:none;
     font:inherit;font-size:var(--f-body);color:#FFFFFF;text-decoration:underline;
     text-underline-offset:.2em;cursor:pointer;}
   .cal-done h3{margin:var(--s5) 0 0;font:700 var(--f-h3)/1.2 var(--display);}
   .cal-done h3:focus{outline:none;}
-  .cal-done p{margin:var(--s2) 0 var(--s2);color:#D8D3C9;}
-  @media(max-width:899px){.cal-art{display:none;}.cal-body{grid-template-columns:minmax(0,1fr);}}
+  .cal-done .cal-skip{margin-top:var(--s2);}
   @media(max-width:759px){
-    .cal{width:100%;margin:auto 0 0;max-height:85dvh;border-radius:var(--r-lg) var(--r-lg) 0 0;
+    .cal{inset:auto 0 0 0;width:100%;max-height:85dvh;border-radius:var(--r-lg) var(--r-lg) 0 0;
       border-width:1px 0 0;}
+    .cal::backdrop{background:rgba(10,12,14,.55);}
     .cal-body{padding:var(--s5) var(--s5) var(--s6);}
     .cal-x{top:20px;right:10px;}
-    .cal-f{grid-template-columns:minmax(0,1fr);}
-    .cal-where{grid-template-columns:repeat(2,minmax(0,1fr));}
-    .cal-where > .cal-fld:first-of-type{grid-column:1 / -1;}
+    .cal-week{display:none;}
   }
   @media(prefers-reduced-motion:no-preference){
-    .cal[open]{animation:cal-in .24s cubic-bezier(.2,.6,.3,1);}
-    .cal[open]::backdrop{animation:cal-fade .24s ease;}
+    .cal[open]{transform-origin:100% 100%;animation:cal-in .22s cubic-bezier(.2,.6,.3,1);}
+    .cal[open]::backdrop{animation:cal-fade .22s ease;}
   }
   @media(prefers-reduced-motion:no-preference) and (max-width:759px){
     .cal[open]{animation-name:cal-up;animation-duration:.3s;}
   }
-  @keyframes cal-in{from{opacity:0;transform:translateY(12px);}}
+  @media(prefers-reduced-motion:reduce){.calb-pill{transition:none;}}
+  @keyframes cal-in{from{opacity:0;transform:translateY(8px) scale(.98);}}
   @keyframes cal-up{from{transform:translateY(100%);}}
   @keyframes cal-fade{from{opacity:0;}}
 </style>"""
 
 CAL_JS = """<script>
 (function(){
+  try { localStorage.removeItem('hss-cal'); } catch(e){}
   var d = document.getElementById('cal');
-  if(!d || !d.showModal) return;  var f = document.getElementById('cal-f'), K = 'hss-cal', mem = null, opener = null, y0 = 0;
+  if(!d || !d.showModal) return;
+  var f = document.getElementById('cal-f'), bub = document.querySelector('.calb'), mem = {};
   var btn = f.querySelector('button[type=submit]'), lab = btn.querySelector('.bm-label');
   var LABEL = lab.textContent, st = f.querySelector('.cal-st'), done = d.querySelector('.cal-done');
+  var body = d.querySelector('.cal-body'), opener = null, y0 = 0;
   var WHERE = ['website', 'instagram', 'tiktok', 'facebook', 'youtube'];
-  var body = d.querySelector('.cal-body'), calm = 0;
-  body.addEventListener('scroll', function(){ if(Date.now() < calm) body.scrollTop = 0; }, {passive: true});
   var MSG = {name: 'Enter your name.', email: 'Enter a valid email address.',
     phone: 'Enter a 10-digit US phone number.', website: 'Enter a website like yourcompany.com.',
     where: 'Add your website or at least one social account, so we know where to look.'};
-  function get(){ try { var v = localStorage.getItem(K); return v ? JSON.parse(v) : mem; } catch(e){ return mem; } }
-  function put(v){ mem = v; try { localStorage.setItem(K, JSON.stringify(v)); } catch(e){} }
-  function away(){ var v = get(); return !!v && (v.s === 'sent' || (v.s === 'seen' && Date.now() - v.t < 2592e6)); }
-  function open(){
+  function sget(k){ try { return sessionStorage.getItem(k) || mem[k]; } catch(e){ return mem[k]; } }
+  function sset(k){ mem[k] = '1'; try { sessionStorage.setItem(k, '1'); } catch(e){} }
+  function requested(){
+    if(!bub || bub.classList.contains('is-done')) return;
+    bub.classList.add('is-done');
+    bub.querySelector('.calb-pill').textContent = 'Audit requested';
+    bub.setAttribute('aria-label', 'Audit requested. Get a free social audit and content calendar');
+  }
+  if(bub){
+    bub.hidden = false;
+    if(sget('hss-audit')) requested();
+    var small = matchMedia('(max-width: 759px)'), still = matchMedia('(prefers-reduced-motion: reduce)');
+    addEventListener('scroll', function first(){
+      if(window.scrollY < 40) return;
+      removeEventListener('scroll', first);
+      if(!small.matches || still.matches || sget('hss-peek')) return;
+      sset('hss-peek');
+      bub.classList.add('is-peek');
+      setTimeout(function(){ bub.classList.remove('is-peek'); }, 5000);
+    }, {passive: true});
+  }
+  function open(from){
     if(d.open) return;
-    opener = document.activeElement; y0 = window.scrollY;
-    if(!(get() || {}).s || get().s !== 'sent') put({s: 'seen', t: Date.now()});
+    opener = from || document.activeElement; y0 = window.scrollY;
     f.elements.page.value = location.pathname;
     document.documentElement.classList.add('cal-lock');
+    if(bub){ bub.setAttribute('aria-expanded', 'true'); bub.classList.remove('is-peek'); }
     d.showModal();
-    body.scrollTop = 0; calm = Date.now() + 600;
+    body.scrollTop = 0;
   }
   d.addEventListener('close', function(){
     document.documentElement.classList.remove('cal-lock');
+    if(bub) bub.setAttribute('aria-expanded', 'false');
     if(opener && opener !== document.body && opener.focus) opener.focus({preventScroll: true});
     if(Math.abs(window.scrollY - y0) > 1) window.scrollTo(0, y0);
   });
@@ -2701,7 +2751,7 @@ CAL_JS = """<script>
   d.addEventListener('click', function(e){ if(e.target === d) d.close(); });
   document.addEventListener('click', function(e){
     var a = e.target.closest && e.target.closest('[data-cal]');
-    if(a){ e.preventDefault(); open(); }
+    if(a){ e.preventDefault(); open(a); }
   });
   function show(el, m){
     var e = document.getElementById(el.id + '-e');
@@ -2746,7 +2796,7 @@ CAL_JS = """<script>
     var x = {};
     [].forEach.call(f.elements, function(el){ if(el.name) x[el.name] = el.value.trim(); });
     x._honey = x.fax; delete x.fax;
-    x._subject = 'Free content calendar - ' + tag(x);
+    x._subject = 'Free social audit + content calendar - ' + tag(x);
     x._replyto = x.email; x._template = 'table'; x._captcha = 'false';
     btn.disabled = true; lab.textContent = 'Sending...';
     fetch('__FORM_ENDPOINT__', {method: 'POST',
@@ -2756,7 +2806,7 @@ CAL_JS = """<script>
       return r.json().then(function(j){ return {ok: r.ok, j: j}; }, function(){ return {ok: r.ok, j: {}}; });
     }).then(function(r){
       if(r.ok && String(r.j.success) === 'true'){
-        put({s: 'sent', t: Date.now()});
+        sset('hss-audit'); requested();
         f.hidden = true; done.hidden = false; done.querySelector('h3').focus();
         return;
       }
@@ -2777,7 +2827,9 @@ CAL_JS = """<script>
 CAL_JS = (CAL_JS.replace("__FORM_ENDPOINT__", f"https://formsubmit.co/ajax/{FORM_TO}")
                 .replace("__FORM_TO__", FORM_TO))
 assert "__FORM" not in CAL_JS, "calendar pop-up placeholders were not substituted"
-CAL_POPUP = CAL_HTML + CAL_CSS + CAL_JS if MODE == "web" else ""
+# /contact/ gets the panel (its footer link opens it) but no bubble
+CAL_POPUP = CAL_CSS + CAL_BUBBLE + CAL_HTML + CAL_JS if MODE == "web" else ""
+CAL_POPUP_CONTACT = CAL_CSS + CAL_HTML + CAL_JS if MODE == "web" else ""
 
 
 SPOT_DIR = f"{S}/spots"
@@ -3414,9 +3466,10 @@ BRAND_ASK = "/contact/?campaign=brand-video#start"
 # and CAMPAIGN_ASK) are Reel wheel buttons after a one-line prompt. Each key is in FORM_JS's
 # PREFILL map.
 COMMERCIAL_ASK = "/contact/?campaign=commercial-shoot#start"
-# Release 35: the footer's "Free content calendar" link. With JS it opens the pop-up; this
-# address is its no-JS fallback (FORM_JS prefills content-calendar).
-CALENDAR_ASK = "/contact/?campaign=content-calendar#start"
+# Release 37: the footer's "Free social audit" link. With JS it opens the panel; this address
+# is its no-JS fallback (FORM_JS prefills social-audit; content-calendar is the release-35 key,
+# kept for old links).
+SOCIAL_AUDIT_ASK = "/contact/?campaign=social-audit#start"
 PODCAST_ASK = "/contact/?campaign=podcast#start"
 MORE_WORK = f"""<section id="more-work"><div class="wrap">
   <div class="sec-head">
@@ -3459,8 +3512,8 @@ def site_footer(page=""):
             f'<p class="display foot-line">Let&#39;s make something that travels.</p>'
             f'<div class="foot-actions">{cta}'
             f'<a class="foot-mail" href="mailto:{EMAIL}">{EMAIL}</a>'
-            f'<a class="foot-mail foot-cal" href="{CALENDAR_ASK}" data-cal '
-            f'aria-haspopup="dialog">Free content calendar</a></div>'
+            f'<a class="foot-mail foot-cal" href="{SOCIAL_AUDIT_ASK}" data-cal '
+            f'aria-haspopup="dialog">Free social audit</a></div>'
             f'</div>'
             f'<nav class="foot-nav" aria-label="Footer">{links}</nav>'
             f'</div>'
@@ -4601,7 +4654,7 @@ CONTACT_HTML = f"""<title>Contact</title>
 
 {site_footer("contact")}
 {actionbar()}
-{CAL_POPUP}
+{CAL_POPUP_CONTACT}
 {SPLAT_JS}
 {NAV_JS}
 {MOTION_JS}

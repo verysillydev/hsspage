@@ -685,77 +685,105 @@ Lighthouse's `link-text` audit and cost 8 SEO points. The pill also uses sentenc
 rather than the mono uppercase of the nav links, because 15 characters of `--t-caps` tracking is
 about 25px the bar does not have.
 
-## Free content calendar pop-up (release 35, owner)
+## Free social audit: the bubble and its panel (release 37, owner)
 
-A lead offer on every page: a free 30-day content calendar. The code is `CAL_HTML`, `CAL_CSS` and
-`CAL_JS` (`CAL_POPUP`), placed after `{actionbar()}` on all seven page templates, so all of it
-sits at the end of `<body>`, after the LCP element. It adds about 18KB per page (6.3KB of it JS).
-It is in the web build only.
+A lead offer on every page: a free social audit plus a 30-day content calendar. **Nothing ever
+opens by itself.** Release 35 shipped it as a pop-up that opened on the first scroll. The owner
+found that too in-your-face, so release 36b removed the trigger and release 37 replaced the
+pop-up with a chat-style launcher. Do not bring back a scroll, timer or exit-intent trigger.
 
-**Copy (owner, verbatim):**
+The code is `CAL_CSS`, `CAL_BUBBLE`, `CAL_HTML` and `CAL_JS`. They are placed after
+`{actionbar()}` as `CAL_POPUP` on six page templates and as `CAL_POPUP_CONTACT` (no bubble) on
+`/contact/`. All of it is at the end of `<body>`, after the LCP element, and only in the web
+build.
+
+**The bubble (`CAL_BUBBLE`).**
+- A real `<button>`: a 56px charcoal circle with the orange reel (the buttons' `#bm-reel`
+  symbol), fixed bottom right, plus a label pill "Free social audit" inside the button, so the
+  pill is clickable too.
+- `aria-label` is "Get a free social audit and content calendar". It contains the visible pill
+  text, so label-in-name holds. It also has `aria-haspopup="dialog"`, `aria-expanded` and
+  `aria-controls="cal"`, and the site's orange focus ring.
+- It ships `hidden`, and `CAL_JS` shows it, so without JS (or without `<dialog>`) there is no
+  dead control. It is never on `/contact/`.
+- **Desktop (from 760px):** right and bottom 24px, the pill always visible. While the panel is
+  open the pill hides and the reel turns into a down chevron. A click there lands on the
+  backdrop, which closes the panel, so it works as a toggle.
+- **Phones:** right 16px, bottom 66px plus the safe-area inset, which is 11px above the action
+  bar, so it never covers "Contact" or "Start a project". The pill shows once per visit, for 5s
+  after the first scroll past 40px, then collapses to the round button (`is-peek`,
+  sessionStorage `hss-peek`). Collapsed, it takes no pointer events, so there is no invisible
+  tap area. Reduced motion: it never shows.
+- **Room at the end of the page:** `body:has(> .calb:not([hidden]))` adds bottom padding (96px
+  from 760px; 134px plus the inset on phones). At the end of any page nothing sits under the
+  bubble (measured at 1440 and 390). While the page scrolls it passes over content like any chat
+  launcher. At 390 it can cover the bottom-right 56px corner of a passing card (the video
+  players, an Instagram grab, the portfolio door). The rest of each card stays tappable, and
+  the main film's centred play button is never under it.
+- **After a successful send** the pill reads "Audit requested" (and the `aria-label` starts with
+  it) for the rest of the visit (sessionStorage `hss-audit`). Storage is in try/catch, and
+  blocked storage falls back to the page load. The release-35 localStorage key `hss-cal` is
+  removed on load.
+
+**The panel (`CAL_HTML`).**
+- One native `<dialog>`, opened with `showModal()`: the page goes inert, focus is held inside,
+  and Esc, the backdrop, the 44px "Close" X and "No thanks, keep browsing" all close it.
+  Closing never submits.
+- Focus goes to the heading and returns to whatever opened it: the bubble, or the footer link
+  "Free social audit". The page keeps its scroll position and is locked behind the panel
+  (`cal-lock`, with `scrollbar-gutter:stable`, so nothing shifts).
+- **From 760px** it is a chat panel anchored above the bubble: 392px wide, right 24px, bottom
+  92px, at most 80% of the screen tall. The form scrolls inside it, under a very light backdrop.
+  The entrance is a short fade-and-rise from the bubble's corner. A one-week strip (`_cal_week()`:
+  reels Monday to Friday, graphics on the weekend, with a key) replaces release 35's month grid,
+  which did not fit the narrower panel.
+- **Phones:** a bottom sheet capped at 85% of the screen, with no illustration.
+- Motion is transform and opacity only, and there is none under reduced motion.
+
+**Copy (owner, verbatim).**
 - Eyebrow: "Free for home service companies".
-- Headline: "Get a free content calendar for your business."
-- Sub: "Tell us where you post. We'll plan your next 30 days of content, built for your trade and
-  your market."
-- **Delivery line, confirmed by the owner (not a placeholder): "We'll email it to you within 3
-  business days."** It appears under the sub and again in the success state.
-- Button: the Reel wheel "Get my free calendar".
+- Headline: "Get a free social audit and content calendar."
+- Sub: "We'll audit your existing social first. Then we'll plan your next 30 days of content,
+  built for your trade and your market."
+- Delivery: "We'll email both to you within 3 business days." It shows under the sub, which
+  stays above the success message, so the success block does not repeat it.
+- Button: the Reel wheel "Get my free audit".
+- Success: "You're in. Watch your inbox."
 - Consent: "We'll use this to build your calendar and follow up about it. We never sell your
   information."
-- Success: "You're in. Watch your inbox."
-- Exit: "No thanks, keep browsing".
+- "Keep browsing", "At least one", the field hints and the error messages are site wording, not
+  the owner's.
 
-**Fields.** Your name, Email and Phone are required. Phone accepts the common US formats ((805)
-555-0123, 805.555.0123, +1 805 555 0123, 1-805-555-0123, 8055550123) and needs 10 digits with
-a valid area code. "Where you post" (Business website, Instagram, TikTok, Facebook, YouTube)
-needs at least one, with an inline error otherwise. Labels sit above the inputs, the
-placeholders are only hints, and each input has `autocomplete`/`inputmode`. Errors are inline,
-tied with `aria-describedby`/`aria-invalid`, and focus goes to the first problem.
+**Fields.** Unchanged from release 35:
+- Your name, Email and Phone are required. Phone takes the common US formats and needs 10
+  digits with a valid area code.
+- "Where you post" (Business website, Instagram, TikTok, Facebook, YouTube) needs at least one.
+- Errors are inline (`aria-describedby`, `aria-invalid`), and focus goes to the first problem.
 
-**Delivery.** It uses the same FormSubmit AJAX endpoint as the contact form (`FORM_TO`). The
-payload carries:
-- `_subject` "Free content calendar - <website host, else the first handle, else the name>";
-- `_replyto` set to their email, `_template` table and `_captcha` false;
-- `_honey`, filled from a hidden field named `fax`. The contact form's honeypot is named
-  `website`, and this form needs a real website field.
-- `lead_type`=content-calendar and `page`, the path it was opened on.
+**Delivery.** It uses the contact form's FormSubmit AJAX endpoint (`FORM_TO`). The payload
+carries:
+- `_subject` "Free social audit + content calendar - <website host, else the first handle,
+  else the name>";
+- `_replyto`, `_template` table and `_captcha` false;
+- `_honey` from a hidden field named `fax` (the contact form's honeypot is named `website`, and
+  this form needs a real website field);
+- `lead_type`=social-audit-calendar and `page`, the path it was opened on.
 
-Success replaces the form inside the panel, with no page change. Failure keeps everything typed,
-re-enables the button and offers a prefilled email to `FORM_TO`.
+Success replaces the form inside the panel. Failure keeps everything typed and offers a retry and
+a prefilled email to `FORM_TO`. Without JS the footer link goes to `SOCIAL_AUDIT_ASK`
+(`/contact/?campaign=social-audit#start`), and `FORM_JS` prefills "I'd like the free social audit
+and content calendar.". The release-35 key `content-calendar` maps to the same sentence, for old
+links.
 
-**When it opens (release 36b, owner hotfix): only from the footer link.** It never opens by
-itself. The release-35 scroll trigger (first real scroll past 40% of the screen) was removed
-because the owner found it too in-your-face. Opening still records "seen" in localStorage
-(`hss-cal`), which now changes nothing.
-- **The footer link "Free content calendar"** (`site_footer`, every page, 44px) opens it at any
-  time, `/contact/` included. Without JS or `<dialog>` it is a plain link to
-  `CALENDAR_ASK` (`/contact/?campaign=content-calendar#start`), and `FORM_JS` prefills "I'd like
-  the free content calendar.".
-
-**How it behaves.**
-- It is a native `<dialog>` with `showModal()`: the page goes inert, and Esc, the backdrop, the
-  44px "Close" X and "No thanks, keep browsing" all close it. Closing never submits.
-- Focus moves to the heading on open (no stray ring on the X) and returns on close, without
-  scrolling.
-- The page stays exactly where it was. `html` keeps `scrollbar-gutter:stable` while `cal-lock`
-  locks scrolling, so locking shifts nothing (no CLS).
-- The scroll that opened it would carry on into the panel, so the panel starts at its top and
-  holds there for 600ms.
-- `.cal [hidden]{display:none}` is needed, because `.cal-f{display:grid}` would otherwise keep a
-  hidden form on screen.
-- **Desktop:** a centred panel, at most 760px wide and 773px tall at 1440x900. A flat month
-  preview (`_cal_art()`: reels Monday to Friday, graphics Saturday and Sunday) sits beside a
-  three-column form from 900px, under a sprocket rail.
-- **Phones:** a bottom sheet capped at 85% of the screen (not a full-screen interstitial, per
-  Google's intrusive-interstitial guidance). The form scrolls inside it, the X stays in its top
-  corner and "No thanks" is at the thumb's end.
-- The entrance is transform and opacity only. Reduced motion gets no animation.
-
-**Testing.** Never post to formsubmit.co from a test. `reports/hss-audit/r35/tools/cal35.mjs`
-intercepts every request to it (CDP Fetch: it answers the CORS preflight and the POST itself),
-checks the payload, the validation, the success and failure states, every close path, the
-once-per-visitor rules, blocked storage, the video and `/contact/` rules, the footer link and
-the phone sheet, and runs axe with the panel open.
+**Testing.** Never post to formsubmit.co from a test. `reports/hss-audit/r37/tools/cal37.mjs`
+intercepts every request to it (CDP Fetch: it answers the preflight and the POST itself). It
+checks:
+- that nothing opens on scrolling, and the bubble's geometry against the action bar;
+- the peek, reduced motion and blocked storage;
+- every close path and focus return, and the footer link;
+- the payload, validation, success, "Audit requested" across pages, and failure and retry;
+- `/contact/`, no-JS and both prefill keys, and what sits under the bubble at 390;
+- axe with the panel closed and open, at 1440 and 390.
 
 ## Terms, which must stay accurate
 
