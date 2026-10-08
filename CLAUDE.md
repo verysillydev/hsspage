@@ -723,16 +723,10 @@ payload carries:
 Success replaces the form inside the panel, with no page change. Failure keeps everything typed,
 re-enables the button and offers a prefilled email to `FORM_TO`.
 
-**When it opens.**
-- **By itself, once:** on the visitor's first real scroll (a wheel, a touch drag or a scroll key)
-  past 40% of the first viewport, on every page but `/contact/`.
-- **Never on a click or a tap.** A pop-up that takes over a tap on a button or a video is a bad
-  trade.
-- **Not while** a video the visitor started is playing (`data-ambient` films such as the hero do
-  not count), or while focus is in another form. It waits for a later scroll.
-- **Opening records "seen"** in localStorage (`hss-cal`), so it stays away for 30 days. A send
-  records "sent", so it never auto-opens again. When storage is blocked, it opens at most once
-  per page load.
+**When it opens (release 36b, owner hotfix): only from the footer link.** It never opens by
+itself. The release-35 scroll trigger (first real scroll past 40% of the screen) was removed
+because the owner found it too in-your-face. Opening still records "seen" in localStorage
+(`hss-cal`), which now changes nothing.
 - **The footer link "Free content calendar"** (`site_footer`, every page, 44px) opens it at any
   time, `/contact/` included. Without JS or `<dialog>` it is a plain link to
   `CALENDAR_ASK` (`/contact/?campaign=content-calendar#start`), and `FORM_JS` prefills "I'd like

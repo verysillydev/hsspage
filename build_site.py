@@ -2488,14 +2488,8 @@ assert "__FORM_TO__" not in FORM_JS, "form failover address was not substituted"
 # A lead offer: a free 30-day content calendar. One native <dialog> per page (showModal(): the
 # page goes inert, Esc closes it, focus moves in and comes back), shipped at the end of <body>
 # with its own CSS and JS so nothing of it sits ahead of the LCP element. CAL_JS:
-# - Opens by itself once, on the visitor's first real scroll (wheel, touch or a scroll key)
-#   past 40% of the first viewport, on every page but /contact/. Never on a click or a tap: a
-#   pop-up that takes over a tap on a button or a video is a bad trade. Not while a video the
-#   visitor started is playing (data-ambient films do not count), nor while focus is in
-#   another form; it waits for a later scroll instead.
-# - At most once per visitor: opening records "seen", so it stays away 30 days; a sent form
-#   records "sent", so it never comes back. localStorage in try/catch; when storage is blocked
-#   it opens at most once per page load.
+# - Release 36b (owner hotfix): it never opens by itself. The release-35 scroll trigger is
+#   removed; only the footer link opens it.
 # - The footer link "Free content calendar" (site_footer, every page) opens it on demand.
 #   Without JS or <dialog> it is a plain link to the contact form with its own prefill.
 # - It posts to the same FormSubmit AJAX endpoint as the contact form (FORM_TO), with
@@ -2709,22 +2703,6 @@ CAL_JS = """<script>
     var a = e.target.closest && e.target.closest('[data-cal]');
     if(a){ e.preventDefault(); open(); }
   });
-  var real = false, fired = false;
-  addEventListener('wheel', function(){ real = true; }, {passive: true});
-  addEventListener('touchmove', function(){ real = true; }, {passive: true});
-  addEventListener('keydown', function(e){
-    if(/^(ArrowDown|PageDown|End| |Spacebar)$/.test(e.key)) real = true; });
-  function busy(){
-    var a = document.activeElement;
-    if(a && a.form && a.form !== f) return true;
-    return [].some.call(document.querySelectorAll('video:not([data-ambient])'),
-      function(v){ return !v.paused && !v.ended; });
-  }
-  addEventListener('scroll', function(){
-    if(fired || !real || d.open || window.scrollY < innerHeight * 0.4) return;
-    if(/^\\/contact\\//.test(location.pathname) || away() || busy()) return;
-    fired = true; open();
-  }, {passive: true});
   function show(el, m){
     var e = document.getElementById(el.id + '-e');
     if(e) e.textContent = m;
