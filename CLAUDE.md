@@ -279,7 +279,8 @@ to follow the row. Nothing else changed order.
   - 02 is the All Heart spot poster (`post_yt/TPDZ-OvRNgc.webp`).
   - 03 is the Quality brand film at 84s: technicians walking to the branded vans. The poster
     frame repeats the hero's aerial, so it was not used.
-  - 04 is the Service MVP set (`post/servicemvp-podcast.webp`).
+  - 04 is the Service MVP set from block 04's poster (`post/servicemvp-perception.webp`, since
+    release 37).
 - **Under each frame:** the small open slate (left-aligned; `align-self:flex-start`, or the flex
   column centres it), the service name and the one short line. Each frame plus caption is one link
   to its What We Do block (`#wwd-social`, `#wwd-commercial`, `#wwd-brand`, `#wwd-podcast`); the
@@ -362,15 +363,26 @@ dropped its "followers / following" line), resized to
   - From 760px the layout is unchanged: Quality featured, the pair below.
   - The block ends with "Want a film like these for your company?" and, since release 34, the
     Reel wheel button "Ask about a brand video" (`BRAND_ASK`). It used to be a text link.
-- **04 Podcast production.** "Watch the full episode" (YouTube `WoQBaTu2K28`, new tab), the
+- **04 Podcast production.** "Watch the full episode" (YouTube `xgo2kAY3DkE`, new tab), the
   small line "Set build, production and post.", then the podcast film, hover-play at full width,
-  captioned "Service MVP Sales Training Podcast with Joe Crisara." with 3:24. **The media is one
-  constant, `PODCAST_VIDEO`** (file in `spots/`, poster path, "m:ss"): `spots/servicemvp-podcast.mp4`
-  (13.4 MB) is the owner's chosen cut of the episode from 32:19 to the end, and its poster
-  `post/servicemvp-podcast.webp` is the owner's wide two-shot of the set (the film opens on a
-  close-up, so play cuts from the wide shot). `None` renders the block without media, with the
-  caption under the link. **Never swap in another Service MVP episode pulled from YouTube without
-  the owner**: the latest one was rejected.
+  captioned "The Power of Perception with Maggie Swift, Service MVP podcast." with 3:00. **The
+  media is one constant, `PODCAST_VIDEO`** (file in `spots/`, poster path, "m:ss").
+  - **Since release 37 (owner's choice)** it is the episode "The Power Of Perception with Maggie
+    Swift" (29:33, a remote interview: Maggie on a webcam, Joe Crisara on the set).
+  - The episode opens with a 28s "Coming up" teaser and two title cards, so the clip
+    (`spots/servicemvp-perception.mp4`, 14.6 MB) is the first three minutes of the show itself:
+    0:50.75, the first frame after the title card's black where Joe starts speaking, to 3:51.15,
+    a pause. That is 180.4s.
+  - It was encoded the release-32 way: 720p H.264 High, CRF 23, maxrate 1600k, AAC 96k,
+    faststart. The source is a 1080p download of the episode's first 10 minutes, kept outside the
+    repo in `reports/hss-audit/spots-src/xgo2kAY3DkE/`.
+  - Its poster `post/servicemvp-perception.webp` is the 1:11.8 frame of the set's wide shot:
+    Maggie on the studio screen, Joe in his chair, the lit logo between them. The film itself
+    fades up on Joe.
+  - The release-8 clip of `WoQBaTu2K28` and its poster were deleted. Mike's testimonial, cut
+    from that episode, stays.
+  - `None` renders the block without media, with the caption under the link.
+  - **Never swap in another Service MVP episode pulled from YouTube without the owner.**
   The block ends (release 34) with "Want a show of your own?" and the Reel wheel button "Ask about
   podcast production" (`PODCAST_ASK`).
 

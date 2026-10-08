@@ -3996,15 +3996,17 @@ def brand_films_more():
 
 # Block 04, podcast production. PODCAST_VIDEO is (file in spots/, poster path,
 # duration label "m:ss"); None renders the block without media, with the caption
-# under the link. The film is the owner's chosen cut of the Service MVP episode
-# "How This HVAC Owner Scaled From 1 Truck to 13..." (YouTube WoQBaTu2K28), from
-# 32:19 to the end; the poster is the owner's wide two-shot of the set, the best view
-# of the set build. Never swap in another episode pulled from YouTube without the
-# owner (the latest one was rejected). Its duration and faststart are checked like
-# every other film in vspot_media().
-PODCAST_VIDEO = ("servicemvp-podcast.mp4", f"{P}/servicemvp-podcast.webp", "3:24")
-PODCAST_EPISODE_URL = "https://www.youtube.com/watch?v=WoQBaTu2K28"
-PODCAST_CAPTION = "Service MVP Sales Training Podcast with Joe Crisara."
+# under the link. Release 37 (owner's choice): the Service MVP episode "The Power Of
+# Perception with Maggie Swift" (YouTube xgo2kAY3DkE, 29:33). The episode opens with a
+# 28s "Coming up" teaser and two title cards, so the clip is the first three minutes of
+# the show itself: 0:50.75 (the first frame after the title card's black, where Joe Crisara
+# starts speaking) to 3:51.15 (a pause), 180.4s. The poster is the 1:11.8 frame of the
+# set's wide shot: Maggie on the studio screen, Joe in his chair, the lit logo between
+# them. Never swap in another episode pulled from YouTube without the owner. Its duration
+# and faststart are checked like every other film in vspot_media().
+PODCAST_VIDEO = ("servicemvp-perception.mp4", f"{P}/servicemvp-perception.webp", "3:00")
+PODCAST_EPISODE_URL = "https://www.youtube.com/watch?v=xgo2kAY3DkE"
+PODCAST_CAPTION = "The Power of Perception with Maggie Swift, Service MVP podcast."
 
 
 def podcast_media():
@@ -4013,7 +4015,7 @@ def podcast_media():
         return f'<p class="wwd-cap"><span>{PODCAST_CAPTION}</span></p>'
     fn, poster_path, du = PODCAST_VIDEO
     mime = "image/webp" if poster_path.endswith(".webp") else "image/jpeg"
-    media = (vspot_media(fn, du, poster_path, "the Service MVP podcast") if MODE == "web" else
+    media = (vspot_media(fn, du, poster_path, "The Power of Perception, Service MVP podcast") if MODE == "web" else
              f'<div class="vspot"><img src="{asset(poster_path, mime)}"'
              f'{dims(poster_path)} alt="" loading="lazy"></div>')
     return (f'<div class="wwd-film">{media}<p class="wwd-cap"><span>{PODCAST_CAPTION}</span>'
