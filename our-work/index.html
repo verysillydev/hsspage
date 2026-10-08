@@ -1332,7 +1332,7 @@
   .portrait img{width:100%;height:100%;object-fit:cover;display:block;}
 
   .leads{display:grid;grid-template-columns:1fr;gap:var(--s6);margin-bottom:var(--s8);}
-  @media(min-width:680px){.leads{grid-template-columns:1fr 1fr;gap:var(--s7);}}
+  @media(min-width:680px){.leads{grid-template-columns:1fr 1fr;gap:var(--s7);align-items:start;}}
   .lead .portrait{aspect-ratio:3/4;margin-bottom:var(--s4);}
   .lead h3{margin:0;font-size:var(--f-h3);font-family:var(--display);font-weight:650;
     letter-spacing:var(--t-head);}
@@ -1340,6 +1340,12 @@
     letter-spacing:var(--t-caps);text-transform:uppercase;color:var(--orange-text);}
   .lead p{margin:var(--s3) 0 0;color:var(--ink-2);font-size:var(--f-body);line-height:1.6;
     max-width:52ch;}
+  .lead .lbio{margin:var(--s3) 0 0;max-width:52ch;color:var(--ink-2);font-size:var(--f-body);
+    line-height:1.6;}
+  .lead .lbio > p{margin:0 0 var(--s3);}
+  .lead .lbio > p:last-of-type{margin-bottom:0;}
+  .js-bio .lbio[data-cut].is-open > p:last-of-type,
+  .js-bio .lbio[data-cut]:not(.is-open) > p:first-child{display:inline;}
 
   /* Crew (release 24, owner). TEAM_ROSTER is in reading order, which is also the
      phone order: one card per row below 760px, the site's phone breakpoint (the
@@ -1371,12 +1377,13 @@
   .member .mbio{margin:var(--s2) 0 0;font-size:var(--f-sm);line-height:1.5;
     color:var(--ink-2);}
   /* Optional bio teaser (release 24): see member_card() and BIO_JS. Without JS the whole
-     bio shows and the ellipsis and the toggle stay hidden. BIO_JS adds .js-cut; at every
+     bio shows and the ellipsis and the toggle stay hidden. html.js-bio (set by BIO_ON, a
+     one-line script before the first bio, release 38) collapses them; at every
      width (release 34; phones only before) that shows the lead, "...", then "Read more".
      .is-open shows the rest, with "Show less" at the end. The toggle reads as a
      link (--orange-text, underlined: 5.9:1 on white) and its ::after gives it a 44px
      tall hit area without touching the line box, so no text moves. */
-  .mbio .ell,.mbio .bio-tog{display:none;}
+  [data-cut] .ell,[data-cut] .bio-tog{display:none;}
   .bio-tog{position:relative;padding:0;margin:0;border:0;background:none;font:inherit;
     color:var(--orange-text);text-decoration:underline;text-decoration-thickness:1px;
     text-underline-offset:.16em;cursor:pointer;border-radius:var(--r-sm);}
@@ -1386,9 +1393,9 @@
      the ring sits 1px out so it clears the full stop before "Show less" */
   @media(hover:hover){.bio-tog:hover{text-decoration-thickness:2px;}}
   .bio-tog:focus-visible{outline:2px solid var(--orange);outline-offset:1px;}
-  .mbio.js-cut .bio-tog{display:inline-block;}
-  .mbio.js-cut:not(.is-open) .ell{display:inline;}
-  .mbio.js-cut:not(.is-open) .rest{display:none;}
+  .js-bio [data-cut] .bio-tog{display:inline-block;}
+  .js-bio [data-cut]:not(.is-open) .ell{display:inline;}
+  .js-bio [data-cut]:not(.is-open) .rest{display:none;}
 
   .skip{position:absolute;left:-9999px;top:0;background:var(--orange);color:#14171A;
     padding:var(--s3) var(--s4);border-radius:0 0 var(--r-sm) 0;z-index:99;font-weight:600;}
