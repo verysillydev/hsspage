@@ -32,6 +32,7 @@
   :root{
     --ground:#FFFFFF; --ground-2:#F5F4F1; --panel:#EFEEEA;
     --line:#E2E0DA; --line-soft:#ECEBE6;
+    --hair:#BDB8AE;
     --ink:#14171A; --ink-2:#4B535B; --ink-3:#6B747C;
     --orange:#F04820; --orange-text:#B93412; --cyan:#00B0C8; --cyan-text:#006673;
     --orange-rgb:240,72,32; --cyan-rgb:0,176,200;
@@ -214,7 +215,7 @@
     .rv{transform:translateY(10px);}
     .rv-in{transform:none;transition-duration:.3s;}
   }
-  /* The four "what you are actually buying" cards get a longer, more visible
+  /* The four "what you are investing in" cards get a longer, more visible
      travel than the generic reveal so they read as sliding into frame rather
      than a subtle fade. Only .benefit uses this, nothing else, so the
      generic .rv distance elsewhere is untouched.
@@ -448,7 +449,12 @@
   .actionbar a{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
     min-height:54px;text-decoration:none;font-size:var(--f-sm);font-weight:650;
     background:var(--ground-2);color:var(--ink);}
-  .actionbar a.primary{background:var(--orange);color:#14171A;}
+  .actionbar a.primary{--d:0px;--bh:0px;background:var(--btn-cur);color:#FFFFFF;}
+  .actionbar a.primary .bm-wheel{position:static;width:30px;height:30px;}
+  .actionbar a.primary .bm-gate{left:0;right:0;height:5px;width:calc(100% - 8px);
+    width:round(down,100% - 8px,12px);}
+  .actionbar a.primary .bm-gate.t{top:3px;}
+  .actionbar a.primary:focus-visible{outline-offset:-4px;}
   .actionbar a svg{flex:none;}
   @media(min-width:760px){.actionbar{display:none;}}
   @media(max-width:759px){body{padding-bottom:54px;}}
@@ -524,19 +530,20 @@
     border-radius:var(--r-md);overflow:hidden;}
   .schedwrap iframe{display:block;width:100%;}
 
-  .navcta{background:var(--orange);color:#14171A !important;border-radius:var(--r-pill);
-    padding:0 16px;font-weight:700;transition:filter var(--ease);
+  /* compact Reel wheel from 560px; film only below (80px slot, no room for a reel) */
+  .navcta{--d:0px;--bh:0px;background:transparent;color:#FFFFFF !important;
+    border-radius:var(--r-pill);padding:0 var(--s3);font-weight:700;text-decoration:none;
     font-family:'Onest',-apple-system,sans-serif !important;text-transform:none;
     font-variant-caps:normal !important;letter-spacing:var(--t-head);font-size:var(--f-sm);
-    display:inline-flex;align-items:center;min-height:40px;}
-  .navcta:hover{filter:brightness(1.08);}
+    display:inline-flex;align-items:center;min-height:44px;}
+  .navcta .bm-wheel{display:none;}
   /* The box is sized to the label in Onest, so it cannot grow when Onest lands
      after first paint (since N5 the fonts are files; the -apple-system fallback
      is about 6px narrower for "Contact" and 11px for "Start a project", which
      shifted the whole right side of the bar, CLS about 0.001 on throttled
      phones). em-based, so it scales with the fluid label size. */
   .navcta{justify-content:center;min-width:calc(3.9em + 24px);}
-  @media(min-width:560px){.navcta{min-width:calc(7em + 40px);}}
+  @media(min-width:560px){.navcta{min-width:calc(7em + 70px);}}
   /* below 560px the row needed about 354px of a 342px content box once the
      brand set in Onest, so the right group overflowed into the page padding
      and moved when the font arrived; a tighter gap and CTA padding make it fit */
@@ -548,11 +555,12 @@
      CTA's own minimum) means a partly parsed nav already sits in its final box. */
   @media(max-width:559px){.navright{min-width:calc(50px + 3.9 * var(--f-sm) + 24px);}}
   @media(min-width:560px) and (max-width:619px){
-    .navright{min-width:calc(40px + var(--s5) + 7 * var(--f-sm) + 40px);}}
+    .navright{min-width:calc(40px + var(--s5) + 7 * var(--f-sm) + 70px);}}
   .navcta .ctashort{display:inline;}
   .navcta .ctalong{display:none;}
   @media(min-width:560px){
-    .navcta{padding:0 20px;min-height:42px;}
+    .navcta{--d:44px;--bh:36px;padding:calc(var(--d) - var(--bh) + 4px) 16px 4px calc(var(--d) + 10px);}
+    .navcta .bm-wheel{display:block;}
     .navcta .ctashort{display:none;}
     .navcta .ctalong{display:inline;}
   }
@@ -584,7 +592,7 @@
      checked with the WCAG formula: --ink-2 #D8D3C9 12.6:1, --ink-3 #A8A29A
      7.4:1, --orange 4.8:1, --cyan 6.9:1. */
   .hero.hero-bold,.hero.hero-dark,.on-ink{background:#14171A;color:#FFFFFF;
-    --ground:#14171A; --ground-2:#1E2226; --panel:#262B30; --line:#33383D;
+    --ground:#14171A; --ground-2:#1E2226; --panel:#262B30; --line:#33383D; --hair:#4B535B;
     --ink:#FFFFFF; --ink-2:#D8D3C9; --ink-3:#A8A29A;
     --orange-text:var(--orange); --cyan-text:var(--cyan);}
   .hero.hero-bold{padding:0;}
@@ -648,6 +656,9 @@
   .hero-media > .wrap{position:relative;z-index:3;display:flex;align-items:center;
     gap:var(--s5);padding-bottom:clamp(var(--s8), 10vh, 140px);}
   .hero-media > .wrap > .herotext{min-width:0;flex:1 1 auto;}
+  /* not painted half parsed: on a slow line the headline's last words can arrive after the
+     first paint, and this bottom-anchored block then pushed it up (CLS .01, release 34) */
+  .hero-media > .wrap:not(:has(> .scrollhint)){visibility:hidden;}
   /* scroll hint: waits a second before it appears (so it never competes
      with the headline landing), then bobs gently. Fade-in and bob are
      split across two elements so their transforms never fight over the
@@ -788,6 +799,7 @@
     color:var(--ink);text-wrap:pretty;}
   .mw-ask{margin:var(--s5) 0 0;font-size:var(--f-body);line-height:1.55;color:var(--ink);}
   .mw-ask + .wwd-link{margin-top:var(--s1);}
+  .mw-ask + .cta{margin-top:var(--s3);}
   .mw-k{display:block;margin-bottom:var(--s1);font-family:var(--display);
     font-variant-caps:all-small-caps;letter-spacing:.06em;font-size:var(--f-sm);color:var(--ink-2);}
   /* What We Do (homepage, release 8): warm white ground, three numbered blocks with a
@@ -1028,6 +1040,25 @@
   .band-tab.t-orange ~ .band-body{border-top:3px solid var(--orange);}
   .band-tab.t-cyan ~ .band-body{border-top:3px solid var(--cyan);}
   .band-tab.t-ink ~ .band-body{border-top:3px solid var(--ink);}
+  /* Release 34 (owner): from 900px every tier card sits on one three-column grid. The first
+     two groups share a row (1 + 2 columns) above the third (3). Panels lose their side
+     padding there, so a card is exactly one column wide in every row, and subgrid rows line
+     up both groups' tab, explainer and cards (same top, same height). */
+  @media(max-width:899px){.band-row > .band:first-child{margin-bottom:var(--s8);}}
+  @media(max-width:759px){.band-row > .band:first-child{margin-bottom:var(--s5);}}
+  @media(min-width:900px){
+    .band-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:var(--s4);
+      grid-template-rows:auto auto auto;margin-bottom:var(--s8);}
+    .band-row > .band{display:grid;grid-row:span 3;grid-template-rows:subgrid;margin:0;}
+    .band-row > .band + .band{grid-column:2 / span 2;}
+    .band-row .band-tab{justify-self:start;padding-left:18px;padding-right:18px;}
+    .band-row .band-body{grid-row:span 2;display:grid;grid-template-rows:subgrid;row-gap:0;}
+    .band-body{padding-left:0;padding-right:0;}
+    .band-body > p{padding:0 var(--s5);}
+    .band .pkgs{grid-template-columns:repeat(3,minmax(0,1fr));}
+    .band-row .band .pkgs{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .band-row .band:first-child .pkgs{grid-template-columns:minmax(0,1fr);}
+  }
   /* auto-fill, not auto-fit: since 2026-10-06 the groups hold one, two and
      three tiers, and with auto-fit a lone card stretched across the whole band
      and read as a banner, not a price. auto-fill keeps the empty tracks, so a
@@ -1069,7 +1100,7 @@
      text on it) */
   .always{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
     padding:var(--s6) var(--s5);margin-bottom:var(--s8);}
-  /* D6: the "what you are actually buying" block is a flat ink panel; .on-ink
+  /* D6: the "what you are investing in" block is a flat ink panel; .on-ink
      re-themes its heading, copy and the four benefit cards (--panel becomes a
      dark card, --cyan-text the bright cyan). The steps block and the tiers
      stay on warm white. */
@@ -1089,25 +1120,6 @@
     border-bottom:2px solid var(--cyan);padding-bottom:var(--s2);margin-bottom:var(--s1);}
   .benefit h3{margin:0;font-size:var(--f-h4);font-weight:650;letter-spacing:var(--t-head);}
   .benefit p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
-
-  /* the two engines, side by side, each with a diagram of how it actually works.
-     This was the hardest idea on the page and it used to be one long paragraph. */
-  .engines{display:grid;grid-template-columns:1fr;gap:var(--s4);}
-  @media(min-width:760px){.engines{grid-template-columns:1fr 1fr;}}
-  .engine{background:var(--ground-2);border:1px solid var(--line);border-radius:var(--r-md);
-    padding:var(--s5);display:flex;flex-direction:column;gap:var(--s3);}
-  .engine.is-two{border-color:rgba(var(--orange-rgb),.30);}
-  .engine .etag{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:var(--t-caps);
-    text-transform:uppercase;color:var(--cyan-text);}
-  .engine.is-two .etag{color:var(--orange-text);}
-  .engine h3{margin:0;font-size:var(--f-h3);font-weight:700;letter-spacing:var(--t-head);}
-  .edia{width:100%;height:auto;display:block;margin:var(--s1) 0;}
-  .engine p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
-  /* --ink-2, not --ink-3: the panel is --ground-2, and --ink-3 on it is 4.32:1 */
-  .engine .ewhere{font-family:var(--mono);font-size:var(--f-micro);letter-spacing:.06em;
-    text-transform:uppercase;color:var(--ink-2);border-top:1px solid var(--line);
-    padding-top:var(--s3);margin-top:auto;}
-  .engine.is-two .ewhere{color:var(--orange-text);}
 
   /* onboarding strip (D8): one ruled row of six on desktop, a compact
      numbered list on phones */
@@ -1141,8 +1153,6 @@
       column-gap:var(--s3);row-gap:var(--s1);align-items:baseline;}
     .benefit .bn{font-size:var(--f-h4);border-bottom:0;padding:0;margin:0;}
     .benefit p{grid-column:1 / -1;}
-    .engines{gap:var(--s3);}
-    .engine{padding:var(--s4);gap:var(--s2);}
     .steps{gap:1px;background:var(--line);}
     .step2{padding:var(--s3) var(--s4);background:var(--ground-2);}
     .step2 h3{margin:var(--s1) 0 2px;}
@@ -1154,15 +1164,14 @@
     .pkg .best{margin:calc(var(--s5) * -1) calc(var(--s4) * -1) 0;}
     .pkg ul{gap:var(--s2);}
     .incl{padding:var(--s5) var(--s4);gap:var(--s3);}
-    .hero .ctarow .cta{padding-left:var(--s4);padding-right:var(--s4);}
+    .hero .ctarow .cta.ghost{padding-left:var(--s4);padding-right:var(--s4);}
     /* explanatory paragraphs one step down (still above the 12px floor);
        headings, prices and the "Not leads" lede keep their size */
-    .benefit p,.engine p,.step2 p,.pkg li{font-size:var(--f-sm);line-height:1.5;}
+    .benefit p,.step2 p,.pkg li{font-size:var(--f-sm);line-height:1.5;}
     .step2{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:var(--s2);
       align-items:baseline;}
     .step2 h3{margin:0;}
     .step2 p{grid-column:1 / -1;margin-top:2px;}
-    .edia{max-width:220px;}
     .ob{grid-template-columns:repeat(2,minmax(0,1fr));}
     .ob li{display:flex;flex-direction:column;gap:2px;padding:var(--s3);}
   }
@@ -1261,11 +1270,48 @@
   .door p{margin:0;font-size:var(--f-body);color:var(--ink-2);line-height:1.55;}
   .door .go{margin-top:var(--s2);font-size:var(--f-sm);font-weight:650;color:var(--orange-text);}
 
-  .cta{display:inline-flex;align-items:center;gap:var(--s2);background:var(--orange);color:#14171A;
-    border-radius:var(--r-pill);padding:14px var(--s5);font-size:var(--f-body);font-weight:650;
-    text-decoration:none;transition:filter var(--ease),transform var(--ease);}
-  .cta:hover{filter:brightness(1.08);transform:translateY(-1px);}
-  .cta.ghost{background:transparent;color:var(--orange-text);border:1px solid rgba(var(--orange-rgb),.4);}
+  /* Reel wheel buttons (release 34): see reel() and CLAUDE.md */
+  .cta{display:inline-flex;align-items:center;gap:var(--s2);border-radius:var(--r-pill);
+    font-size:var(--f-body);font-weight:700;text-decoration:none;}
+  .cta:not(.ghost),.navcta,.actionbar a.primary{--btn-bg:#14171A;--btn-hover:#23292E;
+    --btn-press:#0B0D0F;--btn-edge:#14171A;--btn-cur:var(--btn-bg);
+    position:relative;isolation:isolate;color:#FFFFFF;}
+  .hero-bold .cta:not(.ghost),.hero-dark .cta:not(.ghost),.on-ink .cta:not(.ghost),.navcta{
+    --btn-bg:#262B30;--btn-hover:#30363C;--btn-press:#1A1E22;--btn-edge:#3D444B;}
+  .cta:not(.ghost){--d:56px;--bh:44px;min-height:var(--d);background:transparent;
+    padding:calc(var(--d) - var(--bh) + 8px) 22px 8px calc(var(--d) + 12px);}
+  .cta:not(.ghost)::before,.navcta::before{content:"";position:absolute;z-index:-1;
+    left:calc(var(--d) / 2);right:0;top:calc(var(--d) - var(--bh));bottom:0;
+    background:var(--btn-cur);box-shadow:inset 0 0 0 1px var(--btn-edge);
+    border-radius:0 var(--r-sm) var(--r-sm) 0;}
+  @media(hover:hover){
+    .cta:not(.ghost):hover,.navcta:hover,.actionbar a.primary:hover{--btn-cur:var(--btn-hover);}}
+  .cta:not(.ghost):active,.navcta:active,.actionbar a.primary:active{--btn-cur:var(--btn-press);
+    transform:translateY(1px);}
+  .cta:focus-visible{outline:2px solid var(--orange);outline-offset:3px;}
+  .bm-defs{position:absolute;width:0;height:0;overflow:hidden;}
+  /* a half-parsed button (reel in, label not yet) paints nothing: the bar's centred reel
+     moved when its label arrived (CLS); .bm-gate.b is the last child reel() writes */
+  :is(.cta,.navcta,.actionbar a.primary):not(:has(> .bm-gate.b)) > *{visibility:hidden;}
+  .bm-wheel{position:absolute;left:0;bottom:0;width:var(--d);height:var(--d);
+    fill:var(--btn-cur);transition:transform .5s cubic-bezier(.2,.6,.3,1);}
+  .bm-gate{position:absolute;left:calc(var(--d) + 2px);right:4px;margin-inline:auto;height:4px;
+    width:calc(100% - var(--d) - 6px);width:round(down,100% - var(--d) - 6px,12px);
+    overflow:hidden;pointer-events:none;}
+  .bm-gate.t{top:calc(var(--d) - var(--bh) + 3px);}
+  .bm-gate.b{bottom:3px;}
+  .bm-gate::before{content:"";position:absolute;top:0;bottom:0;left:-12px;right:-12px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='5' viewBox='0 0 12 5' preserveAspectRatio='none'%3E%3Crect x='3' width='6' height='5' rx='1.3' fill='%23F5F4F1'/%3E%3C/svg%3E") 0 0/12px 100% repeat-x;
+    transition:transform .45s cubic-bezier(.2,.6,.3,1);}
+  @media(hover:hover) and (prefers-reduced-motion:no-preference){
+    .cta:hover .bm-wheel,.navcta:hover .bm-wheel,.actionbar a.primary:hover .bm-wheel{
+      transform:rotate(-40deg);}
+    .cta:hover .bm-gate::before,.navcta:hover .bm-gate::before,
+    .actionbar a.primary:hover .bm-gate::before{transform:translateX(12px);}
+  }
+  .cta.ghost{background:transparent;color:var(--ink);border:1px solid var(--hair);
+    padding:14px var(--s5);font-weight:650;}
+  @media(hover:hover){.cta.ghost:hover{border-color:var(--ink-3);}}
   .ctarow{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center;margin-top:var(--s6);}
   .ctanote{font-size:var(--f-sm);color:var(--ink-3);}
 
@@ -1300,7 +1346,7 @@
   .roster > .member{width:100%;max-width:420px;margin:0 auto;}
   @media(min-width:760px){
     .roster{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-flow:row dense;
-      gap:var(--s5) var(--s4);}
+      gap:var(--s5) var(--s4);align-items:start;}
     .roster > .member{max-width:none;}
     .roster > .member:first-child{grid-column:2;}
   }
@@ -1317,9 +1363,9 @@
      down, so a filled card and an empty one still sit on the same grid. */
   .member .mbio{margin:var(--s2) 0 0;font-size:var(--f-sm);line-height:1.5;
     color:var(--ink-2);}
-  /* Optional bio teaser (release 24): see member_card() and BIO_JS. Without JS, and
-     from 760px, the whole bio shows and the ellipsis and the toggle stay hidden.
-     BIO_JS adds .js-cut; below 760px that shows the lead, "...", then "Read more".
+  /* Optional bio teaser (release 24): see member_card() and BIO_JS. Without JS the whole
+     bio shows and the ellipsis and the toggle stay hidden. BIO_JS adds .js-cut; at every
+     width (release 34; phones only before) that shows the lead, "...", then "Read more".
      .is-open shows the rest, with "Show less" at the end. The toggle reads as a
      link (--orange-text, underlined: 5.9:1 on white) and its ::after gives it a 44px
      tall hit area without touching the line box, so no text moves. */
@@ -1333,11 +1379,9 @@
      the ring sits 1px out so it clears the full stop before "Show less" */
   @media(hover:hover){.bio-tog:hover{text-decoration-thickness:2px;}}
   .bio-tog:focus-visible{outline:2px solid var(--orange);outline-offset:1px;}
-  @media(max-width:759px){
-    .mbio.js-cut .bio-tog{display:inline-block;}
-    .mbio.js-cut:not(.is-open) .ell{display:inline;}
-    .mbio.js-cut:not(.is-open) .rest{display:none;}
-  }
+  .mbio.js-cut .bio-tog{display:inline-block;}
+  .mbio.js-cut:not(.is-open) .ell{display:inline;}
+  .mbio.js-cut:not(.is-open) .rest{display:none;}
 
   .skip{position:absolute;left:-9999px;top:0;background:var(--orange);color:#14171A;
     padding:var(--s3) var(--s4);border-radius:0 0 var(--r-sm) 0;z-index:99;font-weight:600;}
@@ -1367,7 +1411,7 @@
   footer .foot-meta p{font-size:var(--f-sm);color:var(--ink-3);}
 </style>
 <a class="skip" href="#main">Skip to content</a>
-<nav class="nav" id="nav" aria-label="Primary"><div class="wrap navin"><a class="brand" href="/"><img class="brandmark" src="/our-work/a/nav_mark_hss.webp" alt="" width="174" height="84">Home Service Studios</a><div class="navright"><button type="button" class="navtoggle" id="navtoggle" aria-expanded="false" aria-controls="navlinks" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="navlinks" id="navlinks"><a href="/our-work/">Work</a><a href="/packages/">Packages</a><a href="/team/">Team</a><a href="/contact/" class="navsecondary is-on">Contact</a></div><a class="navcta" href="/contact/#start"><span class="ctalong">Start a project</span><span class="ctashort">Contact</span></a></div></div></nav><div class="navspacer"></div>
+<svg class="bm-defs" aria-hidden="true" focusable="false"><symbol id="bm-reel" viewBox="0 0 56 56"><circle cx="28" cy="28" r="25.6"/><path fill="#F04820" fill-rule="evenodd" d="M0.5 28a27.5 27.5 0 1 0 55 0a27.5 27.5 0 1 0 -55 0ZM2.8 28a25.2 25.2 0 1 0 50.4 0a25.2 25.2 0 1 0 -50.4 0ZM4.1 28a23.9 23.9 0 1 0 47.8 0a23.9 23.9 0 1 0 -47.8 0ZM21.3 14.4a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM34.2 23.8a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM29.3 39a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM13.3 39a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM8.4 23.8a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM24.9 28a3.1 3.1 0 1 0 6.2 0a3.1 3.1 0 1 0 -6.2 0Z"/></symbol></svg><nav class="nav" id="nav" aria-label="Primary"><div class="wrap navin"><a class="brand" href="/"><img class="brandmark" src="/our-work/a/nav_mark_hss.webp" alt="" width="174" height="84">Home Service Studios</a><div class="navright"><button type="button" class="navtoggle" id="navtoggle" aria-expanded="false" aria-controls="navlinks" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="navlinks" id="navlinks"><a href="/our-work/">Work</a><a href="/packages/">Packages</a><a href="/team/">Team</a><a href="/contact/" class="navsecondary is-on">Contact</a></div><a class="navcta" href="/contact/#start"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label"><span class="ctalong">Start a project</span><span class="ctashort">Contact</span></span><span class="bm-gate b"></span></a></div></div></nav><div class="navspacer"></div>
 
 <main id="main">
 <div class="hero hero-dark hero-contact"><svg class="splat" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M-600,170 C-510,142 -390,142 -300,170 C-210,198 -90,198 0,170 C90,142 210,142 300,170 C390,198 510,198 600,170 C690,142 810,142 900,170 C990,198 1110,198 1200,170 C1290,142 1410,142 1500,170 C1590,198 1710,198 1800,170" stroke="rgba(240,72,32,.16)" stroke-width="1.5" fill="none"><animateTransform attributeName="transform" type="translate" from="0,0" to="-600,0" dur="26s" repeatCount="indefinite"/></path><path d="M-800,262 C-680,246 -520,246 -400,262 C-280,278 -120,278 0,262 C120,246 280,246 400,262 C520,278 680,278 800,262 C920,246 1080,246 1200,262 C1320,278 1480,278 1600,262 C1720,246 1880,246 2000,262" stroke="rgba(0,176,200,.11)" stroke-width="1" fill="none"><animateTransform attributeName="transform" type="translate" from="0,0" to="-800,0" dur="34s" repeatCount="indefinite"/></path><g><path d="M-400,222 C-340,208 -260,208 -200,222 C-140,236 -60,236 0,222 C60,208 140,208 200,222 C260,236 340,236 400,222 C460,208 540,208 600,222 C660,236 740,236 800,222 C860,208 940,208 1000,222 C1060,236 1140,236 1200,222 C1260,208 1340,208 1400,222 C1460,236 1540,236 1600,222" stroke="rgba(240,72,32,.13)" stroke-width=".8" fill="none"/><circle cx="-400" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="0" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="400" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="800" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="1200" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><circle cx="1600" cy="222" r="3" fill="none" stroke="rgba(240,72,32,.22)" stroke-width="1"/><animateTransform attributeName="transform" type="translate" from="0,0" to="-400,0" dur="18s" repeatCount="indefinite"/></g></svg><div class="wrap">
@@ -1379,7 +1423,7 @@
   <a href="/packages/">priced in public</a>. You can also <a href="mailto:collab@homeservicestudios.com">email us</a>
   directly for scope, budgets or attachments. The form gets you a faster, more specific reply.</p>
   <div class="ctarow">
-    <a class="cta" href="#start">Send us a message</a>
+    <a class="cta" href="#start"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label">Send us a message</span><span class="bm-gate b"></span></a>
   </div>
   <p class="reassure">Six questions, under a minute. One business day to a reply, written by someone here who has looked at your market.</p>
 </div></div>
@@ -1428,7 +1472,7 @@
   </div>
 
   <div class="fsubmit">
-    <button type="submit" class="cta" id="cbtn">Send to HSS</button>
+    <button type="submit" class="cta" id="cbtn"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label">Send to HSS</span><span class="bm-gate b"></span></button>
     <p class="ctanote">We answer within one business day. No list, no newsletter,
     no automated sequence.</p>
   </div>
@@ -1452,7 +1496,7 @@
 </main>
 
 <footer><div class="wrap"><div class="foot"><div class="foot-main"><p class="display foot-line">Let&#39;s make something that travels.</p><div class="foot-actions"><a class="foot-mail" href="mailto:collab@homeservicestudios.com">collab@homeservicestudios.com</a></div></div><nav class="foot-nav" aria-label="Footer"><a href="/our-work/">Work</a><a href="/packages/">Packages</a><a href="/team/">Team</a></nav></div><div class="foot-meta"><p>Los Angeles, CA &middot; Insured &middot; Working since 2020</p><p>&copy; 2026 Home Service Studios</p></div></div></footer>
-<nav class="actionbar" aria-label="Quick actions"><a href="/contact/">Contact</a><a class="primary" href="/contact/#start">Start a project</a></nav>
+<nav class="actionbar" aria-label="Quick actions"><a href="/contact/">Contact</a><a class="primary" href="/contact/#start"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label">Start a project</span><span class="bm-gate b"></span></a></nav>
 <script>
 (function(){
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
@@ -1505,7 +1549,7 @@
 
   /* (a) scroll reveals ---------------------------------------------------- */
   if(!reduce && 'IntersectionObserver' in window){
-    var SEL = '.sec-head,.pcard,.benefit,.engine,.pkg,.csi > div,.op,.spot,.reel,' +
+    var SEL = '.sec-head,.pcard,.benefit,.pkg,.csi > div,.op,.spot,.reel,' +
               '.step2,.door,.always,.incl,.pn,.band-head,.lead,.member';
     var vh = window.innerHeight || 800;
     var targets = [].slice.call(document.querySelectorAll(SEL)).filter(function(e){
@@ -1607,7 +1651,9 @@
      anything else in the address is ignored, and the text goes in through .value, so
      nothing from the URL ever reaches the page. Only into an empty field. */
   var PREFILL = {'handyman-dan': "I'd like to run the Handyman Dan campaign in my market.",
-                 'brand-video': "I'd like a brand video for my company."};
+                 'brand-video': "I'd like a brand video for my company.",
+                 'commercial-shoot': "I'd like to talk about a commercial shoot.",
+                 'podcast': "I'd like to talk about producing a podcast."};
   try {
     var want = new URLSearchParams(location.search).get('campaign');
     var note = document.getElementById('f-message');
@@ -1617,7 +1663,9 @@
   } catch(err){}
   var btn = document.getElementById('cbtn');
   var status = document.getElementById('fstatus');
-  var LABEL = btn.textContent;
+  /* the button is a Reel wheel (reel()): only its .bm-label text changes while sending */
+  var lab = btn.querySelector('.bm-label') || btn;
+  var LABEL = lab.textContent;
 
   /* Where enquiries go. Substituted from FORM_TO at build time so the address
      lives in exactly one place, next to EMAIL at the top of this file. */
@@ -1677,7 +1725,7 @@
     status.innerHTML = (serverMsg ? serverMsg + ' ' : 'That did not send from here. ')
       + '<a href="' + href + '">Send it as an email instead</a>'
       + ', everything you typed is already filled in.';
-    btn.disabled = false; btn.textContent = LABEL;
+    btn.disabled = false; lab.textContent = LABEL;
   }
 
   f.addEventListener('submit', function(e){
@@ -1703,7 +1751,7 @@
       else data[el.name] = el.value;
     });
 
-    btn.disabled = true; btn.textContent = 'Sending...';
+    btn.disabled = true; lab.textContent = 'Sending...';
 
     /* The site moved to GitHub Pages on 2026-08-28. Pages is static hosting and
        cannot execute the Vercel function at /api/contact, so every POST came
