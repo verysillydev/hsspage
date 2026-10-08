@@ -3423,15 +3423,15 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
   <div class="always">
     <h2>The same three things happen at every tier</h2>
     <p class="sub2">The packages differ in how often our crew is on site, how much goes out and
-    the ad budget we manage. Everything here is included whether you spend {money(PRICE_MIN)} or
+    the ad budget we manage. Everything here is included whether you invest {money(PRICE_MIN)} or
     {money(PRICE_MAX)}.</p>
     <div class="steps">
       <div class="step2"><span>Step 01</span><h3>Planned</h3>
         <p>Our team decides what goes out and when, so nobody at your company has to
         remember.</p></div>
       <div class="step2"><span>Step 02</span><h3>Captured</h3>
-        <p>Your team supplies footage, and from Starter up our crew adds production days on
-        site.</p></div>
+        <p>Our crew films on site at your jobs, with your people, from Starter up. Baby Steps runs
+        on footage your team sends in.</p></div>
       <div class="step2"><span>Step 03</span><h3>Posted for you</h3>
         <p>Reels every weekday, graphics every weekend and stories across your platforms,
         published for you rather than handed back as files.</p></div>
