@@ -334,6 +334,27 @@ option B, "Brand production slate", from `reports/hss-audit/clapper-options`).
   attribute, so it starts and ends exactly on the resting pose (`fill-box` would pivot on the
   unclipped stripe geometry). The svg is `overflow:visible` for the overshoot. Reduced motion
   or no IntersectionObserver: nothing runs and the arm rests open. No layout change, no CLS.
+- **Moving stripes (release 39, owner: "the orange and white always moving left to right on
+  repeat").** Each bar's stripe `<path>` (the open arm and the lower stick) slides right by one
+  period, 32 units, and repeats. This is SMIL: an `animateTransform` inside `SLATE_DEFS`, so every
+  `<use>` moves with no JS, the four What We Do slates and the four small slates in the services
+  strip alike.
+  - Speed: `SLATE_STRIPE_S = 1.2` seconds per period (about 23px a second at desktop size). The
+    owner may ask for faster or slower; change that one number.
+  - Seamless: `_slate_bar()` starts the path one spare stripe left of the bar (`xi = -k - 32`).
+    Checked by rendering both bars flat at offsets 0 to 32 in steps of 4: offsets 0 and 32 are
+    pixel-identical, and the longest white run on either bar is always the regular 16-unit gap,
+    so neither end ever shows a gap.
+  - Reduced motion: SMIL ignores the CSS kill switch, so `SPLAT_JS` removes these
+    `animateTransform`s along with the splat's, and the stripes rest at offset 0.
+  - Off screen: `CLAP_JS` pauses the defs `<svg>` (`pauseAnimations()`) whenever no `svg.slate`
+    is on screen, and resumes when one is. Pausing the defs freezes every `<use>` copy (checked).
+    `SLATE_HOLD`, one line right after `SLATE_DEFS`, starts them paused, so they never tick while
+    the page loads. Measured on a 4x-throttled phone with a slate on screen: 25% of the main
+    thread busy running against 14% paused; the stripes cost about 12 points while visible and
+    nothing otherwise.
+  - The clap and the arm's resting angle are unchanged. Previews:
+    `reports/hss-audit/r39/slate-stripes-phone.mp4` and `slate-stripes-desktop.mp4`.
 
 Each block then has a title, short-sentence copy, a link or button, then media, with a hairline
 between blocks:

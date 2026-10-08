@@ -1856,10 +1856,12 @@ SPLAT_SVG = ('<svg class="splat" viewBox="0 0 1200 400" preserveAspectRatio="xMi
 # Under prefers-reduced-motion the CSS animation kill switch (see @media block above)
 # only catches CSS animations, not SMIL. This strips the animateTransform elements so
 # the traces render as a single still frame instead, same outcome as .rv elsewhere.
+# Release 39: the homepage slates' moving stripes (SLATE_DEFS) are SMIL too, so they go the
+# same way and rest at their 0 position.
 SPLAT_JS = """<script>
 (function(){
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    var els = document.querySelectorAll('.splat animateTransform');
+    var els = document.querySelectorAll('.splat animateTransform, .slate-defs animateTransform');
     for(var i = 0; i < els.length; i++){ els[i].remove(); }
   }
 })();
@@ -4115,6 +4117,20 @@ _SLATE_INK = {"charcoal": "#1E2226", "orange": "#F04820", "white": "#FFFFFF", "r
 _SLATE_FONT = "Archivo, 'Arial Black', Arial, sans-serif"
 
 
+# Release 39 (owner: "the orange and white always moving left to right on repeat"): each bar's
+# stripe path slides right by one period (32 units) and repeats, SMIL inside SLATE_DEFS, so every
+# <use> moves with no JS. The path starts one spare stripe to the left (xi = -k - 32), so the
+# frame at 0 and at 32 are identical and no end ever shows a gap. SLATE_STRIPE_S is the time per
+# period. Reduced motion: SPLAT_JS removes the animations (SMIL ignores the CSS kill switch).
+SLATE_STRIPE_S = 1.2
+# The stripes start paused (one line right after SLATE_DEFS), so they never tick while the page
+# loads; CLAP_JS runs them while a slate is on screen. Same feature checks as CLAP_JS, so a
+# browser it cannot run in keeps the stripes moving. Without JS they simply run.
+SLATE_HOLD = ("<script>(function(){var d=document.querySelector('.slate-defs');"
+              "if(d&&d.pauseAnimations&&window.Set&&'IntersectionObserver' in window)"
+              "d.pauseAnimations();})();</script>")
+
+
 def _slate_bar(cid, y, w, h, d):
     """A white bar with orange diagonal stripes (period 32, slant .62 of the height),
     clipped to its rounded rect and framed in charcoal. d: 1 = '/', -1 = '\\'."""
@@ -4126,7 +4142,9 @@ def _slate_bar(cid, y, w, h, d):
         xi += 32
     return (f'<clipPath id="{cid}"><rect y="{_svgn(y)}" width="{w}" height="{h}" rx="2"/></clipPath>'
             f'<g clip-path="url(#{cid})"><rect y="{_svgn(y)}" width="{w}" height="{h}" '
-            f'fill="{_SLATE_INK["white"]}"/><path d="{"".join(sub)}" fill="{_SLATE_INK["orange"]}"/></g>'
+            f'fill="{_SLATE_INK["white"]}"/><path d="{"".join(sub)}" fill="{_SLATE_INK["orange"]}">'
+            f'<animateTransform attributeName="transform" type="translate" from="0 0" to="32 0" '
+            f'dur="{SLATE_STRIPE_S}s" repeatCount="indefinite"/></path></g>'
             f'<rect x="0.5" y="{_svgn(y + 0.5)}" width="{w - 1}" height="{h - 1}" rx="2" fill="none" '
             f'stroke="{_SLATE_INK["charcoal"]}" stroke-width="1"/>')
 
@@ -4335,6 +4353,16 @@ SVC_JS = """<script>
 CLAP_JS = """<script>
 (function(){
   if(!('IntersectionObserver' in window)) return;
+  /* release 39: the slates' stripes (SMIL in SLATE_DEFS) run only while a slate is on screen */
+  var defs = document.querySelector('.slate-defs');
+  if(defs && defs.pauseAnimations && window.Set){
+    var on = new Set();
+    var vis = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting) on.add(e.target); else on.delete(e.target); });
+      if(on.size) defs.unpauseAnimations(); else defs.pauseAnimations();
+    });
+    [].forEach.call(document.querySelectorAll('svg.slate'), function(s){ vis.observe(s); });
+  }
   if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var io = new IntersectionObserver(function(es){
     es.forEach(function(e){
@@ -4376,7 +4404,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   <p class="sub">We write, shoot, edit and post video for home service companies <strong>nationwide</strong>.
   When a homeowner needs a repair, a replacement or a remodel, they call a name they already know.
   <strong>We make sure that name is yours.</strong></p>
-  {SLATE_DEFS}
+  {SLATE_DEFS}{SLATE_HOLD}
   {services_row()}{SVC_JS if MODE == "web" else ""}
   </div>
   <div class="band-rule" aria-hidden="true"></div>
