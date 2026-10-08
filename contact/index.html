@@ -1745,7 +1745,7 @@
 <script>
 (function(){
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    var els = document.querySelectorAll('.splat animateTransform');
+    var els = document.querySelectorAll('.splat animateTransform, .slate-defs animateTransform');
     for(var i = 0; i < els.length; i++){ els[i].remove(); }
   }
 })();
