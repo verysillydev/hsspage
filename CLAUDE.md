@@ -718,8 +718,8 @@ sprocket holes, holding a bold white label. The label measures 18.0:1 on `#14171
 the `#262B30` body used on dark grounds (`.hero-bold`, `.hero-dark`, `.on-ink`, the nav). The
 orange fill with black text it replaced measured 4.8:1, and the owner found it hard to read.
 - **Markup is `reel(label)`**, inside `<a class="cta">`, `book()`, the nav's `.navcta` and the
-  action bar's `.primary`. It holds a `<use>` of the `#bm-reel` symbol (`BM_DEFS`, emitted once
-  per page by `nav()`), two `.bm-gate` rows of holes and the label in `.bm-label`. Motif classes
+  action bar's `.primary`. It holds `reel_svg()`, a `<use>` of the `#bm-reel` symbol (`BM_DEFS`,
+  emitted once per page by `nav()`; the audit bubble uses the same `reel_svg()`), two `.bm-gate` rows of holes and the label in `.bm-label`. Motif classes
   are prefixed `bm-` because the site already uses `.reel`. **`validate()` fails the build if
   any primary button lacks the reel**, so a hand-written `<a class="cta">Label</a>` cannot ship.
 - **Hover** (a pointer, motion allowed) turns the reel 40 degrees anticlockwise and slides the
@@ -869,8 +869,16 @@ build.
 
 **The bubble (`CAL_BUBBLE`).**
 - A real `<button>` with two halves that read as one unit: a label pill "Free social audit" that
-  tucks under a charcoal circle holding the orange reel (the buttons' `#bm-reel` symbol), fixed
-  bottom right.
+  tucks under the orange reel, fixed bottom right.
+- **The reel is the circle (release 41, owner).** Until release 40 a small reel sat inside a
+  charcoal disc with a grey rim, and the owner said it looked like a tire. Now it is the buttons'
+  own reel (`reel_svg()`, the one source for the `#bm-reel` art), edge to edge. It is an orange
+  disc with a thin dark ring inside its edge, five dark holes and a dark hub, overlapping the
+  pill's right end the way the buttons' reel overlaps the film. There is no outer disc and no rim,
+  just the pill's soft shadow. Its dark parts take the pill's colour (`--calb-bg`, `#14171A`, and
+  `#23292E` on hover), as the buttons' take their body's. While the panel is open the circle
+  turns charcoal with a grey rim and shows the down chevron, as before. `validate()` fails the
+  build if a page with the bubble lacks its reel or `BM_DEFS`.
 - **The label is always visible, at every width (owner change, release 37).** It never
   collapses, and there is no timer and no reduced-motion variant. Below 360px it reads "Free
   audit" so the unit stays compact.
@@ -881,11 +889,11 @@ build.
 - It ships `hidden`, and `CAL_JS` shows it, so without JS (or without `<dialog>`) there is no
   dead control. It is never on `/contact/` or `/book/`.
 - **Desktop (from 760px):** right and bottom 24px. The unit is 199x56: a 40px pill and a 56px
-  circle. While the panel is open the reel turns into a down chevron. A click on the unit lands on
+  reel. While the panel is open the reel turns into a down chevron. A click on the unit lands on
   the backdrop, which closes the panel, so it works as a toggle.
 - **Phones:** right 12px, bottom 66px plus the safe-area inset, which is 11px above the action
   bar, so it never covers "Contact" or "Book a call". The unit is 177x48 at 390 (a 36px pill and
-  a 48px circle) and 136x48 at 320.
+  a 48px reel) and 136x48 at 320.
 - **It never covers anything at rest where a visitor lands.** On phones the homepage hero's text
   block sits 64px higher (`.hero-media` bottom padding 118px plus the inset), so the unit sits
   below the headline. That was measured at 320 to 430: nothing interactive or heading-level is

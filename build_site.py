@@ -151,14 +151,22 @@ BM_DEFS = ('<svg class="bm-defs" aria-hidden="true" focusable="false"><symbol id
            f'<path fill="#F04820" fill-rule="evenodd" d="{_bm_flange()}"/></symbol></svg>')
 
 
+def reel_svg(cls="bm-wheel"):
+    """The film reel as an inline <svg>: a <use> of #bm-reel (BM_DEFS, once per page). The
+    disc is orange; its dark parts (the thin ring inside the edge, the five holes, the hub)
+    take the element's CSS fill. The one source of the reel for the primary buttons (reel())
+    and the audit bubble (CAL_BUBBLE, release 41)."""
+    return (f'<svg class="{cls}" viewBox="0 0 56 56" aria-hidden="true">'
+            '<use href="#bm-reel"/></svg>')
+
+
 def reel(label):
     """Inner markup of a primary button: the reel, a row of sprocket holes above and below
     the label, and the label in its own span. FORM_JS swaps only .bm-label's text while
     the form sends, so the reel and the holes survive. Everything but the label is
     aria-hidden, so the accessible name is the label alone. validate() fails the build if
     any primary button (.cta not .ghost, .navcta, the action bar's .primary) lacks it."""
-    return ('<svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg>'
-            f'<span class="bm-gate t"></span><span class="bm-label">{label}</span>'
+    return (reel_svg() + f'<span class="bm-gate t"></span><span class="bm-label">{label}</span>'
             '<span class="bm-gate b"></span>')
 
 
@@ -2520,8 +2528,9 @@ assert "__FORM_TO__" not in FORM_JS, "form failover address was not substituted"
 # Release 35 shipped this offer as a pop-up that opened on the first scroll; release 36b took
 # the trigger out and release 37 replaces the pop-up with a launcher. Nothing ever opens by
 # itself any more.
-# - The bubble (CAL_BUBBLE): a round charcoal <button> with the orange reel, fixed bottom
-#   right on every page but /contact/, with a "Free social audit" label pill beside it. It
+# - The bubble (CAL_BUBBLE): a <button>, the orange reel (reel_svg(), the buttons' own art,
+#   edge to edge since release 41) with a "Free social audit" label pill tucked under it, fixed
+#   bottom right on every page but /contact/ and /book/. It
 #   ships hidden and CAL_JS shows it, so without JS there is no dead control. Owner change
 #   (release 37): the label is always visible, at every width, pill and reel as one unit; below
 #   360px it reads "Free audit". On phones it sits above the action bar, and the homepage hero's
@@ -2616,8 +2625,7 @@ CAL_BUBBLE = ('<button type="button" class="calb" data-cal hidden aria-haspopup=
               'aria-expanded="false" aria-controls="cal" aria-label="Get a free social audit and '
               'content calendar"><span class="calb-pill"><span class="calb-l">Free social audit</span>'
               '<span class="calb-s">Free audit</span></span><span class="calb-ic">'
-              '<svg class="calb-reel" viewBox="0 0 56 56" aria-hidden="true" focusable="false">'
-              '<use href="#bm-reel"/></svg><svg class="calb-down" viewBox="0 0 24 24" '
+              + reel_svg("calb-reel") + '<svg class="calb-down" viewBox="0 0 24 24" '
               'aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" '
               'stroke="currentColor" stroke-width="2.4" stroke-linecap="round" '
               'stroke-linejoin="round"/></svg></span></button>')
@@ -2625,23 +2633,26 @@ CAL_BUBBLE = ('<button type="button" class="calb" data-cal hidden aria-haspopup=
 CAL_CSS = """<style>
   html{scrollbar-gutter:stable;}
   html.cal-lock{overflow:hidden;}
-  .calb{position:fixed;right:24px;bottom:24px;z-index:54;display:flex;align-items:center;
+  .calb{--calb-bg:#14171A;position:fixed;right:24px;bottom:24px;z-index:54;display:flex;align-items:center;
     padding:0;border:0;border-radius:var(--r-lg);background:none;color:#FFFFFF;cursor:pointer;}
   .calb[hidden]{display:none;}
   .calb:focus-visible{outline:2px solid var(--orange);outline-offset:3px;}
-  .calb-pill,.calb-ic{background:#14171A;border:1px solid #3D444B;
-    box-shadow:0 6px 20px rgba(20,23,26,.28);transition:background var(--ease);}
+  .calb-pill,.calb-ic{box-shadow:0 6px 20px rgba(20,23,26,.28);}
+  .calb-pill{background:var(--calb-bg);border:1px solid #3D444B;transition:background var(--ease);}
   .calb-pill{display:flex;align-items:center;height:40px;margin-right:-26px;padding:0 38px 0 16px;
     border-radius:var(--r-lg);white-space:nowrap;font:600 var(--f-sm)/1 'Onest',-apple-system,sans-serif;}
   .calb-s{display:none;}
   .calb-ic{position:relative;flex:none;width:56px;height:56px;display:flex;align-items:center;
     justify-content:center;border-radius:50%;}
-  .calb-reel{display:block;width:34px;height:34px;fill:#262B30;
+  /* release 41 (owner): the reel is the circle, edge to edge, like the buttons' reel. Its
+     dark ring, holes and hub take the pill's colour (the buttons use their body's). */
+  .calb-reel{display:block;width:100%;height:100%;fill:var(--calb-bg);
     transition:transform .5s cubic-bezier(.2,.6,.3,1);}
   .calb-down{display:none;width:24px;height:24px;}
   .calb[aria-expanded="true"] .calb-reel{display:none;}
   .calb[aria-expanded="true"] .calb-down{display:block;}
-  @media(hover:hover){.calb:hover .calb-pill,.calb:hover .calb-ic{background:#23292E;}}
+  .calb[aria-expanded="true"] .calb-ic{background:var(--calb-bg);border:1px solid #3D444B;}
+  @media(hover:hover){.calb:hover{--calb-bg:#23292E;}}
   @media(hover:hover) and (prefers-reduced-motion:no-preference){
     .calb:hover .calb-reel{transform:rotate(-40deg);}}
   @media(min-width:760px){body:has(> .calb:not([hidden])),body.calb-on{padding-bottom:96px;}}
@@ -2649,7 +2660,6 @@ CAL_CSS = """<style>
     .calb{right:12px;bottom:calc(66px + env(safe-area-inset-bottom));}
     .calb-pill{height:36px;margin-right:-22px;padding:0 32px 0 12px;}
     .calb-ic{width:48px;height:48px;}
-    .calb-reel{width:30px;height:30px;}
     body:has(> .calb:not([hidden])),body.calb-on{padding-bottom:calc(134px + env(safe-area-inset-bottom));}
   }
   @media(max-width:359px){.calb-l{display:none;}.calb-s{display:inline;}}
@@ -5334,8 +5344,10 @@ def validate(page, label):
             continue
         assert page.startswith('<svg class="bm-wheel"', m.end()), \
             f"{label}: a primary button without the reel: {m.group(0)[:90]}"
-    if 'class="bm-wheel"' in page:
-        assert page.count('id="bm-reel"') == 1, f"{label}: Reel wheel buttons need BM_DEFS once"
+    if 'href="#bm-reel"' in page:
+        assert page.count('id="bm-reel"') == 1, f"{label}: the reel (buttons, bubble) needs BM_DEFS once"
+    if 'class="calb"' in page:
+        assert '<svg class="calb-reel" viewBox="0 0 56 56"' in page, f"{label}: the bubble lost its reel"
     assert "—" not in page and "–" not in page, f"DASH FOUND IN {label}"
     bad = sorted({c for c in page if ord(c) > 127})
     assert not bad, f"NON-ASCII IN {label} (use HTML entities): {bad}"
