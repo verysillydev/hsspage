@@ -683,6 +683,84 @@ Lighthouse's `link-text` audit and cost 8 SEO points. The pill also uses sentenc
 rather than the mono uppercase of the nav links, because 15 characters of `--t-caps` tracking is
 about 25px the bar does not have.
 
+## Free content calendar pop-up (release 35, owner)
+
+A lead offer on every page: a free 30-day content calendar. The code is `CAL_HTML`, `CAL_CSS` and
+`CAL_JS` (`CAL_POPUP`), placed after `{actionbar()}` on all seven page templates, so all of it
+sits at the end of `<body>`, after the LCP element. It adds about 18KB per page (6.3KB of it JS).
+It is in the web build only.
+
+**Copy (owner, verbatim):**
+- Eyebrow: "Free for home service companies".
+- Headline: "Get a free content calendar for your business."
+- Sub: "Tell us where you post. We'll plan your next 30 days of content, built for your trade and
+  your market."
+- **Delivery line, confirmed by the owner (not a placeholder): "We'll email it to you within 3
+  business days."** It appears under the sub and again in the success state.
+- Button: the Reel wheel "Get my free calendar".
+- Consent: "We'll use this to build your calendar and follow up about it. We never sell your
+  information."
+- Success: "You're in. Watch your inbox."
+- Exit: "No thanks, keep browsing".
+
+**Fields.** Your name, Email and Phone are required. Phone accepts the common US formats ((805)
+555-0123, 805.555.0123, +1 805 555 0123, 1-805-555-0123, 8055550123) and needs 10 digits with
+a valid area code. "Where you post" (Business website, Instagram, TikTok, Facebook, YouTube)
+needs at least one, with an inline error otherwise. Labels sit above the inputs, the
+placeholders are only hints, and each input has `autocomplete`/`inputmode`. Errors are inline,
+tied with `aria-describedby`/`aria-invalid`, and focus goes to the first problem.
+
+**Delivery.** It uses the same FormSubmit AJAX endpoint as the contact form (`FORM_TO`). The
+payload carries:
+- `_subject` "Free content calendar - <website host, else the first handle, else the name>";
+- `_replyto` set to their email, `_template` table and `_captcha` false;
+- `_honey`, filled from a hidden field named `fax`. The contact form's honeypot is named
+  `website`, and this form needs a real website field.
+- `lead_type`=content-calendar and `page`, the path it was opened on.
+
+Success replaces the form inside the panel, with no page change. Failure keeps everything typed,
+re-enables the button and offers a prefilled email to `FORM_TO`.
+
+**When it opens.**
+- **By itself, once:** on the visitor's first real scroll (a wheel, a touch drag or a scroll key)
+  past 40% of the first viewport, on every page but `/contact/`.
+- **Never on a click or a tap.** A pop-up that takes over a tap on a button or a video is a bad
+  trade.
+- **Not while** a video the visitor started is playing (`data-ambient` films such as the hero do
+  not count), or while focus is in another form. It waits for a later scroll.
+- **Opening records "seen"** in localStorage (`hss-cal`), so it stays away for 30 days. A send
+  records "sent", so it never auto-opens again. When storage is blocked, it opens at most once
+  per page load.
+- **The footer link "Free content calendar"** (`site_footer`, every page, 44px) opens it at any
+  time, `/contact/` included. Without JS or `<dialog>` it is a plain link to
+  `CALENDAR_ASK` (`/contact/?campaign=content-calendar#start`), and `FORM_JS` prefills "I'd like
+  the free content calendar.".
+
+**How it behaves.**
+- It is a native `<dialog>` with `showModal()`: the page goes inert, and Esc, the backdrop, the
+  44px "Close" X and "No thanks, keep browsing" all close it. Closing never submits.
+- Focus moves to the heading on open (no stray ring on the X) and returns on close, without
+  scrolling.
+- The page stays exactly where it was. `html` keeps `scrollbar-gutter:stable` while `cal-lock`
+  locks scrolling, so locking shifts nothing (no CLS).
+- The scroll that opened it would carry on into the panel, so the panel starts at its top and
+  holds there for 600ms.
+- `.cal [hidden]{display:none}` is needed, because `.cal-f{display:grid}` would otherwise keep a
+  hidden form on screen.
+- **Desktop:** a centred panel, at most 760px wide and 773px tall at 1440x900. A flat month
+  preview (`_cal_art()`: reels Monday to Friday, graphics Saturday and Sunday) sits beside a
+  three-column form from 900px, under a sprocket rail.
+- **Phones:** a bottom sheet capped at 85% of the screen (not a full-screen interstitial, per
+  Google's intrusive-interstitial guidance). The form scrolls inside it, the X stays in its top
+  corner and "No thanks" is at the thumb's end.
+- The entrance is transform and opacity only. Reduced motion gets no animation.
+
+**Testing.** Never post to formsubmit.co from a test. `reports/hss-audit/r35/tools/cal35.mjs`
+intercepts every request to it (CDP Fetch: it answers the CORS preflight and the POST itself),
+checks the payload, the validation, the success and failure states, every close path, the
+once-per-visitor rules, blocked storage, the video and `/contact/` rules, the footer link and
+the phone sheet, and runs axe with the panel open.
+
 ## Terms, which must stay accurate
 
 The `/packages` terms grid is the most trusted thing on the site, so nothing in it may be
