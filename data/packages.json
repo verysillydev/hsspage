@@ -6,7 +6,7 @@
     {
       "id": "you-supply",
       "heading": "You supply the footage",
-      "subhead": "Your team provides the footage; we plan, produce and post from it.",
+      "subhead": "Your team provides the footage. We plan, produce and post from it.",
       "tiers": [
         "baby-steps"
       ]
@@ -14,7 +14,7 @@
     {
       "id": "two-days",
       "heading": "Two production days a year",
-      "subhead": "Our crew comes out for two production days a year, and your team supplies footage in between.",
+      "subhead": "Our crew comes out for two production days a year. Between shoots, your team can add clips.",
       "tiers": [
         "starter",
         "bronze"

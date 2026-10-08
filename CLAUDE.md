@@ -558,8 +558,10 @@ the owner supplied them.
 crew filming on site. On `/packages` the "same three things at every tier" step 02 reads "Our crew
 films on site at your jobs, with your people, from Starter up. Baby Steps runs on footage your team
 sends in." Client-supplied footage is named only where it is true for that tier: the Baby Steps
-group ("You supply the footage", its explainer and tagline) and the two-production-days explainer
-("...your team supplies footage in between"). The intro under that section says "whether you invest
+group ("You supply the footage", its explainer "Your team provides the footage. We plan, produce
+and post from it." and its tagline) and the two-production-days explainer, which since release 36
+(owner) reads "Our crew comes out for two production days a year. Between shoots, your team can
+add clips." The intro under that section says "whether you invest
 $X or $Y" (prices from the json), not "spend".
 
 **The offering is called "Social Media Packages"** (title case, a product name; release 8, owner).
