@@ -892,8 +892,12 @@ build.
   under it at load on any page.
   - Two exceptions sit in short phone viewports, under 700px tall. The /our-work hero's second
     button and the 404's "See the work" can sit partly under the unit until the first scroll.
-  - At the end of every page the extra bottom padding (`body:has(> .calb:not([hidden]))`, 96px
-    from 760px, 134px plus the inset on phones) keeps it clear.
+  - At the end of every page the extra bottom padding (96px from 760px, 134px plus the inset on
+    phones) keeps it clear of every footer link. Measured at 1440, 1024, 768, 390 and 320 on /,
+    /packages, /team and a case page: at 1440 the footer's CONTACT link ends 137px above the
+    bubble. The padding applies on `body:has(> .calb:not([hidden]))` or `body.calb-on`, a class
+    `CAL_JS` sets when it shows the bubble. That is the release-40 fallback for browsers without
+    `:has()`, which would otherwise get no room, so the bubble could sit on the footer.
   - While the page scrolls it passes over content like any chat launcher. At 390 it can cover
     the bottom-right corner of a passing card (a video player, an Instagram grab, a text link).
     The rest of each card stays tappable.

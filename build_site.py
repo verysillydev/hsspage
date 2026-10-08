@@ -2644,13 +2644,13 @@ CAL_CSS = """<style>
   @media(hover:hover){.calb:hover .calb-pill,.calb:hover .calb-ic{background:#23292E;}}
   @media(hover:hover) and (prefers-reduced-motion:no-preference){
     .calb:hover .calb-reel{transform:rotate(-40deg);}}
-  @media(min-width:760px){body:has(> .calb:not([hidden])){padding-bottom:96px;}}
+  @media(min-width:760px){body:has(> .calb:not([hidden])),body.calb-on{padding-bottom:96px;}}
   @media(max-width:759px){
     .calb{right:12px;bottom:calc(66px + env(safe-area-inset-bottom));}
     .calb-pill{height:36px;margin-right:-22px;padding:0 32px 0 12px;}
     .calb-ic{width:48px;height:48px;}
     .calb-reel{width:30px;height:30px;}
-    body:has(> .calb:not([hidden])){padding-bottom:calc(134px + env(safe-area-inset-bottom));}
+    body:has(> .calb:not([hidden])),body.calb-on{padding-bottom:calc(134px + env(safe-area-inset-bottom));}
   }
   @media(max-width:359px){.calb-l{display:none;}.calb-s{display:inline;}}
   .cal{position:fixed;inset:auto 24px 92px auto;margin:0;padding:0;
@@ -2760,6 +2760,7 @@ CAL_JS = """<script>
   }
   if(bub){
     bub.hidden = false;
+    document.body.classList.add('calb-on');
     if(sget('hss-audit')) requested();
     name();
     if(narrow.addEventListener) narrow.addEventListener('change', name);
