@@ -3852,7 +3852,7 @@ def bts_build():
     want = ({f"bts-{k}-{w}.{e}" for k in BTS for w in BTS[k][2] for e in ("avif", "webp")}
             | {f"bts-{k}-mask.png" for k in BTS if not ("@" in k or (k[-1] in "fw" and k[:-1] in BTS))}
             | {f"bts-{k}-fill.png" for k in BTS}
-            | {f"bts-{k}@{rg}-{t}.png" for rg in "pmt" for k in BTS for t in ("clear", "edge")})
+            | {f"bts-{k}@{rg}-{t}.png" for rg in "pqmt" for k in BTS for t in ("clear", "edge")})
     for n in os.listdir(BTS_DIR):
         if n.startswith("bts-") and n not in want:
             os.remove(f"{BTS_DIR}/{n}")
@@ -3871,6 +3871,7 @@ if os.environ.get("HSS_WWD04", "B") == "B":     # What We Do 04, option B (see B
     BTS["wwd04m"] = ("bts06", (1000, 120, 1080, 416), (480, 720, 1020), 72, (8, 8), "100% 50%")
     BTS_POOLS["wwd04f"] = ((1800, 300, 240, 300), (1550, 400, 280, 260), (2340, 420, 240, 300), (1840, 760, 300, 360),
                            (1440, 360, 300, 260))
+    BTS_POOLS["wwd04@t"] = BTS_POOLS["wwd04@m"] = BTS_POOLS["wwd04m"] = BTS_POOLS["wwd04f"]
 BTS_MAN = bts_build() if MODE == "web" else {}
 
 # ---- Filling the dead zone around the type (release 42; phase 1 of the owner's review) --------

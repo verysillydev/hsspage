@@ -1381,9 +1381,29 @@ which every change must pass:
       previous block's media row with a wavy top fade. The divider becomes a gradient that fades
       out just before the photo (`--wwd-line`). The spacing is unchanged.
     - **The heroes, 01 and the footer have no such strip:** they start at a band or section edge.
-  - **Phase 2 (phones 320 to 479; 960 to 1279):** built behind `HSS_P2=1` and not shipped until
-    complete. It uses two mask layers per placement and range: a type-space clearance mask from
-    `bts/layout2.json` (`tools/layout42b.mjs`), and a box-space organic edge mask.
+  - **Phase 2 (phones and 960 to 1279) is complete, and off until the owner approves it.**
+    `HSS_P2=1` turns it on; the default build renders exactly as without it (byte-identical
+    pages, checked).
+    - **Ranges:**
+      - phones 320 to 479: What We Do 02 to 04, and 01 from 360px (at 320 the owner and his
+        phone sit under the title and slate clearance, so 01 neither shows nor downloads there);
+      - 960 to 1199 and 1200 to 1279: What We Do;
+      - 1200 to 1279 also: the /team/ and /contact/ heroes and the footer.
+      - Nothing shows at 480 to 959. /book/ and /packages/ heroes show from 1280px only.
+    - **Two mask layers per placement and range:**
+      - a clearance mask in type space, from the union of layouts measured across the range
+        (`tools/layout42b.mjs`, `bts/layout2.json`), positioned from the wall with the wrap's
+        own formula (`BTS_WALL`);
+      - an organic edge mask stretched to the box.
+    - **Box and crops:** the box is the zone's height at its crop's aspect, against the wall
+      (never upscaled). Each range has its own crops (`@p`, `@m`, `@t`, the `m` keys), so the
+      story sits beside the type.
+    - **From 960px with phase 2:** the 37ch What We Do copy, the strip zones above 02 to 04
+      (a fixed offset from the block heading; spread 0 to 1px across the range) and the divider
+      fade apply.
+    - **Checks:** `tools/alpha42b.mjs` (clearance and divider for two-layer masks), the
+      straight-edge check and `tools/net42.mjs` (downloads).
+
   - **The approved two keep their first recipe.** /team/ and /contact/ are in `BTS_KEEP`; /contact/
     adds only its tripod pocket quiet zone (owner, release 42).
   - **`bts_edge_check()` runs on every mask in the build.** It flags a 40px run that changes by
