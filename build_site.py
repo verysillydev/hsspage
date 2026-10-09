@@ -2564,8 +2564,9 @@ assert "__FORM_TO__" not in FORM_JS, "form failover address was not substituted"
 #   edge to edge since release 41) with a "Free social audit" label pill tucked under it, fixed
 #   bottom right on every page but /contact/ and /book/. It
 #   ships hidden and CAL_JS shows it, so without JS there is no dead control. Owner change
-#   (release 37): the label is always visible, at every width, pill and reel as one unit; below
-#   360px it reads "Free audit". On phones it sits above the action bar, and the homepage hero's
+#   (release 37): the label is always visible, at every width, pill and reel as one unit. It
+#   reads "Free social audit" at every width (owner, release 43: the "Free audit" short label
+#   below 360px is gone). On phones it sits above the action bar, and the homepage hero's
 #   text sits higher so the unit never covers the headline.
 # - The panel (CAL_HTML): one native <dialog> per page, opened with showModal(), so the page
 #   goes inert, focus is held inside, and Esc, the backdrop, the 44px X and "No thanks, keep
@@ -2656,7 +2657,7 @@ CAL_HTML = (
 CAL_BUBBLE = ('<button type="button" class="calb" data-cal hidden aria-haspopup="dialog" '
               'aria-expanded="false" aria-controls="cal" aria-label="Get a free social audit and '
               'content calendar"><span class="calb-pill"><span class="calb-l">Free social audit</span>'
-              '<span class="calb-s">Free audit</span></span><span class="calb-ic">'
+              '</span><span class="calb-ic">'
               + reel_svg("calb-reel") + '<svg class="calb-down" viewBox="0 0 24 24" '
               'aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6" fill="none" '
               'stroke="currentColor" stroke-width="2.4" stroke-linecap="round" '
@@ -2673,7 +2674,6 @@ CAL_CSS = """<style>
   .calb-pill{background:var(--calb-bg);border:1px solid #3D444B;transition:background var(--ease);}
   .calb-pill{display:flex;align-items:center;height:40px;margin-right:-26px;padding:0 38px 0 16px;
     border-radius:var(--r-lg);white-space:nowrap;font:600 var(--f-sm)/1 'Onest',-apple-system,sans-serif;}
-  .calb-s{display:none;}
   .calb-ic{position:relative;flex:none;width:56px;height:56px;display:flex;align-items:center;
     justify-content:center;border-radius:50%;}
   /* release 41 (owner): the reel is the circle, edge to edge, like the buttons' reel. Its
@@ -2694,7 +2694,6 @@ CAL_CSS = """<style>
     .calb-ic{width:48px;height:48px;}
     body:has(> .calb:not([hidden])),body.calb-on{padding-bottom:calc(134px + env(safe-area-inset-bottom));}
   }
-  @media(max-width:359px){.calb-l{display:none;}.calb-s{display:inline;}}
   .cal{position:fixed;inset:auto 24px 92px auto;margin:0;padding:0;
     width:min(392px,calc(100vw - 48px));max-width:none;max-height:min(80vh,calc(100vh - 116px));
     border:1px solid #33383D;border-radius:var(--r-lg);color:#FFFFFF;overflow:hidden;
@@ -2786,18 +2785,16 @@ CAL_JS = """<script>
     where: 'Add your website or at least one social account, so we know where to look.'};
   function sget(k){ try { return sessionStorage.getItem(k) || mem[k]; } catch(e){ return mem[k]; } }
   function sset(k){ mem[k] = '1'; try { sessionStorage.setItem(k, '1'); } catch(e){} }
-  /* the accessible name always contains the visible label: "Free audit" below 360px */
-  var narrow = matchMedia('(max-width: 359px)');
+  /* the accessible name always contains the visible label ("Free social audit") */
   function name(){
     if(!bub) return;
     var done = bub.classList.contains('is-done');
-    bub.setAttribute('aria-label', (done ? 'Audit requested. ' : (narrow.matches ? 'Free audit: ' : ''))
-      + (narrow.matches && !done ? 'get' : 'Get') + ' a free social audit and content calendar');
+    bub.setAttribute('aria-label', (done ? 'Audit requested. ' : '') + 'Get a free social audit and content calendar');
   }
   function requested(){
     if(!bub || bub.classList.contains('is-done')) return;
     bub.classList.add('is-done');
-    [].forEach.call(bub.querySelectorAll('.calb-l, .calb-s'), function(e){ e.textContent = 'Audit requested'; });
+    [].forEach.call(bub.querySelectorAll('.calb-l'), function(e){ e.textContent = 'Audit requested'; });
     name();
   }
   if(bub){
@@ -2805,7 +2802,6 @@ CAL_JS = """<script>
     document.body.classList.add('calb-on');
     if(sget('hss-audit')) requested();
     name();
-    if(narrow.addEventListener) narrow.addEventListener('change', name);
   }
   function open(from){
     if(d.open) return;

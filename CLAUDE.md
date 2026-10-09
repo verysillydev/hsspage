@@ -880,11 +880,11 @@ build.
   turns charcoal with a grey rim and shows the down chevron, as before. `validate()` fails the
   build if a page with the bubble lacks its reel or `BM_DEFS`.
 - **The label is always visible, at every width (owner change, release 37).** It never
-  collapses, and there is no timer and no reduced-motion variant. Below 360px it reads "Free
-  audit" so the unit stays compact.
-- `aria-label` is "Get a free social audit and content calendar". It starts with "Free audit:"
-  below 360px and with "Audit requested." after a send, so it always contains the visible
-  label (label-in-name). The button also has `aria-haspopup="dialog"`, `aria-expanded` and
+  collapses, and there is no timer and no reduced-motion variant. It reads "Free social audit"
+  at every width (owner, release 43: the "Free audit" short label below 360px is gone). At 320
+  the pill and reel still fit as one unit.
+- `aria-label` is "Get a free social audit and content calendar". It starts with "Audit
+  requested." after a send, so it always contains the visible label (label-in-name). The button also has `aria-haspopup="dialog"`, `aria-expanded` and
   `aria-controls="cal"`, and the site's orange focus ring around the whole unit.
 - It ships `hidden`, and `CAL_JS` shows it, so without JS (or without `<dialog>`) there is no
   dead control. It is never on `/contact/` or `/book/`.
