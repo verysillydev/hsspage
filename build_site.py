@@ -4,7 +4,7 @@
   python3 build_site.py          -> single self-contained file (Claude artifact)
   python3 build_site.py web      -> deploy/our-work/ with external assets (Vercel)
 """
-import base64, datetime, html as html_lib, json, math, os, pathlib, re, shutil, sys, zlib
+import base64, datetime, hashlib, html as html_lib, json, math, os, pathlib, re, shutil, subprocess, sys, tempfile, zlib
 
 S = os.path.dirname(os.path.abspath(__file__))
 MODE = "web" if len(sys.argv) > 1 and sys.argv[1] == "web" else "inline"
@@ -3564,12 +3564,489 @@ SOCIAL_LINKS = "".join(
     f'focusable="false">{icon}</svg></a>' for name, url, icon in SOCIAL)
 
 
+
+# ---- Behind-the-scenes photos (release 42, owner; MOCKUP until the owner's Go) -----------
+# Owner: "implement those photos in dead white space ... subtle". Then (correction): "I want it
+# to look real still like the photos ... blend into the dead space towards one side. If it's
+# framed on the right of the page against the side wall, then it fades going left ... Photos
+# need to remain high quality how I shared them."
+# - The pixels are the owner's: a crop, nothing else. No grade, no grain, no blend mode. (No
+#   licence plate or street number is legible in the used frames, checked at full resolution, so
+#   there is no privacy blur.) The sources carry Apple's wide-colour profile, so each crop is
+#   converted to sRGB (ffmpeg colorspace, Display P3 primaries in, BT.709 out) to look as shared.
+# - Each photo is anchored to the right wall: flush to the viewport edge, filling its dead
+#   space's height, opaque and crisp at the wall. It fades toward the content with an eased
+#   linear mask (BTS_EASE: an ease-in-out curve, so neither end of the fade shows a line). There
+#   is a short eased feather at the top and bottom, and none on the wall side.
+# - Every mask is fully transparent before the text column, with at least 24px of clear space
+#   between the last glyph and any alpha above 0.1 (checked by reports/hss-audit/r42/tools).
+# - Crops are art-directed: the subject sits in the solid zone near the wall, its eye-line near
+#   the block heading, and its gaze inward where the frame allows. No photo is ever mirrored.
+# - Light shots only on light grounds, dark shots only on dark grounds (owner).
+# - Originals stay outside the repo (BTS_SRC), never published or committed. The build crops and
+#   encodes into bts/ (committed), only when a recipe changes. Every published file is checked
+#   for metadata (no EXIF, XMP or ICC).
+# - Encodes: WebP q88 and AVIF (SVT-AV1 crf 20), visually lossless at 100% against the originals.
+#   srcset widths up to 2x the desktop box and 3x the phone box, capped at the crop's own pixels.
+# - bts04 and bts06 are in reserve: /packages/ has no light space that is empty at both desktop
+#   and phone (beside the final CTA is empty on desktop only, and sits just above the footer's).
+BTS_SRC = os.environ.get("HSS_BTS_SRC") or os.path.normpath(f"{S}/../../reports/hss-audit/bts/src")
+BTS_DIR = f"{S}/bts"
+BTS_COLOR = ("colorspace=iall=bt470bg:ispace=bt470bg:iprimaries=smpte432:itrc=srgb:irange=pc:"
+             "space=bt709:primaries=bt709:trc=srgb:range=tv:format=yuv444p")
+BTS_ENC = {"avif_crf": 20, "webp_q": 88}
+# key: (source, crop x/y/w/h in source px, widths, solid % from the wall, (top, bottom) feather %,
+#      object-position). The crop ends at the story's wall-side edge (plus room on the side the
+#      subject faces); the context lies on the fade side. The solid zone is set so the story's
+#      left edge keeps at least 0.9 alpha at 1440 (fully solid at 1920). Feathers only where the
+#      photo meets content (none at a band or section edge). "m" keys: phone crops (below 960px).
+BTS = {
+    # dark heroes (#14171A), full band height, right of the text column, from 1200px (/book/ 1360px)
+    "team": ("bts09", (0, 0, 2000, 1449), (640, 960, 1280, 1600), 62, (0, 0), "100% 50%"),
+    # the bright neon logo (x 1280 to 1520) stays out, so it never fades beside the H1
+    "book": ("bts02", (1530, 0, 1046, 1449), (640, 960, 1046), 80, (0, 0), "100% 50%"),
+    "contact": ("bts08", (0, 0, 1640, 1449), (640, 960, 1280, 1640), 68, (0, 0), "100% 50%"),
+    "packages": ("bts01", (500, 0, 1950, 1449), (640, 960, 1280, 1600), 74, (8, 0), "100% 50%"),
+    # What We Do (paper #F5F4F1): the block header's dead zone, wall to the copy's measure
+    "wwd01": ("bts05", (300, 0, 1850, 1449), (640, 960, 1280, 1600), 61, (8, 8), "100% 50%"),
+    # phones: the phone in hand and the tech's face together (the cinema camera is dropped)
+    "wwd01m": ("bts05", (260, 470, 2236, 860), (480, 720, 1020), 72, (8, 8), "100% 50%"),
+    "wwd02": ("bts07", (0, 0, 2400, 1449), (640, 960, 1280, 1600), 60, (8, 8), "100% 25%"),
+    "wwd02m": ("bts07", (500, 0, 1800, 680), (480, 720, 1020), 76, (8, 8), "100% 50%"),
+    # starts at the white door, so the fade runs through quiet wall, not the crew member's shoulder
+    "wwd03": ("bts03", (800, 300, 1100, 1100), (640, 960, 1100), 55, (8, 8), "100% 50%"),
+    "wwd03m": ("bts03", (700, 520, 1300, 482), (480, 720, 1020), 56, (8, 8), "100% 50%"),
+    "wwd04": ("bts10", (0, 800, 1000, 1000), (640, 960, 1000), 68, (8, 8), "100% 50%"),
+    "wwd04m": ("bts10", (0, 1050, 1100, 408), (480, 720, 1020), 72, (8, 8), "100% 50%"),
+    # footer (white), from the footer's top edge to the nav row, wall to the action row
+    "foot": ("bts11", (0, 0, 2576, 1449), (640, 960, 1280, 1600), 78, (0, 8), "100% 35%"),
+    # "f" keys: the fill crops used from 1280px (see BTS_LAYOUT), as wide as the story allows
+    # while it stays right of the type: the wall-anchored scale fixes where each subject lands.
+    "teamf": ("bts09", (0, 0, 2576, 1449), (640, 960, 1280, 1600), 0, (0, 0), "50% 50%"),
+    "contactf": ("bts08", (0, 0, 1900, 1449), (640, 960, 1280, 1600), 0, (0, 0), "50% 50%"),
+    "packagesf": ("bts01", (600, 0, 1976, 1449), (640, 960, 1280, 1600, 1976), 0, (0, 0), "50% 50%"),
+    "wwd01f": ("bts05", (0, 0, 2350, 1449), (640, 960, 1280, 1600), 0, (0, 0), "50% 50%"),
+    "wwd02f": ("bts07", (0, 0, 2576, 1449), (640, 960, 1280), 0, (0, 0), "50% 50%"),
+    "wwd03f": ("bts03", (0, 0, 2576, 1449), (640, 960, 1280), 0, (0, 0), "50% 50%"),
+    "wwd04f": ("bts10", (0, 800, 1717, 966), (640, 960, 1280), 0, (0, 0), "50% 50%"),
+    "footf": ("bts11", (0, 0, 2576, 1449), (640, 960, 1280), 0, (0, 0), "50% 50%"),
+}
+# Subjects per crop, in source px (centre x, y, radius x, y): the custom mask keeps them opaque and
+# bulges its fade boundary out around them; quiet areas (sky, stucco, wall, shadow) fade sooner.
+BTS_POOLS = {
+    "team": ((1444, 750, 280, 440), (1840, 650, 220, 420), (1000, 720, 280, 440)),
+    "book": ((2020, 920, 440, 380), (1700, 560, 220, 320)),
+    "contact": ((1050, 950, 240, 360), (1160, 1110, 400, 220), (470, 500, 240, 200)),
+    "packages": ((2120, 650, 320, 620), (1420, 720, 280, 520)),
+    "wwd01": ((1080, 1150, 240, 240), (1140, 480, 280, 220), (1840, 900, 320, 580)),
+    "wwd01m": ((1080, 1140, 260, 240), (1800, 760, 300, 420)),
+    "wwd02": ((990, 330, 280, 320), (1180, 760, 400, 470), (900, 1250, 320, 240), (1980, 900, 320, 380)),
+    "wwd02m": ((990, 330, 260, 300), (1360, 400, 240, 240)),
+    "wwd03": ((1440, 850, 220, 280), (1480, 920, 160, 130), (1600, 600, 280, 280)),
+    "wwd03m": ((1440, 800, 200, 240), (1480, 920, 150, 120)),
+    "wwd04": ((450, 1340, 280, 380), (300, 1650, 220, 200)),
+    "wwd04m": ((450, 1200, 260, 220),),
+    "foot": ((1970, 600, 470, 620), (1220, 950, 240, 470), (520, 900, 420, 520)),
+}
+BTS_TILT = 10      # degrees: the fade boundary leans like the slate stripes
+BTS_ALT = {"team": "Our crew filming an interview with a plumbing company owner"}
+# Exact sizes: the rendered image width is max(box width, box height x crop aspect), because
+# object-fit:cover fills the box (measured boxes at 1280 to 1920, phones at 390 and 430).
+BTS_SIZES = {
+    "team": "(min-width: 1200px) max(min(50vw - 298px, 900px), 483px), 1px",
+    "book": "(min-width: 1360px) max(min(50vw - 418px, 900px), 302px), 1px",
+    "contact": "(min-width: 1200px) max(min(50vw - 298px, 900px), 679px), 1px",
+    "packages": "(min-width: 1200px) max(min(50vw - 298px, 900px), 515px), 1px",
+    "wwd01": "(min-width: 960px) max(min(50vw - 185px, 900px), 563px), max(100vw - 94px, 332px)",
+    "wwd02": "(min-width: 960px) max(min(50vw - 185px, 900px), 508px), max(100vw - 94px, 280px)",
+    "wwd03": "(min-width: 960px) max(min(50vw - 185px, 900px), 265px), max(100vw - 94px, 280px)",
+    "wwd04": "(min-width: 960px) max(min(50vw - 185px, 900px), 310px), max(100vw - 94px, 280px)",
+    "foot": "(min-width: 1200px) max(min(50vw - 220px, 760px), 391px), 1px",
+}
+BTS_EASE = ((0, 1), (8.1, .987), (15.5, .951), (22.5, .896), (29, .825), (35.3, .741), (41.2, .648),
+            (47.1, .55), (52.9, .45), (58.8, .352), (64.7, .259), (71, .175), (77.5, .104),
+            (84.5, .049), (91.9, .013), (100, 0))
+BTS_STRIPS = 6
+BTS_BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+
+
+def _bts_v(top, bottom):
+    """The eased vertical feather: `top`% and `bottom`% of the height (0 = no feather)."""
+    v = ([f"rgba(0,0,0,{al:g}) {top - t * top / 100:.1f}%" for t, al in reversed(BTS_EASE)] if top else ["#000 0%"])
+    v += ([f"rgba(0,0,0,{al:g}) {100 - bottom + t * bottom / 100:.1f}%" for t, al in BTS_EASE] if bottom
+          else ["#000 100%"])
+    return f"linear-gradient(to bottom,{','.join(v)})"
+
+
+# The shared mask layers, written once (the site inlines its CSS on every page): the far-edge
+# envelope and each vertical feather in use, as custom properties on .bts.
+BTS_ENV = ("linear-gradient(to right," + ",".join(f"rgba(0,0,0,{al:g}) {(100 - t) * 0.18:.1f}%"
+                                                  for t, al in reversed(BTS_EASE)) + ",#000 18%)")
+BTS_VARS = "".join(f"--bts-v{t}-{b}:{_bts_v(t, b)};" for t, b in sorted({v[4] for v in BTS.values()}) if t or b)
+
+
+def bts_mask(key, top=0, bottom=0):
+    """Mask layers for one placement: the crop's custom mask (BTS_POOLS, bts_make_mask), sized
+    and positioned exactly like the image (cover, the same object-position), intersected with
+    the shared far-edge envelope (0 at the box's far edge, the text side, at any box width) and,
+    where the photo meets content above or below, the shared eased feather."""
+    url = asset(f"{BTS_DIR}/bts-{key}-mask.png", "image/png") if MODE == "web" else ""
+    layers = [f"url({url})", "var(--bts-env)"] + ([f"var(--bts-v{top}-{bottom})"] if top or bottom else [])
+    m = ",".join(layers)
+    size = ",".join(["cover"] + ["100% 100%"] * (len(layers) - 1))
+    posn = ",".join([BTS[key][5]] + ["0 0"] * (len(layers) - 1))
+    return (f"-webkit-mask-image:{m};mask-image:{m};-webkit-mask-size:{size};mask-size:{size};"
+            f"-webkit-mask-position:{posn};mask-position:{posn};")
+
+
+def _bts_recipe(key):
+    return hashlib.sha1(json.dumps([BTS[key][:3], BTS_COLOR, BTS_ENC, 2]).encode()).hexdigest()[:12]
+
+
+def _bts_ease(t):
+    """BTS_EASE as a function: alpha at t (0 = the opaque side, 1 = the transparent side)."""
+    t = min(1.0, max(0.0, t)) * 100
+    for (t0, a0), (t1, a1) in zip(BTS_EASE, BTS_EASE[1:]):
+        if t <= t1:
+            return a0 + (a1 - a0) * (t - t0) / (t1 - t0)
+    return 0.0
+
+
+def _bts_mask_recipe(key):
+    return hashlib.sha1(json.dumps([BTS[key][1], BTS[key][3], BTS_POOLS[key], BTS_TILT, 5]).encode()).hexdigest()[:12]
+
+
+def bts_make_mask(key, out):
+    """A custom alpha mask for one crop (same aspect as the crop, 320px wide; the value is in the
+    PNG's alpha channel, which is what CSS masks read): an eased base from
+    the wall (opaque to the solid share, then the eased fall), leaning BTS_TILT degrees, unioned
+    (max) with eased radial pools on the subjects, then a large Gaussian blur (ffmpeg gblur), so
+    no shape edge shows. Grayscale PNG: white keeps the photo, black hides it."""
+    (x, y, cw, ch), solid = BTS[key][1], BTS[key][3] / 100
+    mw = 320
+    mh = max(2, round(mw * ch / cw))
+    k = math.tan(math.radians(BTS_TILT)) * ch / cw
+    pools = [((px - x) / cw, (py - y) / ch, rx / cw, ry / ch) for px, py, rx, ry in BTS_POOLS[key]]
+    px_ = bytearray()
+    for j in range(mh):
+        v = j / (mh - 1)
+        for i in range(mw):
+            u = i / (mw - 1)
+            d = 1 - (u + (v - 0.5) * k)                  # distance from the wall, leaning
+            a = 1.0 if d <= solid else _bts_ease((d - solid) / (1 - solid))
+            for cx, cy, rx, ry in pools:
+                q = math.hypot((u - cx) / rx, (v - cy) / ry)
+                if q < 1:
+                    a = max(a, 1.0 if q <= 0.32 else _bts_ease((q - 0.32) / 0.68))
+            px_.append(round(255 * a))
+    with tempfile.TemporaryDirectory() as tmp:
+        pgm = f"{tmp}/m.pgm"
+        with open(pgm, "wb") as f:
+            f.write(b"P5 %d %d 255\n" % (mw, mh) + bytes(px_))
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", pgm, "-filter_complex",
+                        f"[0:v]gblur=sigma={mw * 0.06:.1f},format=gray[m];color=c=black:s={mw}x{mh},format=gray[c];"
+                        "[c][m]alphamerge,format=ya8", "-frames:v", "1", "-map_metadata", "-1", out], check=True)
+
+
+def _bts_clean(path):
+    """True if an AVIF or WebP carries nothing but the picture: no EXIF, XMP or ICC."""
+    b = open(path, "rb").read()
+    if path.endswith(".webp"):
+        assert b[:4] == b"RIFF" and b[8:12] == b"WEBP", path
+        i, kinds = 12, []
+        while i + 8 <= len(b):
+            n = int.from_bytes(b[i + 4:i + 8], "little")
+            kinds.append(b[i:i + 4])
+            i += 8 + n + (n & 1)
+        return set(kinds) <= {b"VP8 ", b"VP8L", b"VP8X", b"ALPH"}
+    head = b[:4000]
+    items = []
+    for m in re.finditer(rb"infe", head):
+        i = m.start() + 4                       # version (1), flags (3), item_ID (2 or 4), protection (2)
+        t = i + 4 + (4 if head[i] >= 3 else 2) + 2
+        items.append(head[t:t + 4])
+    return (bool(items) and all(t == b"av01" for t in items)
+            and not any(x in head for x in (b"Exif", b"mime", b"prof", b"rICC")))
+
+
+def bts_build():
+    """Crop and encode the BTS derivatives that are missing or whose recipe changed, from the
+    originals in BTS_SRC. Removes files no recipe asks for. Returns the manifest."""
+    os.makedirs(BTS_DIR, exist_ok=True)
+    mp = f"{BTS_DIR}/manifest.json"
+    man = json.load(open(mp)) if os.path.exists(mp) else {}
+    for key, (src, (x, y, cw, ch), widths, _solid, _feather, _pos) in BTS.items():
+        assert max(widths) <= cw, f"bts: {key} would upscale its crop"
+        rh = _bts_recipe(key)
+        names = [f"{BTS_DIR}/bts-{key}-{w}.{e}" for w in widths for e in ("avif", "webp")]
+        if man.get(key, {}).get("recipe") == rh and all(map(os.path.exists, names)):
+            continue
+        srcf = f"{BTS_SRC}/{src}.jpg"
+        assert os.path.exists(srcf), f"bts: {key} needs encoding, but {srcf} is missing (HSS_BTS_SRC)"
+        sizes = {}
+        with tempfile.TemporaryDirectory() as tmp:
+            for w in widths:
+                h = round(w * ch / cw / 2) * 2
+                png = f"{tmp}/{key}-{w}.png"
+                vf = (f"crop={cw}:{ch}:{x}:{y},{BTS_COLOR},scale={w}:{h}:flags=lanczos,"
+                      "scale=in_color_matrix=bt709:in_range=tv:out_range=pc,format=rgb24")
+                subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", srcf, "-vf", vf, "-frames:v", "1",
+                                "-map_metadata", "-1", png], check=True)
+                subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", png, "-vf",
+                                "scale=out_color_matrix=bt709:out_range=tv,format=yuv420p",
+                                "-c:v", "libsvtav1", "-crf", str(BTS_ENC["avif_crf"]), "-preset", "4",
+                                "-color_primaries", "bt709", "-color_trc", "iec61966-2-1",
+                                "-colorspace", "bt709", "-color_range", "tv", "-frames:v", "1",
+                                "-map_metadata", "-1", f"{BTS_DIR}/bts-{key}-{w}.avif"], check=True)
+                subprocess.run(["cwebp", "-quiet", "-q", str(BTS_ENC["webp_q"]), "-m", "6", "-sharp_yuv",
+                                "-metadata", "none", png, "-o", f"{BTS_DIR}/bts-{key}-{w}.webp"], check=True)
+                sizes[str(w)] = [w, h]
+        man[key] = {"recipe": rh, "src": src, "sizes": sizes}
+        print(f"  bts: encoded {key} from {src} ({len(widths)} widths)")
+    for key in BTS:
+        if key.endswith("f") and key[:-1] in BTS:
+            continue
+        mr = _bts_mask_recipe(key)
+        if man[key].get("mask") != mr or not os.path.exists(f"{BTS_DIR}/bts-{key}-mask.png"):
+            bts_make_mask(key, f"{BTS_DIR}/bts-{key}-mask.png")
+            man[key]["mask"] = mr
+            print(f"  bts: mask {key}")
+    for k in [k for k in man if k not in BTS]:
+        del man[k]
+    want = ({f"bts-{k}-{w}.{e}" for k in BTS for w in BTS[k][2] for e in ("avif", "webp")}
+            | {f"bts-{k}-mask.png" for k in BTS if not (k.endswith("f") and k[:-1] in BTS)}
+            | {f"bts-{k}-fill.png" for k in BTS})
+    for n in os.listdir(BTS_DIR):
+        if n.startswith("bts-") and n not in want:
+            os.remove(f"{BTS_DIR}/{n}")
+    with open(mp, "w") as f:
+        json.dump(man, f, indent=1, sort_keys=True)
+    for n in sorted(os.listdir(BTS_DIR)):
+        if n.endswith((".avif", ".webp")):
+            assert _bts_clean(f"{BTS_DIR}/{n}"), f"bts: {n} carries metadata"
+    return man
+
+
+BTS_MAN = bts_build() if MODE == "web" else {}
+
+# ---- Filling the dead zone around the type (release 42, owner: "Those two white spots are still
+# dead space") -------------------------------------------------------------------------------
+# From 1280px the wrap is fixed and the type stops scaling, so the layout is constant. A tool
+# (reports/hss-audit/r42/tools/layout42.mjs, headless Chrome at 1440) measures each zone (heroes:
+# the band; What We Do: the section or hairline to 8px above the next row; footer: its top edge
+# to the credentials rule) and every glyph and control box in it, into bts/layout.json. Re-run it
+# after any copy or layout change in these blocks.
+# The photo is then the zone's height, at its crop's own aspect, against the right wall, and it
+# flows left into every empty area around the type: its mask (bts_fill_mask) is under 0.04
+# alpha inside every glyph or control box padded by BTS_PAD, then rises with the eased curve,
+# sooner around the story (the BTS_POOLS subjects) and later through quiet areas. Below 1280px
+# the right-anchored fade above applies.
+BTS_PAD = 24
+BTS_LAYOUT = json.load(open(f"{BTS_DIR}/layout.json")) if os.path.exists(f"{BTS_DIR}/layout.json") else {}
+
+
+def bts_fill_mask(key, out):
+    """The text-aware mask for one placement's fill box (half resolution, grayscale PNG)."""
+    lay = BTS_LAYOUT[key]
+    (x0, y0, cw, ch) = BTS[key + "f" if key + "f" in BTS else key][1]
+    H = lay["zoneH"]
+    Wb = round(H * cw / ch)
+    sc = H / ch
+    ko = [(Wb - r[2], r[1], Wb - r[0], r[3]) for r in lay["rects"]]          # box coords
+    pools = [((px - x0) * sc, (py - y0) * sc, rx * sc, ry * sc) for px, py, rx, ry in BTS_POOLS[key]]
+    mw, mh = (Wb + 1) // 2, (H + 1) // 2
+    k = math.tan(math.radians(BTS_TILT))
+    inside = bytearray(mw * mh)
+    px_ = bytearray()
+    for j in range(mh):
+        Y = 2 * j + 1
+        for i in range(mw):
+            X = 2 * i + 1
+            d = 1e9
+            for a, b, c, e in ko:
+                dx = max(a - BTS_PAD - X, 0, X - (c + BTS_PAD))
+                dy = max(b - BTS_PAD - Y, 0, Y - (e + BTS_PAD))
+                d = min(d, math.hypot(dx, dy))
+            pv = 0.0
+            for cx, cy, rx, ry in pools:
+                q = math.hypot((X - cx) / rx, (Y - cy) / ry)
+                if q < 1:
+                    pv = max(pv, 1 - q)
+            f = 130 - 70 * pv                              # the falloff: short at the story, long in quiet areas
+            a_txt = 0.0 if d <= 0 else _bts_ease(1 - min(1.0, d / f))
+            el = X + (Y - H / 2) * k                       # the box's far edge, leaning like the slate stripes
+            a_edge = _bts_ease(1 - min(1.0, max(0.0, el) / 150))
+            al = min(a_txt, a_edge)
+            if d <= 0:
+                inside[j * mw + i] = 1
+            px_.append(round(255 * al))
+    with tempfile.TemporaryDirectory() as tmp:
+        pgm = f"{tmp}/m.pgm"
+        with open(pgm, "wb") as f_:
+            f_.write(b"P5 %d %d 255\n" % (mw, mh) + bytes(px_))
+        raw = subprocess.run(["ffmpeg", "-v", "error", "-i", pgm, "-vf", "gblur=sigma=1.6", "-pix_fmt", "gray",
+                              "-f", "rawvideo", "-"], capture_output=True, check=True).stdout
+        blurred = bytearray(raw)
+        worst = 0
+        for n in range(mw * mh):
+            if inside[n]:
+                blurred[n] = min(blurred[n], 10)          # under 0.04 inside every padded keep-out
+                worst = max(worst, blurred[n])
+        assert worst / 255 < 0.05, f"bts: {key} fill mask too opaque over type"
+        with open(pgm, "wb") as f_:
+            f_.write(b"P5 %d %d 255\n" % (mw, mh) + bytes(blurred))
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", pgm, "-filter_complex",
+                        f"[0:v]format=gray[m];color=c=black:s={mw}x{mh},format=gray[c];[c][m]alphamerge,format=ya8",
+                        "-frames:v", "1", "-map_metadata", "-1", out], check=True)
+    return Wb, H
+
+
+BTS_FILL = {}
+if MODE == "web" and BTS_LAYOUT:
+    _lr = hashlib.sha1(json.dumps([BTS_LAYOUT, BTS_POOLS, BTS_PAD, BTS_TILT, 4]).encode()).hexdigest()[:12]
+    for _k in BTS_LAYOUT:
+        if _k == "ref":
+            continue
+        _o = f"{BTS_DIR}/bts-{_k}-fill.png"
+        _rh = _lr + _bts_recipe(_k + "f" if _k + "f" in BTS else _k)
+        if BTS_MAN[_k].get("fill") != _rh or not os.path.exists(_o):
+            BTS_MAN[_k]["fill"] = _rh
+            print(f"  bts: fill mask {_k}")
+            BTS_FILL[_k] = bts_fill_mask(_k, _o)
+        else:
+            (_x, _y, _cw, _ch) = BTS[_k + "f" if _k + "f" in BTS else _k][1]
+            BTS_FILL[_k] = (round(BTS_LAYOUT[_k]["zoneH"] * _cw / _ch), BTS_LAYOUT[_k]["zoneH"])
+    with open(f"{BTS_DIR}/manifest.json", "w") as _f:
+        json.dump(BTS_MAN, _f, indent=1, sort_keys=True)
+
+
+def bts_pic(key, sizes, cls, hero=False, below=959):
+    """One BTS placement. AVIF then WebP, srcset widths, exact sizes. A phone crop (key + "m")
+    is used below 960px when one exists; otherwise every width up to `below` gets a 1px inline
+    GIF, so it never downloads the photo. Heroes load eagerly with fetchpriority=low and are
+    built from BTS_STRIPS clipped strips of the same picture (one fetch): Chrome scores each
+    <img> for LCP by its clipped area, so the H1 or lead paragraph stays LCP (measured)."""
+    if MODE != "web":
+        return ""
+    if key in BTS_FILL:                       # from 1280px the fill box has a fixed width
+        sizes = f"(min-width: 1280px) {BTS_FILL[key][0]}px, " + sizes
+
+    def srcset(k, e):
+        return ", ".join(f'{asset(f"{BTS_DIR}/bts-{k}-{w}.{e}", "")} {w}w' for w in BTS[k][2])
+
+    out = []
+    if key + "f" in BTS and key in BTS_FILL:
+        out += [f'<source media="(min-width: 1280px)" type="image/{e}" srcset="{srcset(key + "f", e)}" '
+                f'sizes="{BTS_FILL[key][0]}px">' for e in ("avif", "webp")]
+    if key + "m" in BTS:
+        out += [f'<source media="(max-width: 959px)" type="image/{e}" srcset="{srcset(key + "m", e)}" '
+                f'sizes="{sizes}">' for e in ("avif", "webp")]
+    else:
+        out.append(f'<source media="(max-width: {below}px)" srcset="{BTS_BLANK}">')
+    out += [f'<source type="image/{e}" srcset="{srcset(key, e)}" sizes="{sizes}">' for e in ("avif", "webp")]
+    w0 = BTS[key][2][1]
+    h0 = BTS_MAN[key]["sizes"][str(w0)][1]
+    load = 'fetchpriority="low"' if hero else 'loading="lazy"'
+
+    def img(alt):
+        return (f'<img src="{asset(f"{BTS_DIR}/bts-{key}-{w0}.webp", "")}" width="{w0}" height="{h0}" '
+                f'alt="{alt}" {load} decoding="async">')
+
+    if not hero:
+        return f'<picture class="bts {cls} bts-{key}">{"".join(out)}{img("")}</picture>'
+    strips = "".join(f'<span class="bts-s"><picture>{"".join(out)}{img(BTS_ALT.get(key, "") if k == 0 else "")}'
+                     f'</picture></span>' for k in range(BTS_STRIPS))
+    return f'<div class="bts {cls} bts-{key}">{strips}</div>'
+
+
+# Geometry. Every photo runs to the right edge of the window (calc(50% - 50vw) from a centred
+# box), and its far edge sits clear of the text: heroes 24px past the text column (which ends
+# 274px right of centre; /book/'s highlighted H1 ends 394px right of centre); What We Do 32px
+# past the copy's 56ch measure (the same font, so ch matches); the footer 24px past its action
+# row. Boxes stop at 900px wide (760px in the footer), about 1x of the largest file, so a very
+# wide screen never upscales a photo.
+BTS_CSS = """
+  /* Behind-the-scenes photos (release 42): see BTS in build_site.py and CLAUDE.md */
+  .bts{position:absolute;display:block;pointer-events:none;-webkit-mask-repeat:no-repeat;
+    mask-repeat:no-repeat;-webkit-mask-composite:source-in;mask-composite:intersect;
+    --bts-env:""" + BTS_ENV + ";" + BTS_VARS + """}
+  .bts img{display:block;width:100%;height:100%;object-fit:cover;}
+  .hero > .bts{z-index:0;}
+  .bts-s{position:absolute;left:0;right:0;height:calc(100% / 6);overflow:hidden;}
+  .bts-s img{position:absolute;left:0;width:100%;height:600%;}
+""" + "".join(f"  .bts-s:nth-child({k + 1}){{top:calc(100% * {k} / 6);}}"
+              f".bts-s:nth-child({k + 1}) img{{top:-{k}00%;}}\n" for k in range(1, 6)) + "".join(
+    f"  .bts-{k} img{{object-position:{v[5]};}}\n  .bts-{k}{{{bts_mask(k, *v[4])}}}\n"
+    for k, v in BTS.items() if not (k[-1] in "mf" and k[:-1] in BTS)) + """
+  section.wwd{isolation:isolate;overflow-x:clip;}
+  .wwd-head{position:relative;}
+  .wwd-head > .bts,footer > .wrap > .bts{z-index:-1;}
+  @media(min-width:1200px){
+    .hero > .bts{top:0;bottom:0;right:0;width:min(calc(50% - 298px),900px);}
+    .hero > .bts-book{width:min(calc(50% - 418px),900px);}
+    .hero > .bts-packages{top:44%;}
+  }
+  /* below 1200px the hero and footer zones are too narrow (the footer's is 180 to 244px) */
+  @media(max-width:1199px){.hero > .bts,footer > .wrap > .bts{display:none;}}
+  @media(max-width:1359px){.hero > .bts-book{display:none;}}
+  @media(min-width:960px){
+    /* from the slate row (block 01: level with the "What We Do" title) to 8px above the next row */
+    .wwd-head > .bts{font-size:var(--f-lede);top:-17px;bottom:calc(8px - var(--s6));
+      right:calc(50% - 50vw);width:min(calc(50% + 50vw - 56ch - 32px),900px);}
+    #wwd-social .wwd-head > .bts{top:-110px;}
+    /* from the footer's top edge to 8px above the nav row */
+    footer > .wrap > .bts{top:calc(-1 * var(--s8));height:calc(var(--s8) + 156px);right:calc(50% - 50vw);
+      width:min(calc(50% + 50vw - 780px),760px);}
+  }
+  @media(max-width:959px){
+    /* wall to 10px right of the slate; from the hairline (block 01: under the section title)
+       to 6px above the block heading */
+    .wwd-head > .bts{font-size:var(--f-mega);left:calc(1.15em + 10px);right:calc(50% - 50vw);
+      top:calc(4px - var(--s7));height:calc(var(--s7) - 4px + 1em + var(--s3) - 6px);}
+    #wwd-social .wwd-head > .bts{top:-64px;height:calc(64px + 1em + var(--s3) - 6px);}
+    footer > .wrap > .bts{display:none;}
+  }
+""" + "".join(f"  @media(max-width:959px){{.bts-wwd0{n} img{{object-position:{BTS[f'wwd0{n}m'][5]};}}"
+              f".bts-wwd0{n}{{{bts_mask(f'wwd0{n}m', *BTS[f'wwd0{n}m'][4])}}}}}\n" for n in range(1, 5))
+def _bts_fill_css():
+    """From 1280px: each photo fills its zone around the type (see BTS_LAYOUT)."""
+    sel = {"team": ".hero > .bts-team", "book": ".hero > .bts-book", "contact": ".hero > .bts-contact",
+           "packages": ".hero > .bts-packages", "foot": "footer > .wrap > .bts"}
+    out = []
+    for k, (wb, h) in BTS_FILL.items():
+        lay = BTS_LAYOUT[k]
+        right = "0" if k in ("team", "book", "contact", "packages") else "calc(50% - 50vw)"
+        url = asset(f"{BTS_DIR}/bts-{k}-fill.png", "image/png")
+        shift = "calc((1440px - 100vw) / 2)"
+        fill = "max(0px, calc((100vw - 1440px) / 2))"       # wider screens: the extra width at the wall
+        feather = k.startswith("wwd") or k == "foot"
+        layers = (["var(--bts-v0-8)"] if feather else []) + [f"url({url})",
+                                                             f"linear-gradient(to left,#000 {fill},transparent {fill})"]
+        size = (["100% 100%"] if feather else []) + [f"{wb}px {h}px", "100% 100%"]
+        posn = (["0 0"] if feather else []) + [f"{shift} 0", "0 0"]
+        comp_w = (["source-in"] if feather else []) + ["source-over", "source-over"]
+        comp = (["intersect"] if feather else []) + ["add", "add"]
+        blocks = {"wwd01": "wwd-social", "wwd02": "wwd-commercial", "wwd03": "wwd-brand", "wwd04": "wwd-podcast"}
+        s_ = sel[k] if k in sel else f"#{blocks[k]} .wwd-head > .bts"
+        out.append(f"  {s_}{{top:{lay['topFromAnchor']}px;bottom:auto;left:auto;right:{right};width:{wb}px;"
+                   f"height:{h}px;-webkit-mask-image:{','.join(layers)};mask-image:{','.join(layers)};"
+                   f"-webkit-mask-size:{','.join(size)};mask-size:{','.join(size)};"
+                   f"-webkit-mask-position:{','.join(posn)};mask-position:{','.join(posn)};"
+                   f"-webkit-mask-composite:{','.join(comp_w)};mask-composite:{','.join(comp)};}}\n"
+                   f"  {s_} img{{object-position:50% 50%;}}\n")
+    return "  @media(min-width:1280px){\n" + "".join(out) + "  }\n" if out else ""
+
+
+BTS_CSS += _bts_fill_css()
+CSS = CSS.replace("</style>", BTS_CSS + "</style>", 1)
+
 def site_footer(page=""):
     links = "".join(f'<a href="{h}">{label}</a>' for h, label, key in FOOTER_LINKS
                     if key != page)
     cta_is_here = bool(page) and cta_href().startswith(f"/{page}/")
     cta = "" if cta_is_here else book("Footer", "", "cta")
-    return (f'<footer><div class="wrap">'
+    pic = bts_pic("foot", BTS_SIZES["foot"], "bts-foot", below=1199)
+    return (f'<footer><div class="wrap">{pic}'
             f'<div class="foot">'
             f'<div class="foot-main">'
             f'<p class="display foot-line">Let&#39;s make something that travels.</p>'
@@ -3802,7 +4279,7 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
 {nav("packages")}
 
 <main id="main">
-<div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
+<div class="hero hero-dark">{SPLAT_SVG}{bts_pic("packages", BTS_SIZES["packages"], "bts-hero", hero=True, below=1199)}<div class="wrap">
   <p class="eyebrow">Social Media Packages &middot; Home Service Studios</p>
   <h1 class="display">Known and trusted <span class="hl">before they need you.</span></h1>
   <p class="sub">Homeowners call the company they already recognize. That recognition is built
@@ -4473,6 +4950,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   </div>
 
   <div class="wwd-block" id="wwd-social">
+    <div class="wwd-head">{bts_pic("wwd01", BTS_SIZES["wwd01"], "bts-wwd")}
     <p class="wwd-num" aria-hidden="true">{slate("01")}</p>
     <h3 class="wwd-title">Social Media Packages</h3>
     <p class="wwd-copy">A reel every weekday and graphics every weekend, planned and posted for
@@ -4481,17 +4959,20 @@ HOME_HTML = f"""<title>Home Service Studios</title>
       <a class="cta" href="/packages/">{reel("Compare the packages")}</a>
       <span class="ctanote">Month to month, with no setup fee.</span>
     </div>
+    </div>
     <div class="igrow">
 {chr(10).join(ig_grab(*g) for g in IG_GRABS)}
     </div>
   </div>
 
   <div class="wwd-block" id="wwd-commercial">
+    <div class="wwd-head">{bts_pic("wwd02", BTS_SIZES["wwd02"], "bts-wwd")}
     <p class="wwd-num" aria-hidden="true">{slate("02")}</p>
     <h3 class="wwd-title">Commercial shoots</h3>
     <p class="wwd-copy">Spots built on one strong idea. Shot in a single production block, so the
     cost lands once.</p>
     <a class="wwd-link" href="/our-work/all-heart/">See the All Heart campaign&nbsp;&rarr;</a>
+    </div>
     <div class="grid">
 {chr(10).join(spot(*s) for s in HOME_SPOTS)}
     </div>
@@ -4500,10 +4981,12 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   </div>
 
   <div class="wwd-block" id="wwd-brand">
+    <div class="wwd-head">{bts_pic("wwd03", BTS_SIZES["wwd03"], "bts-wwd")}
     <p class="wwd-num" aria-hidden="true">{slate("03")}</p>
     <h3 class="wwd-title">Brand videos</h3>
     <p class="wwd-copy">A film that tells your company&#39;s story. Made for your homepage, your
     YouTube and your hiring.</p>
+    </div>
     <div class="wwd-films">
     <div class="wwd-film">
     {brand_film()}
@@ -4515,12 +4998,14 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   </div>
 
   <div class="wwd-block" id="wwd-podcast">
+    <div class="wwd-head">{bts_pic("wwd04", BTS_SIZES["wwd04"], "bts-wwd")}
     <p class="wwd-num" aria-hidden="true">{slate("04")}</p>
     <h3 class="wwd-title">Podcast production</h3>
     <p class="wwd-copy">We build the set, run the shoot and handle the edit. You show up and
     talk.</p>
     <p class="wwd-small">Set build, production and post.</p>
     <a class="wwd-link" href="{PODCAST_EPISODE_URL}">Watch the full episode&nbsp;&rarr;</a>
+    </div>
     {podcast_media()}
     <p class="mw-ask">Want a show of your own?</p>
     <a class="cta" href="{PODCAST_ASK}">{reel("Ask about podcast production")}</a>
@@ -4811,7 +5296,7 @@ BOOK_HTML = f"""<title>Book a strategy call</title>
 {nav("book")}
 
 <main id="main">
-<div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
+<div class="hero hero-dark">{SPLAT_SVG}{bts_pic("book", BTS_SIZES["book"], "bts-hero", hero=True, below=1359)}<div class="wrap">
   <p class="eyebrow">Strategy call &middot; Home Service Studios</p>
   <h1 class="display">Book a <span class="hl">strategy call.</span></h1>
   <p class="sub">Pick a time that works for you. It&#39;s a one-hour video call with our team.
@@ -4845,7 +5330,7 @@ CONTACT_HTML = f"""<title>Contact</title>
 {nav("contact")}
 
 <main id="main">
-<div class="hero hero-dark hero-contact">{SPLAT_SVG}<div class="wrap">
+<div class="hero hero-dark hero-contact">{SPLAT_SVG}{bts_pic("contact", BTS_SIZES["contact"], "bts-hero", hero=True, below=1199)}<div class="wrap">
   <p class="eyebrow">Contact &middot; Home Service Studios</p>
   <h1 class="display">Talk <span class="hl">to us.</span></h1>
   <p class="sub">Tell us your city and your trade. We will come back with something specific to
@@ -5102,7 +5587,7 @@ TEAM_HTML = f"""<title>Meet the team</title>
 {nav("team")}
 
 <main id="main">
-<div class="hero hero-dark">{SPLAT_SVG}<div class="wrap">
+<div class="hero hero-dark">{SPLAT_SVG}{bts_pic("team", BTS_SIZES["team"], "bts-hero", hero=True, below=1199)}<div class="wrap">
   <p class="eyebrow">Meet the team &middot; Home Service Studios</p>
   <h1 class="display">Meet <span class="hl">the team.</span></h1>
   <p class="sub">Every video on this site was written, shot and cut by people you could actually

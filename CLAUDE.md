@@ -1305,6 +1305,120 @@ The sticky case header from the motion phase was **removed, not merely disabled*
 to orient a reader in a long page, but the case split left these pages at 180 to 380 words, so a
 250px pinned block only ate the viewport and painted over the A1 chart.
 
+## Behind-the-scenes photos (release 42, owner; MOCKUP until his Go)
+
+Client-shoot photos supplied by the owner, placed in the site's real dead space. Code: `BTS` in
+`build_site.py`. Files: `bts/` (committed derivatives and masks, plus `manifest.json`).
+- **The pixels are his.** Owner, after rejecting a graded, grainy, oval treatment: "I want it to
+  look real still like the photos ... Photos need to remain high quality how I shared them."
+  - A crop only. No grade, no grain, no blur, no blend mode.
+  - The sources carry Apple's wide-colour profile, so each crop is converted to sRGB (ffmpeg
+    `colorspace`, Display P3 primaries in, BT.709 out). The colour then matches the original as
+    Chrome shows it (`reports/hss-audit/r42/final/quality-original-vs-published-100pct.png`).
+  - No legible plate or street number appears in the used frames, so there is no privacy blur.
+- **Originals never ship.** They stay in `reports/hss-audit/bts/src` (`BTS_SRC`, or
+  `HSS_BTS_SRC`), outside the repo. The build crops and encodes only when a recipe changes:
+  WebP q88 and AVIF (SVT-AV1 crf 20), visually lossless at 100%. The largest AVIF is about
+  230KB. `bts_build()` fails the build if any published file carries EXIF, XMP or an ICC
+  profile, and deletes files no recipe asks for.
+- **Light on light, dark on dark (owner).** Dark shots sit on the #14171A heroes, light shots
+  on paper and white.
+- **Placements:**
+  - /team/ hero: bts09. Its alt is "Our crew filming an interview with a plumbing company
+    owner"; every other placement has empty alt text.
+  - /book/ hero: bts02.
+  - /contact/ hero: bts08.
+  - /packages/ hero: bts01.
+  - What We Do: 01 bts05, 02 bts07, 03 bts03, 04 bts10.
+  - Footer: bts11.
+  - Reserve: bts04 and bts06. /packages/ has no light space that is empty at both desktop and
+    phone.
+- **Anchored to the right wall, filling the dead zone.**
+  - Each photo runs to the window edge (`calc(50% - 50vw)` from a centred box).
+  - It fills its zone's height:
+    - the hero bands;
+    - What We Do from the slate row to 8px above the next row (block 01 from the "What We Do"
+      title);
+    - the footer from its top edge to the nav row.
+  - On phones, What We Do photos fill the slate row from the wall to 10px right of the slate
+    (block 01 from under the section title: the owner's circle).
+  - Breakpoints: heroes from 1200px (/book/ from 1360px, where its highlighted H1 leaves room),
+    the footer from 1200px. Below that they are not shown and not downloaded (a 1px inline GIF
+    `<source>`).
+  - Boxes stop at 900px (760px in the footer), so a wide screen never upscales a photo.
+- **From 1280px the photo fills every empty area around the type** (owner: "Those two white
+  spots are still dead space").
+  - From 1280px the wrap is fixed and the type stops scaling, so the layout is constant.
+    `reports/hss-audit/r42/tools/layout42.mjs` measures, in headless Chrome at 1440, each zone
+    and every glyph and control box in it. It writes `bts/layout.json`.
+  - **Re-run that tool after any copy or layout change in these blocks.** The masks are baked
+    from it.
+  - The zones:
+    - heroes: the full band;
+    - What We Do: block 01 from the section's top edge under the nav rule, blocks 02 to 04
+      from the hairline, each down to 8px above the next row;
+    - footer: its top edge to the credentials rule.
+  - The photo is the zone's height, at its own fill crop's aspect (the `"...f"` keys, as wide as
+    the story allows while it stays right of the type), against the right wall. It is served
+    from 1280px with a `<source media>`.
+  - Its mask (`bts_fill_mask`, PNG, alpha channel) is under 0.04 inside every glyph or control
+    box padded by `BTS_PAD` (24px). Then it rises on the eased curve: sooner around the
+    story, later through quiet areas. Its far edge leans like the slate stripes.
+  - The mask is offset `calc((1440px - 100vw) / 2)` so it stays on the type as the window
+    widens. A wall-side layer fills the extra width, so a wider window shows more photo.
+  - There is no feather at a section edge; there is an 8% eased feather above cards and
+    videos.
+  - Measured (`tools/alpha42.mjs`): alpha 0.000 under every glyph and control at 1280, 1440
+    and 1920, and at most 0.012 at 24px out. The one exception is the video play buttons 8px
+    below 03 and 04, where the CSS bottom feather applies.
+  - Remaining dead space, honestly: left of the photo beside the slate and the section title
+    in 02 to 04, and beside the footer line. A wider photo there would put its story under the
+    type.
+  - Below 1280px the right-anchored fade applies (next point), and on phones the slate-row
+    photo.
+- **The fade is a mask painted per crop**, not a straight ramp. `bts_make_mask()` writes a
+  320px PNG (the value in its alpha channel, which is what CSS masks read; 2 to 7KB) per crop. It is built from:
+  - an eased base from the wall (opaque to the solid share, then the ease-in-out curve
+    `BTS_EASE`, so neither end of the fade shows a line), leaning `BTS_TILT` 10 degrees like the
+    slate stripes;
+  - unioned with eased radial pools on the subjects (`BTS_POOLS`), so the edge bulges around
+    people and cameras and recedes through quiet areas;
+  - then a large Gaussian blur.
+
+  In CSS it is `mask-size:cover` with the image's own `object-position`, so it tracks the photo at
+  every box size. It is intersected with:
+  - a shared eased envelope that is 0 at the box's far edge (the text side) at any width;
+  - a short eased feather only where the photo meets content (none at a band or section
+    edge).
+
+  The shared gradients are custom properties on `.bts`, written once (the CSS is inlined on
+  every page).
+- **Story first.** Each crop ends at its story's wall-side edge; the context lies on the fade
+  side. The solid share keeps the story at 0.9 alpha or more at 1440 and solid at 1920:
+  - the phone and the cinema camera (01);
+  - the operator and the RED, with room on the side he faces (02);
+  - the staffer and the camera monitor (03);
+  - the monitor framing the talker (04);
+  - both crew members and the kneeling tech (footer);
+  - the interviewee and crew, the switcher and set, the crew and tech, the demo (heroes).
+
+  Narrower desktops (1200 to 1280) can put a story edge into the fade.
+- **Text safety, measured** (`reports/hss-audit/r42/tools/safe42.mjs`, 390 to 1920): no glyph,
+  link, image or video overlaps any photo box. Desktop clear space to the box is 24px or more,
+  and the mask is 0 at that edge.
+- **LCP.** Heroes load eagerly with `fetchpriority=low`. Each is built from 6 clipped strips of
+  the same `<picture>` (one fetch), because Chrome scores every image technique (img,
+  background, `::before`, SVG image) at its full box area, but scores each `<img>` by its
+  clipped area. The H1 or lead paragraph stays LCP (measured). Everything else is lazy.
+- **Known limits:**
+  - The light set's fade sides are darker than paper (average luminance 0.02 to 0.12 against
+    0.905). The crews' dark clothes and rigs sit on the fade side, so on paper the fade reads
+    as a dark dissolve. The dark heroes match their ground within 0.05.
+  - The phone crops are a 2.6:1 strip, so 01 shows the phone and the tech's torso, not faces.
+  - The CSS adds about 9KB raw to every page (about 2KB gzipped).
+  - A tried "ambient colour bridge" (a 7% tint of the photo's light on the ground) was
+    invisible, so it is not used.
+
 ## Enquiry form
 
 **The form broke silently when hosting moved, and this is the single most important thing on
