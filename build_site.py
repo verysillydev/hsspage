@@ -1000,13 +1000,13 @@ CSS = """<style>
   @media(min-width:1280px){/*wwd-p2*/
     /* What We Do 01, 03, 04 (release 42, owner): a 37ch copy measure, so the photo can show the
        people beside it (the owner in 01, Seth in 03, the RED rig in 04) */
-    #wwd-social .wwd-copy,#wwd-brand .wwd-copy,#wwd-podcast .wwd-copy{max-width:37ch;}
+    #wwd-social .wwd-copy,#wwd-commercial .wwd-copy,#wwd-brand .wwd-copy,#wwd-podcast .wwd-copy{max-width:37ch;}
     /* 02 to 04: the photo rises through the gap above its block, so the divider fades out just
        before it on the photo's side (the spacing is unchanged) */
     section.wwd .wwd-block + .wwd-block{position:relative;border-top:0;padding-top:calc(var(--s7) + 1px);}
     section.wwd .wwd-block + .wwd-block::before{content:"";position:absolute;top:0;left:0;height:1px;
       width:var(--wwd-line,100%);background:linear-gradient(to right,var(--line) calc(100% - 72px),transparent);}
-    #wwd-commercial{--wwd-line:420px;}#wwd-brand,#wwd-podcast{--wwd-line:360px;}}
+    #wwd-commercial,#wwd-brand,#wwd-podcast{--wwd-line:360px;}}
   /* 01 from 1680px: the wider box crops the photo vertically; frame higher so the camera
      operator's face stays in, with the owner and his phone */
   @media(min-width:1680px){section#what-we-do #wwd-social .wwd-head > .bts img{object-position:0% 50%;}}
@@ -3673,7 +3673,8 @@ BTS_POOLS = {
     "wwd01": ((1080, 1150, 240, 240), (1140, 480, 280, 220), (1840, 900, 320, 580), (690, 560, 420, 520),
               (450, 1050, 400, 470)),
     "wwd01m": ((1080, 1140, 260, 240), (1800, 760, 300, 420)),
-    "wwd02": ((990, 330, 280, 320), (1180, 760, 400, 470), (900, 1250, 320, 240), (1980, 900, 320, 380)),
+    "wwd02": ((990, 330, 280, 320), (1180, 760, 400, 470), (900, 1250, 320, 240), (1980, 900, 320, 380),
+              (1000, 330, 320, 380), (700, 650, 340, 330)),
     "wwd02m": ((990, 330, 260, 300), (1360, 400, 240, 240)),
     "wwd03": ((1440, 850, 220, 280), (1480, 920, 160, 130), (1600, 600, 280, 280), (480, 760, 480, 760)),
     "wwd03m": ((1440, 800, 200, 240), (1480, 920, 150, 120)),
@@ -3900,7 +3901,7 @@ BTS_BOX = {
     # 01 starts at 519: the largest scale that keeps the phone solid past the copy's clearance
     # 01: the owner (the curly-haired phone shooter) whole, his head, back and phone; 37ch copy
     "wwd01": (500, "0% 52%", True),
-    "wwd02": (621, "100% 20%", True),
+    "wwd02": (560, "100% 4%", True),        # Zach (the operator) whole, head to Easyrig strap; 37ch copy
     "wwd03": (560, "100% 41%", True),       # Seth, a cofounder, as a whole figure; 37ch copy
     "wwd04": (621, "100% 45%", True),
     "foot": (880, "100% 30%", True),

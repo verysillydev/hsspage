@@ -1367,9 +1367,11 @@ which every change must pass:
       (`.hero-pkg .hl{nowrap}`), and the lede is 45ch. The photo moves right (box at 650,
       left-aligned) so the crew member's back is solid. Below 1280px the page is unchanged.
   - **Owner insert (release 42):**
-    - **The people are named.** The curly-haired phone shooter in bts05 is the owner, and the
-      navy-cap crew member in bts03 is Seth, a cofounder. They must read as whole, solid
-      people.
+    - **The people are named.** The curly-haired phone shooter in bts05 is the owner, the
+      navy-cap crew member in bts03 is Seth, a cofounder, and the operator in bts07 is Zach.
+      They must read as whole, solid people.
+    - **What We Do 02 from 1280px:** a 37ch copy as well, and the box from 560, so Zach's head,
+      ear, jaw and Easyrig strap are solid with the RED.
     - **What We Do 01, 03 and 04 from 1280px:** a 37ch copy measure, so the photo reaches the
       owner's lines; the boxes start at 500 (01) and 560 (03, 04).
     - **01 from 1680px:** a wider crop (`wwd01w`), because the box is wider than 2:1 there.
