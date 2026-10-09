@@ -852,6 +852,8 @@ CSS = """<style>
      eyebrow used to. Two of seven on the homepage, deliberately not all. */
   .sec-head.bare h2{font-size:clamp(34px,5.6vw,58px);max-width:18ch;}
   .sec-head.bare{gap:var(--s4);}
+  /* the client-logo sections, "Trusted By" (owner, release 42): centred at every width */
+  .sec-head.center{align-items:center;text-align:center;}
 
   /* /our-work case grid (D5, 2026-10-06), replacing the blueprint carousel:
      flat cards, one large plus two stacked from 900px, stacked on phones. A
@@ -4486,9 +4488,8 @@ html = f"""<title>Selected work, Home Service Studios</title>
 </section>
 
 <section class="no-rule on-ink"><div class="wrap">
-  <div class="sec-head">
-    <p class="eyebrow">Roster</p>
-    <h2 class="display">Our Clients</h2>
+  <div class="sec-head bare center">
+    <h2 class="display">Trusted By</h2>
   </div>
   {logo_marquee()}
 </div></section>
@@ -5278,7 +5279,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 
 
 <section id="roster" class="on-ink"><div class="wrap">
-  <div class="sec-head bare">
+  <div class="sec-head bare center">
     <h2 class="display">Trusted By</h2>
   </div>
   {logo_marquee()}
