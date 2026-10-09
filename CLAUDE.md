@@ -1413,6 +1413,21 @@ which every change must pass:
         - 03 shows Seth's head and shoulders plus the staffer on the monitor from 390px
           (`@s`). Below 390 (`@r`) it shows Seth alone, because the staffer does not fit.
         - 04 uses `wwd04@p`. The legacy `wwd04m` stays unchanged.
+      - **Phones, release 44 (Yoni: less dead space, more of the scene). 03 and 960px+ unchanged:**
+        - The column above the slate is no longer reserved for 01, 02 and 04. The photos grow left
+          above and beside the slate. The slate keeps its 24px clearance; text keeps 24px.
+        - The far (left) fade is 24% of the box for 02 and 04 (`BTS_P2_RAMP`), 30% elsewhere.
+        - The divider under 02 and 04 runs to about 15% into the photo box and fades out there.
+        - 01 (`wwd01@p`, bts05 0,0,1300,1449): one box from the section top, width
+          `min(100vw - 234px, 215px)` (`BTS_P2_W01`), so Yoni's head stays right of "What We Do".
+          It now shows from 320px. Yoni's head, the phone in his hands and the operator are in.
+          The tech in blue is not: he stands beyond the operator in bts05, 2060px from Yoni's head.
+        - 02 (bts07, rows 0 to 1150): Zach, the RED's top monitor, body and matte box. The crop's
+          right edge is set per range so his head, and the box edge, stay clear of the slate:
+          `@v` up to 389 (x to 1650), `@w` 390 to 429 (to 2080), `@p` 430 to 479 (to 2323).
+          His hands (rows 1224 to 1417) fall under the copy's clearance and stay out.
+        - 04 (`wwd04@p`, bts06 760,30,1816,900): the operator with the whole rig and the
+          Veterans AC tech at the wall.
       - **Box edges (round 3, coordinator's seam review):** every phase 2 edge mask is 0 along each
         box edge except the screen wall. That holds for phones, 960 to 1279, the heroes and the
         footer.

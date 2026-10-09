@@ -3729,10 +3729,15 @@ BTS = {
     "wwd01w": ("bts05", (0, 150, 2576, 1170), (1280, 1600, 2000, 2576), 0, (0, 0), "0% 50%"),
     # phones: the owner (head, hair, the phone in his hands) right of and below the title; the
     # operator behind him stays, the tech in blue is out of frame
-    "wwd01@p": ("bts05", (0, 0, 1380, 1449), (320, 480, 720), 0, (0, 0), "50% 50%"),
+    "wwd01@p": ("bts05", (0, 0, 1300, 1449), (320, 480, 720), 0, (0, 0), "50% 50%"),
     # phones: Zach's head (hair, ear, glasses, beard) whole; the cap's crown is outside bts07's
     # frame, so it fades into the paper as it does from 960px up
-    "wwd02@p": ("bts07", (0, 0, 1236, 863), (480, 760, 1080), 0, (0, 0), "50% 50%"),
+    # phones (release 44): Zach with the RED (top monitor, body, matte box, lens top). The crop's
+    # right edge is set per range so his head stays clear of the slate's halo as the wall moves
+    # (the box's left edge also keeps 6px+ clear of the slate's edge, so no seam can form there)
+    "wwd02@p": ("bts07", (0, 0, 2323, 1150), (480, 760, 1080), 0, (0, 0), "50% 50%"),   # 430-479
+    "wwd02@w": ("bts07", (0, 0, 2080, 1150), (480, 720, 960), 0, (0, 0), "50% 50%"),    # 390-429
+    "wwd02@v": ("bts07", (0, 0, 1650, 1150), (320, 480, 720), 0, (0, 0), "50% 50%"),    # up to 389
     # phones from 390px: Seth head and shoulders, and the staffer on the monitor at the wall
     "wwd03@p": ("bts03", (0, 0, 1593, 1449), (480, 720, 1080), 0, (0, 0), "50% 50%"),
     # phones below 390px: Seth head and shoulders (the staffer does not fit beside him)
@@ -3765,8 +3770,10 @@ BTS_POOLS = {
 }
 BTS_TILT = 10      # degrees: the fade boundary leans like the slate stripes
 BTS_POOLS.update({
-    "wwd01@p": ((400, 520, 290, 360), (1130, 1140, 210, 250), (840, 280, 200, 190)),
-    "wwd02@p": ((850, 390, 430, 340), (1180, 560, 200, 300)),
+    "wwd01@p": ((400, 500, 280, 330), (1130, 1140, 190, 230), (880, 260, 160, 140)),
+    "wwd02@p": ((820, 380, 400, 330), (1360, 410, 190, 150), (1450, 800, 450, 250)),
+    "wwd02@w": ((820, 380, 400, 330), (1360, 410, 190, 150), (1450, 800, 450, 250)),
+    "wwd02@v": ((820, 380, 400, 330), (1360, 410, 190, 150)),
     "wwd03@p": ((450, 430, 330, 330), (470, 860, 380, 240), (1490, 820, 200, 330)),
     "wwd03@r": ((450, 430, 330, 330), (470, 860, 380, 240)),
 })
@@ -3938,7 +3945,7 @@ def bts_build():
             | {f"bts-{k}-mask.png" for k in BTS if not ("@" in k or (k[-1] in "fw" and k[:-1] in BTS))}
             | {f"bts-{k}-fill.png" for k in BTS}
             | {f"bts-{k}-wall.png" for k in BTS}
-            | {f"bts-{k}@{rg}-{t}.png" for rg in "pqrsumt" for k in BTS for t in ("clear", "edge")})
+            | {f"bts-{k}@{rg}-{t}.png" for rg in "pqrsuvwxmt" for k in BTS for t in ("clear", "edge")})
     for n in os.listdir(BTS_DIR):
         if n.startswith("bts-") and n not in want:
             os.remove(f"{BTS_DIR}/{n}")
@@ -3955,11 +3962,13 @@ if os.environ.get("HSS_WWD04", "B") == "B":     # What We Do 04, option B (see B
     BTS["wwd04@t"] = BTS["wwd04f"]
     BTS["wwd04@m"] = ("bts06", (1000, 40, 1100, 1000), (640, 960, 1100), 0, (0, 0), "50% 50%")
     BTS["wwd04m"] = ("bts06", (1000, 120, 1080, 416), (480, 720, 1020), 72, (8, 8), "100% 50%")
-    BTS["wwd04@p"] = ("bts06", (1250, 40, 900, 600), (480, 720, 900), 0, (0, 0), "50% 50%")
+    # phones (release 44): the operator with the whole rig, and the Veterans AC tech at the wall
+    BTS["wwd04@p"] = ("bts06", (760, 30, 1816, 900), (480, 720, 1040), 0, (0, 0), "50% 50%")
     BTS_POOLS["wwd04f"] = ((1800, 300, 240, 300), (1550, 400, 280, 260), (2340, 420, 240, 300), (1840, 760, 300, 360),
                            (1440, 360, 300, 260))
     BTS_POOLS["wwd04@t"] = BTS_POOLS["wwd04@m"] = BTS_POOLS["wwd04m"] = BTS_POOLS["wwd04f"]
-    BTS_POOLS["wwd04@p"] = ((1800, 300, 240, 300), (1640, 420, 200, 220), (1840, 760, 300, 360))
+    BTS_POOLS["wwd04@p"] = ((1800, 270, 150, 130), (1550, 370, 220, 200), (1790, 650, 250, 280),
+                            (2390, 400, 140, 170))
 BTS_MAN = bts_build() if MODE == "web" else {}
 
 # ---- Filling the dead zone around the type (release 42; phase 1 of the owner's review) --------
@@ -4242,12 +4251,13 @@ if MODE == "web" and BTS_LAYOUT:
 # hero shows from 1280px only (its type below 1280 is unchanged and leaves no room).
 BTS_LAYOUT2 = json.load(open(f"{BTS_DIR}/layout2.json")) if os.path.exists(f"{BTS_DIR}/layout2.json") else {}
 BTS_RANGE = {   # range: (media query, phone?, the crop each placement uses there)
-    "p": ("(max-width: 479px)", True, {"wwd02": "wwd02@p",
-                                        "wwd04": "wwd04@p" if "wwd04@p" in BTS else "wwd04m"}),
+    "p": ("(max-width: 479px)", True, {"wwd04": "wwd04@p" if "wwd04@p" in BTS else "wwd04m"}),
+    "v": ("(max-width: 389px)", True, {"wwd02": "wwd02@v"}),
+    "w": ("(min-width: 390px) and (max-width: 429px)", True, {"wwd02": "wwd02@w"}),
+    "x": ("(min-width: 430px) and (max-width: 479px)", True, {"wwd02": "wwd02@p"}),
     "r": ("(max-width: 389px)", True, {"wwd03": "wwd03@r"}),
     "s": ("(min-width: 390px) and (max-width: 479px)", True, {"wwd03": "wwd03@p"}),
-    "q": ("(min-width: 390px) and (max-width: 479px)", True, {"wwd01": "wwd01@p"}),
-    "u": ("(min-width: 360px) and (max-width: 389px)", True, {"wwd01": "wwd01@p"}),   # 01, a smaller box
+    "q": ("(max-width: 479px)", True, {"wwd01": "wwd01@p"}),     # 01: a box that grows with the screen
     "m": ("(min-width: 960px) and (max-width: 1199px)", False,
           {"wwd01": "wwd01@m", "wwd02": "wwd02@m", "wwd03": "wwd03@m", "wwd04": "wwd04@m"}),
     "t": ("(min-width: 1200px) and (max-width: 1279px)", False,
@@ -4255,6 +4265,7 @@ BTS_RANGE = {   # range: (media query, phone?, the crop each placement uses ther
            "team": "teamf", "contact": "contactf", "foot": "footf"}),
 }
 BTS_WALL = "(100vw + min(100vw - 48px, 1072px)) / 2"     # the wall's distance from the type's left edge
+BTS_P2_W01 = "min(100vw - 234px, 215px)"   # 01 on phones: the box's width (clear of "What We Do")
 BTS_P2 = {}      # (range, key): dict of mask sizes and checks
 
 
@@ -4284,9 +4295,11 @@ def _bts_png(vals, mw, mh, out, clamp=None, mult=None):
 # phase 2 corner shaping per crop: "tl" curves the top fade down toward the left (depth as a share of
 # the box height, width as a share of its width); "br" raises the bottom fade toward the wall
 BTS_P2_CORNER = {
-    "wwd02@p": {"tl": (0.35, 0.45)},     # the sky meets the coil column: round it, fade the column top
-    "wwd04@p": {"br": (0.30, 0.40)},     # the bushes' line at the bottom right dissolves
+    "wwd04@p": {"br": (0.30, 0.40)},     # the bottom fade rises toward the wall
 }
+# the far (left) fade as a share of the box width: shorter for the wide phone boxes (release 44),
+# so the solid part reads across about 70% of the width above the slate
+BTS_P2_RAMP = {"wwd02@p": 0.24, "wwd02@w": 0.24, "wwd02@v": 0.24, "wwd04@p": 0.24}
 
 
 def bts_p2_masks(rg, key):
@@ -4337,7 +4350,7 @@ def bts_p2_masks(rg, key):
     pools = [((px - x0) * sc, (py_ - y0) * sc, rx * sc, ry * sc)
              for px, py_, rx, ry in BTS_POOLS.get(ck, BTS_POOLS.get(key, ()))]
     quiet = [(cx * Wb, cy * Hm, rx * Wb, ry * Hm) for cx, cy, rx, ry in BTS_QUIET.get(key, ())]
-    ramp = min(170, 0.3 * Wb)
+    ramp = min(170, BTS_P2_RAMP.get(ck, 0.3) * Wb)
     evals, margs = [], []
     for j in range(eh):
         Y = j * BTS_MS
@@ -4440,12 +4453,17 @@ def _bts_p2_css():
                 if phone:
                     up = ("(var(--s-sec) + var(--f-h1) * 1.06 + var(--s6) + var(--s7))" if k == "wwd01"
                           else "(var(--s7) - 1px)")
-                    if v["top"] is not None and k == "wwd01":  # 01: right of and below the title
-                        geo = f"top:{v['top']}px;height:{v['Hm']}px;bottom:auto;"
+                    if v["top"] is not None and k == "wwd01":  # 01: from the section top, beside the title
+                        geo = (f"top:{v['top']}px;height:calc({BTS_P2_W01} * {ch / cw:.4f});"
+                               f"bottom:auto;")
                     elif v["top"] is not None:                 # 02-04: the gap above, down to the copy
                         hz = (f"({-v['top']}px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15"
                               f" - 24px)")
-                        rules.append(f"    #{blocks[k]}{{--wwd-line:calc(100vw - {hz} * {cw / ch:.4f} - 32px);}}\n")
+                        if k in ("wwd02", "wwd04"):            # the line fades out under the photo's fade
+                            rules.append(f"    #{blocks[k]}{{--wwd-line:max(0px, calc(100vw - {hz} * "
+                                         f"{0.85 * cw / ch:.4f} - 24px));}}\n")
+                        else:
+                            rules.append(f"    #{blocks[k]}{{--wwd-line:calc(100vw - {hz} * {cw / ch:.4f} - 32px);}}\n")
                         geo = f"top:{v['top']}px;height:calc{hz};bottom:auto;"
                     else:
                         geo = (f"font-size:var(--f-mega);top:{top};height:calc({up} + 1em + var(--s3) - 24px);"
@@ -4504,8 +4522,10 @@ def bts_pic(key, sizes, cls, hero=False, below=959):
         if key in keys and (rg, key) in BTS_P2:
             v = BTS_P2[(rg, key)]
             ck, (cw_, ch_) = v["crop"], v["aspect"]
+            sz = (BTS_P2_W01 if (key == "wwd01" and BTS_RANGE[rg][1])   # 01 on phones grows with the screen
+                  else f"{round(v['Hm'] * cw_ / ch_)}px")
             out += [f'<source media="{mq}" type="image/{e}" srcset="{srcset(ck, e)}" '
-                    f'sizes="{round(v["Hm"] * cw_ / ch_)}px">' for e in ("avif", "webp")]
+                    f'sizes="{sz}">' for e in ("avif", "webp")]
     out.append(f'<source media="(max-width: 1279px)" srcset="{BTS_BLANK}">')
     if key + "w" in BTS:                      # a wider crop for very wide windows
         out += [f'<source media="(min-width: 1680px)" type="image/{e}" srcset="{srcset(key + "w", e)}" '
