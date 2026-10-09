@@ -1356,6 +1356,16 @@ which every change must pass:
     text clearance.
   - **Quiet zones** (`BTS_QUIET`) send low-detail corners back to paper or charcoal with a long
     eased falloff. An anti-wisp curve removes low-alpha patches.
+  - **Release 42 review fixes:**
+    - What We Do 01 starts at 519. That is the largest scale that keeps the phone solid past
+      the copy's clearance, so its top band fills from about 600px. Its far edge ramp is shorter
+      (`BTS_FAR`).
+    - 03 frames the navy-cap crew member as a whole figure, head and shoulders.
+    - 04 has two options, `HSS_WWD04=A` (bts10, the default) or `B` (bts06, the rooftop
+      Easyrig operator). Switching re-encodes from the originals.
+    - /packages/ from 1280px: the H1 is 68px with "before they need you." whole on line 2
+      (`.hero-pkg .hl{nowrap}`), and the lede is 45ch. The photo moves right (box at 650,
+      left-aligned) so the crew member's back is solid. Below 1280px the page is unchanged.
   - **The approved two keep their first recipe.** /team/ and /contact/ are in `BTS_KEEP`; /contact/
     adds only its tripod pocket quiet zone (owner, release 42).
   - **`bts_edge_check()` runs on every mask in the build.** It flags a 40px run that changes by

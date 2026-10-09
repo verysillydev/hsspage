@@ -4,7 +4,7 @@
    0,
    0
   ],
-  "fill": "27a0c606cd96fd84d504fde7",
+  "fill": "96cf2dc15f24fd84d504fde7",
   "mask": "a5fcbaa0cb2e",
   "recipe": "fb376f72835d",
   "sizes": {
@@ -46,7 +46,7 @@
    0,
    0
   ],
-  "fill": "27a0c606cd96f7dc72218f99",
+  "fill": "96cf2dc15f24f7dc72218f99",
   "mask": "1d6ad1a920b6",
   "recipe": "f616c49f16d2",
   "sizes": {
@@ -100,7 +100,7 @@
    0,
    0
   ],
-  "fill": "27a0c606cd96853d8e164899",
+  "fill": "96cf2dc15f24853d8e164899",
   "mask": "b5c850e7dca9",
   "recipe": "853d8e164899",
   "sizes": {
@@ -150,7 +150,7 @@
    0,
    0
   ],
-  "fill": "27a0c606cd96a1c0e307044a",
+  "fill": "96cf2dc15f24a1c0e307044a",
   "mask": "d25cfdff35ba",
   "recipe": "c17a2ba68656",
   "sizes": {
@@ -204,7 +204,7 @@
    0,
    0
   ],
-  "fill": "27a0c606cd966d8b2a26af5f",
+  "fill": "96cf2dc15f246d8b2a26af5f",
   "mask": "6c24ca0b58b0",
   "recipe": "10b7db7c3209",
   "sizes": {
@@ -258,7 +258,7 @@
    0,
    0
   ],
-  "fill": "27a0c606cd96d885e37a3d5d",
+  "fill": "96cf2dc15f2432ea3ba13abd",
   "mask": "a3f4d2842ee3",
   "recipe": "15c432b707a5",
   "sizes": {
@@ -282,27 +282,27 @@
   "src": "bts05"
  },
  "wwd01f": {
-  "recipe": "d885e37a3d5d",
+  "recipe": "32ea3ba13abd",
   "sizes": {
    "1280": [
     1280,
-    790
+    844
    ],
    "1600": [
     1600,
-    986
+    1054
    ],
    "2000": [
     2000,
-    1234
+    1318
    ],
    "640": [
     640,
-    394
+    422
    ],
    "960": [
     960,
-    592
+    632
    ]
   },
   "src": "bts05"
@@ -331,7 +331,7 @@
    0,
    0
   ],
-  "fill": "27a0c606cd96af32a11196bd",
+  "fill": "96cf2dc15f24af32a11196bd",
   "mask": "2dcc5eb6796a",
   "recipe": "6b24995cf2b8",
   "sizes": {
@@ -404,8 +404,8 @@
    0,
    0
   ],
-  "fill": "27a0c606cd9648a7d65ac841",
-  "mask": "7995df8a63d7",
+  "fill": "96cf2dc15f2448a7d65ac841",
+  "mask": "2f2f72a33ea8",
   "recipe": "8c08c490acea",
   "sizes": {
    "1100": [
@@ -473,7 +473,7 @@
    0,
    0
   ],
-  "fill": "27a0c606cd96ed4781a6305f",
+  "fill": "96cf2dc15f24ed4781a6305f",
   "mask": "cfd1967decc8",
   "recipe": "fcc8dfed00d8",
   "sizes": {

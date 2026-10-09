@@ -992,6 +992,11 @@ CSS = """<style>
   /* inner pages keep their own --f-hero size; weight, tracking and the 1.18
      line-height (room for the highlight bar) match the homepage */
   .hero-dark h1{font-weight:900;letter-spacing:-.025em;line-height:1.18;}
+  /* /packages/ from 1280px (release 42, owner): a smaller H1 with "before they need you." whole on
+     line 2, and a 45ch lede, so the hero's photo has room right of the type. Below 1280px the
+     page is unchanged. */
+  @media(min-width:1280px){.hero-pkg h1{font-size:68px;}.hero-pkg .hl{white-space:nowrap;}
+    .hero-pkg .sub{max-width:45ch;}}
 
   /* Homepage hero (release 10, owner, 2026-10-06): a self-hosted silent film that
      COVERS the whole hero box at every size, object-fit:cover and centred, with
@@ -3627,7 +3632,7 @@ BTS = {
     "bookf": ("bts02", (1530, 400, 1046, 850), (640, 960, 1046), 0, (0, 0), "50% 50%"),
     "contactf": ("bts08", (0, 0, 1900, 1449), (640, 960, 1280, 1600, 1900), 0, (0, 0), "50% 50%"),
     "packagesf": ("bts01", (600, 0, 1976, 1449), (640, 960, 1280, 1600, 1976), 0, (0, 0), "50% 50%"),
-    "wwd01f": ("bts05", (0, 0, 2350, 1449), (640, 960, 1280, 1600, 2000), 0, (0, 0), "50% 50%"),
+    "wwd01f": ("bts05", (0, 0, 2200, 1449), (640, 960, 1280, 1600, 2000), 0, (0, 0), "50% 50%"),
     "wwd02f": ("bts07", (0, 0, 2576, 1449), (640, 960, 1280, 1600, 2000), 0, (0, 0), "50% 50%"),
     "wwd03f": ("bts03", (0, 0, 2576, 1449), (640, 960, 1280, 1600, 2000), 0, (0, 0), "50% 50%"),
     "wwd04f": ("bts10", (0, 800, 1717, 966), (640, 960, 1280, 1717), 0, (0, 0), "50% 50%"),
@@ -3645,7 +3650,7 @@ BTS_POOLS = {
     "wwd01m": ((1080, 1140, 260, 240), (1800, 760, 300, 420)),
     "wwd02": ((990, 330, 280, 320), (1180, 760, 400, 470), (900, 1250, 320, 240), (1980, 900, 320, 380)),
     "wwd02m": ((990, 330, 260, 300), (1360, 400, 240, 240)),
-    "wwd03": ((1440, 850, 220, 280), (1480, 920, 160, 130), (1600, 600, 280, 280), (520, 520, 380, 480)),
+    "wwd03": ((1440, 850, 220, 280), (1480, 920, 160, 130), (1600, 600, 280, 280), (480, 620, 440, 600)),
     "wwd03m": ((1440, 800, 200, 240), (1480, 920, 150, 120)),
     "wwd04": ((450, 1340, 280, 380), (300, 1650, 220, 200)),
     "wwd04m": ((450, 1200, 260, 220),),
@@ -3830,6 +3835,9 @@ def bts_build():
     return man
 
 
+if os.environ.get("HSS_WWD04", "A") == "B":     # What We Do 04, option B (see BTS_WWD04)
+    BTS["wwd04f"] = ("bts06", (1000, 40, 1576, 1000), (640, 960, 1280, 1576), 0, (0, 0), "50% 50%")
+    BTS_POOLS["wwd04f"] = ((1800, 300, 240, 300), (1550, 400, 280, 260), (2340, 420, 240, 300), (1840, 760, 300, 360))
 BTS_MAN = bts_build() if MODE == "web" else {}
 
 # ---- Filling the dead zone around the type (release 42; phase 1 of the owner's review) --------
@@ -3858,10 +3866,11 @@ BTS_BOX = {
     "team": (818, "100% 50%", False),
     "book": (1009, "100% 50%", False),
     "contact": (654, "100% 50%", False),
-    "packages": (509, "100% 45%", False),
-    "wwd01": (666, "0% 35%", True),
+    "packages": (650, "0% 45%", False),     # release 42: right, so the crew member's back is solid
+    # 01 starts at 519: the largest scale that keeps the phone solid past the copy's clearance
+    "wwd01": (519, "0% 46%", True),
     "wwd02": (621, "100% 20%", True),
-    "wwd03": (621, "100% 55%", True),
+    "wwd03": (621, "100% 29%", True),
     "wwd04": (621, "100% 45%", True),
     "foot": (880, "100% 30%", True),
 }
@@ -3871,10 +3880,15 @@ BTS_MS = 3          # one mask pixel per 3 CSS pixels (masks are smooth; files s
 # /team/ and /contact/ are the approved standard: their masks keep the first phase-1 recipe
 # (no story-pool override, wider boundary noise, no anti-wisp curve).
 BTS_KEEP = {"team", "contact"}
+# the far edge's ramp and wander (px), where a placement needs it shorter than (190, 70)
+BTS_FAR = {"wwd01": (95, 40)}
+# What We Do 04 (owner's pick, release 42): "A" bts10, the monitor framing the talker (default);
+# "B" bts06, the rooftop Easyrig operator. Switching re-encodes from the originals.
+BTS_WWD04 = os.environ.get("HSS_WWD04", "A")
 BTS_QUIET = {
     "wwd01": ((0.12, 1.0, 0.42, 0.42),),
     "wwd02": ((0.08, 1.0, 0.36, 0.5),),
-    "wwd03": ((0.06, 1.0, 0.34, 0.55),),
+    "wwd03": ((0.04, 1.0, 0.28, 0.38),),
     "wwd04": ((0.06, 1.0, 0.36, 0.5), (0.04, 0.0, 0.3, 0.4)),
     "foot": ((0.05, 1.0, 0.32, 0.6),),
     # /contact/ (owner: "looks amazing ... just that tiny correction"): only the tripod and
@@ -3882,6 +3896,9 @@ BTS_QUIET = {
     "contact": ((0.14, 0.70, 0.24, 0.2),),
     "packages": ((0.05, 0.62, 0.3, 0.3),),
 }
+if BTS_WWD04 == "B":
+    BTS_BOX["wwd04"] = (621, "100% 22%", True)
+    BTS_QUIET["wwd04"] = ((0.04, 0.0, 0.34, 0.6), (0.05, 1.0, 0.34, 0.45))
 
 
 def _bts_noise(x, y, seed):
@@ -3946,6 +3963,7 @@ def bts_fill_mask(key, out):
     ox, oy = (W14 - cw * sc) * px_, (H - ch * sc) * py
     quiet = [(cx * W14, cy * H, rx * W14, ry * H) for cx, cy, rx, ry in BTS_QUIET.get(key, ())]
     keep = key in BTS_KEEP
+    fe = BTS_FAR.get(key, (190, 70))
     ko = [(W14 - r[2], r[1], W14 - r[0], r[3]) for r in lay["rects"]]          # box coords
     pools = [(ox + (px - x0) * sc, oy + (py_ - y0) * sc, rx * sc, ry * sc) for px, py_, rx, ry in BTS_POOLS.get(fk, BTS_POOLS[key])]
     mw, mh = W19 // BTS_MS + 1, H // BTS_MS + 1
@@ -3974,7 +3992,7 @@ def bts_fill_mask(key, out):
             f = 170 - 80 * pv                                   # longer in quiet areas
             t = (d - (46 if keep else 30) * _bts_noise(X, Y, 1.0)) / f   # the boundary wanders outward
             al = 0.0 if t <= 0 else _bts_ease(1 - min(1.0, t))
-            e = (X + (Y - H / 2) * k - 70 * _bts_noise(X * 0.6, Y, 2.0)) / 190   # wavy far edge
+            e = (X + (Y - H / 2) * k - fe[1] * _bts_noise(X * 0.6, Y, 2.0)) / fe[0]   # wavy far edge
             ae = 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e))
             al = min(al, ae if keep else max(ae, pa))           # the story's people stay solid
             for cx, cy, rx, ry in quiet:                        # quiet corners go back to paper
@@ -4014,7 +4032,7 @@ def bts_fill_mask(key, out):
 BTS_FILL = {}
 BTS_EDGES = {}
 if MODE == "web" and BTS_LAYOUT:
-    _lr = hashlib.sha1(json.dumps([BTS_LAYOUT, BTS_POOLS, BTS_PAD, BTS_TILT, BTS_BOX, BTS_MS, BTS_QUIET, sorted(BTS_KEEP), 12]).encode()).hexdigest()[:12]
+    _lr = hashlib.sha1(json.dumps([BTS_WWD04, BTS_LAYOUT, BTS_POOLS, BTS_PAD, BTS_TILT, BTS_BOX, BTS_MS, BTS_QUIET, sorted(BTS_KEEP), BTS_FAR, 13]).encode()).hexdigest()[:12]
     for _k in BTS_BOX:
         _o = f"{BTS_DIR}/bts-{_k}-fill.png"
         _fk = _k + "f" if _k + "f" in BTS else _k
@@ -4340,7 +4358,7 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
 {nav("packages")}
 
 <main id="main">
-<div class="hero hero-dark">{SPLAT_SVG}{bts_pic("packages", BTS_SIZES["packages"], "bts-hero", hero=True, below=1199)}<div class="wrap">
+<div class="hero hero-dark hero-pkg">{SPLAT_SVG}{bts_pic("packages", BTS_SIZES["packages"], "bts-hero", hero=True, below=1199)}<div class="wrap">
   <p class="eyebrow">Social Media Packages &middot; Home Service Studios</p>
   <h1 class="display">Known and trusted <span class="hl">before they need you.</span></h1>
   <p class="sub">Homeowners call the company they already recognize. That recognition is built
