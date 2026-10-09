@@ -996,7 +996,8 @@ CSS = """<style>
      line 2, and a 45ch lede, so the hero's photo has room right of the type. Below 1280px the
      page is unchanged. */
   @media(min-width:1280px){.hero-pkg h1{font-size:68px;}.hero-pkg .hl{white-space:nowrap;}
-    .hero-pkg .sub{max-width:45ch;}
+    .hero-pkg .sub{max-width:45ch;}}
+  @media(min-width:1280px){/*wwd-p2*/
     /* What We Do 01, 03, 04 (release 42, owner): a 37ch copy measure, so the photo can show the
        people beside it (the owner in 01, Seth in 03, the RED rig in 04) */
     #wwd-social .wwd-copy,#wwd-brand .wwd-copy,#wwd-podcast .wwd-copy{max-width:37ch;}
@@ -4103,12 +4104,14 @@ if MODE == "web" and BTS_LAYOUT:
 # - "edge" (box space, stretched to the box): the organic far edge, the bottom where the photo
 #   meets the next row or the block heading, the story pools and the quiet zones.
 # The box is the zone's height at its crop's own aspect, against the wall: never upscaled.
-# Ranges: phones 320 to 479 (What We Do only), 960 to 1199 (What We Do), 1200 to 1279 (What We
+# Ranges: phones 320 to 479 (What We Do 02 to 04; 01 from 360px, since at 320 the owner and his
+# phone sit under the title and slate clearance), 960 to 1199 (What We Do), 1200 to 1279 (What We
 # Do, the /team/, /book/ and /contact/ heroes, the footer). 480 to 959 shows nothing; /packages/'
 # hero shows from 1280px only (its type below 1280 is unchanged and leaves no room).
 BTS_LAYOUT2 = json.load(open(f"{BTS_DIR}/layout2.json")) if os.path.exists(f"{BTS_DIR}/layout2.json") else {}
 BTS_RANGE = {   # range: (media query, phone?, the crop each placement uses there)
-    "p": ("(max-width: 479px)", True, {"wwd01": "wwd01@p", "wwd02": "wwd02m", "wwd03": "wwd03m", "wwd04": "wwd04m"}),
+    "p": ("(max-width: 479px)", True, {"wwd02": "wwd02m", "wwd03": "wwd03m", "wwd04": "wwd04m"}),
+    "q": ("(min-width: 360px) and (max-width: 479px)", True, {"wwd01": "wwd01@p"}),
     "m": ("(min-width: 960px) and (max-width: 1199px)", False,
           {"wwd01": "wwd01@m", "wwd02": "wwd02@m", "wwd03": "wwd03@m", "wwd04": "wwd04@m"}),
     "t": ("(min-width: 1200px) and (max-width: 1279px)", False,
@@ -4149,23 +4152,31 @@ def bts_p2_masks(rg, key):
     LW = lay["typeW"] + ox
     # clear: type space
     mw, mh = LW // BTS_MS + 1, Hm // BTS_MS + 1
-    ko = [(r[0] + ox, r[1], r[2] + ox, r[3]) for r in lay["rects"]]
+    ko = [(r[0] + ox, r[1], r[2] + ox, r[3]) for r in lay["rects"] if r[3] > 8]
+    ka = [(r[0] + ox, r[1], r[2] + ox, r[3]) for r in lay["rects"] if r[3] <= 8]   # above the zone
+    strip = lay.get("top") is not None                     # 02-04 below 1280: starts in the gap
     vals, inside = [], []
     for j in range(mh):
         Y = j * BTS_MS
         for i in range(mw):
             X = i * BTS_MS
-            d = 1e9
+            d = da = 1e9
             for a_, b_, c_, e_ in ko:
                 dx = max(a_ - BTS_PAD - X, 0, X - (c_ + BTS_PAD))
                 dy = max(b_ - BTS_PAD - Y, 0, Y - (e_ + BTS_PAD))
                 d = min(d, math.hypot(dx, dy))
-            if d <= 0:
+            for a_, b_, c_, e_ in ka:
+                dx = max(a_ - BTS_PAD - X, 0, X - (c_ + BTS_PAD))
+                dy = max(b_ - BTS_PAD - Y, 0, Y - (e_ + BTS_PAD))
+                da = min(da, math.hypot(dx, dy))
+            if d <= 0 or da <= 0:
                 inside.append(j * mw + i)
                 vals.append(0.0)
                 continue
             t = (d - (14 if phone else 26) * _bts_noise(X, Y, 1.0)) / (40 if phone else 150)
             al = 0.0 if t <= 0 else _bts_ease(1 - min(1.0, t))
+            ta = (da - 10 * _bts_noise(X, Y, 5.0)) / 32       # the previous block: a short falloff
+            al = min(al, 0.0 if ta <= 0 else _bts_ease(1 - min(1.0, ta)))
             s_ = 0.0 if al < 0.06 else (al - 0.06) / 0.94
             vals.append(s_ * s_ * (3 - 2 * s_))
     cl = _bts_png(vals, mw, mh, f"{BTS_DIR}/bts-{key}@{rg}-clear.png", clamp=inside)
@@ -4191,6 +4202,9 @@ def bts_p2_masks(rg, key):
             al = max(0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)), pa)
             e = ((Hm - Y) - 0.35 * min(60, 0.2 * Hm) * _bts_noise(X, Y * 0.3, 3.0)) / min(60, 0.2 * Hm)
             al = min(al, 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)))
+            if strip:                                           # a wavy top, in the gap above the block
+                e = (Y - 24 * _bts_noise(X * 1.6, Y * 0.3, 4.0)) / 36
+                al = min(al, 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)))
             for cx, cy, rx, ry in quiet:
                 q = math.hypot((X - cx) / rx, (Y - cy) / ry)
                 if q < 1:
@@ -4217,7 +4231,7 @@ def bts_p2_masks(rg, key):
             a2 = ed[min(eh - 1, int(Y / H * Hm / BTS_MS)) * ew + min(ew - 1, int(X / W * Wb / BTS_MS))]
             worst = min(worst, a1 * a2)
             per.setdefault((px, py_), []).append(round(a1 * a2, 2))
-    BTS_P2[(rg, key)] = {"LW": LW, "Hm": Hm, "ox": ox, "aspect": (cw, ch), "crop": ck,
+    BTS_P2[(rg, key)] = {"LW": LW, "Hm": Hm, "ox": ox, "aspect": (cw, ch), "crop": ck, "top": lay.get("top"),
                          "edges": (hc[0] + he[0], hc[1] + he[1]), "story": round(worst, 2)}
     print(f"  bts: {key}@{rg}: clear {LW}x{Hm}, edge {Wb}x{Hm}, hard edges {hc[0] + he[0]}, "
           f"straight feathers {hc[1] + he[1]}, story alpha per subject (narrow..wide) "
@@ -4228,7 +4242,8 @@ BTS_P2_ON = os.environ.get("HSS_P2", "0") == "1"     # phase 2 ships only when c
 if MODE == "web" and BTS_LAYOUT2 and BTS_P2_ON:
     for _rg, (_mq, _ph, _keys) in BTS_RANGE.items():
         for _k in _keys:
-            bts_p2_masks(_rg, _k)
+            if _k in BTS_LAYOUT2.get(_rg, {}):        # (re-measure with layout42b.mjs after changes)
+                bts_p2_masks(_rg, _k)
 
 
 def _bts_p2_css():
@@ -4240,6 +4255,8 @@ def _bts_p2_css():
     for rg, (mq, phone, keys) in BTS_RANGE.items():
         rules = []
         for k in keys:
+            if (rg, k) not in BTS_P2:
+                continue
             v = BTS_P2[(rg, k)]
             cw, ch = v["aspect"]
             if k.startswith("wwd"):
@@ -4251,6 +4268,10 @@ def _bts_p2_css():
                     geo = (f"font-size:var(--f-mega);top:{top};height:calc({up} + 1em + var(--s3) - 24px);"
                            f"bottom:auto;")
                 else:
+                    if v["top"] is not None:                   # the strip zone: a fixed offset
+                        top = f"{v['top']}px"
+                        wmax = round(v["Hm"] * cw / ch)
+                        rules.append(f"    #{blocks[k]}{{--wwd-line:calc({BTS_WALL} - {wmax}px - 32px);}}\n")
                     geo = f"top:{top};bottom:calc(8px - var(--s6));height:auto;"
                 geo += "right:calc(50% - 50vw);"
             elif k == "foot":
@@ -4356,6 +4377,8 @@ def _bts_css():
 
 
 BTS_CSS = _bts_css() if MODE == "web" else ""
+if BTS_P2_ON:      # phase 2: the What We Do copy and divider rules apply from 960px
+    CSS = CSS.replace("@media(min-width:1280px){/*wwd-p2*/", "@media(min-width:960px){/*wwd-p2*/", 1)
 CSS = CSS.replace("</style>", BTS_CSS + "</style>", 1)
 
 def site_footer(page=""):
