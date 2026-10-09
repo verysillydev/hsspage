@@ -402,7 +402,56 @@ def _face(family, weight, path):
             f"font-display:optional;src:{src};}}")
 
 
-FONT_CSS = "<style>" + "".join(_face(*x) for x in FONT_FILES) + "</style>"
+# Metric-matched fallbacks (release 43c, owner). When a face misses optional's window,
+# the whole view renders in the fallback, and the bare system fallback (Arial Black for
+# Archivo, about 1.41em tall against Archivo's 1.088em) pushed every highlighted H1 line
+# up under the orange box. Each 'X Fallback' face is a local Arial scaled to the web
+# font's average width (size-adjust: English letter frequency weighted advances, from the
+# woff2 against Arial/Arial Bold/Arial Black, fontTools) with the web font's own ascent,
+# descent and line gap (hhea = typo here, USE_TYPO_METRICS is set), so the fallback's line
+# boxes and highlight boxes match the web font's. Overrides are divided by size-adjust
+# because the browser scales them by it. unicode-range is the web font's cmap: a glyph the
+# web font lacks (the arrow) still falls through to the old stack, so nothing changes
+# once the fonts load. Helvetica and Liberation Sans are Arial's metric clones. Archivo
+# 900 has two rules: Arial Bold is defined first, Arial Black last; the last rule is tried
+# first and, where Arial Black is missing (iOS), the browser falls back to the earlier one.
+_METRICS = {"Onest": (970, 305, 0, 1000), "Archivo": (878, 210, 0, 1000)}  # asc, desc, gap, upm
+_URANGE = {
+    "Onest": "U+20-7E,U+A0-A3,U+A5,U+A7-AB,U+AE-B4,U+B6-B8,U+BA-BB,U+BF-FF,U+102,U+131,"
+             "U+152-153,U+2C6,U+2DA,U+2DC,U+300-301,U+303-304,U+308,U+2009,U+2013-2014,"
+             "U+2018-201A,U+201C-201E,U+2022,U+2026,U+2039-203A,U+20AC,U+2122,U+2191,U+2193,U+2212",
+    "Archivo": "U+20-7E,U+A0-FF,U+102,U+131,U+152-153,U+2BC,U+2C6,U+2DA,U+2DC,U+300-301,"
+               "U+303-304,U+308-309,U+323,U+2009,U+2013-2014,U+2018-201A,U+201C-201E,U+2022,"
+               "U+2026,U+2032-2033,U+2039-203A,U+2044,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215",
+}
+_LOCAL = {
+    "regular": "local('Arial'),local('ArialMT'),local('Helvetica'),local('Liberation Sans'),local('LiberationSans')",
+    "bold": ("local('Arial Bold'),local('Arial-BoldMT'),local('Helvetica Bold'),local('Helvetica-Bold'),"
+             "local('Liberation Sans Bold'),local('LiberationSans-Bold')"),
+    "black": "local('Arial Black'),local('Arial-Black')",
+}
+# (family, weight, local source, size-adjust); order matters for Archivo 900, see above.
+# 900 is the H1 weight, so its two values are the mean over the site's H1 strings measured
+# in Chrome with kerning (letter frequency gave .9523 and 1.0981, which wrapped /our-work's
+# H1 differently at 360). Fonts blocked, both give the web font's wrap on all six H1 pages
+# at 320, 360, 390, 430 and 1440 (zero mismatches from .9575 to .97 and 1.105 to 1.111).
+FALLBACK_FACES = [("Onest", 400, "regular", 1.0550), ("Onest", 600, "bold", 0.9966),
+                  ("Onest", 700, "bold", 1.0064),
+                  ("Archivo", 400, "regular", 0.9842), ("Archivo", 700, "bold", 0.9798),
+                  ("Archivo", 900, "bold", 1.1100), ("Archivo", 900, "black", 0.9600)]
+
+
+def _fallback_face(family, weight, source, size):
+    asc, desc, gap, upm = _METRICS[family]
+    pct = lambda v: f"{v * 100:.4f}%"
+    return (f"@font-face{{font-family:'{family} Fallback';font-style:normal;font-weight:{weight};"
+            f"src:{_LOCAL[source]};size-adjust:{pct(size)};ascent-override:{pct(asc / upm / size)};"
+            f"descent-override:{pct(desc / upm / size)};line-gap-override:{pct(gap / upm / size)};"
+            f"unicode-range:{_URANGE[family]};}}")
+
+
+FONT_CSS = ("<style>" + "".join(_face(*x) for x in FONT_FILES)
+            + "".join(_fallback_face(*x) for x in FALLBACK_FACES) + "</style>")
 FONT_PRELOAD = ("".join(f'<link rel="preload" href="/fonts/{os.path.basename(x[2])}" as="font" '
                         f'type="font/woff2" crossorigin>\n' for x in FONT_FILES)
                 if MODE == "web" else "")
@@ -469,7 +518,7 @@ CSS = """<style>
     --mono: var(--display);
     /* Second family, for display and for the big numbers. One typeface across a
        whole site is the tell. */
-    --display: 'Archivo', "Arial Black", Arial, sans-serif;
+    --display: 'Archivo', 'Archivo Fallback', "Arial Black", Arial, sans-serif;
     --ease:.18s cubic-bezier(.2,.6,.3,1);
   }
   *{box-sizing:border-box;}
@@ -492,7 +541,7 @@ CSS = """<style>
      page "tooth" went with the other faux-material textures; footage is the
      only texture on the site now */
   body{margin:0;padding:0;background:var(--ground);color:var(--ink);
-    font:var(--f-lede)/1.62 'Onest',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font:var(--f-lede)/1.62 'Onest','Onest Fallback',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
   .display{font-family:var(--display);font-weight:700;
     letter-spacing:-.018em;line-height:1.06;text-wrap:balance;margin:0;}
@@ -535,7 +584,7 @@ CSS = """<style>
      as inconsistent across pages/viewports even once markup and CSS were
      verified identical. */
   .brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:#FFFFFF;
-    font-family:'Onest',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font-family:'Onest','Onest Fallback',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     font-weight:700;letter-spacing:var(--t-head);font-size:var(--f-sm);white-space:nowrap;}
   .brandmark{height:28px;width:auto;display:block;border-radius:var(--r-sm);flex:none;}
   /* .navright groups everything but the brand (toggle, the link list,
@@ -758,7 +807,7 @@ CSS = """<style>
   .cform input,.cform select,.cform textarea{
     width:100%;background:var(--ground-2);border:1px solid var(--line);
     border-radius:var(--r-sm);padding:13px 14px;color:var(--ink);
-    font:var(--f-body)/1.4 'Onest',-apple-system,sans-serif;min-height:48px;
+    font:var(--f-body)/1.4 'Onest','Onest Fallback',-apple-system,sans-serif;min-height:48px;
     transition:border-color var(--ease),background var(--ease);}
   .cform textarea{min-height:110px;resize:vertical;}
   .cform input:hover,.cform select:hover,.cform textarea:hover{border-color:var(--ink-3);}
@@ -915,7 +964,7 @@ CSS = """<style>
   /* compact Reel wheel from 560px; film only below (80px slot, no room for a reel) */
   .navcta{--d:0px;--bh:0px;background:transparent;color:#FFFFFF !important;
     border-radius:var(--r-pill);padding:0 var(--s3);font-weight:700;text-decoration:none;
-    font-family:'Onest',-apple-system,sans-serif !important;text-transform:none;
+    font-family:'Onest','Onest Fallback',-apple-system,sans-serif !important;text-transform:none;
     font-variant-caps:normal !important;letter-spacing:var(--t-head);font-size:var(--f-sm);
     display:inline-flex;align-items:center;min-height:44px;}
   .navcta .bm-wheel{display:none;}
@@ -1003,6 +1052,14 @@ CSS = """<style>
   .hero-bold .hl{white-space:nowrap;}
   .hero-bold .hl,.hero-dark .hl{background:var(--orange);color:#14171A;padding:.02em .14em;
     box-decoration-break:clone;-webkit-box-decoration-break:clone;}
+  /* release 43c: a flat fill no taller than the line, from the box's bottom up, so a font
+     with a tall ascent cannot push the bar over the line above (its top stays .02em under
+     the line above's text box). In Archivo the box (1.13em) is at least .5px under 1lh from
+     26px up, so the fill overhangs the box and the box's own pixel-snapped edges clip it:
+     the same pixels as the plain fill (a 1px overhang; .5px left a soft edge row). */
+  @supports (background-size:min(100%,1lh)){.hero-bold .hl,.hero-dark .hl{
+    background:linear-gradient(var(--orange),var(--orange)) 50% calc(100% + 1px)/
+      calc(100% + 2px) min(100% + 2px,1lh + 1px) no-repeat;}}
   /* inner pages keep their own --f-hero size; weight, tracking and the 1.18
      line-height (room for the highlight bar) match the homepage */
   .hero-dark h1{font-weight:900;letter-spacing:-.025em;line-height:1.18;}
@@ -1269,7 +1326,7 @@ CSS = """<style>
   .tmn-link{margin-top:var(--s5);}
   /* captions: the site face on a solid scrim, and the sound hint moves to the top
      corner so it never sits on a caption line */
-  .vspot video::cue{font-family:'Onest',-apple-system,sans-serif;color:#fff;
+  .vspot video::cue{font-family:'Onest','Onest Fallback',-apple-system,sans-serif;color:#fff;
     background:rgba(15,18,20,.82);line-height:1.35;}
   .vspot.has-cc .vsnd{top:var(--s2);bottom:auto;}
   .wwd-cap{margin:var(--s3) 0 0;display:flex;justify-content:space-between;align-items:baseline;
@@ -2678,7 +2735,7 @@ CAL_CSS = """<style>
   .calb-pill,.calb-ic{box-shadow:0 6px 20px rgba(20,23,26,.28);}
   .calb-pill{background:var(--calb-bg);border:1px solid #3D444B;transition:background var(--ease);}
   .calb-pill{display:flex;align-items:center;height:40px;margin-right:-26px;padding:0 38px 0 16px;
-    border-radius:var(--r-lg);white-space:nowrap;font:600 var(--f-sm)/1 'Onest',-apple-system,sans-serif;}
+    border-radius:var(--r-lg);white-space:nowrap;font:600 var(--f-sm)/1 'Onest','Onest Fallback',-apple-system,sans-serif;}
   .calb-ic{position:relative;flex:none;width:56px;height:56px;display:flex;align-items:center;
     justify-content:center;border-radius:50%;}
   /* release 41 (owner): the reel is the circle, edge to edge, like the buttons' reel. Its
@@ -5117,7 +5174,7 @@ def _svgn(v):
 
 _SLATE_INK = {"charcoal": "#1E2226", "orange": "#F04820", "white": "#FFFFFF", "rule": "#4B535B",
               "label": "#C9CDD2"}
-_SLATE_FONT = "Archivo, 'Arial Black', Arial, sans-serif"
+_SLATE_FONT = "Archivo, 'Archivo Fallback', 'Arial Black', Arial, sans-serif"
 
 
 # Release 39 (owner: "the orange and white always moving left to right on repeat"): each bar's
