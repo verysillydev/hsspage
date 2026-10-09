@@ -1633,7 +1633,6 @@
   .calb-pill{background:var(--calb-bg);border:1px solid #3D444B;transition:background var(--ease);}
   .calb-pill{display:flex;align-items:center;height:40px;margin-right:-26px;padding:0 38px 0 16px;
     border-radius:var(--r-lg);white-space:nowrap;font:600 var(--f-sm)/1 'Onest',-apple-system,sans-serif;}
-  .calb-s{display:none;}
   .calb-ic{position:relative;flex:none;width:56px;height:56px;display:flex;align-items:center;
     justify-content:center;border-radius:50%;}
   /* release 41 (owner): the reel is the circle, edge to edge, like the buttons' reel. Its
@@ -1654,7 +1653,6 @@
     .calb-ic{width:48px;height:48px;}
     body:has(> .calb:not([hidden])),body.calb-on{padding-bottom:calc(134px + env(safe-area-inset-bottom));}
   }
-  @media(max-width:359px){.calb-l{display:none;}.calb-s{display:inline;}}
   .cal{position:fixed;inset:auto 24px 92px auto;margin:0;padding:0;
     width:min(392px,calc(100vw - 48px));max-width:none;max-height:min(80vh,calc(100vh - 116px));
     border:1px solid #33383D;border-radius:var(--r-lg);color:#FFFFFF;overflow:hidden;
@@ -1744,18 +1742,16 @@
     where: 'Add your website or at least one social account, so we know where to look.'};
   function sget(k){ try { return sessionStorage.getItem(k) || mem[k]; } catch(e){ return mem[k]; } }
   function sset(k){ mem[k] = '1'; try { sessionStorage.setItem(k, '1'); } catch(e){} }
-  /* the accessible name always contains the visible label: "Free audit" below 360px */
-  var narrow = matchMedia('(max-width: 359px)');
+  /* the accessible name always contains the visible label ("Free social audit") */
   function name(){
     if(!bub) return;
     var done = bub.classList.contains('is-done');
-    bub.setAttribute('aria-label', (done ? 'Audit requested. ' : (narrow.matches ? 'Free audit: ' : ''))
-      + (narrow.matches && !done ? 'get' : 'Get') + ' a free social audit and content calendar');
+    bub.setAttribute('aria-label', (done ? 'Audit requested. ' : '') + 'Get a free social audit and content calendar');
   }
   function requested(){
     if(!bub || bub.classList.contains('is-done')) return;
     bub.classList.add('is-done');
-    [].forEach.call(bub.querySelectorAll('.calb-l, .calb-s'), function(e){ e.textContent = 'Audit requested'; });
+    [].forEach.call(bub.querySelectorAll('.calb-l'), function(e){ e.textContent = 'Audit requested'; });
     name();
   }
   if(bub){
@@ -1763,7 +1759,6 @@
     document.body.classList.add('calb-on');
     if(sget('hss-audit')) requested();
     name();
-    if(narrow.addEventListener) narrow.addEventListener('change', name);
   }
   function open(from){
     if(d.open) return;
