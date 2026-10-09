@@ -1002,8 +1002,8 @@ CSS = """<style>
     #wwd-social .wwd-copy,#wwd-brand .wwd-copy,#wwd-podcast .wwd-copy{max-width:37ch;}
     /* 02 to 04: the photo rises through the gap above its block, so the divider fades out just
        before it on the photo's side (the spacing is unchanged) */
-    .wwd-block + .wwd-block{position:relative;border-top:0;padding-top:calc(var(--s7) + 1px);}
-    .wwd-block + .wwd-block::before{content:"";position:absolute;top:0;left:0;height:1px;
+    section.wwd .wwd-block + .wwd-block{position:relative;border-top:0;padding-top:calc(var(--s7) + 1px);}
+    section.wwd .wwd-block + .wwd-block::before{content:"";position:absolute;top:0;left:0;height:1px;
       width:var(--wwd-line,100%);background:linear-gradient(to right,var(--line) calc(100% - 72px),transparent);}
     #wwd-commercial{--wwd-line:420px;}#wwd-brand,#wwd-podcast{--wwd-line:360px;}}
   /* 01 from 1680px: the wider box crops the photo vertically; frame higher so the camera
@@ -3996,7 +3996,8 @@ def bts_fill_mask(key, out):
     quiet = [(cx * W14, cy * H, rx * W14, ry * H) for cx, cy, rx, ry in BTS_QUIET.get(key, ())]
     keep = key in BTS_KEEP
     fe = BTS_FAR.get(key, (190, 70))
-    ko = [(W14 - r[2], r[1], W14 - r[0], r[3]) for r in lay["rects"]]          # box coords
+    ko = [(W14 - r[2], r[1], W14 - r[0], r[3]) for r in lay["rects"] if r[3] > 8]   # box coords
+    ka = [(W14 - r[2], r[1], W14 - r[0], r[3]) for r in lay["rects"] if r[3] <= 8]  # above the zone
     pools = [(ox + (px - x0) * sc, oy + (py_ - y0) * sc, rx * sc, ry * sc) for px, py_, rx, ry in BTS_POOLS.get(fk, BTS_POOLS[key])]
     mw, mh = W19 // BTS_MS + 1, H // BTS_MS + 1
     k = math.tan(math.radians(BTS_TILT))
@@ -4007,10 +4008,14 @@ def bts_fill_mask(key, out):
         for i in range(mw):
             X = i * BTS_MS
             d = 1e9
-            for a_, b_, c_, e_ in ko:
+            for a_, b_, c_, e_ in ko + ka:
                 dx = max(a_ - BTS_PAD - X, 0, X - (c_ + BTS_PAD))
                 dy = max(b_ - BTS_PAD - Y, 0, Y - (e_ + BTS_PAD))
-                d = min(d, math.hypot(dx, dy))
+                if (a_, b_, c_, e_) in ka and dx == 0 and dy == 0:
+                    d = 0
+                    break
+                if (a_, b_, c_, e_) not in ka:
+                    d = min(d, math.hypot(dx, dy))
             pv = pa = 0.0
             for cx, cy, rx, ry in pools:
                 q = math.hypot((X - cx) / rx, (Y - cy) / ry)
@@ -4024,6 +4029,11 @@ def bts_fill_mask(key, out):
             f = 170 - 80 * pv                                   # longer in quiet areas
             t = (d - (46 if keep else 30) * _bts_noise(X, Y, 1.0)) / f   # the boundary wanders outward
             al = 0.0 if t <= 0 else _bts_ease(1 - min(1.0, t))
+            if ka:                                              # the previous block: a short falloff
+                da = min(math.hypot(max(a_ - BTS_PAD - X, 0, X - (c_ + BTS_PAD)),
+                                    max(b_ - BTS_PAD - Y, 0, Y - (e_ + BTS_PAD))) for a_, b_, c_, e_ in ka)
+                ta = (da - 10 * _bts_noise(X, Y, 5.0)) / 32
+                al = min(al, 0.0 if ta <= 0 else _bts_ease(1 - min(1.0, ta)))
             e = (X + (Y - H / 2) * k - fe[1] * _bts_noise(X * 0.6, Y, 2.0)) / fe[0]   # wavy far edge
             ae = 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e))
             al = min(al, ae if keep else max(ae, pa))           # the story's people stay solid
@@ -4032,7 +4042,7 @@ def bts_fill_mask(key, out):
                 if q < 1:
                     al *= 1 - _bts_ease(q)
             if topf:                                            # wavy top: 0 at the zone's start
-                e = (Y - 22 * _bts_noise(X, Y * 0.3, 4.0)) / 56
+                e = (Y - 24 * _bts_noise(X * 1.6, Y * 0.3, 4.0)) / 36
                 al = min(al, 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)))
             if bottom:                                          # wavy bottom: 0 at the zone's end
                 e = ((H - Y) - 26 * _bts_noise(X, Y * 0.3, 3.0)) / 64
@@ -4067,7 +4077,7 @@ def bts_fill_mask(key, out):
 BTS_FILL = {}
 BTS_EDGES = {}
 if MODE == "web" and BTS_LAYOUT:
-    _lr = hashlib.sha1(json.dumps([BTS_WWD04, BTS_LAYOUT, BTS_POOLS, BTS_PAD, BTS_TILT, BTS_BOX, BTS_MS, BTS_QUIET, sorted(BTS_KEEP), BTS_FAR, 14]).encode()).hexdigest()[:12]
+    _lr = hashlib.sha1(json.dumps([BTS_WWD04, BTS_LAYOUT, BTS_POOLS, BTS_PAD, BTS_TILT, BTS_BOX, BTS_MS, BTS_QUIET, sorted(BTS_KEEP), BTS_FAR, 16]).encode()).hexdigest()[:12]
     for _k in BTS_BOX:
         _o = f"{BTS_DIR}/bts-{_k}-fill.png"
         _fk = _k + "f" if _k + "f" in BTS else _k
