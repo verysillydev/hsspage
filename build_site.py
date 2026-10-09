@@ -930,6 +930,12 @@ CSS = """<style>
      brand set in Onest, so the right group overflowed into the page padding
      and moved when the font arrived; a tighter gap and CTA padding make it fit */
   @media(max-width:559px){.navin{gap:var(--s2);} .navcta{padding:0 var(--s3);}}
+  /* below 360px (release 43) the row needs about 338px of a 272px content box: the mark (58px),
+     the wordmark (138px at 13.5px), the toggle and the Book button. Tighter gaps and padding save
+     at most about 34px, and the wordmark already sits under 15px, so it is clipped instead: the
+     brand link keeps only its 58px mark. The text stays rendered (overflow clips it), so the
+     link's accessible name is still "Home Service Studios". Nothing changes from 360px. */
+  @media(max-width:359px){.brand{flex:none;width:58px;overflow:hidden;}}
   /* On a slow connection the browser can paint while the nav's HTML is only
      half parsed (the toggle in, the CTA not yet), and the right-aligned group
      then grew leftwards when the CTA arrived: a 0.0016 shift on throttled
