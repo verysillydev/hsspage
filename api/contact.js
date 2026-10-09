@@ -26,8 +26,8 @@ const TRADES = [
 // must stay identical to the bands build_site.py builds from data/packages.json
 // (budgetBands); the build asserts it, since a mismatch bounces real enquiries
 const BUDGETS = [
-  "$1,997 to $3,847", "$5,847 to $7,847",
-  "$10,847 to $13,847", "Not sure yet",
+  "$1,997 to $2,497", "$4,497 to $6,497",
+  "$9,497 to $12,497", "Not sure yet",
 ];
 
 const esc = (s) =>

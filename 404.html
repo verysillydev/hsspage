@@ -1110,6 +1110,11 @@
   .pkg .price{font-size:var(--f-price);font-weight:700;letter-spacing:-.035em;
     color:var(--orange-text);font-family:var(--mono);line-height:1;}
   .pkg .per{font-size:var(--f-sm);color:var(--ink-3);}
+  /* 2026-10-09 (owner): the travel note under a price. --ink-2, not --ink-3, so it
+     reads clearly: 7.8:1 on the white card, 7.1:1 on --ground-2. On a card it sits
+     --s2 under the price line instead of the card's --s4 gap. */
+  .travelnote{margin:0;font-size:var(--f-sm);color:var(--ink-2);line-height:1.45;text-wrap:pretty;}
+  .pkg .travelnote{margin-top:calc(var(--s2) * -1);}
   .pkg ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--s3);}
   .pkg li{font-size:var(--f-body);color:var(--ink-2);padding-left:22px;position:relative;
     line-height:1.5;}
