@@ -4257,7 +4257,9 @@ BTS_RANGE = {   # range: (media query, phone?, the crop each placement uses ther
     "x": ("(min-width: 430px) and (max-width: 479px)", True, {"wwd02": "wwd02@p"}),
     "r": ("(max-width: 389px)", True, {"wwd03": "wwd03@r"}),
     "s": ("(min-width: 390px) and (max-width: 479px)", True, {"wwd03": "wwd03@p"}),
-    "q": ("(max-width: 479px)", True, {"wwd01": "wwd01@p"}),     # 01: a box that grows with the screen
+    # 01: a box that grows with the screen; off below 360px (at 320 it read as a stray thumbnail).
+    # Its layout (bts/layout2.json "q") still includes the 320px measurement, so 360px+ is unchanged.
+    "q": ("(min-width: 360px) and (max-width: 479px)", True, {"wwd01": "wwd01@p"}),
     "m": ("(min-width: 960px) and (max-width: 1199px)", False,
           {"wwd01": "wwd01@m", "wwd02": "wwd02@m", "wwd03": "wwd03@m", "wwd04": "wwd04@m"}),
     "t": ("(min-width: 1200px) and (max-width: 1279px)", False,

@@ -1420,7 +1420,8 @@ which every change must pass:
         - The divider under 02 and 04 runs to about 15% into the photo box and fades out there.
         - 01 (`wwd01@p`, bts05 0,0,1300,1449): one box from the section top, width
           `min(100vw - 234px, 215px)` (`BTS_P2_W01`), so Yoni's head stays right of "What We Do".
-          It now shows from 320px. Yoni's head, the phone in his hands and the operator are in.
+          It shows from 360px; below that it is off, as before release 44 (at 320 the box was
+          about 75px wide). Yoni's head, the phone in his hands and the operator are in.
           The tech in blue is not: he stands beyond the operator in bts05, 2060px from Yoni's head.
         - 02 (bts07, rows 0 to 1150): Zach, the RED's top monitor, body and matte box. The crop's
           right edge is set per range so his head, and the box edge, stay clear of the slate:
