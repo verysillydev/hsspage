@@ -1490,6 +1490,11 @@ CSS = """<style>
   .pkg .price{font-size:var(--f-price);font-weight:700;letter-spacing:-.035em;
     color:var(--orange-text);font-family:var(--mono);line-height:1;}
   .pkg .per{font-size:var(--f-sm);color:var(--ink-3);}
+  /* 2026-10-09 (owner): the travel note under a price. --ink-2, not --ink-3, so it
+     reads clearly: 7.8:1 on the white card, 7.1:1 on --ground-2. On a card it sits
+     --s2 under the price line instead of the card's --s4 gap. */
+  .travelnote{margin:0;font-size:var(--f-sm);color:var(--ink-2);line-height:1.45;text-wrap:pretty;}
+  .pkg .travelnote{margin-top:calc(var(--s2) * -1);}
   .pkg ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--s3);}
   .pkg li{font-size:var(--f-body);color:var(--ink-2);padding-left:22px;position:relative;
     line-height:1.5;}
@@ -4668,6 +4673,17 @@ PRICE_MIN = min(t["price"] for t in PKG["tiers"])
 PRICE_MAX = max(t["price"] for t in PKG["tiers"])
 PROGRAMS_WORD = num_word(len(PKG["tiers"]))
 
+# 2026-10-09 (owner): prices no longer include an average travel cost, so travel is
+# billed separately on every tier with production days (travelExtra in the json).
+# The sentence lives in packages.json once and renders under each such card's price,
+# and once in any other block that shows one of those prices. Never type it here.
+TRAVEL_NOTE = PKG["travelNote"]
+TRAVEL_TIERS = [t["id"] for t in PKG["tiers"] if t.get("travelExtra")]
+assert TRAVEL_NOTE and TRAVEL_TIERS, "packages.json: travelNote and travelExtra tiers expected"
+assert not min(PKG["tiers"], key=lambda t: t["price"]).get("travelExtra"), (
+    "PRICE_MIN is quoted with no travel note (meta, OG card), so the cheapest tier must not "
+    "carry travel")
+
 
 def pkg_card(tid):
     """One tier card. The ad budget line is written from the tier's adSpend number,
@@ -4686,7 +4702,8 @@ def pkg_card(tid):
             f'<span class="pname">{c["tagline"]}</span>'
             f'<div class="priceline"><span class="price">{money(c["price"])}</span>'
             f'<span class="per">per month</span></div>'
-            f'<ul>{lis}</ul>'
+            + (f'<p class="travelnote">{TRAVEL_NOTE}</p>' if c.get("travelExtra") else '')
+            + f'<ul>{lis}</ul>'
             + (f'<div class="shoot">{c["camera"]}</div>' if c.get("camera") else '')
             + '</div>')
 
@@ -4794,8 +4811,8 @@ PACKAGES_HTML = f"""<title>Social Media Packages</title>
   <div class="always">
     <h2>The same three things happen at every tier</h2>
     <p class="sub2">The packages differ in how often our crew is on site, how much goes out and
-    the ad budget we manage. Everything here is included whether you invest {money(PRICE_MIN)} or
-    {money(PRICE_MAX)}.</p>
+    the ad budget we manage. The three steps below are included whether you invest
+    {money(PRICE_MIN)} or {money(PRICE_MAX)}. {TRAVEL_NOTE}</p>
     <div class="steps">
       <div class="step2"><span>Step 01</span><h3>Planned</h3>
         <p>Our team decides what goes out and when, so nobody at your company has to
@@ -5561,6 +5578,10 @@ assert _api_trades == TRADES, "api_contact.js TRADES must match TRADE_GROUPS: " 
 BUDGETS = ([(f"{money(TIER[a]['price'])} to {money(TIER[b]['price'])}",
              f"{TIER[a]['name']} and {TIER[b]['name']}") for a, b in PKG["budgetBands"]]
            + [("Not sure yet", "")])
+# The bands quote travel-tier prices, so the fieldset carries the travel note once.
+BUDGET_TRAVEL = (
+    f'<p class="travelnote" id="budget-travel">{TRAVEL_NOTE}</p>'
+    if any(TIER[x].get("travelExtra") for band in PKG["budgetBands"] for x in band) else "")
 _api_budgets = re.findall(r'"([^"]*)"', re.search(
     r"const BUDGETS = \[(.*?)\];", pathlib.Path(f"{S}/api_contact.js").read_text(), re.S).group(1))
 assert _api_budgets == [v for v, _ in BUDGETS], (
@@ -5613,11 +5634,12 @@ def enquiry_form():
            hint="If you would rather we called")}
   </div>
 
-  <fieldset class="fld budgets">
+  <fieldset class="fld budgets"{' aria-describedby="budget-travel"' if BUDGET_TRAVEL else ''}>
     <legend>Roughly what you can spend a month</legend>
     <span class="fhint">Nobody is held to this. It tells us which packages are
     worth talking about.</span>
     <div class="budgetrow">{budgets}</div>
+    {BUDGET_TRAVEL}
     <span class="ferr" id="e-budget" role="alert"></span>
   </fieldset>
 
@@ -6263,8 +6285,10 @@ _OFFERS = ",".join(
     '"priceCurrency":%s,"availability":"https://schema.org/InStock",'
     '"priceSpecification":{"@type":"UnitPriceSpecification","price":"%d",'
     '"priceCurrency":%s,"unitCode":"MON","billingIncrement":"1"}}'
-    % (json.dumps(t["name"]), json.dumps(t["tagline"]), t["price"],
-       json.dumps(PKG["currency"]), t["price"], json.dumps(PKG["currency"]))
+    % (json.dumps(t["name"]),
+       # 2026-10-09: a travel tier's price in a search result says travel is extra
+       json.dumps(t["tagline"] + (". " + PKG["travelNoteShort"] if t.get("travelExtra") else "")),
+       t["price"], json.dumps(PKG["currency"]), t["price"], json.dumps(PKG["currency"]))
     for t in PKG["tiers"])
 
 JSON_LD = (
@@ -6384,6 +6408,8 @@ if MODE == "web":
                    url=f"{SITE}/our-work/", extra_head=WORK_LD)
 
     packages = validate(PACKAGES_HTML, "packages")
+    assert packages.count(f'<p class="travelnote">{TRAVEL_NOTE}</p>') == len(TRAVEL_TIERS), (
+        "packages: every travelExtra card carries the travel note under its price")
     D2 = ("Social Media Packages from Home Service Studios: a reel every "
           "weekday, graphics every weekend and stories across your platforms, from "
           f"{money(PRICE_MIN)} a month.")

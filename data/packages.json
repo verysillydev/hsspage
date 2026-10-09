@@ -1,7 +1,9 @@
 {
   "currency": "USD",
   "billing": "month",
-  "_note": "Single source of truth. build_site.py renders every price from here (tier cards, the homepage ladder, the /contact budget bands, the /packages meta description, JSON-LD offers) and asserts no price string appears in a template. Price book: the owners' pitch deck 'Portfolio 2025' (filed as Social Media Travel Pricing), confirmed by the owners on 2026-10-06. Silver carries the only recommended badge: the owner confirmed on 2026-10-06 that most home service companies choose Silver (replaces the 2026-08-18 note that named the old Platinum). Bronze and Gold list what they add to Starter and Silver rather than repeating every line (2026-10-06, to shorten /packages on phones); the meaning is the deck's. adSpend is the dedicated monthly ad budget the tier includes, which our team manages; the build writes its feature line from this number. budgetBands pairs tiers for the /contact radios; api_contact.js BUDGETS must hold the same strings (the build asserts it).",
+  "_note": "Single source of truth. build_site.py renders every price from here (tier cards, the homepage ladder, the /contact budget bands, the /packages meta description, JSON-LD offers) and asserts no price string appears in a template. Price book: the owners' pitch deck 'Portfolio 2025' (filed as Social Media Travel Pricing), confirmed by the owners on 2026-10-06. Silver carries the only recommended badge: the owner confirmed on 2026-10-06 that most home service companies choose Silver (replaces the 2026-08-18 note that named the old Platinum). Bronze and Gold list what they add to Starter and Silver rather than repeating every line (2026-10-06, to shorten /packages on phones); the meaning is the deck's. adSpend is the dedicated monthly ad budget the tier includes, which our team manages; the build writes its feature line from this number. budgetBands pairs tiers for the /contact radios; api_contact.js BUDGETS must hold the same strings (the build asserts it). 2026-10-09, owner: prices no longer include an average travel cost. $1,350 removed from Starter through Platinum. Travel is billed separately at current market rates. Baby Steps unchanged (no travel). travelNote holds that sentence once; the build renders it under the price of every tier with travelExtra, once in any other block that shows such a price, and adds travelNoteShort to those tiers' JSON-LD Offer descriptions.",
+  "travelNote": "Travel is billed separately at current market rates.",
+  "travelNoteShort": "Travel billed separately.",
   "groups": [
     {
       "id": "you-supply",
@@ -65,8 +67,9 @@
       "id": "starter",
       "name": "Starter",
       "tagline": "Two production days a year",
-      "price": 3847,
+      "price": 2497,
       "adSpend": 150,
+      "travelExtra": true,
       "features": [
         "One reel every weekday, Monday to Friday",
         "Graphics posts on Saturday and Sunday",
@@ -78,8 +81,9 @@
       "id": "bronze",
       "name": "Bronze",
       "tagline": "Starter with a bigger ad budget",
-      "price": 5847,
+      "price": 4497,
       "adSpend": 300,
+      "travelExtra": true,
       "features": [
         "Everything in Starter, with a bigger ad budget"
       ],
@@ -89,8 +93,9 @@
       "id": "silver",
       "name": "Silver",
       "tagline": "Four production days a year",
-      "price": 7847,
+      "price": 6497,
       "adSpend": 450,
+      "travelExtra": true,
       "features": [
         "One reel every weekday, Monday to Friday",
         "Graphics posts on Saturday and Sunday",
@@ -104,8 +109,9 @@
       "id": "gold",
       "name": "Gold",
       "tagline": "Two reels every weekday",
-      "price": 10847,
+      "price": 9497,
       "adSpend": 600,
+      "travelExtra": true,
       "features": [
         "Everything in Silver, with two reels every weekday instead of one",
         "A dedicated engager answering your comments and messages"
@@ -116,8 +122,9 @@
       "id": "platinum",
       "name": "Platinum",
       "tagline": "Gold plus a YouTube video a month",
-      "price": 13847,
+      "price": 12497,
       "adSpend": 750,
+      "travelExtra": true,
       "features": [
         "Everything in Gold",
         "One long-form YouTube anchor video every month"
