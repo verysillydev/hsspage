@@ -1366,6 +1366,22 @@ which every change must pass:
     - /packages/ from 1280px: the H1 is 68px with "before they need you." whole on line 2
       (`.hero-pkg .hl{nowrap}`), and the lede is 45ch. The photo moves right (box at 650,
       left-aligned) so the crew member's back is solid. Below 1280px the page is unchanged.
+  - **Owner insert (release 42):**
+    - **The people are named.** The curly-haired phone shooter in bts05 is the owner, and the
+      navy-cap crew member in bts03 is Seth, a cofounder. They must read as whole, solid
+      people.
+    - **What We Do 01, 03 and 04 from 1280px:** a 37ch copy measure, so the photo reaches the
+      owner's lines; the boxes start at 500 (01) and 560 (03, 04).
+    - **01 from 1680px:** a wider crop (`wwd01w`), because the box is wider than 2:1 there.
+    - **04 is option B by default** (bts06, the rooftop Easyrig operator, the RED rig and the
+      client); bts10 is in reserve (`HSS_WWD04=A`).
+    - **02 to 04:** each photo rises through the gap above its block, starting 24px below the
+      previous block's media row with a wavy top fade. The divider becomes a gradient that fades
+      out just before the photo (`--wwd-line`). The spacing is unchanged.
+    - **The heroes, 01 and the footer have no such strip:** they start at a band or section edge.
+  - **Phase 2 (phones 320 to 479; 960 to 1279):** built behind `HSS_P2=1` and not shipped until
+    complete. It uses two mask layers per placement and range: a type-space clearance mask from
+    `bts/layout2.json` (`tools/layout42b.mjs`), and a box-space organic edge mask.
   - **The approved two keep their first recipe.** /team/ and /contact/ are in `BTS_KEEP`; /contact/
     adds only its tripod pocket quiet zone (owner, release 42).
   - **`bts_edge_check()` runs on every mask in the build.** It flags a 40px run that changes by

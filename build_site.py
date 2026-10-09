@@ -996,7 +996,19 @@ CSS = """<style>
      line 2, and a 45ch lede, so the hero's photo has room right of the type. Below 1280px the
      page is unchanged. */
   @media(min-width:1280px){.hero-pkg h1{font-size:68px;}.hero-pkg .hl{white-space:nowrap;}
-    .hero-pkg .sub{max-width:45ch;}}
+    .hero-pkg .sub{max-width:45ch;}
+    /* What We Do 01, 03, 04 (release 42, owner): a 37ch copy measure, so the photo can show the
+       people beside it (the owner in 01, Seth in 03, the RED rig in 04) */
+    #wwd-social .wwd-copy,#wwd-brand .wwd-copy,#wwd-podcast .wwd-copy{max-width:37ch;}
+    /* 02 to 04: the photo rises through the gap above its block, so the divider fades out just
+       before it on the photo's side (the spacing is unchanged) */
+    .wwd-block + .wwd-block{position:relative;border-top:0;padding-top:calc(var(--s7) + 1px);}
+    .wwd-block + .wwd-block::before{content:"";position:absolute;top:0;left:0;height:1px;
+      width:var(--wwd-line,100%);background:linear-gradient(to right,var(--line) calc(100% - 72px),transparent);}
+    #wwd-commercial{--wwd-line:420px;}#wwd-brand,#wwd-podcast{--wwd-line:360px;}}
+  /* 01 from 1680px: the wider box crops the photo vertically; frame higher so the camera
+     operator's face stays in, with the owner and his phone */
+  @media(min-width:1680px){section#what-we-do #wwd-social .wwd-head > .bts img{object-position:0% 50%;}}
 
   /* Homepage hero (release 10, owner, 2026-10-06): a self-hosted silent film that
      COVERS the whole hero box at every size, object-fit:cover and centred, with
@@ -3637,6 +3649,17 @@ BTS = {
     "wwd03f": ("bts03", (0, 0, 2576, 1449), (640, 960, 1280, 1600, 2000), 0, (0, 0), "50% 50%"),
     "wwd04f": ("bts10", (0, 800, 1717, 966), (640, 960, 1280, 1717), 0, (0, 0), "50% 50%"),
     "footf": ("bts11", (0, 0, 2576, 1449), (640, 960, 1280, 1600), 0, (0, 0), "50% 50%"),
+    # phase 2 range crops ("@p" phones 320 to 479, "@m" 960 to 1199, "@t" 1200 to 1279): each ends
+    # where its story must sit beside the type at that range's narrowest width
+    # 01 from 1680px: the box is wider than 2:1 there, so a wider crop keeps the camera operator's
+    # face, the owner's head and phone, and the tech together
+    "wwd01w": ("bts05", (0, 150, 2576, 1170), (1280, 1600, 2000, 2576), 0, (0, 0), "0% 50%"),
+    "wwd01@p": ("bts05", (220, 420, 1830, 892), (480, 720, 1080, 1440), 0, (0, 0), "50% 50%"),
+    "wwd01@m": ("bts05", (0, 0, 1500, 1449), (640, 960, 1280, 1500), 0, (0, 0), "50% 50%"),
+    "wwd02@m": ("bts07", (0, 0, 1800, 1449), (640, 960, 1280), 0, (0, 0), "50% 50%"),
+    "wwd03@m": ("bts03", (0, 0, 2100, 1449), (640, 960, 1280), 0, (0, 0), "50% 50%"),
+    "wwd04@m": ("bts10", (0, 800, 1000, 966), (640, 960, 1000), 0, (0, 0), "50% 50%"),
+    "wwd04@t": ("bts10", (0, 800, 1300, 966), (640, 960, 1280, 1300), 0, (0, 0), "50% 50%"),
 }
 # Subjects per crop, in source px (centre x, y, radius x, y): the custom mask keeps them opaque and
 # bulges its fade boundary out around them; quiet areas (sky, stucco, wall, shadow) fade sooner.
@@ -3646,11 +3669,12 @@ BTS_POOLS = {
     "bookf": ((2020, 920, 440, 380), (1700, 560, 220, 320)),
     "contact": ((1050, 950, 240, 360), (1160, 1110, 400, 220), (470, 500, 240, 200)),
     "packages": ((2120, 650, 320, 620), (1420, 720, 280, 520)),
-    "wwd01": ((1080, 1150, 240, 240), (1140, 480, 280, 220), (1840, 900, 320, 580), (690, 560, 420, 520)),
+    "wwd01": ((1080, 1150, 240, 240), (1140, 480, 280, 220), (1840, 900, 320, 580), (690, 560, 420, 520),
+              (450, 1050, 400, 470)),
     "wwd01m": ((1080, 1140, 260, 240), (1800, 760, 300, 420)),
     "wwd02": ((990, 330, 280, 320), (1180, 760, 400, 470), (900, 1250, 320, 240), (1980, 900, 320, 380)),
     "wwd02m": ((990, 330, 260, 300), (1360, 400, 240, 240)),
-    "wwd03": ((1440, 850, 220, 280), (1480, 920, 160, 130), (1600, 600, 280, 280), (480, 620, 440, 600)),
+    "wwd03": ((1440, 850, 220, 280), (1480, 920, 160, 130), (1600, 600, 280, 280), (480, 760, 480, 760)),
     "wwd03m": ((1440, 800, 200, 240), (1480, 920, 150, 120)),
     "wwd04": ((450, 1340, 280, 380), (300, 1650, 220, 200)),
     "wwd04m": ((450, 1200, 260, 220),),
@@ -3812,7 +3836,7 @@ def bts_build():
         man[key] = {"recipe": rh, "src": src, "sizes": sizes}
         print(f"  bts: encoded {key} from {src} ({len(widths)} widths)")
     for key in BTS:
-        if key.endswith("f") and key[:-1] in BTS:
+        if "@" in key or (key[-1] in "fw" and key[:-1] in BTS):
             continue
         mr = _bts_mask_recipe(key)
         if man[key].get("mask") != mr or not os.path.exists(f"{BTS_DIR}/bts-{key}-mask.png"):
@@ -3822,8 +3846,9 @@ def bts_build():
     for k in [k for k in man if k not in BTS]:
         del man[k]
     want = ({f"bts-{k}-{w}.{e}" for k in BTS for w in BTS[k][2] for e in ("avif", "webp")}
-            | {f"bts-{k}-mask.png" for k in BTS if not (k.endswith("f") and k[:-1] in BTS)}
-            | {f"bts-{k}-fill.png" for k in BTS})
+            | {f"bts-{k}-mask.png" for k in BTS if not ("@" in k or (k[-1] in "fw" and k[:-1] in BTS))}
+            | {f"bts-{k}-fill.png" for k in BTS}
+            | {f"bts-{k}@{rg}-{t}.png" for rg in "pmt" for k in BTS for t in ("clear", "edge")})
     for n in os.listdir(BTS_DIR):
         if n.startswith("bts-") and n not in want:
             os.remove(f"{BTS_DIR}/{n}")
@@ -3835,9 +3860,13 @@ def bts_build():
     return man
 
 
-if os.environ.get("HSS_WWD04", "A") == "B":     # What We Do 04, option B (see BTS_WWD04)
+if os.environ.get("HSS_WWD04", "B") == "B":     # What We Do 04, option B (see BTS_WWD04)
     BTS["wwd04f"] = ("bts06", (1000, 40, 1576, 1000), (640, 960, 1280, 1576), 0, (0, 0), "50% 50%")
-    BTS_POOLS["wwd04f"] = ((1800, 300, 240, 300), (1550, 400, 280, 260), (2340, 420, 240, 300), (1840, 760, 300, 360))
+    BTS["wwd04@t"] = BTS["wwd04f"]
+    BTS["wwd04@m"] = ("bts06", (1000, 40, 1100, 1000), (640, 960, 1100), 0, (0, 0), "50% 50%")
+    BTS["wwd04m"] = ("bts06", (1000, 120, 1080, 416), (480, 720, 1020), 72, (8, 8), "100% 50%")
+    BTS_POOLS["wwd04f"] = ((1800, 300, 240, 300), (1550, 400, 280, 260), (2340, 420, 240, 300), (1840, 760, 300, 360),
+                           (1440, 360, 300, 260))
 BTS_MAN = bts_build() if MODE == "web" else {}
 
 # ---- Filling the dead zone around the type (release 42; phase 1 of the owner's review) --------
@@ -3868,9 +3897,10 @@ BTS_BOX = {
     "contact": (654, "100% 50%", False),
     "packages": (650, "0% 45%", False),     # release 42: right, so the crew member's back is solid
     # 01 starts at 519: the largest scale that keeps the phone solid past the copy's clearance
-    "wwd01": (519, "0% 46%", True),
+    # 01: the owner (the curly-haired phone shooter) whole, his head, back and phone; 37ch copy
+    "wwd01": (500, "0% 52%", True),
     "wwd02": (621, "100% 20%", True),
-    "wwd03": (621, "100% 29%", True),
+    "wwd03": (560, "100% 41%", True),       # Seth, a cofounder, as a whole figure; 37ch copy
     "wwd04": (621, "100% 45%", True),
     "foot": (880, "100% 30%", True),
 }
@@ -3882,13 +3912,14 @@ BTS_MS = 3          # one mask pixel per 3 CSS pixels (masks are smooth; files s
 BTS_KEEP = {"team", "contact"}
 # the far edge's ramp and wander (px), where a placement needs it shorter than (190, 70)
 BTS_FAR = {"wwd01": (95, 40)}
-# What We Do 04 (owner's pick, release 42): "A" bts10, the monitor framing the talker (default);
-# "B" bts06, the rooftop Easyrig operator. Switching re-encodes from the originals.
-BTS_WWD04 = os.environ.get("HSS_WWD04", "A")
+# What We Do 04 (owner's pick, release 42): "B" bts06, the rooftop Easyrig operator and the client
+# (the default); "A" bts10, the monitor framing the talker (reserve, HSS_WWD04=A). Switching
+# re-encodes from the originals.
+BTS_WWD04 = os.environ.get("HSS_WWD04", "B")
 BTS_QUIET = {
-    "wwd01": ((0.12, 1.0, 0.42, 0.42),),
+    "wwd01": ((0.0, 1.0, 0.25, 0.3),),
     "wwd02": ((0.08, 1.0, 0.36, 0.5),),
-    "wwd03": ((0.04, 1.0, 0.28, 0.38),),
+    "wwd03": ((0.0, 1.0, 0.2, 0.28),),
     "wwd04": ((0.06, 1.0, 0.36, 0.5), (0.04, 0.0, 0.3, 0.4)),
     "foot": ((0.05, 1.0, 0.32, 0.6),),
     # /contact/ (owner: "looks amazing ... just that tiny correction"): only the tripod and
@@ -3897,7 +3928,7 @@ BTS_QUIET = {
     "packages": ((0.05, 0.62, 0.3, 0.3),),
 }
 if BTS_WWD04 == "B":
-    BTS_BOX["wwd04"] = (621, "100% 22%", True)
+    BTS_BOX["wwd04"] = (560, "100% 46%", True)   # the RED rig, monitor and matte box solid; 37ch copy
     BTS_QUIET["wwd04"] = ((0.04, 0.0, 0.34, 0.6), (0.05, 1.0, 0.34, 0.45))
 
 
@@ -3955,6 +3986,7 @@ def bts_fill_mask(key, out):
     fk = key + "f" if key + "f" in BTS else key
     (x0, y0, cw, ch) = BTS[fk][1]
     left, pos, bottom = BTS_BOX[key]
+    topf = key in ("wwd02", "wwd03", "wwd04")              # meets the previous block's media row
     H = lay["zoneH"]
     W14 = 1440 - left
     W19 = W14 + 240
@@ -3999,6 +4031,9 @@ def bts_fill_mask(key, out):
                 q = math.hypot((X - cx) / rx, (Y - cy) / ry)
                 if q < 1:
                     al *= 1 - _bts_ease(q)
+            if topf:                                            # wavy top: 0 at the zone's start
+                e = (Y - 22 * _bts_noise(X, Y * 0.3, 4.0)) / 56
+                al = min(al, 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)))
             if bottom:                                          # wavy bottom: 0 at the zone's end
                 e = ((H - Y) - 26 * _bts_noise(X, Y * 0.3, 3.0)) / 64
                 al = min(al, 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)))
@@ -4032,7 +4067,7 @@ def bts_fill_mask(key, out):
 BTS_FILL = {}
 BTS_EDGES = {}
 if MODE == "web" and BTS_LAYOUT:
-    _lr = hashlib.sha1(json.dumps([BTS_WWD04, BTS_LAYOUT, BTS_POOLS, BTS_PAD, BTS_TILT, BTS_BOX, BTS_MS, BTS_QUIET, sorted(BTS_KEEP), BTS_FAR, 13]).encode()).hexdigest()[:12]
+    _lr = hashlib.sha1(json.dumps([BTS_WWD04, BTS_LAYOUT, BTS_POOLS, BTS_PAD, BTS_TILT, BTS_BOX, BTS_MS, BTS_QUIET, sorted(BTS_KEEP), BTS_FAR, 14]).encode()).hexdigest()[:12]
     for _k in BTS_BOX:
         _o = f"{BTS_DIR}/bts-{_k}-fill.png"
         _fk = _k + "f" if _k + "f" in BTS else _k
@@ -4046,6 +4081,186 @@ if MODE == "web" and BTS_LAYOUT:
         BTS_EDGES[_k] = BTS_MAN[_k]["edges"]
     with open(f"{BTS_DIR}/manifest.json", "w") as _f:
         json.dump(BTS_MAN, _f, indent=1, sort_keys=True)
+
+
+# ---- Phase 2 (release 42): phones and 960 to 1279 --------------------------------------------
+# Below 1280px the type is fluid (and below 1168px so is the wrap), so one mask anchored to the
+# box cannot stay on the text. Each placement and range has two mask layers, intersected:
+# - "clear" (type space): under 0.04 alpha within BTS_PAD of every glyph, control or slate box
+#   measured anywhere in the range (the union of layouts measured at several widths by
+#   reports/hss-audit/r42/tools/layout42b.mjs, in bts/layout2.json), then the eased, wandering
+#   rise. It is positioned from the wall with the wrap's own formula, so it stays on the type.
+# - "edge" (box space, stretched to the box): the organic far edge, the bottom where the photo
+#   meets the next row or the block heading, the story pools and the quiet zones.
+# The box is the zone's height at its crop's own aspect, against the wall: never upscaled.
+# Ranges: phones 320 to 479 (What We Do only), 960 to 1199 (What We Do), 1200 to 1279 (What We
+# Do, the /team/, /book/ and /contact/ heroes, the footer). 480 to 959 shows nothing; /packages/'
+# hero shows from 1280px only (its type below 1280 is unchanged and leaves no room).
+BTS_LAYOUT2 = json.load(open(f"{BTS_DIR}/layout2.json")) if os.path.exists(f"{BTS_DIR}/layout2.json") else {}
+BTS_RANGE = {   # range: (media query, phone?, the crop each placement uses there)
+    "p": ("(max-width: 479px)", True, {"wwd01": "wwd01@p", "wwd02": "wwd02m", "wwd03": "wwd03m", "wwd04": "wwd04m"}),
+    "m": ("(min-width: 960px) and (max-width: 1199px)", False,
+          {"wwd01": "wwd01@m", "wwd02": "wwd02@m", "wwd03": "wwd03@m", "wwd04": "wwd04@m"}),
+    "t": ("(min-width: 1200px) and (max-width: 1279px)", False,
+          {"wwd01": "wwd01f", "wwd02": "wwd02f", "wwd03": "wwd03f", "wwd04": "wwd04@t",
+           "team": "teamf", "contact": "contactf", "foot": "footf"}),
+}
+BTS_WALL = "(100vw + min(100vw - 48px, 1072px)) / 2"     # the wall's distance from the type's left edge
+BTS_P2 = {}      # (range, key): dict of mask sizes and checks
+
+
+def _bts_png(vals, mw, mh, out, clamp=None):
+    """Blur a 0..1 mask lightly and write it as a gray+alpha PNG (CSS masks read alpha)."""
+    with tempfile.TemporaryDirectory() as tmp:
+        pgm = f"{tmp}/m.pgm"
+        with open(pgm, "wb") as f_:
+            f_.write(b"P5 %d %d 255\n" % (mw, mh) + bytes(round(255 * v) for v in vals))
+        raw = bytearray(subprocess.run(["ffmpeg", "-v", "error", "-i", pgm, "-vf", "gblur=sigma=2", "-pix_fmt", "gray",
+                                        "-f", "rawvideo", "-"], capture_output=True, check=True).stdout)
+        if clamp:
+            for n in clamp:
+                raw[n] = min(raw[n], 10)
+        with open(pgm, "wb") as f_:
+            f_.write(b"P5 %d %d 255\n" % (mw, mh) + bytes(raw))
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", pgm, "-filter_complex",
+                        f"[0:v]format=gray[m];color=c=black:s={mw}x{mh},format=gray[c];[c][m]alphamerge,format=ya8",
+                        "-frames:v", "1", "-map_metadata", "-1", out], check=True)
+    return [v / 255 for v in raw]
+
+
+def bts_p2_masks(rg, key):
+    """The clear and edge masks for one placement in one range, plus the story check."""
+    lay = BTS_LAYOUT2[rg][key]
+    phone = BTS_RANGE[rg][1]
+    ck = BTS_RANGE[rg][2][key]
+    (x0, y0, cw, ch) = BTS[ck][1]
+    Hm = max(lay["zoneH"])
+    ox = 40 if phone else 0                    # the clear mask reaches 40px left of the type (phones)
+    LW = lay["typeW"] + ox
+    # clear: type space
+    mw, mh = LW // BTS_MS + 1, Hm // BTS_MS + 1
+    ko = [(r[0] + ox, r[1], r[2] + ox, r[3]) for r in lay["rects"]]
+    vals, inside = [], []
+    for j in range(mh):
+        Y = j * BTS_MS
+        for i in range(mw):
+            X = i * BTS_MS
+            d = 1e9
+            for a_, b_, c_, e_ in ko:
+                dx = max(a_ - BTS_PAD - X, 0, X - (c_ + BTS_PAD))
+                dy = max(b_ - BTS_PAD - Y, 0, Y - (e_ + BTS_PAD))
+                d = min(d, math.hypot(dx, dy))
+            if d <= 0:
+                inside.append(j * mw + i)
+                vals.append(0.0)
+                continue
+            t = (d - (14 if phone else 26) * _bts_noise(X, Y, 1.0)) / (40 if phone else 150)
+            al = 0.0 if t <= 0 else _bts_ease(1 - min(1.0, t))
+            s_ = 0.0 if al < 0.06 else (al - 0.06) / 0.94
+            vals.append(s_ * s_ * (3 - 2 * s_))
+    cl = _bts_png(vals, mw, mh, f"{BTS_DIR}/bts-{key}@{rg}-clear.png", clamp=inside)
+    # edge: box space at the tallest zone, the crop's aspect
+    Wb = round(Hm * cw / ch)
+    ew, eh = Wb // BTS_MS + 1, Hm // BTS_MS + 1
+    sc = Hm / ch
+    pools = [((px - x0) * sc, (py_ - y0) * sc, rx * sc, ry * sc)
+             for px, py_, rx, ry in BTS_POOLS.get(ck, BTS_POOLS.get(key, ()))]
+    quiet = [(cx * Wb, cy * Hm, rx * Wb, ry * Hm) for cx, cy, rx, ry in BTS_QUIET.get(key, ())]
+    ramp = min(170, 0.3 * Wb)
+    evals = []
+    for j in range(eh):
+        Y = j * BTS_MS
+        for i in range(ew):
+            X = i * BTS_MS
+            pa = 0.0
+            for cx, cy, rx, ry in pools:
+                q = math.hypot((X - cx) / rx, (Y - cy) / ry)
+                if q < 1:
+                    pa = max(pa, 1.0 if q <= 0.5 else _bts_ease((q - 0.5) / 0.5))
+            e = (X - 0.45 * ramp * _bts_noise(X * 0.6, Y, 2.0)) / ramp
+            al = max(0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)), pa)
+            e = ((Hm - Y) - 0.35 * min(60, 0.2 * Hm) * _bts_noise(X, Y * 0.3, 3.0)) / min(60, 0.2 * Hm)
+            al = min(al, 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)))
+            for cx, cy, rx, ry in quiet:
+                q = math.hypot((X - cx) / rx, (Y - cy) / ry)
+                if q < 1:
+                    al *= 1 - _bts_ease(q)
+            s_ = 0.0 if al < 0.06 else (al - 0.06) / 0.94
+            evals.append(s_ * s_ * (3 - 2 * s_))
+    ed = _bts_png(evals, ew, eh, f"{BTS_DIR}/bts-{key}@{rg}-edge.png")
+    hc = bts_edge_check(cl, mw, mh)
+    he = bts_edge_check(ed, ew, eh)
+    # the story check: combined alpha at each subject's centre, at the range's narrowest and widest
+    worst = 1.0
+    per = {}
+    for wv, H in zip(lay["widths"], lay["zoneH"]):
+        tl = 24 if wv < 1168 else (wv - 1072) / 2
+        W = H * cw / ch
+        s2 = H / ch
+        for px, py_, _rx, _ry in BTS_POOLS.get(ck, BTS_POOLS.get(key, ())):
+            X, Y = (px - x0) * s2, (py_ - y0) * s2
+            if not (0 <= X < W and 0 <= Y < H):
+                continue
+            xt = (wv - W + X) - tl + ox                   # in the clear mask
+            ci = min(mw - 1, max(0, int(xt / BTS_MS))) if xt >= 0 else None
+            a1 = 0.0 if ci is None else cl[min(mh - 1, int(Y / BTS_MS)) * mw + ci]
+            a2 = ed[min(eh - 1, int(Y / H * Hm / BTS_MS)) * ew + min(ew - 1, int(X / W * Wb / BTS_MS))]
+            worst = min(worst, a1 * a2)
+            per.setdefault((px, py_), []).append(round(a1 * a2, 2))
+    BTS_P2[(rg, key)] = {"LW": LW, "Hm": Hm, "ox": ox, "aspect": (cw, ch), "crop": ck,
+                         "edges": (hc[0] + he[0], hc[1] + he[1]), "story": round(worst, 2)}
+    print(f"  bts: {key}@{rg}: clear {LW}x{Hm}, edge {Wb}x{Hm}, hard edges {hc[0] + he[0]}, "
+          f"straight feathers {hc[1] + he[1]}, story alpha per subject (narrow..wide) "
+          + " ".join(f"{min(v):.2f}..{max(v):.2f}" for v in per.values()))
+
+
+BTS_P2_ON = os.environ.get("HSS_P2", "0") == "1"     # phase 2 ships only when complete
+if MODE == "web" and BTS_LAYOUT2 and BTS_P2_ON:
+    for _rg, (_mq, _ph, _keys) in BTS_RANGE.items():
+        for _k in _keys:
+            bts_p2_masks(_rg, _k)
+
+
+def _bts_p2_css():
+    if not BTS_P2:
+        return ""
+    blocks = {"wwd01": "wwd-social", "wwd02": "wwd-commercial", "wwd03": "wwd-brand", "wwd04": "wwd-podcast"}
+    top01 = "calc(-1 * (var(--s-sec) + var(--f-h1) * 1.06 + var(--s6) + var(--s7)))"
+    out = []
+    for rg, (mq, phone, keys) in BTS_RANGE.items():
+        rules = []
+        for k in keys:
+            v = BTS_P2[(rg, k)]
+            cw, ch = v["aspect"]
+            if k.startswith("wwd"):
+                sel = f"#{blocks[k]} .wwd-head > .bts"
+                top = top01 if k == "wwd01" else "calc(1px - var(--s7))"
+                if phone:
+                    up = ("(var(--s-sec) + var(--f-h1) * 1.06 + var(--s6) + var(--s7))" if k == "wwd01"
+                          else "(var(--s7) - 1px)")
+                    geo = (f"font-size:var(--f-mega);top:{top};height:calc({up} + 1em + var(--s3) - 24px);"
+                           f"bottom:auto;")
+                else:
+                    geo = f"top:{top};bottom:calc(8px - var(--s6));height:auto;"
+                geo += "right:calc(50% - 50vw);"
+            elif k == "foot":
+                sel = "footer > .wrap > .bts"
+                geo = f"top:calc(-1 * var(--s8));height:{v['Hm']}px;bottom:auto;right:calc(50% - 50vw);"
+            else:
+                sel = f".hero > .bts-{k}"
+                geo = "top:0;bottom:0;height:auto;right:0;"
+            pos = f"right calc({BTS_WALL} - {v['LW'] - v['ox']}px) top 0"
+            m = (f"url({asset(f'{BTS_DIR}/bts-{k}@{rg}-clear.png', 'image/png')}),"
+                 f"url({asset(f'{BTS_DIR}/bts-{k}@{rg}-edge.png', 'image/png')})")
+            rules.append(f"    {sel}{{display:block;{geo}left:auto;width:auto;aspect-ratio:{cw}/{ch};"
+                         f"-webkit-mask-image:{m};mask-image:{m};-webkit-mask-size:{v['LW']}px {v['Hm']}px,100% 100%;"
+                         f"mask-size:{v['LW']}px {v['Hm']}px,100% 100%;-webkit-mask-position:{pos},0 0;"
+                         f"mask-position:{pos},0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}}\n"
+                         f"    {sel} img{{object-position:50% 50%;}}\n")
+        out.append(f"  @media{mq.replace('(max', ' (max').replace('(min', ' (min', 1) if False else ' ' + mq}{{\n"
+                   "    .bts{position:absolute;pointer-events:none;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;}\n"
+                   "    .bts img{display:block;width:100%;height:100%;object-fit:cover;}\n" + "".join(rules) + "  }\n")
+    return "".join(out)
 
 
 def bts_pic(key, sizes, cls, hero=False, below=959):
@@ -4064,7 +4279,17 @@ def bts_pic(key, sizes, cls, hero=False, below=959):
     def srcset(k, e):
         return ", ".join(f'{asset(f"{BTS_DIR}/bts-{k}-{w}.{e}", "")} {w}w' for w in BTS[k][2])
 
-    out = [f'<source media="(max-width: 1279px)" srcset="{BTS_BLANK}">']
+    out = []
+    for rg, (mq, _ph, keys) in BTS_RANGE.items():
+        if key in keys and (rg, key) in BTS_P2:
+            v = BTS_P2[(rg, key)]
+            ck, (cw_, ch_) = v["crop"], v["aspect"]
+            out += [f'<source media="{mq}" type="image/{e}" srcset="{srcset(ck, e)}" '
+                    f'sizes="{round(v["Hm"] * cw_ / ch_)}px">' for e in ("avif", "webp")]
+    out.append(f'<source media="(max-width: 1279px)" srcset="{BTS_BLANK}">')
+    if key + "w" in BTS:                      # a wider crop for very wide windows
+        out += [f'<source media="(min-width: 1680px)" type="image/{e}" srcset="{srcset(key + "w", e)}" '
+                f'sizes="calc(50vw + {720 - left}px)">' for e in ("avif", "webp")]
     out += [f'<source type="image/{e}" srcset="{srcset(fk, e)}" sizes="{sizes}">' for e in ("avif", "webp")]
     w0 = BTS[fk][2][1]
     h0 = BTS_MAN[fk]["sizes"][str(w0)][1]
@@ -4105,7 +4330,11 @@ def _bts_css():
     return """
   /* Behind-the-scenes photos (release 42): see BTS in build_site.py and CLAUDE.md */
   .bts{display:none;}
-  @media(min-width:1280px){
+  section.wwd{isolation:isolate;overflow-x:clip;}
+  .wwd-head{position:relative;}
+  .hero > .bts{z-index:0;}
+  .wwd-head > .bts,footer > .wrap > .bts{z-index:-1;}
+""" + _bts_p2_css() + """  @media(min-width:1280px){
     .bts{position:absolute;display:block;pointer-events:none;-webkit-mask-repeat:no-repeat;
       mask-repeat:no-repeat;-webkit-mask-composite:source-over;mask-composite:add;}
     .bts img{display:block;width:100%;height:100%;object-fit:cover;}
