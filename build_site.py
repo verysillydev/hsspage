@@ -3657,7 +3657,16 @@ BTS = {
     # 01 from 1680px: the box is wider than 2:1 there, so a wider crop keeps the camera operator's
     # face, the owner's head and phone, and the tech together
     "wwd01w": ("bts05", (0, 150, 2576, 1170), (1280, 1600, 2000, 2576), 0, (0, 0), "0% 50%"),
-    "wwd01@p": ("bts05", (220, 420, 1830, 892), (480, 720, 1080, 1440), 0, (0, 0), "50% 50%"),
+    # phones: the owner (head, hair, the phone in his hands) right of and below the title; the
+    # operator behind him stays, the tech in blue is out of frame
+    "wwd01@p": ("bts05", (0, 0, 1380, 1449), (320, 480, 720), 0, (0, 0), "50% 50%"),
+    # phones: Zach's head (hair, ear, glasses, beard) whole; the cap's crown is outside bts07's
+    # frame, so it fades into the paper as it does from 960px up
+    "wwd02@p": ("bts07", (0, 0, 1236, 863), (480, 760, 1080), 0, (0, 0), "50% 50%"),
+    # phones from 390px: Seth head and shoulders, and the staffer on the monitor at the wall
+    "wwd03@p": ("bts03", (0, 0, 1593, 1449), (480, 720, 1080), 0, (0, 0), "50% 50%"),
+    # phones below 390px: Seth head and shoulders (the staffer does not fit beside him)
+    "wwd03@r": ("bts03", (0, 0, 969, 1449), (320, 480, 720), 0, (0, 0), "50% 50%"),
     "wwd01@m": ("bts05", (0, 0, 1500, 1449), (640, 960, 1280, 1500), 0, (0, 0), "50% 50%"),
     "wwd02@m": ("bts07", (0, 0, 1800, 1449), (640, 960, 1280), 0, (0, 0), "50% 50%"),
     "wwd03@m": ("bts03", (0, 0, 2100, 1449), (640, 960, 1280), 0, (0, 0), "50% 50%"),
@@ -3685,6 +3694,12 @@ BTS_POOLS = {
     "foot": ((1970, 600, 470, 620), (1220, 950, 240, 470), (520, 900, 460, 560)),
 }
 BTS_TILT = 10      # degrees: the fade boundary leans like the slate stripes
+BTS_POOLS.update({
+    "wwd01@p": ((400, 520, 290, 360), (1130, 1140, 210, 250), (840, 280, 200, 190)),
+    "wwd02@p": ((850, 390, 430, 340), (1180, 560, 200, 300)),
+    "wwd03@p": ((450, 430, 330, 330), (470, 860, 380, 240), (1490, 820, 200, 330)),
+    "wwd03@r": ((450, 430, 330, 330), (470, 860, 380, 240)),
+})
 BTS_ALT = {"team": "Our crew filming an interview with a plumbing company owner"}
 # Exact sizes: the rendered image width is max(box width, box height x crop aspect), because
 # object-fit:cover fills the box (measured boxes at 1280 to 1920, phones at 390 and 430).
@@ -3852,7 +3867,7 @@ def bts_build():
     want = ({f"bts-{k}-{w}.{e}" for k in BTS for w in BTS[k][2] for e in ("avif", "webp")}
             | {f"bts-{k}-mask.png" for k in BTS if not ("@" in k or (k[-1] in "fw" and k[:-1] in BTS))}
             | {f"bts-{k}-fill.png" for k in BTS}
-            | {f"bts-{k}@{rg}-{t}.png" for rg in "pqmt" for k in BTS for t in ("clear", "edge")})
+            | {f"bts-{k}@{rg}-{t}.png" for rg in "pqrsumt" for k in BTS for t in ("clear", "edge")})
     for n in os.listdir(BTS_DIR):
         if n.startswith("bts-") and n not in want:
             os.remove(f"{BTS_DIR}/{n}")
@@ -3869,9 +3884,11 @@ if os.environ.get("HSS_WWD04", "B") == "B":     # What We Do 04, option B (see B
     BTS["wwd04@t"] = BTS["wwd04f"]
     BTS["wwd04@m"] = ("bts06", (1000, 40, 1100, 1000), (640, 960, 1100), 0, (0, 0), "50% 50%")
     BTS["wwd04m"] = ("bts06", (1000, 120, 1080, 416), (480, 720, 1020), 72, (8, 8), "100% 50%")
+    BTS["wwd04@p"] = ("bts06", (1250, 40, 900, 600), (480, 720, 900), 0, (0, 0), "50% 50%")
     BTS_POOLS["wwd04f"] = ((1800, 300, 240, 300), (1550, 400, 280, 260), (2340, 420, 240, 300), (1840, 760, 300, 360),
                            (1440, 360, 300, 260))
     BTS_POOLS["wwd04@t"] = BTS_POOLS["wwd04@m"] = BTS_POOLS["wwd04m"] = BTS_POOLS["wwd04f"]
+    BTS_POOLS["wwd04@p"] = ((1800, 300, 240, 300), (1640, 420, 200, 220), (1840, 760, 300, 360))
 BTS_MAN = bts_build() if MODE == "web" else {}
 
 # ---- Filling the dead zone around the type (release 42; phase 1 of the owner's review) --------
@@ -4114,8 +4131,12 @@ if MODE == "web" and BTS_LAYOUT:
 # hero shows from 1280px only (its type below 1280 is unchanged and leaves no room).
 BTS_LAYOUT2 = json.load(open(f"{BTS_DIR}/layout2.json")) if os.path.exists(f"{BTS_DIR}/layout2.json") else {}
 BTS_RANGE = {   # range: (media query, phone?, the crop each placement uses there)
-    "p": ("(max-width: 479px)", True, {"wwd02": "wwd02m", "wwd03": "wwd03m", "wwd04": "wwd04m"}),
-    "q": ("(min-width: 360px) and (max-width: 479px)", True, {"wwd01": "wwd01@p"}),
+    "p": ("(max-width: 479px)", True, {"wwd02": "wwd02@p",
+                                        "wwd04": "wwd04@p" if "wwd04@p" in BTS else "wwd04m"}),
+    "r": ("(max-width: 389px)", True, {"wwd03": "wwd03@r"}),
+    "s": ("(min-width: 390px) and (max-width: 479px)", True, {"wwd03": "wwd03@p"}),
+    "q": ("(min-width: 390px) and (max-width: 479px)", True, {"wwd01": "wwd01@p"}),
+    "u": ("(min-width: 360px) and (max-width: 389px)", True, {"wwd01": "wwd01@p"}),   # 01, a smaller box
     "m": ("(min-width: 960px) and (max-width: 1199px)", False,
           {"wwd01": "wwd01@m", "wwd02": "wwd02@m", "wwd03": "wwd03@m", "wwd04": "wwd04@m"}),
     "t": ("(min-width: 1200px) and (max-width: 1279px)", False,
@@ -4177,9 +4198,11 @@ def bts_p2_masks(rg, key):
                 inside.append(j * mw + i)
                 vals.append(0.0)
                 continue
-            t = (d - (14 if phone else 26) * _bts_noise(X, Y, 1.0)) / (40 if phone else 150)
+            t = ((d - 16 * _bts_noise(X * 2.5, Y * 2.5, 1.0)) / 24 if phone       # phones: short, wavy
+                 else (d - 26 * _bts_noise(X, Y, 1.0)) / 150)
             al = 0.0 if t <= 0 else _bts_ease(1 - min(1.0, t))
-            ta = (da - 10 * _bts_noise(X, Y, 5.0)) / 32       # the previous block: a short falloff
+            ta = ((da - 16 * _bts_noise(X * 3, Y * 0.3, 5.0)) / 14 if phone  # the previous block: a
+                  else (da - 10 * _bts_noise(X, Y, 5.0)) / 32)            # short, wavy falloff
             al = min(al, 0.0 if ta <= 0 else _bts_ease(1 - min(1.0, ta)))
             s_ = 0.0 if al < 0.06 else (al - 0.06) / 0.94
             vals.append(s_ * s_ * (3 - 2 * s_))
@@ -4202,13 +4225,16 @@ def bts_p2_masks(rg, key):
                 q = math.hypot((X - cx) / rx, (Y - cy) / ry)
                 if q < 1:
                     pa = max(pa, 1.0 if q <= 0.5 else _bts_ease((q - 0.5) / 0.5))
-            e = (X - 0.45 * ramp * _bts_noise(X * 0.6, Y, 2.0)) / ramp
+            e = (X - (0.6 if phone else 0.45) * ramp * _bts_noise(X * 0.6, Y * (3.0 if phone else 1.0), 2.0)) / ramp
             al = max(0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)), pa)
-            e = ((Hm - Y) - 0.35 * min(60, 0.2 * Hm) * _bts_noise(X, Y * 0.3, 3.0)) / min(60, 0.2 * Hm)
+            bf = 16 if phone else min(60, 0.2 * Hm)
+            e = ((Hm - Y) - 0.35 * bf * _bts_noise(X, Y * 0.3, 3.0)) / bf
             al = min(al, 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)))
             if strip:                                           # a wavy top, in the gap above the block
-                e = (Y - 24 * _bts_noise(X * 1.6, Y * 0.3, 4.0)) / 36
-                al = min(al, 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)))
+                tf, tn, fx = (12, 16, 3.0) if phone else (36, 24, 1.6)
+                e = (Y - tn * _bts_noise(X * fx, Y * 0.3, 4.0)) / tf
+                tv = 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e))
+                al = min(al, max(tv, pa) if phone else tv)     # phones: the people stay whole
             for cx, cy, rx, ry in quiet:
                 q = math.hypot((X - cx) / rx, (Y - cy) / ry)
                 if q < 1:
@@ -4269,8 +4295,16 @@ def _bts_p2_css():
                 if phone:
                     up = ("(var(--s-sec) + var(--f-h1) * 1.06 + var(--s6) + var(--s7))" if k == "wwd01"
                           else "(var(--s7) - 1px)")
-                    geo = (f"font-size:var(--f-mega);top:{top};height:calc({up} + 1em + var(--s3) - 24px);"
-                           f"bottom:auto;")
+                    if v["top"] is not None and k == "wwd01":  # 01: right of and below the title
+                        geo = f"top:{v['top']}px;height:{v['Hm']}px;bottom:auto;"
+                    elif v["top"] is not None:                 # 02-04: the gap above, down to the copy
+                        hz = (f"({-v['top']}px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15"
+                              f" - 24px)")
+                        rules.append(f"    #{blocks[k]}{{--wwd-line:calc(100vw - {hz} * {cw / ch:.4f} - 32px);}}\n")
+                        geo = f"top:{v['top']}px;height:calc{hz};bottom:auto;"
+                    else:
+                        geo = (f"font-size:var(--f-mega);top:{top};height:calc({up} + 1em + var(--s3) - 24px);"
+                               f"bottom:auto;")
                 else:
                     if v["top"] is not None:                   # the strip zone: a fixed offset
                         top = f"{v['top']}px"
@@ -4292,7 +4326,13 @@ def _bts_p2_css():
                          f"mask-size:{v['LW']}px {v['Hm']}px,100% 100%;-webkit-mask-position:{pos},0 0;"
                          f"mask-position:{pos},0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}}\n"
                          f"    {sel} img{{object-position:50% 50%;}}\n")
+        strip_css = ("    section.wwd .wwd-block + .wwd-block{position:relative;border-top:0;"
+                     "padding-top:calc(var(--s7) + 1px);}\n"
+                     "    section.wwd .wwd-block + .wwd-block::before{content:\"\";position:absolute;top:0;left:0;"
+                     "height:1px;width:var(--wwd-line,100%);background:linear-gradient(to right,var(--line) "
+                     "calc(100% - 48px),transparent);}\n") if rg == "p" else ""
         out.append(f"  @media{mq.replace('(max', ' (max').replace('(min', ' (min', 1) if False else ' ' + mq}{{\n"
+                   + strip_css +
                    "    .bts{position:absolute;pointer-events:none;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;}\n"
                    "    .bts img{display:block;width:100%;height:100%;object-fit:cover;}\n" + "".join(rules) + "  }\n")
     return "".join(out)

@@ -1387,6 +1387,22 @@ which every change must pass:
     - **Ranges:**
       - phones 320 to 479: What We Do 02 to 04, and 01 from 360px (at 320 the owner and his
         phone sit under the title and slate clearance, so 01 neither shows nor downloads there);
+      - **phones, round 2 (coordinator's phone review):**
+        - 02 to 04 rise from the previous block's last content: the zone starts 16px under it,
+          and the masks keep 24px clear plus a short, wavy fade. The zones run down to 24px
+          above the copy, so the photos wrap the title's right side. The divider fades out
+          before each photo, and the space above the slate stays paper (a keep-out).
+        - Phone fades are short and wavy: 24px for text, 14px for the block above, 12px
+          for the top and 16px for the bottom.
+        - 01 is a fixed box from 8px above the "What We Do" baseline, 152px tall from 390 (`q`)
+          and 112px at 360 to 389 (`u`). The owner's head sits right of and below the title,
+          with the phone in his hands at the wall. The tech in blue is out of frame. The
+          operator's crown is outside bts05's frame and fades into the paper.
+        - 02 (`wwd02@p`): Zach's hair, ear, glasses and beard are whole. The cap's crown is
+          outside bts07's frame, so it fades as it does from 960px.
+        - 03 shows Seth's head and shoulders plus the staffer on the monitor from 390px
+          (`@s`). Below 390 (`@r`) it shows Seth alone, because the staffer does not fit.
+        - 04 uses `wwd04@p`. The legacy `wwd04m` stays unchanged.
       - 960 to 1199 and 1200 to 1279: What We Do;
       - 1200 to 1279 also: the /team/ and /contact/ heroes and the footer.
       - Nothing shows at 480 to 959. /book/ and /packages/ heroes show from 1280px only.
