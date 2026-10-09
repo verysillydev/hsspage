@@ -1403,6 +1403,20 @@ which every change must pass:
         - 03 shows Seth's head and shoulders plus the staffer on the monitor from 390px
           (`@s`). Below 390 (`@r`) it shows Seth alone, because the staffer does not fit.
         - 04 uses `wwd04@p`. The legacy `wwd04m` stays unchanged.
+      - **Box edges (round 3, coordinator's seam review):** every phase 2 edge mask is 0 along each
+        box edge except the screen wall. That holds for phones, 960 to 1279, the heroes and the
+        footer.
+        - There is a 7px margin on phones and 11px from 960px. It is measured at the pixel
+          centres the browser stretches the mask to, and the left corners are rounded.
+        - Each margin then fades in over a short, wavy distance.
+        - The margin is applied after the mask's blur (`_bts_png(mult=)`). Before, the blur
+          spread alpha back to the box edge, which left the straight cuts and seams.
+        - `BTS_P2_CORNER` shapes single corners. For 02 the top fade curves down at the left, so
+          the coil column's top fades. For 04 the bottom fade rises toward the wall.
+        - Check: `tools/seam42.mjs`, on rendered pixels at DPR 1 and 2. It scans 6px either side
+          of each box edge (the wall exempt) for a straight 24px run of 3-level steps. Steps also
+          present without the photo, or in the photo itself, are not counted. Pairs touching the
+          fixed header are skipped, because its backdrop blur tints with whatever sits below it.
       - 960 to 1199 and 1200 to 1279: What We Do;
       - 1200 to 1279 also: the /team/ and /contact/ heroes and the footer.
       - Nothing shows at 480 to 959. /book/ and /packages/ heroes show from 1280px only.

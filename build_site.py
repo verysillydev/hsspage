@@ -4147,8 +4147,9 @@ BTS_WALL = "(100vw + min(100vw - 48px, 1072px)) / 2"     # the wall's distance f
 BTS_P2 = {}      # (range, key): dict of mask sizes and checks
 
 
-def _bts_png(vals, mw, mh, out, clamp=None):
-    """Blur a 0..1 mask lightly and write it as a gray+alpha PNG (CSS masks read alpha)."""
+def _bts_png(vals, mw, mh, out, clamp=None, mult=None):
+    """Blur a 0..1 mask lightly and write it as a gray+alpha PNG (CSS masks read alpha). `mult`
+    (per pixel, 0..1) is applied after the blur, so a margin stays at alpha 0 at the box edges."""
     with tempfile.TemporaryDirectory() as tmp:
         pgm = f"{tmp}/m.pgm"
         with open(pgm, "wb") as f_:
@@ -4158,12 +4159,23 @@ def _bts_png(vals, mw, mh, out, clamp=None):
         if clamp:
             for n in clamp:
                 raw[n] = min(raw[n], 10)
+        if mult:
+            for n, m_ in enumerate(mult):
+                raw[n] = round(raw[n] * m_)
         with open(pgm, "wb") as f_:
             f_.write(b"P5 %d %d 255\n" % (mw, mh) + bytes(raw))
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", pgm, "-filter_complex",
                         f"[0:v]format=gray[m];color=c=black:s={mw}x{mh},format=gray[c];[c][m]alphamerge,format=ya8",
                         "-frames:v", "1", "-map_metadata", "-1", out], check=True)
     return [v / 255 for v in raw]
+
+
+# phase 2 corner shaping per crop: "tl" curves the top fade down toward the left (depth as a share of
+# the box height, width as a share of its width); "br" raises the bottom fade toward the wall
+BTS_P2_CORNER = {
+    "wwd02@p": {"tl": (0.35, 0.45)},     # the sky meets the coil column: round it, fade the column top
+    "wwd04@p": {"br": (0.30, 0.40)},     # the bushes' line at the bottom right dissolves
+}
 
 
 def bts_p2_masks(rg, key):
@@ -4215,7 +4227,7 @@ def bts_p2_masks(rg, key):
              for px, py_, rx, ry in BTS_POOLS.get(ck, BTS_POOLS.get(key, ()))]
     quiet = [(cx * Wb, cy * Hm, rx * Wb, ry * Hm) for cx, cy, rx, ry in BTS_QUIET.get(key, ())]
     ramp = min(170, 0.3 * Wb)
-    evals = []
+    evals, margs = [], []
     for j in range(eh):
         Y = j * BTS_MS
         for i in range(ew):
@@ -4239,9 +4251,31 @@ def bts_p2_masks(rg, key):
                 q = math.hypot((X - cx) / rx, (Y - cy) / ry)
                 if q < 1:
                     al *= 1 - _bts_ease(q)
+            corner = BTS_P2_CORNER.get(ck, {})
+            if "tl" in corner:                                  # the top fade curves down at the left
+                dep, wid = corner["tl"]
+                off = dep * Hm * (1 - min(1.0, X / (wid * Wb))) ** 1.5
+                e = (Y - off - 10 * _bts_noise(X * 3, Y * 0.3, 7.0)) / 14
+                al = min(al, 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)))
+            if "br" in corner:                                  # the bottom fade rises at the wall
+                dep, wid = corner["br"]
+                off = dep * Hm * (1 - min(1.0, (Wb - X) / (wid * Wb))) ** 1.5
+                e = ((Hm - Y) - off - 10 * _bts_noise(X * 3, Y * 0.3, 8.0)) / 16
+                al = min(al, 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)))
+            # alpha 0 along every box edge except the wall (right), measured at the pixel centres the
+            # browser stretches the mask to, with rounded left corners and a short wavy fade inward
+            Xr, Yr = (i + 0.5) * Wb / ew, (j + 0.5) * Hm / eh
+            dv = min(Yr, Hm - Yr)
+            rc = min(24.0, 0.15 * min(Wb, Hm))
+            d = rc - math.hypot(rc - Xr, rc - dv) if (Xr < rc and dv < rc) else min(Xr, dv)
+            mm, mf, ma, fq = (7, 8, 10, 3.5) if phone else (11, 16, 10, 2.5)
+            e = (d - mm - ma * _bts_noise(Xr * fq, Yr * fq, 6.0)) / mf
+            mg = 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e))
+            margs.append(mg)
+            al = min(al, mg)
             s_ = 0.0 if al < 0.06 else (al - 0.06) / 0.94
             evals.append(s_ * s_ * (3 - 2 * s_))
-    ed = _bts_png(evals, ew, eh, f"{BTS_DIR}/bts-{key}@{rg}-edge.png")
+    ed = _bts_png(evals, ew, eh, f"{BTS_DIR}/bts-{key}@{rg}-edge.png", mult=margs)
     hc = bts_edge_check(cl, mw, mh)
     he = bts_edge_check(ed, ew, eh)
     # the story check: combined alpha at each subject's centre, at the range's narrowest and widest
