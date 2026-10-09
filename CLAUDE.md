@@ -989,7 +989,9 @@ of leads.
 
 **The price book is the owners' pitch deck "Portfolio 2025" (filed as Social Media Travel
 Pricing), confirmed by the owners on 2026-10-06.** Six tiers, ascending, monthly: Baby Steps
-$1,997, Starter $3,847, Bronze $5,847, Silver $7,847, Gold $10,847, Platinum $13,847. Every tier
+$1,997, Starter $2,497, Bronze $4,497, Silver $6,497, Gold $9,497, Platinum $12,497. **Since
+2026-10-09 (owner), travel is billed separately at current market rates on Starter to Platinum**
+(`travelNote` and `travelExtra` in the json), and the Billing term says "Apart from travel". Every tier
 posts reels every weekday (two a day from Gold), graphics on Saturday and Sunday and stories
 across the client's platforms. They are grouped by production model: "You supply the footage"
 (Baby Steps), "Two production days a year" (Starter, Bronze, which differ only in ad budget) and

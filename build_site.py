@@ -4740,8 +4740,8 @@ TERMS = [
      "be, just say so."),
     ("Revisions", "One round on anything you want changed. Everything is cut to make you look good "
      "on camera in the first place."),
-    ("Billing", "The first month holds your start date. Nothing else is due until the day your "
-     "first post goes live, and that day sets your monthly cycle."),
+    ("Billing", "The first month holds your start date. Apart from travel, nothing else is due "
+     "until the day your first post goes live, and that day sets your monthly cycle."),
 ]
 TERMS_HTML = "\n".join(f'      <details class="term" open><summary>{t}</summary><p>{d}</p></details>'
                         for t, d in TERMS)
