@@ -5279,9 +5279,7 @@ HOME_HTML = f"""<title>Home Service Studios</title>
 
 <section id="roster" class="on-ink"><div class="wrap">
   <div class="sec-head bare">
-    <h2 class="display">Our Clients</h2>
-    <p class="lede">Home service companies across the country, most of them in heating, cooling,
-    plumbing or electrical.</p>
+    <h2 class="display">Trusted By</h2>
   </div>
   {logo_marquee()}
 </div></section>
