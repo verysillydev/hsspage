@@ -475,6 +475,8 @@
      eyebrow used to. Two of seven on the homepage, deliberately not all. */
   .sec-head.bare h2{font-size:clamp(34px,5.6vw,58px);max-width:18ch;}
   .sec-head.bare{gap:var(--s4);}
+  /* the client-logo sections, "Trusted By" (owner, release 42): centred at every width */
+  .sec-head.center{align-items:center;text-align:center;}
 
   /* /our-work case grid (D5, 2026-10-06), replacing the blueprint carousel:
      flat cards, one large plus two stacked from 900px, stacked on phones. A
@@ -619,16 +621,17 @@
      line 2, and a 45ch lede, so the hero's photo has room right of the type. Below 1280px the
      page is unchanged. */
   @media(min-width:1280px){.hero-pkg h1{font-size:68px;}.hero-pkg .hl{white-space:nowrap;}
-    .hero-pkg .sub{max-width:45ch;}
+    .hero-pkg .sub{max-width:45ch;}}
+  @media(min-width:1280px){/*wwd-p2*/
     /* What We Do 01, 03, 04 (release 42, owner): a 37ch copy measure, so the photo can show the
        people beside it (the owner in 01, Seth in 03, the RED rig in 04) */
-    #wwd-social .wwd-copy,#wwd-brand .wwd-copy,#wwd-podcast .wwd-copy{max-width:37ch;}
+    #wwd-social .wwd-copy,#wwd-commercial .wwd-copy,#wwd-brand .wwd-copy,#wwd-podcast .wwd-copy{max-width:37ch;}
     /* 02 to 04: the photo rises through the gap above its block, so the divider fades out just
        before it on the photo's side (the spacing is unchanged) */
     section.wwd .wwd-block + .wwd-block{position:relative;border-top:0;padding-top:calc(var(--s7) + 1px);}
     section.wwd .wwd-block + .wwd-block::before{content:"";position:absolute;top:0;left:0;height:1px;
       width:var(--wwd-line,100%);background:linear-gradient(to right,var(--line) calc(100% - 72px),transparent);}
-    #wwd-commercial{--wwd-line:420px;}#wwd-brand,#wwd-podcast{--wwd-line:360px;}}
+    #wwd-commercial,#wwd-brand,#wwd-podcast{--wwd-line:360px;}}
   /* 01 from 1680px: the wider box crops the photo vertically; frame higher so the camera
      operator's face stays in, with the owner and his phone */
   @media(min-width:1680px){section#what-we-do #wwd-social .wwd-head > .bts img{object-position:0% 50%;}}
@@ -1468,8 +1471,8 @@
     .hero > .bts-packages img{object-position:0% 45%;}
     #wwd-social .wwd-head > .bts{left:316px;right:calc(50% - 50vw);top:-177px;height:534px;-webkit-mask-image:url(/our-work/a/bts-wwd01-fill.png),linear-gradient(to left,#000 max(0px, calc(100% - 1180px)),transparent max(0px, calc(100% - 1180px)));mask-image:url(/our-work/a/bts-wwd01-fill.png),linear-gradient(to left,#000 max(0px, calc(100% - 1180px)),transparent max(0px, calc(100% - 1180px)));-webkit-mask-size:1180px 534px,100% 100%;mask-size:1180px 534px,100% 100%;-webkit-mask-position:0 0,0 0;mask-position:0 0,0 0;}
     #wwd-social .wwd-head > .bts img{object-position:0% 52%;}
-    #wwd-commercial .wwd-head > .bts{left:437px;right:calc(50% - 50vw);top:-93px;height:383px;-webkit-mask-image:url(/our-work/a/bts-wwd02-fill.png),linear-gradient(to left,#000 max(0px, calc(100% - 1059px)),transparent max(0px, calc(100% - 1059px)));mask-image:url(/our-work/a/bts-wwd02-fill.png),linear-gradient(to left,#000 max(0px, calc(100% - 1059px)),transparent max(0px, calc(100% - 1059px)));-webkit-mask-size:1059px 383px,100% 100%;mask-size:1059px 383px,100% 100%;-webkit-mask-position:0 0,0 0;mask-position:0 0,0 0;}
-    #wwd-commercial .wwd-head > .bts img{object-position:100% 20%;}
+    #wwd-commercial .wwd-head > .bts{left:376px;right:calc(50% - 50vw);top:-93px;height:383px;-webkit-mask-image:url(/our-work/a/bts-wwd02-fill.png),linear-gradient(to left,#000 max(0px, calc(100% - 1120px)),transparent max(0px, calc(100% - 1120px)));mask-image:url(/our-work/a/bts-wwd02-fill.png),linear-gradient(to left,#000 max(0px, calc(100% - 1120px)),transparent max(0px, calc(100% - 1120px)));-webkit-mask-size:1120px 383px,100% 100%;mask-size:1120px 383px,100% 100%;-webkit-mask-position:0 0,0 0;mask-position:0 0,0 0;}
+    #wwd-commercial .wwd-head > .bts img{object-position:100% 4%;}
     #wwd-brand .wwd-head > .bts{left:376px;right:calc(50% - 50vw);top:-203px;height:451px;-webkit-mask-image:url(/our-work/a/bts-wwd03-fill.png),linear-gradient(to left,#000 max(0px, calc(100% - 1120px)),transparent max(0px, calc(100% - 1120px)));mask-image:url(/our-work/a/bts-wwd03-fill.png),linear-gradient(to left,#000 max(0px, calc(100% - 1120px)),transparent max(0px, calc(100% - 1120px)));-webkit-mask-size:1120px 451px,100% 100%;mask-size:1120px 451px,100% 100%;-webkit-mask-position:0 0,0 0;mask-position:0 0,0 0;}
     #wwd-brand .wwd-head > .bts img{object-position:100% 41%;}
     #wwd-podcast .wwd-head > .bts{left:376px;right:calc(50% - 50vw);top:-203px;height:524px;-webkit-mask-image:url(/our-work/a/bts-wwd04-fill.png),linear-gradient(to left,#000 max(0px, calc(100% - 1120px)),transparent max(0px, calc(100% - 1120px)));mask-image:url(/our-work/a/bts-wwd04-fill.png),linear-gradient(to left,#000 max(0px, calc(100% - 1120px)),transparent max(0px, calc(100% - 1120px)));-webkit-mask-size:1120px 524px,100% 100%;mask-size:1120px 524px,100% 100%;-webkit-mask-position:0 0,0 0;mask-position:0 0,0 0;}
