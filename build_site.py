@@ -3867,6 +3867,7 @@ def bts_build():
     want = ({f"bts-{k}-{w}.{e}" for k in BTS for w in BTS[k][2] for e in ("avif", "webp")}
             | {f"bts-{k}-mask.png" for k in BTS if not ("@" in k or (k[-1] in "fw" and k[:-1] in BTS))}
             | {f"bts-{k}-fill.png" for k in BTS}
+            | {f"bts-{k}-wall.png" for k in BTS}
             | {f"bts-{k}@{rg}-{t}.png" for rg in "pqrsumt" for k in BTS for t in ("clear", "edge")})
     for n in os.listdir(BTS_DIR):
         if n.startswith("bts-") and n not in want:
@@ -3952,6 +3953,20 @@ BTS_QUIET = {
 if BTS_WWD04 == "B":
     BTS_BOX["wwd04"] = (560, "100% 46%", True)   # the RED rig, monitor and matte box solid; 37ch copy
     BTS_QUIET["wwd04"] = ((0.04, 0.0, 0.34, 0.6), (0.05, 1.0, 0.34, 0.45))
+
+
+def _bts_band(xr, yr, w, h, left=True):
+    """Desktop edge band (release 42 seam fix): 0 within 11px of the top, the bottom and (when
+    `left`) the left edge of a box w x h, then a 16px wavy fade-in; rounded left corners. The
+    right edge is the wall. Applied after the mask's blur, so the edges stay at alpha 0."""
+    dv = min(yr, h - yr)
+    if left:
+        rc = min(24.0, 0.15 * min(w, h))
+        d = rc - math.hypot(rc - xr, rc - dv) if (xr < rc and dv < rc) else min(xr, dv)
+    else:
+        d = dv
+    e = (d - 11 - 10 * _bts_noise(xr * 2.5, yr * 2.5, 6.0)) / 16
+    return 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e))
 
 
 def _bts_noise(x, y, seed):
@@ -4087,11 +4102,36 @@ def bts_fill_mask(key, out):
                 bl[n] = min(bl[n], 10)
                 worst = max(worst, bl[n])
         assert worst / 255 < 0.05, f"bts: {key} fill mask too opaque over type"
+        for j in range(mh):                                 # alpha 0 along the box's non-wall edges
+            for i in range(mw):
+                n = j * mw + i
+                bl[n] = round(bl[n] * _bts_band((i + 0.5) * W19 / mw, (j + 0.5) * H / mh, W19, H))
         with open(pgm, "wb") as f_:
             f_.write(b"P5 %d %d 255\n" % (mw, mh) + bytes(bl))
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", pgm, "-filter_complex",
                         f"[0:v]format=gray[m];color=c=black:s={mw}x{mh},format=gray[c];[c][m]alphamerge,format=ya8",
                         "-frames:v", "1", "-map_metadata", "-1", out], check=True)
+        # beyond the 1920 width the wall-side layer shows; this strip (stretched to the box) keeps
+        # its top and bottom at 0 too, with the fill's own top and bottom fades
+        sw = 80
+        band = []
+        for j in range(mh):
+            Yr = (j + 0.5) * H / mh
+            for i in range(sw):
+                X = W19 + i * 6
+                a = _bts_band(X, Yr, W19 + sw * 6, H, left=False)
+                if topf:
+                    e = (Yr - 24 * _bts_noise(X * 1.6, Yr * 0.3, 4.0)) / 36
+                    a = min(a, 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)))
+                if bottom:
+                    e = ((H - Yr) - 26 * _bts_noise(X, Yr * 0.3, 3.0)) / 64
+                    a = min(a, 0.0 if e <= 0 else _bts_ease(1 - min(1.0, e)))
+                band.append(round(255 * a))
+        with open(pgm, "wb") as f_:
+            f_.write(b"P5 %d %d 255\n" % (sw, mh) + bytes(band))
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", pgm, "-filter_complex",
+                        f"[0:v]format=gray[m];color=c=black:s={sw}x{mh},format=gray[c];[c][m]alphamerge,format=ya8",
+                        "-frames:v", "1", "-map_metadata", "-1", out.replace("-fill.png", "-wall.png")], check=True)
     hard, straight = bts_edge_check([v / 255 for v in bl], mw, mh)
     return W19, H, hard, straight
 
@@ -4099,13 +4139,14 @@ def bts_fill_mask(key, out):
 BTS_FILL = {}
 BTS_EDGES = {}
 if MODE == "web" and BTS_LAYOUT:
-    _lr = hashlib.sha1(json.dumps([BTS_WWD04, BTS_LAYOUT, BTS_POOLS, BTS_PAD, BTS_TILT, BTS_BOX, BTS_MS, BTS_QUIET, sorted(BTS_KEEP), BTS_FAR, 16]).encode()).hexdigest()[:12]
+    _lr = hashlib.sha1(json.dumps([BTS_WWD04, BTS_LAYOUT, BTS_POOLS, BTS_PAD, BTS_TILT, BTS_BOX, BTS_MS, BTS_QUIET, sorted(BTS_KEEP), BTS_FAR, 17]).encode()).hexdigest()[:12]
     for _k in BTS_BOX:
         _o = f"{BTS_DIR}/bts-{_k}-fill.png"
         _fk = _k + "f" if _k + "f" in BTS else _k
         _rh = _lr + _bts_recipe(_fk)
         _ec = BTS_MAN[_k].get("edges")
-        if BTS_MAN[_k].get("fill") != _rh or not os.path.exists(_o) or not _ec:
+        if (BTS_MAN[_k].get("fill") != _rh or not os.path.exists(_o) or not _ec
+                or not os.path.exists(_o.replace("-fill.png", "-wall.png"))):
             _w, _h, _hd, _st = bts_fill_mask(_k, _o)
             BTS_MAN[_k]["fill"], BTS_MAN[_k]["edges"] = _rh, [_hd, _st]
             print(f"  bts: fill mask {_k}: {_w}x{_h}, hard edges {_hd}, straight feathers {_st}")
@@ -4302,7 +4343,7 @@ def bts_p2_masks(rg, key):
           + " ".join(f"{min(v):.2f}..{max(v):.2f}" for v in per.values()))
 
 
-BTS_P2_ON = os.environ.get("HSS_P2", "0") == "1"     # phase 2 ships only when complete
+BTS_P2_ON = os.environ.get("HSS_P2", "1") != "0"     # on (owner approved); HSS_P2=0 turns it off
 if MODE == "web" and BTS_LAYOUT2 and BTS_P2_ON:
     for _rg, (_mq, _ph, _keys) in BTS_RANGE.items():
         for _k in _keys:
@@ -4419,7 +4460,7 @@ def _bts_css():
     mask, anchored at the box's left; a wall-side layer only beyond the mask's 1920 width.
     Nothing below 1280px."""
     blocks = {"wwd01": "wwd-social", "wwd02": "wwd-commercial", "wwd03": "wwd-brand", "wwd04": "wwd-podcast"}
-    out = []
+    out, wide = [], []
     for k, (w19, h) in BTS_FILL.items():
         left, pos, _b = BTS_BOX[k]
         lay = BTS_LAYOUT[k]
@@ -4431,10 +4472,18 @@ def _bts_css():
         else:
             sel, geo = f"#{blocks[k]} .wwd-head > .bts", f"left:{left - 184}px;right:calc(50% - 50vw);"
         beyond = f"max(0px, calc(100% - {w19}px))"
-        m = f"url({url}),linear-gradient(to left,#000 {beyond},transparent {beyond})"
+        wall = asset(f"{BTS_DIR}/bts-{k}-wall.png", "image/png")
+        # up to 1920 the box is never wider than the mask: one layer. Wider, the wall side is the
+        # overflow gradient intersected with the band strip (only then is the strip downloaded)
+        m = f"url({url}),linear-gradient(to left,#000 {beyond},transparent {beyond}),url({wall})"
+        wide.append(f"    {sel}{{-webkit-mask-image:{m};mask-image:{m};"
+                    f"-webkit-mask-size:{w19}px {h}px,100% 100%,100% 100%;mask-size:{w19}px {h}px,100% 100%,100% 100%;"
+                    f"-webkit-mask-position:0 0,0 0,0 0;mask-position:0 0,0 0,0 0;"
+                    f"-webkit-mask-composite:source-over,source-in,source-over;mask-composite:add,intersect,add;}}\n")
+        m = f"url({url})"
         out.append(f"    {sel}{{{geo}top:{lay['topFromAnchor']}px;height:{h}px;"
-                   f"-webkit-mask-image:{m};mask-image:{m};-webkit-mask-size:{w19}px {h}px,100% 100%;"
-                   f"mask-size:{w19}px {h}px,100% 100%;-webkit-mask-position:0 0,0 0;mask-position:0 0,0 0;}}\n"
+                   f"-webkit-mask-image:{m};mask-image:{m};-webkit-mask-size:{w19}px {h}px;"
+                   f"mask-size:{w19}px {h}px;-webkit-mask-position:0 0;mask-position:0 0;}}\n"
                    f"    {sel} img{{object-position:{pos};}}\n")
     return """
   /* Behind-the-scenes photos (release 42): see BTS in build_site.py and CLAUDE.md */
@@ -4451,7 +4500,7 @@ def _bts_css():
     section.wwd{isolation:isolate;overflow-x:clip;}
     .wwd-head{position:relative;}
     .wwd-head > .bts,footer > .wrap > .bts{z-index:-1;}
-""" + "".join(out) + "  }\n"
+""" + "".join(out) + "  }\n  @media(min-width:1921px){\n" + "".join(wide) + "  }\n"
 
 
 BTS_CSS = _bts_css() if MODE == "web" else ""

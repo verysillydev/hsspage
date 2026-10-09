@@ -60,7 +60,7 @@ Live: **/** (homepage), **/our-work** (portfolio), **/packages** (Social Media P
 
 ```bash
 python3 build_site.py         # single self-contained file for the private Claude artifact
-python3 build_site.py web     # writes ./deploy
+python3 build_site.py web     # writes ./deploy (BTS phase 2 is on by default; never set HSS_P2=0 for a deploy)
 ./deploy_github.sh            # rebuild and push live in one command  <-- THIS ONE
 ```
 
@@ -1381,9 +1381,17 @@ which every change must pass:
       previous block's media row with a wavy top fade. The divider becomes a gradient that fades
       out just before the photo (`--wwd-line`). The spacing is unchanged.
     - **The heroes, 01 and the footer have no such strip:** they start at a band or section edge.
-  - **Phase 2 (phones and 960 to 1279) is complete, and off until the owner approves it.**
-    `HSS_P2=1` turns it on; the default build renders exactly as without it (byte-identical
-    pages, checked).
+  - **Phase 2 (phones and 960 to 1279) is approved (owner, release 42) and ON by default.** A
+    plain `python3 build_site.py web` builds it. `HSS_P2=0` turns it off, for comparison only.
+    Never deploy with it.
+  - **Desktop edge band (release 42 seam fix):** the phase 1 fill masks (from 1280px) get the
+    same post-blur band as phase 2 from 960px. Alpha is 0 within 11px of the top, the bottom
+    and the left box edges, then a 16px wavy fade-in, with rounded left corners
+    (`_bts_band()`). Nothing else about the desktop look changed.
+    - Beyond the masks' 1920 width, the wall-side layer is the overflow gradient intersected
+      with `bts-<key>-wall.png`. That strip keeps the band and the fill's top and bottom fades
+      (`mask-composite:add,intersect,add`), from 1921px only (so up to 1920 nothing extra downloads).
+    - Checked with `tools/seam42.mjs` at 1280, 1440 and 1920.
     - **Ranges:**
       - phones 320 to 479: What We Do 02 to 04, and 01 from 360px (at 320 the owner and his
         phone sit under the title and slate clearance, so 01 neither shows nor downloads there);
