@@ -5483,9 +5483,11 @@ HOME_HTML = f"""<title>Home Service Studios</title>
   </div>
   {HOME_CSS}
   <div class="hero-lines">{SPLAT_SVG}<div class="wrap band-a">
-  <p class="sub">We write, shoot, edit and post video for home service companies <strong>nationwide</strong>.
-  When a homeowner needs a repair, a replacement or a remodel, they call a name they already know.
-  <strong>We make sure that name is yours.</strong></p>
+  <p class="sub"><strong>The nation's premier production company for the trades.</strong>
+  We write, shoot, edit and post cinematic video for home service companies.
+  Captivating, high-end visuals bring your story to life. Homeowners feel something.
+  That feeling is how they remember you. When they need a repair, a replacement or a remodel,
+  they call a name they already know. <strong>We make sure that name is yours.</strong></p>
   {SLATE_DEFS}{SLATE_HOLD}
   {services_row()}{SVC_JS if MODE == "web" else ""}
   </div>

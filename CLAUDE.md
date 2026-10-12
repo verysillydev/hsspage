@@ -674,7 +674,14 @@ longer lists builders, realtors and creators. Since release 30 it is three short
 release 34 (owner) the first ends "nationwide" instead of "every month": "We write, shoot, edit and
 post video for home service companies nationwide. When a homeowner needs a repair, a replacement
 or a remodel, they call a name they already know. We make sure that name is yours." "nationwide"
-and the last sentence carry the paragraph's `<strong>`, the same white bold, not a new style. The
+and the last sentence carry the paragraph's `<strong>`, the same white bold, not a new style.
+**Since release 45 (owner approved, 2026-10-12) the lede is seven short sentences**: "The nation's
+premier production company for the trades. We write, shoot, edit and post cinematic video for
+home service companies. Captivating, high-end visuals bring your story to life. Homeowners feel
+something. That feeling is how they remember you. When they need a repair, a replacement or a
+remodel, they call a name they already know. We make sure that name is yours." The first and last
+sentences carry the `<strong>`. It says "premier", not "#1": the owner chose it over a number-one
+claim that would need proof such as a ranking or an award. Keep it that way unless he supplies one. The
 /team meta description ("...post home service video every month.") is a different sentence and
 stays. The "Creator work" service card went with the
 whole "Three ways we work" section (R2, owner request, 2026-10-06). "and creators" in the
