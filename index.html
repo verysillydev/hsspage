@@ -644,13 +644,9 @@
   @media(min-width:960px){/*wwd-p2*/
     /* What We Do 01, 03, 04 (release 42, owner): a 37ch copy measure, so the photo can show the
        people beside it (the owner in 01, Seth in 03, the RED rig in 04) */
-    #wwd-social .wwd-copy,#wwd-commercial .wwd-copy,#wwd-brand .wwd-copy,#wwd-podcast .wwd-copy{max-width:37ch;}
-    /* 02 to 04: the photo rises through the gap above its block, so the divider fades out just
-       before it on the photo's side (the spacing is unchanged) */
-    section.wwd .wwd-block + .wwd-block{position:relative;border-top:0;padding-top:calc(var(--s7) + 1px);}
-    section.wwd .wwd-block + .wwd-block::before{content:"";position:absolute;top:0;left:0;height:1px;
-      width:var(--wwd-line,100%);background:linear-gradient(to right,var(--line) calc(100% - 72px),transparent);}
-    #wwd-commercial,#wwd-brand,#wwd-podcast{--wwd-line:360px;}}
+    #wwd-social .wwd-copy,#wwd-commercial .wwd-copy,#wwd-brand .wwd-copy,#wwd-podcast .wwd-copy{max-width:37ch;}}
+  /* (2026-11-02, the scene bands: the dividers between blocks went; a ground change separates
+     them now. See WWD_CARDS_CSS.) */
   /* 01 from 1680px: the wider box crops the photo vertically; frame higher so the camera
      operator's face stays in, with the owner and his phone */
   @media(min-width:1680px){section#what-we-do #wwd-social .wwd-head > .bts img{object-position:0% 50%;}}
@@ -832,7 +828,6 @@
     font-family:var(--mono);}
 
 
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:var(--s5);}
   /* subheads inside a section (the homepage spots row) */
   .subhead{margin:var(--s7) 0 var(--s4);font-family:var(--display);font-size:var(--f-h3);
     font-weight:700;letter-spacing:var(--t-head);line-height:1.15;}
@@ -848,13 +843,9 @@
   .mw-ask + .cta{margin-top:var(--s3);}
   .mw-k{display:block;margin-bottom:var(--s1);font-family:var(--display);
     font-variant-caps:all-small-caps;letter-spacing:.06em;font-size:var(--f-sm);color:var(--ink-2);}
-  /* What We Do (homepage, release 8): warm white ground, three numbered blocks with a
-     hairline between them. --ink-3 on --ground-2 is 4.32:1, so small text uses --ink-2. */
-  section.wwd{background:var(--ground-2);}
-  .wwd-block{padding:var(--s7) 0;}
-  .wwd-block:first-of-type{padding-top:0;}
-  .wwd-block:last-child{padding-bottom:0;}
-  .wwd-block + .wwd-block{border-top:1px solid var(--line);}
+  /* What We Do (homepage, release 8): four numbered blocks. Since 2026-11-02 they are full-bleed
+     scene bands on alternating grounds (WWD_CARDS_CSS, homepage only). --ink-3 on --ground-2 is
+     4.32:1, so small text uses --ink-2. */
   .wwd-num{margin:0;font-size:var(--f-mega);line-height:1;height:1em;}
   .wwd-title{margin:var(--s3) 0 0;font-family:var(--display);font-weight:700;font-size:var(--f-h2);
     line-height:1.15;letter-spacing:var(--t-head);color:var(--ink);}
@@ -864,7 +855,7 @@
   .wwd-link{display:inline-flex;align-items:center;min-height:24px;margin-top:var(--s3);
     font-weight:650;color:var(--orange-text);text-decoration:none;}
   .wwd-link:hover{text-decoration:underline;text-underline-offset:3px;}
-  .wwd-block > .igrow,.wwd-block > .grid,.wwd-film{margin-top:var(--s6);}
+  .wwd-block > .igrow,.wwd-film{margin-top:var(--s6);}
   /* block 01 carries the primary "Compare the packages" button (moved here from the
      removed packages section); its note needs --ink-2 on this ground */
   .wwd .ctarow{margin-top:var(--s5);}
@@ -1481,46 +1472,38 @@
   .hero > .bts{z-index:0;}
   .wwd-head > .bts,footer > .wrap > .bts{z-index:-1;}
   @media (max-width: 479px){
-    section.wwd .wwd-block + .wwd-block{position:relative;border-top:0;padding-top:calc(var(--s7) + 1px);}
-    section.wwd .wwd-block + .wwd-block::before{content:"";position:absolute;top:0;left:0;height:1px;width:var(--wwd-line,100%);background:linear-gradient(to right,var(--line) calc(100% - 48px),transparent);}
     .bts{position:absolute;pointer-events:none;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;}
     .bts img{display:block;width:100%;height:100%;object-fit:cover;}
-    #wwd-podcast{--wwd-line:max(0px, calc(100vw - (81px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15 - 24px) * 1.7151 - 24px));}
     #wwd-podcast .wwd-head > .bts{display:block;top:-81px;height:calc(81px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15 - 24px);bottom:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:1816/900;-webkit-mask-image:url(/our-work/a/bts-wwd04@p-clear.png),url(/our-work/a/bts-wwd04@p-edge.png);mask-image:url(/our-work/a/bts-wwd04@p-clear.png),url(/our-work/a/bts-wwd04@p-edge.png);-webkit-mask-size:495px 170px,100% 100%;mask-size:495px 170px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 455px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 455px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-podcast .wwd-head > .bts img{object-position:50% 50%;}
   }
   @media (max-width: 389px){
     .bts{position:absolute;pointer-events:none;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;}
     .bts img{display:block;width:100%;height:100%;object-fit:cover;}
-    #wwd-commercial{--wwd-line:max(0px, calc(100vw - (81px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15 - 24px) * 1.2196 - 24px));}
     #wwd-commercial .wwd-head > .bts{display:block;top:-81px;height:calc(81px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15 - 24px);bottom:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:1650/1150;-webkit-mask-image:url(/our-work/a/bts-wwd02@v-clear.png),url(/our-work/a/bts-wwd02@v-edge.png);mask-image:url(/our-work/a/bts-wwd02@v-clear.png),url(/our-work/a/bts-wwd02@v-edge.png);-webkit-mask-size:405px 164px,100% 100%;mask-size:405px 164px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 365px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 365px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-commercial .wwd-head > .bts img{object-position:50% 50%;}
   }
   @media (min-width: 390px) and (max-width: 429px){
     .bts{position:absolute;pointer-events:none;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;}
     .bts img{display:block;width:100%;height:100%;object-fit:cover;}
-    #wwd-commercial{--wwd-line:max(0px, calc(100vw - (81px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15 - 24px) * 1.5374 - 24px));}
     #wwd-commercial .wwd-head > .bts{display:block;top:-81px;height:calc(81px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15 - 24px);bottom:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:2080/1150;-webkit-mask-image:url(/our-work/a/bts-wwd02@w-clear.png),url(/our-work/a/bts-wwd02@w-edge.png);mask-image:url(/our-work/a/bts-wwd02@w-clear.png),url(/our-work/a/bts-wwd02@w-edge.png);-webkit-mask-size:445px 166px,100% 100%;mask-size:445px 166px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 405px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 405px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-commercial .wwd-head > .bts img{object-position:50% 50%;}
   }
   @media (min-width: 430px) and (max-width: 479px){
     .bts{position:absolute;pointer-events:none;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;}
     .bts img{display:block;width:100%;height:100%;object-fit:cover;}
-    #wwd-commercial{--wwd-line:max(0px, calc(100vw - (81px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15 - 24px) * 1.7170 - 24px));}
     #wwd-commercial .wwd-head > .bts{display:block;top:-81px;height:calc(81px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15 - 24px);bottom:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:2323/1150;-webkit-mask-image:url(/our-work/a/bts-wwd02@x-clear.png),url(/our-work/a/bts-wwd02@x-edge.png);mask-image:url(/our-work/a/bts-wwd02@x-clear.png),url(/our-work/a/bts-wwd02@x-edge.png);-webkit-mask-size:495px 170px,100% 100%;mask-size:495px 170px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 455px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 455px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-commercial .wwd-head > .bts img{object-position:50% 50%;}
   }
   @media (max-width: 389px){
     .bts{position:absolute;pointer-events:none;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;}
     .bts img{display:block;width:100%;height:100%;object-fit:cover;}
-    #wwd-brand{--wwd-line:calc(100vw - (81px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15 - 24px) * 0.6687 - 32px);}
     #wwd-brand .wwd-head > .bts{display:block;top:-81px;height:calc(81px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15 - 24px);bottom:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:969/1449;-webkit-mask-image:url(/our-work/a/bts-wwd03@r-clear.png),url(/our-work/a/bts-wwd03@r-edge.png);mask-image:url(/our-work/a/bts-wwd03@r-clear.png),url(/our-work/a/bts-wwd03@r-edge.png);-webkit-mask-size:405px 164px,100% 100%;mask-size:405px 164px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 365px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 365px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-brand .wwd-head > .bts img{object-position:50% 50%;}
   }
   @media (min-width: 390px) and (max-width: 479px){
     .bts{position:absolute;pointer-events:none;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;}
     .bts img{display:block;width:100%;height:100%;object-fit:cover;}
-    #wwd-brand{--wwd-line:calc(100vw - (81px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15 - 24px) * 1.0994 - 32px);}
     #wwd-brand .wwd-head > .bts{display:block;top:-81px;height:calc(81px + var(--f-mega) + 2 * var(--s3) + var(--f-h2) * 1.15 - 24px);bottom:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:1593/1449;-webkit-mask-image:url(/our-work/a/bts-wwd03@s-clear.png),url(/our-work/a/bts-wwd03@s-edge.png);mask-image:url(/our-work/a/bts-wwd03@s-clear.png),url(/our-work/a/bts-wwd03@s-edge.png);-webkit-mask-size:495px 170px,100% 100%;mask-size:495px 170px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 455px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 455px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-brand .wwd-head > .bts img{object-position:50% 50%;}
   }
@@ -1535,13 +1518,10 @@
     .bts img{display:block;width:100%;height:100%;object-fit:cover;}
     #wwd-social .wwd-head > .bts{display:block;top:calc(-1 * (var(--s-sec) + var(--f-h1) * 1.06 + var(--s6) + var(--s7)));bottom:calc(8px - var(--s6));height:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:1500/1449;-webkit-mask-image:url(/our-work/a/bts-wwd01@m-clear.png),url(/our-work/a/bts-wwd01@m-edge.png);mask-image:url(/our-work/a/bts-wwd01@m-clear.png),url(/our-work/a/bts-wwd01@m-edge.png);-webkit-mask-size:1136px 524px,100% 100%;mask-size:1136px 524px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1136px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1136px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-social .wwd-head > .bts img{object-position:50% 50%;}
-    #wwd-commercial{--wwd-line:calc((100vw + min(100vw - 48px, 1072px)) / 2 - 468px - 32px);}
     #wwd-commercial .wwd-head > .bts{display:block;top:-93px;bottom:calc(8px - var(--s6));height:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:1800/1449;-webkit-mask-image:url(/our-work/a/bts-wwd02@m-clear.png),url(/our-work/a/bts-wwd02@m-edge.png);mask-image:url(/our-work/a/bts-wwd02@m-clear.png),url(/our-work/a/bts-wwd02@m-edge.png);-webkit-mask-size:1136px 377px,100% 100%;mask-size:1136px 377px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1136px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1136px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-commercial .wwd-head > .bts img{object-position:50% 50%;}
-    #wwd-brand{--wwd-line:calc((100vw + min(100vw - 48px, 1072px)) / 2 - 645px - 32px);}
     #wwd-brand .wwd-head > .bts{display:block;top:-202px;bottom:calc(8px - var(--s6));height:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:2100/1449;-webkit-mask-image:url(/our-work/a/bts-wwd03@m-clear.png),url(/our-work/a/bts-wwd03@m-edge.png);mask-image:url(/our-work/a/bts-wwd03@m-clear.png),url(/our-work/a/bts-wwd03@m-edge.png);-webkit-mask-size:1136px 445px,100% 100%;mask-size:1136px 445px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1136px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1136px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-brand .wwd-head > .bts img{object-position:50% 50%;}
-    #wwd-podcast{--wwd-line:calc((100vw + min(100vw - 48px, 1072px)) / 2 - 570px - 32px);}
     #wwd-podcast .wwd-head > .bts{display:block;top:-202px;bottom:calc(8px - var(--s6));height:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:1100/1000;-webkit-mask-image:url(/our-work/a/bts-wwd04@m-clear.png),url(/our-work/a/bts-wwd04@m-edge.png);mask-image:url(/our-work/a/bts-wwd04@m-clear.png),url(/our-work/a/bts-wwd04@m-edge.png);-webkit-mask-size:1136px 518px,100% 100%;mask-size:1136px 518px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1136px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1136px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-podcast .wwd-head > .bts img{object-position:50% 50%;}
   }
@@ -1550,13 +1530,10 @@
     .bts img{display:block;width:100%;height:100%;object-fit:cover;}
     #wwd-social .wwd-head > .bts{display:block;top:calc(-1 * (var(--s-sec) + var(--f-h1) * 1.06 + var(--s6) + var(--s7)));bottom:calc(8px - var(--s6));height:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:2200/1449;-webkit-mask-image:url(/our-work/a/bts-wwd01@t-clear.png),url(/our-work/a/bts-wwd01@t-edge.png);mask-image:url(/our-work/a/bts-wwd01@t-clear.png),url(/our-work/a/bts-wwd01@t-edge.png);-webkit-mask-size:1176px 534px,100% 100%;mask-size:1176px 534px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1176px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1176px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-social .wwd-head > .bts img{object-position:50% 50%;}
-    #wwd-commercial{--wwd-line:calc((100vw + min(100vw - 48px, 1072px)) / 2 - 681px - 32px);}
     #wwd-commercial .wwd-head > .bts{display:block;top:-93px;bottom:calc(8px - var(--s6));height:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:2576/1449;-webkit-mask-image:url(/our-work/a/bts-wwd02@t-clear.png),url(/our-work/a/bts-wwd02@t-edge.png);mask-image:url(/our-work/a/bts-wwd02@t-clear.png),url(/our-work/a/bts-wwd02@t-edge.png);-webkit-mask-size:1176px 383px,100% 100%;mask-size:1176px 383px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1176px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1176px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-commercial .wwd-head > .bts img{object-position:50% 50%;}
-    #wwd-brand{--wwd-line:calc((100vw + min(100vw - 48px, 1072px)) / 2 - 800px - 32px);}
     #wwd-brand .wwd-head > .bts{display:block;top:-202px;bottom:calc(8px - var(--s6));height:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:2576/1449;-webkit-mask-image:url(/our-work/a/bts-wwd03@t-clear.png),url(/our-work/a/bts-wwd03@t-edge.png);mask-image:url(/our-work/a/bts-wwd03@t-clear.png),url(/our-work/a/bts-wwd03@t-edge.png);-webkit-mask-size:1176px 450px,100% 100%;mask-size:1176px 450px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1176px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1176px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-brand .wwd-head > .bts img{object-position:50% 50%;}
-    #wwd-podcast{--wwd-line:calc((100vw + min(100vw - 48px, 1072px)) / 2 - 824px - 32px);}
     #wwd-podcast .wwd-head > .bts{display:block;top:-202px;bottom:calc(8px - var(--s6));height:auto;right:calc(50% - 50vw);left:auto;width:auto;aspect-ratio:1576/1000;-webkit-mask-image:url(/our-work/a/bts-wwd04@t-clear.png),url(/our-work/a/bts-wwd04@t-edge.png);mask-image:url(/our-work/a/bts-wwd04@t-clear.png),url(/our-work/a/bts-wwd04@t-edge.png);-webkit-mask-size:1176px 523px,100% 100%;mask-size:1176px 523px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1176px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1176px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
     #wwd-podcast .wwd-head > .bts img{object-position:50% 50%;}
     .hero > .bts-team{display:block;top:0;bottom:0;height:auto;right:0;left:auto;width:auto;aspect-ratio:2576/1449;-webkit-mask-image:url(/our-work/a/bts-team@t-clear.png),url(/our-work/a/bts-team@t-edge.png);mask-image:url(/our-work/a/bts-team@t-clear.png),url(/our-work/a/bts-team@t-edge.png);-webkit-mask-size:1176px 350px,100% 100%;mask-size:1176px 350px,100% 100%;-webkit-mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1176px) top 0,0 0;mask-position:right calc((100vw + min(100vw - 48px, 1072px)) / 2 - 1176px) top 0,0 0;-webkit-mask-composite:source-in;mask-composite:intersect;}
@@ -1682,6 +1659,25 @@
     .wwd-films .wwd-pair{display:contents;}
     .wwd-films .wwd-film{flex:0 0 82%;margin-top:0;scroll-snap-align:start;}
   }
+  /* What We Do 02's three spots (Yoni, 2026-11-02: "in 3 columns not in 3 rows (how brand videos
+     are)"). Three across from 900px; below that one sideways swipe row, like the brand films: 82%
+     cards on phones, 44% from 760px (two whole and the third peeking), scroll-snap, captions
+     under each, the same order. overflow-y:hidden keeps it from ever scrolling up and down, and
+     the cards fade in without the reveal's slide there (the reveal would push them down inside
+     the scroller). A swipe that starts on a video scrolls the row: the players never cancel touch. */
+  .wwd-spots{display:flex;gap:var(--s3);margin-top:var(--s6);overflow-x:auto;overflow-y:hidden;
+    overscroll-behavior-x:contain;scroll-snap-type:x mandatory;padding-bottom:var(--s2);
+    scrollbar-width:thin;}
+  .wwd-spots > .spot{flex:0 0 82%;min-width:0;scroll-snap-align:start;}
+  @media(min-width:760px){.wwd-spots > .spot{flex-basis:44%;}}
+  @media(max-width:899px){.wwd-spots > .spot.rv{transform:none;}}
+  @media(min-width:900px){.wwd-spots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:var(--s5);overflow:visible;padding-bottom:0;}}
+  /* on the ink band a spot is its film and the caption under it, as the brand films are: the
+     panel goes, so the orange label sits on ink (4.8:1; on the ink panel it was 3.8:1) */
+  .wwd-card.on-ink .spot{background:none;border-radius:0;overflow:visible;}
+  .wwd-card.on-ink .spot .vspot{border-radius:var(--r-md);}
+  .wwd-card.on-ink .spot .meta{padding:var(--s3) 0 0;}
 </style>
   <div class="hero-lines"><div class="wrap band-a">
   <p class="sub"><strong>The nation's premier production company for the trades.</strong>
@@ -1689,7 +1685,7 @@
   Captivating, high-end visuals bring your story to life. Homeowners feel something.
   That feeling is how they remember you. When they need a repair, a replacement or a remodel,
   they call a name they already know. <strong>We make sure that name is yours.</strong></p>
-  <svg class="slate-defs" aria-hidden="true" focusable="false"><defs><g id="slate-arm"><clipPath id="slate-ca"><rect y="1" width="136" height="13" rx="2"/></clipPath><g clip-path="url(#slate-ca)"><rect y="1" width="136" height="13" fill="#FFFFFF"/><path d="M-32 14L-16 14L-24.06 1L-40.06 1ZM0 14L16 14L7.94 1L-8.06 1ZM32 14L48 14L39.94 1L23.94 1ZM64 14L80 14L71.94 1L55.94 1ZM96 14L112 14L103.94 1L87.94 1ZM128 14L144 14L135.94 1L119.94 1ZM160 14L176 14L167.94 1L151.94 1Z" fill="#F04820"><animateTransform attributeName="transform" type="translate" from="0 0" to="32 0" dur="1.2s" repeatCount="indefinite"/></path></g><rect x="0.5" y="1.5" width="135" height="12" rx="2" fill="none" stroke="#1E2226" stroke-width="1"/></g><g id="slate-body"><clipPath id="slate-cl"><rect y="15.6" width="136" height="13" rx="2"/></clipPath><g clip-path="url(#slate-cl)"><rect y="15.6" width="136" height="13" fill="#FFFFFF"/><path d="M-40.06 28.6L-24.06 28.6L-16 15.6L-32 15.6ZM-8.06 28.6L7.94 28.6L16 15.6L0 15.6ZM23.94 28.6L39.94 28.6L48 15.6L32 15.6ZM55.94 28.6L71.94 28.6L80 15.6L64 15.6ZM87.94 28.6L103.94 28.6L112 15.6L96 15.6ZM119.94 28.6L135.94 28.6L144 15.6L128 15.6ZM151.94 28.6L167.94 28.6L176 15.6L160 15.6Z" fill="#F04820"><animateTransform attributeName="transform" type="translate" from="0 0" to="32 0" dur="1.2s" repeatCount="indefinite"/></path></g><rect x="0.5" y="16.1" width="135" height="12" rx="2" fill="none" stroke="#1E2226" stroke-width="1"/><rect y="30.2" width="136" height="75" rx="3" fill="#1E2226"/><path d="M24 36.2V99.2M112 36.2V99.2M6 46.7H130" stroke="#4B535B" stroke-width="1.1" fill="none"/><g text-anchor="middle" font-family="Archivo, 'Archivo Fallback', 'Arial Black', Arial, sans-serif" font-weight="700" font-size="7.4" letter-spacing="0.44" fill="#C9CDD2"><text x="12" y="41.8">ROLL</text><text x="68" y="41.8">SCENE</text><text x="124" y="41.8">TAKE</text></g><circle cx="5.6" cy="14.8" r="2.8" fill="#9AA3AB"/></g></defs></svg><script>(function(){var d=document.querySelector('.slate-defs');if(d&&d.pauseAnimations&&window.Set&&'IntersectionObserver' in window)d.pauseAnimations();})();</script>
+  <svg class="slate-defs" aria-hidden="true" focusable="false"><defs><g id="slate-arm"><clipPath id="slate-ca"><rect y="1" width="136" height="13" rx="2"/></clipPath><g clip-path="url(#slate-ca)"><rect y="1" width="136" height="13" fill="#FFFFFF"/><path d="M-32 14L-16 14L-24.06 1L-40.06 1ZM0 14L16 14L7.94 1L-8.06 1ZM32 14L48 14L39.94 1L23.94 1ZM64 14L80 14L71.94 1L55.94 1ZM96 14L112 14L103.94 1L87.94 1ZM128 14L144 14L135.94 1L119.94 1ZM160 14L176 14L167.94 1L151.94 1Z" fill="#F04820"><animateTransform attributeName="transform" type="translate" from="0 0" to="32 0" dur="1.2s" repeatCount="indefinite"/></path></g><rect x="0.5" y="1.5" width="135" height="12" rx="2" fill="none" stroke="#1E2226" stroke-width="1"/></g><g id="slate-body"><clipPath id="slate-cl"><rect y="15.6" width="136" height="13" rx="2"/></clipPath><g clip-path="url(#slate-cl)"><rect y="15.6" width="136" height="13" fill="#FFFFFF"/><path d="M-40.06 28.6L-24.06 28.6L-16 15.6L-32 15.6ZM-8.06 28.6L7.94 28.6L16 15.6L0 15.6ZM23.94 28.6L39.94 28.6L48 15.6L32 15.6ZM55.94 28.6L71.94 28.6L80 15.6L64 15.6ZM87.94 28.6L103.94 28.6L112 15.6L96 15.6ZM119.94 28.6L135.94 28.6L144 15.6L128 15.6ZM151.94 28.6L167.94 28.6L176 15.6L160 15.6Z" fill="#F04820"><animateTransform attributeName="transform" type="translate" from="0 0" to="32 0" dur="1.2s" repeatCount="indefinite"/></path></g><rect x="0.5" y="16.1" width="135" height="12" rx="2" fill="none" stroke="#1E2226" stroke-width="1"/><rect y="30.2" width="136" height="75" rx="3" fill="#1E2226" style="stroke:var(--slate-edge,none);stroke-width:1.2"/><path d="M24 36.2V99.2M112 36.2V99.2M6 46.7H130" stroke="#4B535B" stroke-width="1.1" fill="none"/><g text-anchor="middle" font-family="Archivo, 'Archivo Fallback', 'Arial Black', Arial, sans-serif" font-weight="700" font-size="7.4" letter-spacing="0.44" fill="#C9CDD2"><text x="12" y="41.8">ROLL</text><text x="68" y="41.8">SCENE</text><text x="124" y="41.8">TAKE</text></g><circle cx="5.6" cy="14.8" r="2.8" fill="#9AA3AB"/></g></defs></svg><script>(function(){var d=document.querySelector('.slate-defs');if(d&&d.pauseAnimations&&window.Set&&'IntersectionObserver' in window)d.pauseAnimations();})();</script>
   <nav class="svc" aria-labelledby="svc-h"><h2 class="eyebrow svc-h" id="svc-h">Our services</h2><ul class="svc-strip"><li><a class="svc-frame" href="#wwd-social"><span class="svc-film"><span class="svc-pic"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/our-work/a/svc-social.webp" data-srcset="/our-work/a/svc-social-336.webp 336w, /our-work/a/svc-social.webp 480w" sizes="(min-width:1120px) 260px,(min-width:760px) calc(25vw - 20px),calc(50vw - 32px)" width="480" height="270" alt="" decoding="async"><noscript><img src="/our-work/a/svc-social-336.webp" width="480" height="270" alt=""></noscript></span></span><span class="svc-cap"><svg class="slate" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true" focusable="false"><use class="arm" href="#slate-arm" transform="rotate(-9 2 14)"/><use href="#slate-body"/><text class="sn" x="68" y="98.35">01</text></svg><span class="svc-name">Social Media Packages</span><span class="svc-line">A reel every weekday, posted for you.</span></span></a></li><li><a class="svc-frame" href="#wwd-commercial"><span class="svc-film"><span class="svc-pic"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/our-work/a/svc-commercial.webp" data-srcset="/our-work/a/svc-commercial-336.webp 336w, /our-work/a/svc-commercial.webp 480w" sizes="(min-width:1120px) 260px,(min-width:760px) calc(25vw - 20px),calc(50vw - 32px)" width="480" height="270" alt="" decoding="async"><noscript><img src="/our-work/a/svc-commercial-336.webp" width="480" height="270" alt=""></noscript></span></span><span class="svc-cap"><svg class="slate" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true" focusable="false"><use class="arm" href="#slate-arm" transform="rotate(-9 2 14)"/><use href="#slate-body"/><text class="sn" x="68" y="98.35">02</text></svg><span class="svc-name">Commercial shoots</span><span class="svc-line">Spots built on one strong idea.</span></span></a></li><li><a class="svc-frame" href="#wwd-brand"><span class="svc-film"><span class="svc-pic"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/our-work/a/svc-brand.webp" data-srcset="/our-work/a/svc-brand-336.webp 336w, /our-work/a/svc-brand.webp 480w" sizes="(min-width:1120px) 260px,(min-width:760px) calc(25vw - 20px),calc(50vw - 32px)" width="480" height="270" alt="" decoding="async"><noscript><img src="/our-work/a/svc-brand-336.webp" width="480" height="270" alt=""></noscript></span></span><span class="svc-cap"><svg class="slate" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true" focusable="false"><use class="arm" href="#slate-arm" transform="rotate(-9 2 14)"/><use href="#slate-body"/><text class="sn" x="68" y="98.35">03</text></svg><span class="svc-name">Brand videos</span><span class="svc-line">A film that tells your story.</span></span></a></li><li><a class="svc-frame" href="#wwd-podcast"><span class="svc-film"><span class="svc-pic"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="/our-work/a/svc-podcast.webp" data-srcset="/our-work/a/svc-podcast-336.webp 336w, /our-work/a/svc-podcast.webp 480w" sizes="(min-width:1120px) 260px,(min-width:760px) calc(25vw - 20px),calc(50vw - 32px)" width="480" height="270" alt="" decoding="async"><noscript><img src="/our-work/a/svc-podcast-336.webp" width="480" height="270" alt=""></noscript></span></span><span class="svc-cap"><svg class="slate" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true" focusable="false"><use class="arm" href="#slate-arm" transform="rotate(-9 2 14)"/><use href="#slate-body"/><text class="sn" x="68" y="98.35">04</text></svg><span class="svc-name">Podcast production</span><span class="svc-line">We build the set. You talk.</span></span></a></li></ul></nav><script>
 (function(){
   var imgs = [].slice.call(document.querySelectorAll('.svc img[data-src]'));
@@ -1727,12 +1723,39 @@
   <div class="marquee" style="--mq-gap:110.4px"><div class="marquee-track" style="animation-duration:140.8s"><div class="logomark" style="--x:.182;--w:.636"><img src="/our-work/a/logo_allheart.webp" alt="All Heart Heating, Cooling and Plumbing" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.024;--w:.952"><img src="/our-work/a/logo_quality.webp" alt="Quality Heating Cooling Plumbing and Electric" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.206;--w:.59"><img src="/our-work/a/logo_beerightthere.webp" alt="Bee Right There Heating and Air" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.346;--w:.308"><img src="/our-work/a/logo_a1.webp" alt="A1 Air Conditioning and Heating" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.248;--w:.504"><img src="/our-work/a/logo_icomfort.webp" alt="iComfort Heating and Air" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.112;--w:.778"><img src="/our-work/a/logo_vector.webp" alt="Vector Heating, Cooling, Plumbing and Electrical" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.338;--w:.326"><img src="/our-work/a/logo_veterans.webp" alt="Veterans AC PHX" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.288;--w:.424"><img src="/our-work/a/logo_harmony.webp" alt="Harmony Electrical, Plumbing and Air" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.176;--w:.648"><img src="/our-work/a/logo_grasshopper.webp" alt="Grasshopper Heating, Cooling and Plumbing" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.186;--w:.628"><img src="/our-work/a/logo_fiscor.webp" alt="Fiscor Plumbing and Air" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.218;--w:.562"><img src="/our-work/a/logo_goodguy.webp" alt="Good Guy Plumbing" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.024;--w:.952"><img src="/our-work/a/logo_premier.webp" alt="Premier Heating and Air" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.176;--w:.648"><img src="/our-work/a/logo_familyplumber.webp" alt="The Family Plumber" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.232;--w:.536"><img src="/our-work/a/logo_acplus.webp" alt="AC Plus Heating and Cooling" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.054;--w:.892"><img src="/our-work/a/logo_atticman.webp" alt="Atticman Heating and Air Conditioning, Insulation" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.34;--w:.32"><img src="/our-work/a/logo_martins.webp" alt="Martins A/C and Electric" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.22;--w:.56"><img src="/our-work/a/logo_airone.webp" alt="Air One" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.088;--w:.822"><img src="/our-work/a/logo_blanchards.webp" alt="Blanchards Refrigeration" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.184;--w:.634"><img src="/our-work/a/logo_warmwelcome.webp" alt="Warm Welcome Heating, Cooling and Plumbing" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.298;--w:.404"><img src="/our-work/a/logo_firstmate.webp" alt="First Mate Heating and Cooling" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.19;--w:.62"><img src="/our-work/a/logo_doggone.webp" alt="Doggone Good Heating and Cooling" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.17;--w:.662"><img src="/our-work/a/logo_clogbusters.webp" alt="Clog Busters Drain Cleaning and Repair" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.242;--w:.518"><img src="/our-work/a/logo_bellaire.webp" alt="Bellaire Air Conditioning and Heating" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.192;--w:.616"><img src="/our-work/a/logo_4points.webp" alt="4 Points A/C and Heating" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.254;--w:.494"><img src="/our-work/a/logo_allamerican.webp" alt="All American Heating and Plumbing" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.024;--w:.952"><img src="/our-work/a/logo_bluepeaks.webp" alt="Blue Peaks Roofing" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.264;--w:.472"><img src="/our-work/a/logo_gengatorz.webp" alt="Gengatorz Power Systems" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.252;--w:.496"><img src="/our-work/a/logo_genstar.webp" alt="Genstar Generator Service" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.024;--w:.952"><img src="/our-work/a/logo_generatorguys.webp" alt="The Generator Guys" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.202;--w:.598"><img src="/our-work/a/logo_selectpower.webp" alt="Select Power" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.154;--w:.692"><img src="/our-work/a/logo_gatorwraps.webp" alt="GatorWraps" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.052;--w:.896"><img src="/our-work/a/logo_stellar.webp" alt="Stellar Garage Doors" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.314;--w:.374"><img src="/our-work/a/logo_rocketgroup.webp" alt="Rocket Group" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.232;--w:.536"><img src="/our-work/a/logo_lmh.webp" alt="Lokal Media House" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.024;--w:.952"><img src="/our-work/a/logo_rivenway.webp" alt="Rivenway" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark" style="--x:.072;--w:.856"><img src="/our-work/a/logo_servicemvp.webp" alt="Service MVP" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.182;--w:.636"><img src="/our-work/a/logo_allheart.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.024;--w:.952"><img src="/our-work/a/logo_quality.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.206;--w:.59"><img src="/our-work/a/logo_beerightthere.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.346;--w:.308"><img src="/our-work/a/logo_a1.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.248;--w:.504"><img src="/our-work/a/logo_icomfort.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.112;--w:.778"><img src="/our-work/a/logo_vector.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.338;--w:.326"><img src="/our-work/a/logo_veterans.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.288;--w:.424"><img src="/our-work/a/logo_harmony.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.176;--w:.648"><img src="/our-work/a/logo_grasshopper.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.186;--w:.628"><img src="/our-work/a/logo_fiscor.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.218;--w:.562"><img src="/our-work/a/logo_goodguy.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.024;--w:.952"><img src="/our-work/a/logo_premier.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.176;--w:.648"><img src="/our-work/a/logo_familyplumber.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.232;--w:.536"><img src="/our-work/a/logo_acplus.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.054;--w:.892"><img src="/our-work/a/logo_atticman.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.34;--w:.32"><img src="/our-work/a/logo_martins.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.22;--w:.56"><img src="/our-work/a/logo_airone.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.088;--w:.822"><img src="/our-work/a/logo_blanchards.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.184;--w:.634"><img src="/our-work/a/logo_warmwelcome.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.298;--w:.404"><img src="/our-work/a/logo_firstmate.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.19;--w:.62"><img src="/our-work/a/logo_doggone.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.17;--w:.662"><img src="/our-work/a/logo_clogbusters.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.242;--w:.518"><img src="/our-work/a/logo_bellaire.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.192;--w:.616"><img src="/our-work/a/logo_4points.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.254;--w:.494"><img src="/our-work/a/logo_allamerican.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.024;--w:.952"><img src="/our-work/a/logo_bluepeaks.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.264;--w:.472"><img src="/our-work/a/logo_gengatorz.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.252;--w:.496"><img src="/our-work/a/logo_genstar.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.024;--w:.952"><img src="/our-work/a/logo_generatorguys.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.202;--w:.598"><img src="/our-work/a/logo_selectpower.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.154;--w:.692"><img src="/our-work/a/logo_gatorwraps.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.052;--w:.896"><img src="/our-work/a/logo_stellar.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.314;--w:.374"><img src="/our-work/a/logo_rocketgroup.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.232;--w:.536"><img src="/our-work/a/logo_lmh.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.024;--w:.952"><img src="/our-work/a/logo_rivenway.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div><div class="logomark dupe" style="--x:.072;--w:.856"><img src="/our-work/a/logo_servicemvp.webp" alt="" width="500" height="200" loading="lazy" decoding="async"></div></div></div>
 </div></section>
 
-<section id="what-we-do" class="wwd"><div class="wrap">
+<style>
+  /* What We Do as stacking scene bands: see the notes above WWD_CARDS_CSS in build_site.py */
+  section.wwd{padding:0;background:#F5F4F1;}
+  .wwd-stack{--wt:61px;--wr:calc(126px + env(safe-area-inset-bottom, 0px));}
+  @media(min-width:760px){.wwd-stack{--wr:96px;}}
+  .wwd-sn{display:block;height:0;}
+  .wwd-stack > .wwd-card{--wpt:var(--s8);--wd:.5;position:relative;isolation:isolate;margin:0;padding:var(--wpt) max(var(--s5), calc((100% - 1072px) / 2)) var(--s7);background:#F5F4F1;}
+  .wwd-stack > .wwd-card.on-ink{--wd:.35;background:#14171A;}
+  #wwd-social{--wpt:var(--s-sec);}
+  #wwd-social > .sec-head{margin-bottom:calc(var(--s6) + var(--s7));}
+  #wwd-commercial{--wpt:88px;}
+  #wwd-brand{--wpt:88px;}
+  #wwd-podcast{--wpt:88px;}
+  @media(min-width:960px){#wwd-commercial{--wpt:96px;}#wwd-brand{--wpt:208px;}#wwd-podcast{--wpt:208px;}}
+  .wwd-card.on-ink .wwd-num .slate{--slate-edge:#6B747C;}
+  .wwd-stack > .wwd-card::after{content:"";position:absolute;inset:0;z-index:3;background:#14171A;opacity:0;pointer-events:none;transition:opacity .6s cubic-bezier(.4,0,.2,1);}
+  .wwd-stack.is-stack > .wwd-card{position:sticky;top:calc(100vh - var(--wr) - var(--h, 100000px));top:calc(100svh - var(--wr) - var(--h, 100000px));}
+  .wwd-stack.is-stack > .wwd-card.is-under::after{opacity:var(--wd);}
+  @media(prefers-reduced-motion:no-preference){@supports(animation-timeline:view()) and (timeline-scope:none){
+    .wwd-stack.is-stack{timeline-scope:--wc1,--wc2,--wc3;}
+    .wwd-stack.is-stack > .wwd-sn{view-timeline-axis:block;view-timeline-inset:var(--wt) var(--wr);}
+    .wwd-sn1{view-timeline-name:--wc1;}.wwd-sn2{view-timeline-name:--wc2;}.wwd-sn3{view-timeline-name:--wc3;}
+    .wwd-stack.is-stack > .wwd-card::after{transition:none;animation-name:wwd-under;animation-duration:auto;animation-timing-function:linear;animation-fill-mode:both;animation-range:cover 0% cover 100%;}
+    .wwd-stack.is-stack > #wwd-social::after{animation-timeline:--wc1;}.wwd-stack.is-stack > #wwd-commercial::after{animation-timeline:--wc2;}.wwd-stack.is-stack > #wwd-brand::after{animation-timeline:--wc3;}.wwd-stack.is-stack > #wwd-podcast::after{animation-name:none;}
+  }}
+  @keyframes wwd-under{from{opacity:0;}to{opacity:var(--wd);}}
+  @media(prefers-reduced-motion:reduce){.wwd-stack.is-stack > .wwd-card{position:relative;top:auto;}.wwd-stack > .wwd-card::after{display:none;}}
+</style>
+<section id="what-we-do" class="wwd"><div class="wwd-stack">
+  <div class="wwd-block wwd-card" id="wwd-social">
   <div class="sec-head">
     <h2 class="display">What We Do</h2>
   </div>
-
-  <div class="wwd-block" id="wwd-social">
     <div class="wwd-head"><picture class="bts bts-wwd bts-wwd01"><source media="(min-width: 360px) and (max-width: 479px)" type="image/avif" srcset="/our-work/a/bts-wwd01@p-320.avif 320w, /our-work/a/bts-wwd01@p-480.avif 480w, /our-work/a/bts-wwd01@p-720.avif 720w" sizes="min(100vw - 234px, 215px)"><source media="(min-width: 360px) and (max-width: 479px)" type="image/webp" srcset="/our-work/a/bts-wwd01@p-320.webp 320w, /our-work/a/bts-wwd01@p-480.webp 480w, /our-work/a/bts-wwd01@p-720.webp 720w" sizes="min(100vw - 234px, 215px)"><source media="(min-width: 960px) and (max-width: 1199px)" type="image/avif" srcset="/our-work/a/bts-wwd01@m-640.avif 640w, /our-work/a/bts-wwd01@m-960.avif 960w, /our-work/a/bts-wwd01@m-1280.avif 1280w, /our-work/a/bts-wwd01@m-1500.avif 1500w" sizes="542px"><source media="(min-width: 960px) and (max-width: 1199px)" type="image/webp" srcset="/our-work/a/bts-wwd01@m-640.webp 640w, /our-work/a/bts-wwd01@m-960.webp 960w, /our-work/a/bts-wwd01@m-1280.webp 1280w, /our-work/a/bts-wwd01@m-1500.webp 1500w" sizes="542px"><source media="(min-width: 1200px) and (max-width: 1279px)" type="image/avif" srcset="/our-work/a/bts-wwd01f-640.avif 640w, /our-work/a/bts-wwd01f-960.avif 960w, /our-work/a/bts-wwd01f-1280.avif 1280w, /our-work/a/bts-wwd01f-1600.avif 1600w, /our-work/a/bts-wwd01f-2000.avif 2000w" sizes="811px"><source media="(min-width: 1200px) and (max-width: 1279px)" type="image/webp" srcset="/our-work/a/bts-wwd01f-640.webp 640w, /our-work/a/bts-wwd01f-960.webp 960w, /our-work/a/bts-wwd01f-1280.webp 1280w, /our-work/a/bts-wwd01f-1600.webp 1600w, /our-work/a/bts-wwd01f-2000.webp 2000w" sizes="811px"><source media="(max-width: 1279px)" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><source media="(min-width: 1680px)" type="image/avif" srcset="/our-work/a/bts-wwd01w-1280.avif 1280w, /our-work/a/bts-wwd01w-1600.avif 1600w, /our-work/a/bts-wwd01w-2000.avif 2000w, /our-work/a/bts-wwd01w-2576.avif 2576w" sizes="calc(50vw + 220px)"><source media="(min-width: 1680px)" type="image/webp" srcset="/our-work/a/bts-wwd01w-1280.webp 1280w, /our-work/a/bts-wwd01w-1600.webp 1600w, /our-work/a/bts-wwd01w-2000.webp 2000w, /our-work/a/bts-wwd01w-2576.webp 2576w" sizes="calc(50vw + 220px)"><source type="image/avif" srcset="/our-work/a/bts-wwd01f-640.avif 640w, /our-work/a/bts-wwd01f-960.avif 960w, /our-work/a/bts-wwd01f-1280.avif 1280w, /our-work/a/bts-wwd01f-1600.avif 1600w, /our-work/a/bts-wwd01f-2000.avif 2000w" sizes="(min-width: 1280px) max(calc(50vw + 220px), 811px), 1px"><source type="image/webp" srcset="/our-work/a/bts-wwd01f-640.webp 640w, /our-work/a/bts-wwd01f-960.webp 960w, /our-work/a/bts-wwd01f-1280.webp 1280w, /our-work/a/bts-wwd01f-1600.webp 1600w, /our-work/a/bts-wwd01f-2000.webp 2000w" sizes="(min-width: 1280px) max(calc(50vw + 220px), 811px), 1px"><img src="/our-work/a/bts-wwd01f-960.webp" width="960" height="632" alt="" loading="lazy" decoding="async"></picture>
     <p class="wwd-num" aria-hidden="true"><svg class="slate" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true" focusable="false"><use class="arm" href="#slate-arm" transform="rotate(-9 2 14)"/><use href="#slate-body"/><text class="sn" x="68" y="98.35">01</text></svg></p>
     <h3 class="wwd-title">Social Media Packages</h3>
@@ -1750,7 +1773,8 @@
     </div>
   </div>
 
-  <div class="wwd-block" id="wwd-commercial">
+  <i class="wwd-sn wwd-sn1" aria-hidden="true"></i>
+  <div class="wwd-block wwd-card on-ink" id="wwd-commercial">
     <div class="wwd-head"><picture class="bts bts-wwd bts-wwd02"><source media="(max-width: 389px)" type="image/avif" srcset="/our-work/a/bts-wwd02@v-320.avif 320w, /our-work/a/bts-wwd02@v-480.avif 480w, /our-work/a/bts-wwd02@v-720.avif 720w" sizes="235px"><source media="(max-width: 389px)" type="image/webp" srcset="/our-work/a/bts-wwd02@v-320.webp 320w, /our-work/a/bts-wwd02@v-480.webp 480w, /our-work/a/bts-wwd02@v-720.webp 720w" sizes="235px"><source media="(min-width: 390px) and (max-width: 429px)" type="image/avif" srcset="/our-work/a/bts-wwd02@w-480.avif 480w, /our-work/a/bts-wwd02@w-720.avif 720w, /our-work/a/bts-wwd02@w-960.avif 960w" sizes="300px"><source media="(min-width: 390px) and (max-width: 429px)" type="image/webp" srcset="/our-work/a/bts-wwd02@w-480.webp 480w, /our-work/a/bts-wwd02@w-720.webp 720w, /our-work/a/bts-wwd02@w-960.webp 960w" sizes="300px"><source media="(min-width: 430px) and (max-width: 479px)" type="image/avif" srcset="/our-work/a/bts-wwd02@p-480.avif 480w, /our-work/a/bts-wwd02@p-760.avif 760w, /our-work/a/bts-wwd02@p-1080.avif 1080w" sizes="343px"><source media="(min-width: 430px) and (max-width: 479px)" type="image/webp" srcset="/our-work/a/bts-wwd02@p-480.webp 480w, /our-work/a/bts-wwd02@p-760.webp 760w, /our-work/a/bts-wwd02@p-1080.webp 1080w" sizes="343px"><source media="(min-width: 960px) and (max-width: 1199px)" type="image/avif" srcset="/our-work/a/bts-wwd02@m-640.avif 640w, /our-work/a/bts-wwd02@m-960.avif 960w, /our-work/a/bts-wwd02@m-1280.avif 1280w" sizes="468px"><source media="(min-width: 960px) and (max-width: 1199px)" type="image/webp" srcset="/our-work/a/bts-wwd02@m-640.webp 640w, /our-work/a/bts-wwd02@m-960.webp 960w, /our-work/a/bts-wwd02@m-1280.webp 1280w" sizes="468px"><source media="(min-width: 1200px) and (max-width: 1279px)" type="image/avif" srcset="/our-work/a/bts-wwd02f-640.avif 640w, /our-work/a/bts-wwd02f-960.avif 960w, /our-work/a/bts-wwd02f-1280.avif 1280w, /our-work/a/bts-wwd02f-1600.avif 1600w, /our-work/a/bts-wwd02f-2000.avif 2000w" sizes="681px"><source media="(min-width: 1200px) and (max-width: 1279px)" type="image/webp" srcset="/our-work/a/bts-wwd02f-640.webp 640w, /our-work/a/bts-wwd02f-960.webp 960w, /our-work/a/bts-wwd02f-1280.webp 1280w, /our-work/a/bts-wwd02f-1600.webp 1600w, /our-work/a/bts-wwd02f-2000.webp 2000w" sizes="681px"><source media="(max-width: 1279px)" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><source type="image/avif" srcset="/our-work/a/bts-wwd02f-640.avif 640w, /our-work/a/bts-wwd02f-960.avif 960w, /our-work/a/bts-wwd02f-1280.avif 1280w, /our-work/a/bts-wwd02f-1600.avif 1600w, /our-work/a/bts-wwd02f-2000.avif 2000w" sizes="(min-width: 1280px) max(calc(50vw + 160px), 681px), 1px"><source type="image/webp" srcset="/our-work/a/bts-wwd02f-640.webp 640w, /our-work/a/bts-wwd02f-960.webp 960w, /our-work/a/bts-wwd02f-1280.webp 1280w, /our-work/a/bts-wwd02f-1600.webp 1600w, /our-work/a/bts-wwd02f-2000.webp 2000w" sizes="(min-width: 1280px) max(calc(50vw + 160px), 681px), 1px"><img src="/our-work/a/bts-wwd02f-960.webp" width="960" height="540" alt="" loading="lazy" decoding="async"></picture>
     <p class="wwd-num" aria-hidden="true"><svg class="slate" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true" focusable="false"><use class="arm" href="#slate-arm" transform="rotate(-9 2 14)"/><use href="#slate-body"/><text class="sn" x="68" y="98.35">02</text></svg></p>
     <h3 class="wwd-title">Commercial shoots</h3>
@@ -1758,7 +1782,7 @@
     cost lands once.</p>
     <a class="wwd-link" href="/our-work/all-heart/">See the All Heart campaign&nbsp;&rarr;</a>
     </div>
-    <div class="grid">
+    <div class="wwd-spots">
 <article class="spot"><div class="vspot" data-state="idle"><video src="/our-work/a/ah01.mp4" preload="none" playsinline width="1280" height="720" aria-hidden="true"></video><img src="/our-work/a/zaCFfVetfFI.webp" width="700" height="394" alt="" loading="lazy" decoding="async"><button type="button" class="vplay" aria-label="Play Breaking Furniture 101" data-title="Breaking Furniture 101"><span class="vglyph"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span class="vsnd"><span class="vsnd-off"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>Click for sound</span><span class="vsnd-on"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>Sound on</span></span></button></div><div class="meta"><span class="sc">All Heart</span><span class="nm">Breaking Furniture 101</span><span class="du">0:30</span></div></article>
 <article class="spot"><div class="vspot" data-state="idle"><video src="/our-work/a/ah03.mp4" preload="none" playsinline width="1280" height="720" aria-hidden="true"></video><img src="/our-work/a/TPDZ-OvRNgc.webp" width="700" height="394" alt="" loading="lazy" decoding="async"><button type="button" class="vplay" aria-label="Play The Snake" data-title="The Snake"><span class="vglyph"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span class="vsnd"><span class="vsnd-off"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>Click for sound</span><span class="vsnd-on"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>Sound on</span></span></button></div><div class="meta"><span class="sc">All Heart</span><span class="nm">The Snake</span><span class="du">0:30</span></div></article>
 <article class="spot"><div class="vspot" data-state="idle"><video src="/our-work/a/hd05.mp4" preload="none" playsinline width="1280" height="720" aria-hidden="true"></video><img src="/our-work/a/AfkePSa8XLU.webp" width="700" height="394" alt="" loading="lazy" decoding="async"><button type="button" class="vplay" aria-label="Play A Space Odyssey" data-title="A Space Odyssey"><span class="vglyph"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span><span class="vsnd"><span class="vsnd-off"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M23 9l-6 6M17 9l6 6"/></svg>Click for sound</span><span class="vsnd-on"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>Sound on</span></span></button></div><div class="meta"><span class="sc">Handyman Dan</span><span class="nm">A Space Odyssey</span><span class="du">0:56</span></div></article>
@@ -1767,7 +1791,8 @@
     <a class="cta" href="/contact/?campaign=commercial-shoot#start"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label">Ask about a commercial shoot</span><span class="bm-gate b"></span></a>
   </div>
 
-  <div class="wwd-block" id="wwd-brand">
+  <i class="wwd-sn wwd-sn2" aria-hidden="true"></i>
+  <div class="wwd-block wwd-card" id="wwd-brand">
     <div class="wwd-head"><picture class="bts bts-wwd bts-wwd03"><source media="(max-width: 389px)" type="image/avif" srcset="/our-work/a/bts-wwd03@r-320.avif 320w, /our-work/a/bts-wwd03@r-480.avif 480w, /our-work/a/bts-wwd03@r-720.avif 720w" sizes="110px"><source media="(max-width: 389px)" type="image/webp" srcset="/our-work/a/bts-wwd03@r-320.webp 320w, /our-work/a/bts-wwd03@r-480.webp 480w, /our-work/a/bts-wwd03@r-720.webp 720w" sizes="110px"><source media="(min-width: 390px) and (max-width: 479px)" type="image/avif" srcset="/our-work/a/bts-wwd03@p-480.avif 480w, /our-work/a/bts-wwd03@p-720.avif 720w, /our-work/a/bts-wwd03@p-1080.avif 1080w" sizes="187px"><source media="(min-width: 390px) and (max-width: 479px)" type="image/webp" srcset="/our-work/a/bts-wwd03@p-480.webp 480w, /our-work/a/bts-wwd03@p-720.webp 720w, /our-work/a/bts-wwd03@p-1080.webp 1080w" sizes="187px"><source media="(min-width: 960px) and (max-width: 1199px)" type="image/avif" srcset="/our-work/a/bts-wwd03@m-640.avif 640w, /our-work/a/bts-wwd03@m-960.avif 960w, /our-work/a/bts-wwd03@m-1280.avif 1280w" sizes="645px"><source media="(min-width: 960px) and (max-width: 1199px)" type="image/webp" srcset="/our-work/a/bts-wwd03@m-640.webp 640w, /our-work/a/bts-wwd03@m-960.webp 960w, /our-work/a/bts-wwd03@m-1280.webp 1280w" sizes="645px"><source media="(min-width: 1200px) and (max-width: 1279px)" type="image/avif" srcset="/our-work/a/bts-wwd03f-640.avif 640w, /our-work/a/bts-wwd03f-960.avif 960w, /our-work/a/bts-wwd03f-1280.avif 1280w, /our-work/a/bts-wwd03f-1600.avif 1600w, /our-work/a/bts-wwd03f-2000.avif 2000w" sizes="800px"><source media="(min-width: 1200px) and (max-width: 1279px)" type="image/webp" srcset="/our-work/a/bts-wwd03f-640.webp 640w, /our-work/a/bts-wwd03f-960.webp 960w, /our-work/a/bts-wwd03f-1280.webp 1280w, /our-work/a/bts-wwd03f-1600.webp 1600w, /our-work/a/bts-wwd03f-2000.webp 2000w" sizes="800px"><source media="(max-width: 1279px)" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><source type="image/avif" srcset="/our-work/a/bts-wwd03f-640.avif 640w, /our-work/a/bts-wwd03f-960.avif 960w, /our-work/a/bts-wwd03f-1280.avif 1280w, /our-work/a/bts-wwd03f-1600.avif 1600w, /our-work/a/bts-wwd03f-2000.avif 2000w" sizes="(min-width: 1280px) max(calc(50vw + 160px), 802px), 1px"><source type="image/webp" srcset="/our-work/a/bts-wwd03f-640.webp 640w, /our-work/a/bts-wwd03f-960.webp 960w, /our-work/a/bts-wwd03f-1280.webp 1280w, /our-work/a/bts-wwd03f-1600.webp 1600w, /our-work/a/bts-wwd03f-2000.webp 2000w" sizes="(min-width: 1280px) max(calc(50vw + 160px), 802px), 1px"><img src="/our-work/a/bts-wwd03f-960.webp" width="960" height="540" alt="" loading="lazy" decoding="async"></picture>
     <p class="wwd-num" aria-hidden="true"><svg class="slate" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true" focusable="false"><use class="arm" href="#slate-arm" transform="rotate(-9 2 14)"/><use href="#slate-body"/><text class="sn" x="68" y="98.35">03</text></svg></p>
     <h3 class="wwd-title">Brand videos</h3>
@@ -1786,7 +1811,8 @@
     <a class="cta" href="/contact/?campaign=brand-video#start"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label">Ask about a brand video</span><span class="bm-gate b"></span></a>
   </div>
 
-  <div class="wwd-block" id="wwd-podcast">
+  <i class="wwd-sn wwd-sn3" aria-hidden="true"></i>
+  <div class="wwd-block wwd-card on-ink" id="wwd-podcast">
     <div class="wwd-head"><picture class="bts bts-wwd bts-wwd04"><source media="(max-width: 479px)" type="image/avif" srcset="/our-work/a/bts-wwd04@p-480.avif 480w, /our-work/a/bts-wwd04@p-720.avif 720w, /our-work/a/bts-wwd04@p-1040.avif 1040w" sizes="343px"><source media="(max-width: 479px)" type="image/webp" srcset="/our-work/a/bts-wwd04@p-480.webp 480w, /our-work/a/bts-wwd04@p-720.webp 720w, /our-work/a/bts-wwd04@p-1040.webp 1040w" sizes="343px"><source media="(min-width: 960px) and (max-width: 1199px)" type="image/avif" srcset="/our-work/a/bts-wwd04@m-640.avif 640w, /our-work/a/bts-wwd04@m-960.avif 960w, /our-work/a/bts-wwd04@m-1100.avif 1100w" sizes="570px"><source media="(min-width: 960px) and (max-width: 1199px)" type="image/webp" srcset="/our-work/a/bts-wwd04@m-640.webp 640w, /our-work/a/bts-wwd04@m-960.webp 960w, /our-work/a/bts-wwd04@m-1100.webp 1100w" sizes="570px"><source media="(min-width: 1200px) and (max-width: 1279px)" type="image/avif" srcset="/our-work/a/bts-wwd04@t-640.avif 640w, /our-work/a/bts-wwd04@t-960.avif 960w, /our-work/a/bts-wwd04@t-1280.avif 1280w, /our-work/a/bts-wwd04@t-1576.avif 1576w" sizes="824px"><source media="(min-width: 1200px) and (max-width: 1279px)" type="image/webp" srcset="/our-work/a/bts-wwd04@t-640.webp 640w, /our-work/a/bts-wwd04@t-960.webp 960w, /our-work/a/bts-wwd04@t-1280.webp 1280w, /our-work/a/bts-wwd04@t-1576.webp 1576w" sizes="824px"><source media="(max-width: 1279px)" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><source type="image/avif" srcset="/our-work/a/bts-wwd04f-640.avif 640w, /our-work/a/bts-wwd04f-960.avif 960w, /our-work/a/bts-wwd04f-1280.avif 1280w, /our-work/a/bts-wwd04f-1576.avif 1576w" sizes="(min-width: 1280px) max(calc(50vw + 160px), 826px), 1px"><source type="image/webp" srcset="/our-work/a/bts-wwd04f-640.webp 640w, /our-work/a/bts-wwd04f-960.webp 960w, /our-work/a/bts-wwd04f-1280.webp 1280w, /our-work/a/bts-wwd04f-1576.webp 1576w" sizes="(min-width: 1280px) max(calc(50vw + 160px), 826px), 1px"><img src="/our-work/a/bts-wwd04f-960.webp" width="960" height="610" alt="" loading="lazy" decoding="async"></picture>
     <p class="wwd-num" aria-hidden="true"><svg class="slate" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true" focusable="false"><use class="arm" href="#slate-arm" transform="rotate(-9 2 14)"/><use href="#slate-body"/><text class="sn" x="68" y="98.35">04</text></svg></p>
     <h3 class="wwd-title">Podcast production</h3>
@@ -1799,7 +1825,85 @@
     <p class="mw-ask">Want a show of your own?</p>
     <a class="cta" href="/contact/?campaign=podcast#start"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label">Ask about podcast production</span><span class="bm-gate b"></span></a>
   </div>
-</div></section>
+</div><script>
+(function(){
+  var st = document.querySelector('.wwd-stack');
+  if(!st || !window.matchMedia) return;
+  var cards = [].filter.call(st.children, function(e){ return e.classList.contains('wwd-card'); });
+  var sns = [].slice.call(st.querySelectorAll('.wwd-sn'));
+  var rm = matchMedia('(prefers-reduced-motion: reduce)'), ready = false, line = 0, rio = null, tm = 0;
+  function on(){ return ready && !rm.matches; }
+  function mode(){ st.classList.toggle('is-stack', on()); later(); }
+  /* each band's height, only when it changes; the stack goes on once all four are known */
+  function size(){
+    cards.forEach(function(c){ c.style.setProperty('--h', c.offsetHeight + 'px'); });
+    if(!ready){ ready = true; mode(); } else later();
+  }
+  if('ResizeObserver' in window){ var ro = new ResizeObserver(size); cards.forEach(function(c){ ro.observe(c); }); }
+  else { size(); addEventListener('resize', size); }
+  if(rm.addEventListener) rm.addEventListener('change', mode); else if(rm.addListener) rm.addListener(mode);
+  addEventListener('resize', later);
+  /* the dim without scroll-driven animations: a band darkens once the next one is past mid-screen */
+  var sd = window.CSS && CSS.supports && CSS.supports('animation-timeline', 'view()') && CSS.supports('timeline-scope', 'none');
+  if(!sd && 'IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        var c = cards[sns.indexOf(e.target)];
+        if(c) c.classList.toggle('is-under', e.isIntersecting || e.boundingClientRect.top < 0);
+      });
+    }, {rootMargin: '0px 0px -50% 0px'});
+    sns.forEach(function(s){ io.observe(s); });
+  }
+  /* the clap at rest (CLAP_JS): which bands rest with their slate on screen (.is-fit), and an
+     observer on the resting line. A band comes to rest, or is uncovered, exactly when the sentinel
+     after it crosses that line, in either direction: the band gets a "wwd-rest" event. Measured
+     150ms after a change, never per frame. */
+  function later(){ clearTimeout(tm); tm = setTimeout(measure, 150); }
+  function measure(){
+    if(!on() || !('IntersectionObserver' in window)){ if(rio){ rio.disconnect(); rio = null; }
+      cards.forEach(function(c){ c.classList.remove('is-fit'); }); return; }
+    var y = parseFloat(getComputedStyle(cards[0]).top) + cards[0].offsetHeight;
+    var nav = document.getElementById('nav'), wt = nav ? nav.getBoundingClientRect().bottom : 0;
+    if(!(y > 0)) return;
+    cards.forEach(function(c, i){
+      var s = c.querySelector('.wwd-num .slate');
+      c.classList.toggle('is-fit', !!(s && i < cards.length - 1 &&
+        y - c.offsetHeight + s.getBoundingClientRect().top - c.getBoundingClientRect().top >= wt));
+    });
+    if(rio && Math.abs(y - line) < 1) return;
+    line = y; if(rio) rio.disconnect();
+    var first = sns.map(function(){ return true; });
+    rio = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        var i = sns.indexOf(e.target), r = e.rootBounds, t = e.boundingClientRect.top;
+        if(first[i]){ first[i] = false; return; }
+        if(!r || Math.abs(t - r.bottom) > Math.abs(t - r.top)) return;
+        if(cards[i] && window.CustomEvent) cards[i].dispatchEvent(new CustomEvent('wwd-rest'));
+      });
+    }, {rootMargin: '0px 0px ' + Math.round(y - innerHeight) + 'px 0px'});
+    sns.forEach(function(s){ rio.observe(s); });
+  }
+  /* keyboard: focus that lands in a covered band (Shift+Tab from the next one) scrolls back up until
+     that control clears every band above it, with the band at rest at most */
+  function uncover(el){
+    var c = el.closest('.wwd-card'), i = cards.indexOf(c);
+    if(i < 0 || i === cards.length - 1 || !st.classList.contains('is-stack')) return;
+    var r = el.getBoundingClientRect(), cover = innerHeight;
+    for(var k = i + 1; k < cards.length; k++) cover = Math.min(cover, cards[k].getBoundingClientRect().top);
+    if(r.bottom + 8 <= cover) return;
+    var y = window.pageYOffset, cr = c.getBoundingClientRect();
+    var flow = (i ? sns[i - 1].getBoundingClientRect().top + parseFloat(getComputedStyle(c).marginTop)
+                  : st.getBoundingClientRect().top) + y;
+    var top = parseFloat(getComputedStyle(c).top) || 0;
+    var target = Math.min(flow - top, flow + (r.bottom - cr.top) + 16 - (top + c.offsetHeight));
+    if(target < y) window.scrollTo({top: Math.max(0, target), behavior: 'instant'});
+  }
+  st.addEventListener('focusin', function(ev){
+    var el = ev.target;
+    requestAnimationFrame(function(){ if(document.activeElement === el) uncover(el); });
+  });
+})();
+</script></section>
 
 <section id="from-a-client" class="tmn-section"><div class="wrap">
   <div class="sec-head">
@@ -2512,14 +2616,39 @@
     [].forEach.call(document.querySelectorAll('svg.slate'), function(s){ vis.observe(s); });
   }
   if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  /* 2026-11-02, the scene bands: a slate claps once per pass, in both directions, and never while a
+     later band covers it. A band that rests with its slate on screen (.is-fit, set by WWD_STACK_JS)
+     claps as it comes to rest, or as the band on top of it slides off (WWD_STACK_JS sends
+     "wwd-rest" on each crossing of the resting line). A band taller than the clear area rests with
+     its slate above the top bar, so its slate claps as it comes into view below the bar instead:
+     going down before the band rests, going up once the band on top has slid off. Those slates
+     re-arm once they have left the screen. The class comes off when the clap ends. */
+  var slates = [].slice.call(document.querySelectorAll('.wwd-num .slate'));
+  var armed = slates.map(function(){ return true; });
+  function card(s){ return s.closest('.wwd-card'); }
+  function atRest(c){ return c && c.classList.contains('is-fit') && c.parentNode.classList.contains('is-stack'); }
+  function covered(s){
+    var c = card(s), b = s.getBoundingClientRect().bottom;
+    for(var n = c && c.nextElementSibling; n; n = n.nextElementSibling)
+      if(n.classList.contains('wwd-card') && n.getBoundingClientRect().top < b) return true;
+    return false;
+  }
+  function clap(s){ s.classList.add('is-clap'); }
   var io = new IntersectionObserver(function(es){
     es.forEach(function(e){
-      if(!e.isIntersecting) return;
-      io.unobserve(e.target);                       /* once per slate per load */
-      e.target.classList.add('is-clap');
+      var n = slates.indexOf(e.target);
+      if(!e.isIntersecting){ armed[n] = true; return; }
+      if(e.intersectionRatio < 0.6 || !armed[n] || atRest(card(e.target)) || covered(e.target)) return;
+      armed[n] = false;
+      clap(e.target);
     });
-  }, {threshold: 0.6});
-  [].forEach.call(document.querySelectorAll('.wwd-num .slate'), function(s){ io.observe(s); });
+  }, {rootMargin: '-61px 0px 0px 0px', threshold: [0, 0.6, 1]});
+  slates.forEach(function(s){
+    s.addEventListener('animationend', function(){ s.classList.remove('is-clap'); });
+    var c = card(s);
+    if(c) c.addEventListener('wwd-rest', function(){ if(atRest(c)) clap(s); });
+    io.observe(s);
+  });
 })();
 </script>
 <script>
