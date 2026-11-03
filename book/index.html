@@ -203,16 +203,25 @@
   @media(max-width:619px){
     .navtoggle{display:flex;order:1;}
     .navcta{order:2;}
+    /* 2026-11-02: opens with a 300ms fade and 450ms travel, closes with a 300ms fade; hidden links leave the tab order */
     .navlinks{position:absolute;top:100%;left:0;right:0;z-index:-1;
       flex-direction:column;align-items:stretch;gap:0;
       background:#14171A;border-top:1px solid rgba(255,255,255,.12);
       max-height:calc(100vh - 60px);overflow-y:auto;
-      transform:translateY(-8px);opacity:0;pointer-events:none;
-      transition:opacity var(--ease),transform var(--ease);}
-    .navlinks.is-open{z-index:0;opacity:1;transform:translateY(0);pointer-events:auto;}
+      transform:translateY(-8px);opacity:0;pointer-events:none;visibility:hidden;
+      transition:opacity .3s cubic-bezier(.4,0,1,1),transform 0s linear .3s,visibility 0s linear .3s;}
+    .navlinks.is-open{z-index:0;opacity:1;transform:translateY(0);pointer-events:auto;visibility:visible;
+      transition:opacity .3s cubic-bezier(.22,1,.36,1),transform .45s cubic-bezier(.22,1,.36,1),visibility 0s;}
     .navlinks a{padding:16px var(--s5);border-bottom:1px solid rgba(255,255,255,.08);}
     .navsecondary{display:block;}
   }
+  /* Services (nav(), 2026-11-02): the bar's button only; the panel's styles ship with NAV_JS (NAV_DD_CSS) */
+  .navdd{position:relative;}
+  .navdd-btn{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin:0;padding:0;border:0;
+    background:none;cursor:pointer;font-family:var(--display);font-variant-caps:all-small-caps;
+    letter-spacing:.06em;font-size:var(--f-lede);font-weight:400;color:#D8D3C9;white-space:nowrap;}
+  .navdd-btn.is-on{color:var(--orange);}
+  .nsl-defs{position:absolute;width:0;height:0;overflow:hidden;}
   /* ---------- 4.1 motion ---------- */
   /* (a) scroll reveals. The hidden state is applied by JS, so if the script never
      runs the content is simply visible rather than invisible forever. */
@@ -1602,7 +1611,7 @@
   .book-alt + .book-alt{margin-top:var(--s2);font-size:var(--f-sm);}
 </style>
 <a class="skip" href="#main">Skip to content</a>
-<svg class="bm-defs" aria-hidden="true" focusable="false"><symbol id="bm-reel" viewBox="0 0 56 56"><circle cx="28" cy="28" r="25.6"/><path fill="#F04820" fill-rule="evenodd" d="M0.5 28a27.5 27.5 0 1 0 55 0a27.5 27.5 0 1 0 -55 0ZM2.8 28a25.2 25.2 0 1 0 50.4 0a25.2 25.2 0 1 0 -50.4 0ZM4.1 28a23.9 23.9 0 1 0 47.8 0a23.9 23.9 0 1 0 -47.8 0ZM21.3 14.4a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM34.2 23.8a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM29.3 39a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM13.3 39a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM8.4 23.8a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM24.9 28a3.1 3.1 0 1 0 6.2 0a3.1 3.1 0 1 0 -6.2 0Z"/></symbol></svg><nav class="nav" id="nav" aria-label="Primary"><div class="wrap navin"><a class="brand" href="/"><img class="brandmark" src="/our-work/a/nav_mark_hss.webp" alt="" width="174" height="84">Home Service Studios</a><div class="navright"><button type="button" class="navtoggle" id="navtoggle" aria-expanded="false" aria-controls="navlinks" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="navlinks" id="navlinks"><a href="/our-work/">Work</a><a href="/packages/">Packages</a><a href="/team/">Team</a><a href="/contact/" class="navsecondary">Contact</a></div><a class="navcta" href="/book/" aria-current="page"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label"><span class="ctalong">Book a call</span><span class="ctashort">Book</span></span><span class="bm-gate b"></span></a></div></div></nav><div class="navspacer"></div>
+<svg class="bm-defs" aria-hidden="true" focusable="false"><symbol id="bm-reel" viewBox="0 0 56 56"><circle cx="28" cy="28" r="25.6"/><path fill="#F04820" fill-rule="evenodd" d="M0.5 28a27.5 27.5 0 1 0 55 0a27.5 27.5 0 1 0 -55 0ZM2.8 28a25.2 25.2 0 1 0 50.4 0a25.2 25.2 0 1 0 -50.4 0ZM4.1 28a23.9 23.9 0 1 0 47.8 0a23.9 23.9 0 1 0 -47.8 0ZM21.3 14.4a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM34.2 23.8a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM29.3 39a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM13.3 39a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM8.4 23.8a6.7 6.7 0 1 0 13.4 0a6.7 6.7 0 1 0 -13.4 0ZM24.9 28a3.1 3.1 0 1 0 6.2 0a3.1 3.1 0 1 0 -6.2 0Z"/></symbol></svg><nav class="nav" id="nav" aria-label="Primary"><div class="wrap navin"><a class="brand" href="/"><img class="brandmark" src="/our-work/a/nav_mark_hss.webp" alt="" width="174" height="84">Home Service Studios</a><div class="navright"><button type="button" class="navtoggle" id="navtoggle" aria-expanded="false" aria-controls="navlinks" aria-label="Menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="navlinks" id="navlinks"><a href="/our-work/">Work</a><div class="navdd"><button type="button" class="navdd-btn" aria-expanded="false" aria-controls="navdd-list">Services<svg class="navdd-chev" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></button><ul class="navdd-list" id="navdd-list" hidden><li><a href="/packages/"><span class="ddw"><span class="ddi"><svg class="nsl" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true"><g transform="rotate(-9 2 14)" clip-path="url(#nsl-ca)"><use href="#nsl-w" y="1"/><use class="nsl-st" href="#nsl-sa"/></g><g clip-path="url(#nsl-cl)"><use href="#nsl-w" y="15.6"/><use class="nsl-st" href="#nsl-sl"/></g><use href="#nsl-body"/><text class="nsl-n" x="68" y="98.35">01</text></svg><span class="ddn">Social Media Packages</span></span></span></a></li><li><a href="/commercial-shoots/"><span class="ddw"><span class="ddi"><svg class="nsl" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true"><g transform="rotate(-9 2 14)" clip-path="url(#nsl-ca)"><use href="#nsl-w" y="1"/><use class="nsl-st" href="#nsl-sa"/></g><g clip-path="url(#nsl-cl)"><use href="#nsl-w" y="15.6"/><use class="nsl-st" href="#nsl-sl"/></g><use href="#nsl-body"/><text class="nsl-n" x="68" y="98.35">02</text></svg><span class="ddn">Commercial shoots</span></span></span></a></li><li><a href="/brand-videos/"><span class="ddw"><span class="ddi"><svg class="nsl" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true"><g transform="rotate(-9 2 14)" clip-path="url(#nsl-ca)"><use href="#nsl-w" y="1"/><use class="nsl-st" href="#nsl-sa"/></g><g clip-path="url(#nsl-cl)"><use href="#nsl-w" y="15.6"/><use class="nsl-st" href="#nsl-sl"/></g><use href="#nsl-body"/><text class="nsl-n" x="68" y="98.35">03</text></svg><span class="ddn">Brand videos</span></span></span></a></li><li><a href="/podcast-production/"><span class="ddw"><span class="ddi"><svg class="nsl" viewBox="-2.61 -20.4 138.61 125.6" aria-hidden="true"><g transform="rotate(-9 2 14)" clip-path="url(#nsl-ca)"><use href="#nsl-w" y="1"/><use class="nsl-st" href="#nsl-sa"/></g><g clip-path="url(#nsl-cl)"><use href="#nsl-w" y="15.6"/><use class="nsl-st" href="#nsl-sl"/></g><use href="#nsl-body"/><text class="nsl-n" x="68" y="98.35">04</text></svg><span class="ddn">Podcast production</span></span></span></a></li></ul><noscript><style>.navdd:hover .navdd-list,.navdd:focus-within .navdd-list{display:block;}</style></noscript></div><a href="/team/">Team</a><a href="/contact/" class="navsecondary">Contact</a></div><a class="navcta" href="/book/" aria-current="page"><svg class="bm-wheel" viewBox="0 0 56 56" aria-hidden="true"><use href="#bm-reel"/></svg><span class="bm-gate t"></span><span class="bm-label"><span class="ctalong">Book a call</span><span class="ctashort">Book</span></span><span class="bm-gate b"></span></a></div></div></nav><div class="navspacer"></div>
 
 <main id="main">
 <div class="hero hero-dark"><picture class="bts bts-hero bts-book"><source media="(max-width: 1279px)" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><source type="image/avif" srcset="/our-work/a/bts-bookf-640.avif 640w, /our-work/a/bts-bookf-960.avif 960w, /our-work/a/bts-bookf-1046.avif 1046w" sizes="(min-width: 1280px) max(calc(50vw + -289px), 431px), 1px"><source type="image/webp" srcset="/our-work/a/bts-bookf-640.webp 640w, /our-work/a/bts-bookf-960.webp 960w, /our-work/a/bts-bookf-1046.webp 1046w" sizes="(min-width: 1280px) max(calc(50vw + -289px), 431px), 1px"><img src="/our-work/a/bts-bookf-960.webp" width="960" height="780" alt="" decoding="async"></picture><div class="wrap">
@@ -1858,7 +1867,60 @@
   }
 })();
 </script>
-<script>
+<style>
+  :root{--ease-cut:cubic-bezier(.65,0,.35,1);--ease-settle:cubic-bezier(.22,1,.36,1);}
+  .navdd-btn{transition:color var(--ease);}
+  .navdd-btn:hover,.navdd-btn[aria-expanded="true"]{color:#FFFFFF;}
+  .navdd-btn.is-on{color:var(--orange);}
+  .navdd-btn:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:var(--r-sm);}
+  .navdd-chev{flex:none;transition:transform .45s var(--ease-settle);}
+  .navdd-btn[aria-expanded="true"] .navdd-chev{transform:rotate(180deg);}
+  .navdd-list{list-style:none;margin:0;padding:var(--s2) 0;position:absolute;z-index:1;top:calc(100% + 8px);
+    left:calc(-1 * var(--s5));min-width:296px;background:#14171A;border:1px solid rgba(255,255,255,.12);
+    border-top:0;border-radius:0 0 var(--r-sm) var(--r-sm);box-shadow:0 18px 40px rgba(0,0,0,.35);}
+  .nav.is-stuck .navdd-list{top:calc(100% + 4px);}
+  .navdd-list[hidden]{display:none;}
+  .navdd-list:not([hidden]){animation:dd-fade .3s var(--ease-settle),dd-drop .45s var(--ease-settle);}
+  .navdd-list.is-closing{opacity:0;transition:opacity .3s cubic-bezier(.4,0,1,1);}
+  @keyframes dd-fade{from{opacity:0;}}
+  @keyframes dd-drop{from{transform:translateY(-8px);}}
+  .navlinks .navdd-list a{display:flex;align-items:center;min-height:48px;padding:0 var(--s5);
+    font-family:var(--display);font-variant-caps:normal;letter-spacing:var(--t-head);font-weight:700;
+    font-size:var(--f-body);color:#D8D3C9;}
+  .navlinks .navdd-list a:hover{color:#FFFFFF;background:rgba(255,255,255,.05);}
+  .navlinks .navdd-list a[aria-current="page"]{color:var(--orange);}
+  .navlinks .navdd-list a:focus-visible{outline-offset:-3px;}
+  .ddw{display:block;overflow:hidden;}
+  .ddi{display:flex;align-items:center;gap:var(--s3);}
+  .nsl{display:block;flex:none;height:28px;width:auto;}
+  .nsl-n{font:900 64px Archivo,'Archivo Fallback','Arial Black',Arial,sans-serif;letter-spacing:-1.28px;
+    fill:#FFFFFF;text-anchor:middle;}
+  .navdd-list:not([hidden]) .ddw{animation:dd-wo .45s var(--ease-cut) backwards;}
+  .navdd-list:not([hidden]) .ddi{animation:dd-wi .45s var(--ease-cut) backwards;}
+  .navdd-list > li:nth-child(2) :is(.ddw,.ddi){animation-delay:40ms;}
+  .navdd-list > li:nth-child(3) :is(.ddw,.ddi){animation-delay:80ms;}
+  .navdd-list > li:nth-child(4) :is(.ddw,.ddi){animation-delay:120ms;}
+  @keyframes dd-wo{from{transform:translateX(-100%);}}
+  @keyframes dd-wi{from{transform:translateX(100%);}}
+  @media(hover:hover){.navdd-list a:hover .nsl-st{animation:nsl-adv .45s var(--ease-cut);}}
+  .navdd-list a:focus-visible .nsl-st{animation:nsl-adv .45s var(--ease-cut);}
+  @keyframes nsl-adv{to{transform:translateX(32px);}}
+  @media(max-width:619px){
+    .navdd-btn{display:flex;width:100%;justify-content:space-between;min-height:0;
+      padding:16px var(--s5);border-bottom:1px solid rgba(255,255,255,.08);}
+    .navdd-btn:focus-visible{outline-offset:-3px;}
+    .navdd-chev{width:14px;height:14px;}
+    .navdd-list{position:static;min-width:0;padding:var(--s1) 0 var(--s3);border:0;
+      border-bottom:1px solid rgba(255,255,255,.08);border-radius:0;box-shadow:none;}
+    .navdd-list:not([hidden]){animation:none;}
+    .navlinks .navdd-list a{padding:0 var(--s5) 0 calc(var(--s5) + var(--s3));border-bottom:0;
+      font-size:var(--f-lede);}
+    .nsl{height:24px;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .navdd-list,.navdd-list .ddw,.navdd-list .ddi,.nsl-st{animation:none !important;}
+  }
+</style><svg class="nsl-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><clipPath id="nsl-ca"><rect y="1" width="136" height="13" rx="2"/></clipPath><clipPath id="nsl-cl"><rect y="15.6" width="136" height="13" rx="2"/></clipPath><rect id="nsl-w" width="136" height="13" fill="#FFFFFF"/><path id="nsl-sa" fill="#F04820" d="M-32 14L-16 14L-24.06 1L-40.06 1ZM0 14L16 14L7.94 1L-8.06 1ZM32 14L48 14L39.94 1L23.94 1ZM64 14L80 14L71.94 1L55.94 1ZM96 14L112 14L103.94 1L87.94 1ZM128 14L144 14L135.94 1L119.94 1ZM160 14L176 14L167.94 1L151.94 1Z"/><path id="nsl-sl" fill="#F04820" d="M-40.06 28.6L-24.06 28.6L-16 15.6L-32 15.6ZM-8.06 28.6L7.94 28.6L16 15.6L0 15.6ZM23.94 28.6L39.94 28.6L48 15.6L32 15.6ZM55.94 28.6L71.94 28.6L80 15.6L64 15.6ZM87.94 28.6L103.94 28.6L112 15.6L96 15.6ZM119.94 28.6L135.94 28.6L144 15.6L128 15.6ZM151.94 28.6L167.94 28.6L176 15.6L160 15.6Z"/><g id="nsl-body"><rect y="30.2" width="136" height="75" rx="3" fill="#1E2226"/><path d="M24 36.2V99.2M112 36.2V99.2M6 46.7H130" stroke="#4B535B" stroke-width="1.1" fill="none"/><circle cx="5.6" cy="14.8" r="2.8" fill="#9AA3AB"/></g></defs></svg><script>
 (function(){
   var n = document.getElementById('nav');
   if(!n) return;
@@ -1866,33 +1928,81 @@
   upd();
   window.addEventListener('scroll', upd, {passive:true});
 
-  /* mobile menu: only meaningful below 620px (see .navtoggle in the
-     stylesheet), but the listeners are harmless no-ops above that since
-     the button is display:none there and never gets clicked. */
+  /* The phone menu (below 620px, see .navtoggle in the stylesheet; the toggle is display:none
+     above that, so its listeners are no-ops there) and the Services disclosure (nav(), ported from
+     Yoniverse's NAV_JS on 2026-11-02). Services: on desktop a panel under the bar that fades for
+     300ms before it is hidden; inside the phone menu an accordion that shuts at once. */
   var toggle = document.getElementById('navtoggle');
   var links = document.getElementById('navlinks');
-  if(!toggle || !links) return;
-
-  function setOpen(open){
+  var dd = n.querySelector('.navdd-btn'), box = n.querySelector('.navdd');
+  var list = dd && document.getElementById(dd.getAttribute('aria-controls'));
+  var ddT = 0, menuT = 0;
+  function phone(){ return !!toggle && getComputedStyle(toggle).display !== 'none'; }
+  function menuOpen(){ return !!links && links.classList.contains('is-open'); }
+  function ddOpen(){ return !!dd && dd.getAttribute('aria-expanded') === 'true'; }
+  /* focusBtn returns focus to the button (Escape) */
+  function setDD(open, focusBtn){
+    if(!dd || !list) return;
+    if(!open && !ddOpen()) return;   /* already closed, or fading out */
+    clearTimeout(ddT); list.classList.remove('is-closing');
+    dd.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if(open || phone()) list.hidden = !open;
+    else {
+      list.classList.add('is-closing');
+      ddT = setTimeout(function(){ list.hidden = true; list.classList.remove('is-closing'); }, 300);
+    }
+    if(!open && focusBtn) dd.focus();
+  }
+  /* the phone menu fades out over 300ms (CSS); the accordion folds after that, not mid-fade */
+  function setMenu(open, focusToggle){
+    if(!toggle || !links) return;
+    var was = menuOpen();
+    clearTimeout(menuT);
     links.classList.toggle('is-open', open);
     toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if(!open && was) menuT = setTimeout(function(){ setDD(false); }, 300);
+    if(!open && focusToggle) toggle.focus();
   }
-  toggle.addEventListener('click', function(){
-    setOpen(!links.classList.contains('is-open'));
+  /* focus leaving the bar (Tab past the menu's last control) closes the phone menu, so focus never
+     lands on page content under the panel; a resize to desktop closes it too */
+  n.addEventListener('focusout', function(e){
+    if(menuOpen() && e.relatedTarget && !n.contains(e.relatedTarget)) setMenu(false);
   });
-  /* closing on a link click matters here specifically: same-page anchors
-     (e.g. a footer link to /our-work/#a1) don't trigger navigation, so
-     without this the menu would stay open covering the page after tapping
-     one */
-  links.addEventListener('click', function(e){
-    if(e.target.tagName === 'A') setOpen(false);
+  window.addEventListener('resize', function(){ if(menuOpen() && !phone()) setMenu(false); });
+  if(dd && list){
+    dd.addEventListener('click', function(){ setDD(!ddOpen()); });
+    /* desktop: tabbing (or clicking) out of Services closes it; the phone accordion stays as left */
+    box.addEventListener('focusout', function(e){
+      if(phone()) return;
+      if(!e.relatedTarget || !box.contains(e.relatedTarget)) setDD(false);
+    });
+  }
+  if(toggle && links) toggle.addEventListener('click', function(){ setMenu(!menuOpen()); });
+  /* A followed link that stays on the page (a same-page anchor, e.g. a footer link to /our-work/#a1,
+     or a new-tab click) closes everything, or the menu would stay open over the page. A link that
+     leaves the page leaves the menu as it is: the load would cut its fade short, and a motion that
+     would be cut short is dropped, not flashed (Yoni's rule). A back-forward-cache return resets it. */
+  if(links) links.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a'); if(!a) return;
+    var stays = e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank' ||
+      (a.pathname === location.pathname && a.search === location.search && !!a.hash);
+    if(stays){ setDD(false); setMenu(false); }
+  });
+  window.addEventListener('pageshow', function(e){
+    if(!e.persisted) return;
+    clearTimeout(menuT); clearTimeout(ddT);
+    if(links && toggle){ links.classList.remove('is-open'); toggle.setAttribute('aria-expanded', 'false'); }
+    if(dd && list){ dd.setAttribute('aria-expanded', 'false'); list.hidden = true; list.classList.remove('is-closing'); }
   });
   document.addEventListener('click', function(e){
-    if(!links.classList.contains('is-open')) return;
-    if(!n.contains(e.target)) setOpen(false);
+    if(box && box.contains(e.target)) return;
+    if(!phone()) setDD(false);
+    if(!n.contains(e.target)) setMenu(false);
   });
   document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape') setOpen(false);
+    if(e.key !== 'Escape') return;
+    if(ddOpen()){ setDD(false, true); return; }
+    if(menuOpen()) setMenu(false, links.contains(document.activeElement));
   });
 })();
 </script>
